@@ -25,6 +25,7 @@ from launch.actions import RegisterEventHandler
 from launch.event_handlers.on_process_start import OnProcessStart
 from launch.events.process import ProcessStarted
 from launch.launch_context import LaunchContext
+import launch.logging
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
@@ -34,8 +35,6 @@ from .composable_node_container import ComposableNodeContainer
 from ..descriptions import ComposableNode
 from ..utilities import evaluate_parameters
 from ..utilities import to_parameters_list
-
-_logger = logging.getLogger(name='launch_ros')
 
 
 class LoadComposableNodes(Action):
@@ -60,6 +59,7 @@ class LoadComposableNodes(Action):
         """
         self.__composable_node_descriptions = composable_node_descriptions
         self.__target_container = target_container
+        self.__logger = launch.logging.get_logger(__name__)
 
     def _load_node(
         self,
@@ -74,7 +74,7 @@ class LoadComposableNodes(Action):
         """
         while not self.__rclpy_load_node_client.wait_for_service(timeout_sec=1.0):
             if context.is_shutdown:
-                _logger.warn(
+                self.__logger.warning(
                     "Abandoning wait for the '{}' service, due to shutdown.".format(
                         self.__rclpy_load_node_client.srv_name
                     )
@@ -120,7 +120,7 @@ class LoadComposableNodes(Action):
             ]
         response = self.__rclpy_load_node_client.call(request)
         if not response.success:
-            _logger.error("Failed to load node '{}' in container '{}': {}".format(
+            self.__logger.error("Failed to load node '{}' in container '{}': {}".format(
                 response.full_node_name, self.__target_container.node_name, response.error_message
             ))
 

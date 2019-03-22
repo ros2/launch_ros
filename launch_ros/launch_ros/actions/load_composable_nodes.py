@@ -46,7 +46,6 @@ class LoadComposableNodes(Action):
         *,
         composable_node_descriptions: List[ComposableNode],
         target_container: ComposableNodeContainer,
-        in_parallel: Optional[SomeSubstitutionsType] = None,
         **kwargs,
     ) -> None:
         """
@@ -54,18 +53,13 @@ class LoadComposableNodes(Action):
 
         The container node is expected to provide a `~/_container/load_node` service for
         loading purposes.
-        Loading can be performed sequentially for determinism or in parallel for speed.
+        Loading will be performed sequentially.
 
         :param composable_node_descriptions: descriptions of composable nodes to be loaded
         :param target_container: the container to load the nodes into
-        :param in_parallel: whether to load nodes in parallel instead of sequentially.
-            Defaults to False i.e. load sequentially
         """
         self.__composable_node_descriptions = composable_node_descriptions
         self.__target_container = target_container
-        self.__in_parallel = None
-        if in_parallel is not None:
-            self.__in_parallel = normalize_to_list_of_substitutions(in_parallel)
 
     def _load_node(
         self,
@@ -151,35 +145,13 @@ class LoadComposableNodes(Action):
                 )
             )
 
-    def _load_in_parallel(
-        self,
-        composable_node_descriptions: List[ComposableNode],
-        context: LaunchContext
-    ) -> None:
-        """
-        Load composable nodes in parallel.
-
-        :param composable_node_descriptions: descriptions of composable nodes to be loaded
-        :param context: current launch context
-        """
-        for composable_node_description in composable_node_descriptions:
-            context.add_completion_future(
-                context.asyncio_loop.run_in_executor(
-                    None, self._load_node, composable_node_description, context
-                )
-            )
-
     def _on_container_start(
         self,
         event: ProcessStarted,
         context: LaunchContext
     ) -> Optional[List[Action]]:
         """Load nodes on container process start."""
-        in_parallel = False
-        if self.__in_parallel is not None:
-            in_parallel = bool(perform_substitutions(context, self.__in_parallel))
-        load_method = self._load_in_parallel if in_parallel else self._load_in_sequence
-        load_method(self.__composable_node_descriptions, context)
+        self._load_in_sequence(self.__composable_node_descriptions, context)
         return None
 
     def execute(

@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
-  <name>apex_launchtest_ros</name>
+  <name>launch_testing_ros</name>
   <version>0.1.0</version>
-  <description>A package providing utilities for writing ROS2 enabled apex_launchtests.</description>
+  <description>A package providing utilities for writing ROS2 enabled launch tests.</description>
   <maintainer email="pete.baughman@apex.ai">Pete Baughman</maintainer>
   <license>Apache License 2.0</license>
 
-  <exec_depend>apex_launchtest</exec_depend>
+  <exec_depend>launch_testing</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>rclpy</exec_depend>
 
@@ -21,5 +21,4 @@
   <export>
     <build_type>ament_python</build_type>
   </export>
-
 </package>

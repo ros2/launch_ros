@@ -17,11 +17,11 @@ import time
 import unittest
 import uuid
 
-from apex_launchtest.util import NoMatchingProcessException
-import apex_launchtest_ros
 import launch
 import launch_ros
 import launch_ros.actions
+import launch_testing.util
+import launch_testing_ros
 import rclpy
 import rclpy.context
 import rclpy.executors
@@ -91,7 +91,7 @@ class TestTalkerListenerLink(unittest.TestCase):
                 )
             except AssertionError:
                 continue
-            except NoMatchingProcessException:
+            except launch_testing.util.NoMatchingProcessException:
                 continue
             else:
                 return
@@ -162,7 +162,7 @@ class TestTalkerListenerLink(unittest.TestCase):
             msg.data = msg.data.replace('Hello', 'Aloha')
             return msg
 
-        republisher = apex_launchtest_ros.DataRepublisher(
+        republisher = launch_testing_ros.DataRepublisher(
             self.node,
             'talker_chatter',
             'chatter',

@@ -125,9 +125,15 @@ class LoadComposableNodes(Action):
             ]
         response = self.__rclpy_load_node_client.call(request)
         if not response.success:
-            self.__logger.error("Failed to load node '{}' in container '{}': {}".format(
-                response.full_node_name, self.__target_container.node_name, response.error_message
-            ))
+            self.__logger.error(
+                "Failed to load node '{}' of type '{}' in container '{}': {}".format(
+                    response.full_node_name if response.full_node_name else request.node_name,
+                    request.plugin_name, self.__target_container.node_name, response.error_message
+                )
+            )
+        self.__logger.info("Loaded node '{}' in container '{}'".format(
+            response.full_node_name, self.__target_container.node_name
+        ))
 
     def _load_in_sequence(
         self,

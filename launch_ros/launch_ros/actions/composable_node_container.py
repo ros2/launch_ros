@@ -19,6 +19,7 @@ from typing import Optional
 
 from launch.action import Action
 from launch.launch_context import LaunchContext
+from launch.some_substitutions_type import SomeSubstitutionsType
 
 from .node import Node
 
@@ -31,18 +32,23 @@ class ComposableNodeContainer(Node):
     def __init__(
         self,
         *,
+        node_name: SomeSubstitutionsType,
+        node_namespace: SomeSubstitutionsType,
         composable_node_descriptions: Optional[List[ComposableNode]] = None,
         **kwargs
     ) -> None:
         """
         Construct a ComposableNodeContainer action.
 
-        Most arguments are forwarded to :class:`launch_ros.actions.Node`, so see
-        the documentation of that class for further details.
+        Most arguments are forwarded to :class:`launch_ros.actions.Node`, so see the documentation
+        of that class for further details.
 
+        :param: node_name the name of the node, mandatory for full container node name resolution
+        :param: node_namespace the ros namespace for this Node, mandatory for full container node
+           name resolution
         :param composable_node_descriptions: optional descriptions of composable nodes to be loaded
         """
-        super(ComposableNodeContainer, self).__init__(**kwargs)
+        super().__init__(node_name=node_name, node_namespace=node_namespace, **kwargs)
         self.__composable_node_descriptions = composable_node_descriptions
 
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:

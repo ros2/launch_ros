@@ -25,6 +25,7 @@ from launch.event_handlers.on_process_start import OnProcessStart
 from launch.events.process import ProcessStarted
 from launch.launch_context import LaunchContext
 import launch.logging
+from launch.utilities import ensure_argument_type
 from launch.utilities import perform_substitutions
 
 from .composable_node_container import ComposableNodeContainer
@@ -54,6 +55,13 @@ class LoadComposableNodes(Action):
         :param composable_node_descriptions: descriptions of composable nodes to be loaded
         :param target_container: the container to load the nodes into
         """
+        ensure_argument_type(
+            target_container,
+            ComposableNodeContainer,
+            'target_container',
+            'LoadComposableNodes'
+        )
+        super().__init__(**kwargs)
         self.__composable_node_descriptions = composable_node_descriptions
         self.__target_container = target_container
         self.__logger = launch.logging.get_logger(__name__)

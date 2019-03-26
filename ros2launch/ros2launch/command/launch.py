@@ -44,6 +44,11 @@ class LaunchCommand(CommandExtension):
         command_group.add_argument(
             '-s', '--show-args', '--show-arguments', default=False, action='store_true',
             help='Show arguments that may be given to the launch file.')
+        parser.add_argument(
+            '-a', '--show-all-subprocesses-output', default=False, action='store_true',
+            help=('Show all launched subprocesses\' output by overriding their output'
+                  ' configuration using the $OVERRIDE_LAUNCH_PROCESS_OUTPUT envvar.')
+        )
         arg = parser.add_argument(
             'package_name',
             help='Name of the ROS package which contains the launch file')
@@ -105,6 +110,8 @@ class LaunchCommand(CommandExtension):
             raise RuntimeError('unexpected mode')
         launch_arguments.extend(args.launch_arguments)
         try:
+            if args.show_all_subprocesses_output:
+                os.environ['OVERRIDE_LAUNCH_PROCESS_OUTPUT'] = 'both'
             if args.print:
                 return print_a_python_launch_file(python_launch_file_path=path)
             elif args.show_args:

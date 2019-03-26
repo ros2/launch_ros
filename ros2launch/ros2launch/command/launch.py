@@ -47,7 +47,7 @@ class LaunchCommand(CommandExtension):
         parser.add_argument(
             '-a', '--show-all-subprocesses-output', default=False, action='store_true',
             help=('Show all launched subprocesses\' output by overriding their output'
-                  ' configuration using the $OVERRIDE_LAUNCH_PROCESS_OUTPUT envvar.')
+                  ' configuration using the OVERRIDE_LAUNCH_PROCESS_OUTPUT envvar.')
         )
         arg = parser.add_argument(
             'package_name',

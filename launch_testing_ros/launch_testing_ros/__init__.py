@@ -13,9 +13,10 @@
 # limitations under the License.
 
 
+from . import tools
 from .data_republisher import DataRepublisher
 from .message_pump import MessagePump
-from . import tools
+
 
 __all__ = [
     'DataRepublisher',

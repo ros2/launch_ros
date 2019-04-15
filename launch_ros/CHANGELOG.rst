@@ -2,6 +2,16 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.0 (2019-04-14)
+------------------
+* Make 'ros2 launch' work again. (`#201 <https://github.com/ros2/launch_ros/issues/201>`_)
+* Added LaunchLogger class (`#145 <https://github.com/ros2/launch/issues/145>`_)
+* Changed logger.warn (deprecated) to logger.warning. (`#199 <https://github.com/ros2/launch/issues/199>`_)
+* Added Plumb rclpy.init context to get_default_launch_description. (`#193 <https://github.com/ros2/launch/issues/193>`_)
+* Added normalize_parameters and evaluate_paramters. (`#192 <https://github.com/ros2/launch/issues/192>`_)
+* Added normalize_remap_rule and types. (`#173 <https://github.com/ros2/launch/issues/173>`_)
+* Contributors: Chris Lalancette, Dirk Thomas, Jacob Perron, Peter Baughman, Shane Loretz
+
 0.7.3 (2018-12-13)
 ------------------
 

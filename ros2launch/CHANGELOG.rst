@@ -2,6 +2,14 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.0 (2019-04-14)
+------------------
+* Added --show-all-subprocesses-output command line option. (`#10 <https://github.com/ros2/launch/issues/10>`_)
+* Make 'ros2 launch' work again. (`#201 <https://github.com/ros2/launch/issues/201>`_)
+* Added plumb rclpy.init context to get_default_launch_description. (`#193 <https://github.com/ros2/launch/issues/193>`_)
+* Refactored arg print functions (`#172 <https://github.com/ros2/launch/issues/172>`_)
+* Contributors: Chris Lalancette, Michel Hidalgo, Peter Baughman
+
 0.7.3 (2018-12-13)
 ------------------
 

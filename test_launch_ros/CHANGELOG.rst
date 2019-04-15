@@ -2,6 +2,13 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.0 (2019-04-14)
+------------------
+* Added normalize_parameters and evaluate_paramters. (`#192 <https://github.com/ros2/launch/issues/192>`_)
+* Added normalize_remap_rule and types. (`#173 <https://github.com/ros2/launch/issues/173>`_)
+* Added support for required nodes. (`#179 <https://github.com/ros2/launch/issues/179>`_)
+* Contributors: Kyle Fazzari, Shane Loretz
+
 0.7.3 (2018-12-13)
 ------------------
 

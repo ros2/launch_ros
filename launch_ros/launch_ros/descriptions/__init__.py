@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Main entry point for the `launch_ros` package."""
+"""descriptions Module."""
 
-from . import actions
-from . import descriptions
-from . import event_handlers
-from . import events
-from . import substitutions
-from .default_launch_description import get_default_launch_description
+from .composable_node import ComposableNode
 
 __all__ = [
-    'actions',
-    'descriptions',
-    'event_handlers',
-    'events',
-    'substitutions',
-    'get_default_launch_description',
+    'ComposableNode',
 ]

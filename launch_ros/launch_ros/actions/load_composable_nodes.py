@@ -20,9 +20,6 @@ from typing import Optional
 import composition_interfaces.srv
 
 from launch.action import Action
-from launch.actions import RegisterEventHandler
-from launch.event_handlers.on_process_start import OnProcessStart
-from launch.events.process import ProcessStarted
 from launch.launch_context import LaunchContext
 import launch.logging
 from launch.utilities import ensure_argument_type

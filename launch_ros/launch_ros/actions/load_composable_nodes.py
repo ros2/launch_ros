@@ -156,15 +156,6 @@ class LoadComposableNodes(Action):
                 )
             )
 
-    def _on_container_start(
-        self,
-        event: ProcessStarted,
-        context: LaunchContext
-    ) -> Optional[List[Action]]:
-        """Load nodes on container process start."""
-        self._load_in_sequence(self.__composable_node_descriptions, context)
-        return None
-
     def execute(
         self,
         context: LaunchContext
@@ -176,10 +167,5 @@ class LoadComposableNodes(Action):
                 self.__target_container.node_name
             )
         )
-        # Perform load action once the container has started.
-        return [RegisterEventHandler(
-            event_handler=OnProcessStart(
-                target_action=self.__target_container,
-                on_start=self._on_container_start,
-            )
-        )]
+        # Assume user has configured `LoadComposableNodes` to happen after container action
+        self._load_in_sequence(self.__composable_node_descriptions, context)

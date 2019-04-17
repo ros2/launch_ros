@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-from setuptools import setup
 import glob
+
+from setuptools import setup
 
 package_name = 'apex_launchtest_ros'
 
@@ -21,6 +22,6 @@ setup(
     packages=[
         'apex_launchtest_ros',
     ],
-    tests_require=["pytest"],
+    tests_require=['pytest'],
     zip_safe=True,
 )

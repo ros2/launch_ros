@@ -77,25 +77,24 @@ def generate_test_description(ready_fn):
 
     launch_description.add_action(get_default_launch_description())
     launch_description.add_action(mock_container)
-    # TODO(sloretz) post-launch composable node actions
-    # launch_description.add_action(
-    #     RegisterEventHandler(
-    #         event_handler=OnProcessStart(
-    #             target_action=mock_container,
-    #             on_start=[
-    #                 LoadComposableNodes(
-    #                     composable_node_descriptions=[
-    #                         ComposableNode(
-    #                             package='fake_package', node_plugin='node_name',
-    #                             node_name='my_talker'
-    #                         ),
-    #                     ],
-    #                     target_container=mock_container
-    #                 )
-    #             ]
-    #         )
-    #     )
-    # )
+    launch_description.add_action(
+        RegisterEventHandler(
+            event_handler=OnProcessStart(
+                target_action=mock_container,
+                on_start=[
+                    LoadComposableNodes(
+                        composable_node_descriptions=[
+                            ComposableNode(
+                                package='fake_package', node_plugin='node_name_on_event',
+                                node_name='my_talker_on_event'
+                            ),
+                        ],
+                        target_container=mock_container
+                    )
+                ]
+            )
+        )
+    )
     launch_description.add_action(
         OpaqueFunction(function=lambda context: ready_fn())
     )
@@ -122,6 +121,13 @@ class TestComposition(unittest.TestCase):
         request.package_name = 'fake_package'
         request.plugin_name = 'node_name'
         request.node_name = 'my_talker'
+        self.proc_output.assertWaitFor(expected_output=repr(request), process=container)
+
+    def test_custom_node_name_post_launch(self, container):
+        request = LoadNode.Request()
+        request.package_name = 'fake_package'
+        request.plugin_name = 'node_name_on_event'
+        request.node_name = 'my_talker_on_event'
         self.proc_output.assertWaitFor(expected_output=repr(request), process=container)
 
     def test_custom_node_namespace(self, container):

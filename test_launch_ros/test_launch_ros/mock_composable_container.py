@@ -79,6 +79,11 @@ class MockComposableNodeContainer(Node):
         extra_arguments.full_node_name = '/a_nodename'
         extra_arguments.unique_id = 128
 
+        node_name_on_event = LoadNode.Response()
+        node_name_on_event.success = True
+        node_name_on_event.full_node_name = '/my_talker_on_event'
+        node_name_on_event.unique_id = 256
+
         self.__load_node_responses = {
             ('fake_package', 'fail_to_load'): fail_to_load,
             ('fake_package', 'successfully_load'): successfully_load,
@@ -88,6 +93,7 @@ class MockComposableNodeContainer(Node):
             ('fake_package', 'remap_rules'): remap_rules,
             ('fake_package', 'parameters'): parameters,
             ('fake_package', 'extra_arguments'): extra_arguments,
+            ('fake_package', 'node_name_on_event'): node_name_on_event,
         }
 
         self.unexpected_request = False

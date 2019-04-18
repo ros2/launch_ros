@@ -48,6 +48,9 @@ class LoadComposableNodes(Action):
         The container node is expected to provide a `~/_container/load_node` service for
         loading purposes.
         Loading will be performed sequentially.
+        When executed, this action will block until the container's load service is available.
+        Make sure any LoadComposableNode action is executed only after its container processes
+        has started.
 
         :param composable_node_descriptions: descriptions of composable nodes to be loaded
         :param target_container: the container to load the nodes into

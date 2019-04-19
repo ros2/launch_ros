@@ -20,9 +20,6 @@ from typing import Optional
 import composition_interfaces.srv
 
 from launch.action import Action
-from launch.actions import RegisterEventHandler
-from launch.event_handlers.on_process_start import OnProcessStart
-from launch.events.process import ProcessStarted
 from launch.launch_context import LaunchContext
 import launch.logging
 from launch.utilities import ensure_argument_type
@@ -51,6 +48,9 @@ class LoadComposableNodes(Action):
         The container node is expected to provide a `~/_container/load_node` service for
         loading purposes.
         Loading will be performed sequentially.
+        When executed, this action will block until the container's load service is available.
+        Make sure any LoadComposableNode action is executed only after its container processes
+        has started.
 
         :param composable_node_descriptions: descriptions of composable nodes to be loaded
         :param target_container: the container to load the nodes into
@@ -156,15 +156,6 @@ class LoadComposableNodes(Action):
                 )
             )
 
-    def _on_container_start(
-        self,
-        event: ProcessStarted,
-        context: LaunchContext
-    ) -> Optional[List[Action]]:
-        """Load nodes on container process start."""
-        self._load_in_sequence(self.__composable_node_descriptions, context)
-        return None
-
     def execute(
         self,
         context: LaunchContext
@@ -176,10 +167,5 @@ class LoadComposableNodes(Action):
                 self.__target_container.node_name
             )
         )
-        # Perform load action once the container has started.
-        return [RegisterEventHandler(
-            event_handler=OnProcessStart(
-                target_action=self.__target_container,
-                on_start=self._on_container_start,
-            )
-        )]
+        # Assume user has configured `LoadComposableNodes` to happen after container action
+        self._load_in_sequence(self.__composable_node_descriptions, context)

@@ -18,6 +18,8 @@ from typing import List
 from typing import Optional
 
 from launch.action import Action
+from launch.actions import RegisterEventHandler
+from launch.event_handlers.on_process_start import OnProcessStart
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 
@@ -61,10 +63,20 @@ class ComposableNodeContainer(Node):
         load_actions = None  # type: Optional[List[Action]]
         if self.__composable_node_descriptions is not None:
             from .load_composable_nodes import LoadComposableNodes
-            load_actions = [LoadComposableNodes(
-                composable_node_descriptions=self.__composable_node_descriptions,
-                target_container=self
-            )]
+            # Perform load action once the container has started.
+            load_actions = [
+                RegisterEventHandler(
+                    event_handler=OnProcessStart(
+                        target_action=self,
+                        on_start=[
+                            LoadComposableNodes(
+                                composable_node_descriptions=self.__composable_node_descriptions,
+                                target_container=self
+                            )
+                        ]
+                    )
+                )
+            ]
         container_actions = super().execute(context)  # type: Optional[List[Action]]
         if container_actions is not None and load_actions is not None:
             return container_actions + load_actions

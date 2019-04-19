@@ -86,7 +86,7 @@ def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValu
         # Normalize to a list of lists of substitutions
         new_value = []  # type: List[SomeSubstitutionsType]
         for element in value:
-            if isinstance(element, float) or isinstance(element, int) or isinstance(element, bool):
+            if isinstance(element, (float, int, bool)):
                 new_value.append(str(element))
             else:
                 new_value.append(element)
@@ -144,9 +144,9 @@ def normalize_parameter_dict(
             # Flatten recursive dictionaries
             sub_dict = normalize_parameter_dict(value, _prefix=name)
             normalized.update(sub_dict)
-        elif isinstance(value, str) or isinstance(value, Substitution):
+        elif isinstance(value, (str, Substitution)):
             normalized[tuple(name)] = tuple(normalize_to_list_of_substitutions(value))
-        elif isinstance(value, float) or isinstance(value, bool) or isinstance(value, int):
+        elif isinstance(value, (float, bool, int)):
             # Keep some types as is
             normalized[tuple(name)] = value
         elif isinstance(value, bytes):

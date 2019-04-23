@@ -35,6 +35,8 @@ from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
+from launch_frontend import Entity, expose_action
+
 from launch_ros.parameters_type import SomeParameters
 from launch_ros.remap_rule_type import SomeRemapRules
 from launch_ros.substitutions import ExecutableInPackage
@@ -48,6 +50,7 @@ from rclpy.validate_node_name import validate_node_name
 import yaml
 
 
+@expose_action('node')
 class Node(ExecuteProcess):
     """Action that executes a ROS node."""
 
@@ -171,6 +174,117 @@ class Node(ExecuteProcess):
         self.__substitutions_performed = False
 
         self.__logger = launch.logging.get_logger(__name__)
+
+    @staticmethod
+    def parse_nested_parameters(params):
+        """Normalize parameters as expected by Node construnctor argument."""
+        def get_parameter_value(value):
+            """Guess the desired type of the parameter based on the string value."""
+            if Node._is_iterable(value):
+                return [Node._get_parameter_value(item) for item in value]
+            return _get_parameter_value(value)
+
+        def _get_parameter_value(string_value):
+            if string_value.lower() in ('true', 'false'):
+                return string_value.lower() == 'true'
+            if _is_integer(string_value):
+                return int(string_value)
+            if _is_float(string_value):
+                return float(string_value)
+            else:
+                return string_value
+
+        def _is_iterable(value):
+            try:
+                iter(value)
+            except TypeError:
+                return False
+            return True
+
+        def _is_integer(string_value):
+            try:
+                int(string_value)
+            except ValueError:
+                return False
+            return True
+
+        def _is_float(string_value):
+            try:
+                float(string_value)
+            except ValueError:
+                return False
+            return True
+
+        def get_nested_dictionary_from_nested_key_value_pairs(params):
+            """Convert nested params in a nested dictionary."""
+            # TODO(ivanpauno): If our schema checking is not powerfull enough
+            # this could easily end in an infinite loop.
+            # In that case, we should do some extra formal checking before processing.
+            param_dict = {}
+            for param in params:
+                if hasattr(param, 'value'):
+                    param_dict[param.name] = param.value
+                else:
+                    param_dict.update(
+                        {param.name: get_nested_dictionary_from_nested_key_value_pairs(
+                            param.param)})
+            return param_dict
+
+        if not params:
+            return None
+        normalized_params = []
+        params_without_from = []
+        for param in params:
+            if hasattr(param, 'from'):
+                # TODO(ivanpauno):
+                # 'from' attribute ignores 'name' attribute,
+                # it's not accepted to be nested,
+                # and it can not have childs.
+                # The first two things could be supported,
+                # if 'SomeParameters' accept a file nested in
+                # a dictionary as a value.
+                normalized_params.append(param.__getattr__('from'))
+                continue
+            if hasattr(param, 'name'):
+                params_without_from.append(param)
+                continue
+            raise RuntimeError('name or from attributes are needed')
+        normalized_params.append(
+            get_nested_dictionary_from_nested_key_value_pairs(params_without_from))
+        return normalized_params
+
+    @staticmethod
+    def parse(entity: Entity):
+        """Parse node."""
+        package = entity.package
+        executable = entity.executable
+        name = getattr(entity, 'name', None)
+        ns = getattr(entity, 'ns', None)
+        prefix = getattr(entity, 'launch-prefix', None)
+        output = getattr(entity, 'output', None)
+        args = getattr(entity, 'args', None)
+        args = args.split(' ') if args else None
+        # TODO(ivanpauno): Add conditions to substitutions
+        env = getattr(entity, 'env', None)
+        if env is not None:
+            env = {e.name: e.value for e in env}
+        remappings = getattr(entity, 'remap', None)
+        if remappings:
+            remappings = [(remap.__getattr__('from'), remap.to) for remap in remappings]
+        parameters = Node.parse_nested_parameters(getattr(entity, 'param', None))
+        # TODO(ivanpauno): Handle if and unless attributes.
+
+        return Node(
+            package=package,
+            node_executable=executable,
+            node_name=name,
+            node_namespace=ns,
+            prefix=prefix,
+            output=output,
+            arguments=args,
+            env=env,
+            remappings=remappings,
+            parameters=parameters)
 
     @property
     def node_name(self):

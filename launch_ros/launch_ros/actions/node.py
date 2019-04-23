@@ -35,7 +35,7 @@ from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
-from launch_frontend import Entity, expose_action
+from launch_frontend import Entity, expose_action, parse_substitution
 
 from launch_ros.parameters_type import SomeParameters
 from launch_ros.remap_rule_type import SomeRemapRules
@@ -256,21 +256,30 @@ class Node(ExecuteProcess):
     @staticmethod
     def parse(entity: Entity):
         """Parse node."""
-        package = entity.package
-        executable = entity.executable
-        name = getattr(entity, 'name', None)
-        ns = getattr(entity, 'ns', None)
-        prefix = getattr(entity, 'launch-prefix', None)
+        def ps(x):
+            if x is None:
+                return x
+            return parse_substitution(x, entity.frontend)
+        package = ps(entity.package)
+        executable = ps(entity.executable)
+        name = ps(getattr(entity, 'name', None))
+        ns = ps(getattr(entity, 'ns', None))
+        prefix = ps(getattr(entity, 'launch-prefix', None))
         output = getattr(entity, 'output', None)
-        args = getattr(entity, 'args', None)
-        args = args.split(' ') if args else None
+        args = []
+        for arg in ps(getattr(entity, 'args', [])):
+            if isinstance(arg, str):
+                args.extend(arg.split(' '))
+            else:
+                args.append(arg)
         # TODO(ivanpauno): Add conditions to substitutions
         env = getattr(entity, 'env', None)
         if env is not None:
             env = {e.name: e.value for e in env}
         remappings = getattr(entity, 'remap', None)
         if remappings:
-            remappings = [(remap.__getattr__('from'), remap.to) for remap in remappings]
+            remappings = [(ps(remap.__getattr__('from')), ps(remap.to)) for remap in remappings]
+        # TODO(ivanpauno): Check how to handle substitutions parameters
         parameters = Node.parse_nested_parameters(getattr(entity, 'param', None))
         # TODO(ivanpauno): Handle if and unless attributes.
 

@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -51,8 +51,10 @@ def basic_output_filter(
     from launch_testing.tools.output import basic_output_filter as base_output_filter
     from launch_testing.tools.output import get_default_filtered_prefixes
     from launch_testing.tools.output import get_default_filtered_patterns
-    filtered_prefixes = filtered_prefixes or get_default_filtered_prefixes()
-    filtered_patterns = filtered_patterns or get_default_filtered_patterns()
+    if filtered_prefixes is None:
+        filtered_prefixes = get_default_filtered_prefixes()
+    if filtered_patterns is None:
+        filtered_patterns = get_default_filtered_patterns()
     if filtered_rmw_implementation:
         filtered_prefixes = filtered_prefixes + get_rmw_output_filter(
             filtered_rmw_implementation, 'prefixes'

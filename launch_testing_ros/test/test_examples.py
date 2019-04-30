@@ -17,12 +17,13 @@ import os
 import subprocess
 
 import ament_index_python
+
 import pytest
 
 
 testdata = glob.glob(
     os.path.join(
-        ament_index_python.get_package_share_directory('apex_launchtest_ros'),
+        ament_index_python.get_package_share_directory('launch_testing_ros'),
         'examples',
         '*.test.py'
     )
@@ -34,6 +35,6 @@ testdata = glob.glob(
 @pytest.mark.parametrize('example_path', testdata, ids=[os.path.basename(d) for d in testdata])
 def test_examples(example_path):
 
-    proc = ['apex_launchtest', example_path]
+    proc = ['launch_test', example_path]
 
     assert 0 == subprocess.run(args=proc).returncode

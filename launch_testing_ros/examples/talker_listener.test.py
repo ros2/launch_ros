@@ -17,11 +17,11 @@ import time
 import unittest
 import uuid
 
-from apex_launchtest.util import NoMatchingProcessException
-import apex_launchtest_ros
 import launch
 import launch_ros
 import launch_ros.actions
+import launch_testing.util
+import launch_testing_ros
 import rclpy
 import rclpy.context
 import rclpy.executors
@@ -85,13 +85,13 @@ class TestTalkerListenerLink(unittest.TestCase):
             try:
                 publisher.publish(msg)
                 proc_output.assertWaitFor(
-                    msg=msg.data,
+                    expected_output=msg.data,
                     process=listener,
                     timeout=1.0
                 )
             except AssertionError:
                 continue
-            except NoMatchingProcessException:
+            except launch_testing.util.NoMatchingProcessException:
                 continue
             else:
                 return
@@ -132,7 +132,7 @@ class TestTalkerListenerLink(unittest.TestCase):
         # Make sure the talker also output the same data via stdout
         for txt in [msg.data for msg in msgs_rx]:
             self.proc_output.assertWaitFor(
-                msg=txt,
+                expected_output=txt,
                 process=talker
             )
 
@@ -151,7 +151,7 @@ class TestTalkerListenerLink(unittest.TestCase):
 
             pub.publish(msg)
             self.proc_output.assertWaitFor(
-                msg=msg.data,
+                expected_output=msg.data,
                 process=listener
             )
 
@@ -162,7 +162,7 @@ class TestTalkerListenerLink(unittest.TestCase):
             msg.data = msg.data.replace('Hello', 'Aloha')
             return msg
 
-        republisher = apex_launchtest_ros.DataRepublisher(
+        republisher = launch_testing_ros.DataRepublisher(
             self.node,
             'talker_chatter',
             'chatter',

@@ -3,7 +3,7 @@
 ## `talker_listener.test.py`
 
 Usage:
-> apex_launchtest examples/talker_listener.test.py
+> launch_test examples/talker_listener.test.py
 
 This test launches the talker and listener example nodes from demo_nodes_py and interacts
 with them via their ROS interfaces.  Remapping rules are used so that one of the tests can sit in

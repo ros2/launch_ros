@@ -14,9 +14,6 @@
 
 import threading
 
-import rclpy
-import rclpy.executors
-
 
 class MessagePump:
     """Calls rclpy.spin on a thread so tests don't need to."""
@@ -40,7 +37,8 @@ class MessagePump:
             raise Exception('Timed out waiting for message pump to stop')
 
     def _run(self):
-        executor = rclpy.executors.SingleThreadedExecutor(context=self._context)
+        from rclpy.executors import SingleThreadedExecutor
+        executor = SingleThreadedExecutor(context=self._context)
         executor.add_node(self._node)
         while self._run:
             executor.spin_once(timeout_sec=1.0)

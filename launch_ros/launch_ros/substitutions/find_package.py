@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for the ExecutableInPackage substitution."""
+"""Module for the FindPackage substitution."""
 
 from typing import List
 from typing import Text
@@ -28,14 +28,12 @@ from launch.utilities import perform_substitutions
 
 class FindPackage(Substitution):
     """
-    Substitution that tries to locate an executable in the libexec directory of a ROS package.
+    Substitution that tries to locate the package prefix of a ROS package.
 
     The ROS package is located using ament_index_python.
 
     :raise: ament_index_python.packages.PackageNotFoundError when package is
         not found during substitution
-    :raise: SubstitutionFailure when executable is not found, or package
-        libexec directory doesn't exist, during substitution
     """
 
     def __init__(self, package: SomeSubstitutionsType) -> None:

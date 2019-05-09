@@ -15,7 +15,9 @@
 """substitutions Module."""
 
 from .executable_in_package import ExecutableInPackage
+from .find_package import FindPackage
 
 __all__ = [
     'ExecutableInPackage',
+    'FindPackage'
 ]

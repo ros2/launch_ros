@@ -2,6 +2,9 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.1 (2019-05-08)
+------------------
+
 0.8.0 (2019-04-14)
 ------------------
 * Added normalize_parameters and evaluate_paramters. (`#192 <https://github.com/ros2/launch/issues/192>`_)

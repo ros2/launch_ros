@@ -2,6 +2,9 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.1 (2019-05-08)
+------------------
+
 0.8.0 (2019-04-14)
 ------------------
 * Make 'ros2 launch' work again. (`#201 <https://github.com/ros2/launch_ros/issues/201>`_)

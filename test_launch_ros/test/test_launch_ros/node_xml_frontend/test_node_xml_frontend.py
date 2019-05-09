@@ -18,13 +18,13 @@ from pathlib import Path
 
 from launch import LaunchService
 
-from launch_frontend import Entity, parse_description
+from launch_frontend import Parser
 
 
 def test_node_xml_frontend():
     """Parse node xml example."""
-    root_entity = Entity.load(str(Path(__file__).parent / 'node.xml'))
-    ld = parse_description(root_entity)
+    root_entity, parser = Parser.load(str(Path(__file__).parent / 'node.xml'))
+    ld = parser.parse_description(root_entity)
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert(0 == ls.run())

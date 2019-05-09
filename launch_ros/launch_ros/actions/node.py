@@ -22,20 +22,25 @@ from typing import List
 from typing import Optional
 from typing import Text  # noqa: F401
 from typing import Tuple  # noqa: F401
+import shlex
 
 from launch.action import Action
 from launch.actions import ExecuteProcess
+from launch.conditions import IfCondition
+from launch.conditions import UnlessCondition
 from launch.launch_context import LaunchContext
-
 import launch.logging
-
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitutions import LocalSubstitution
+from launch.substitutions import TextSubstitution
 from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
-from launch_frontend import Entity, expose_action, parse_substitution
+from launch_frontend import Entity
+from launch_frontend import Parser
+from launch_frontend import expose_action
+from launch_frontend.convert_text_to import guess_type_from_string
 
 from launch_ros.parameters_type import SomeParameters
 from launch_ros.remap_rule_type import SomeRemapRules
@@ -177,44 +182,7 @@ class Node(ExecuteProcess):
 
     @staticmethod
     def parse_nested_parameters(params):
-        """Normalize parameters as expected by Node construnctor argument."""
-        def get_parameter_value(value):
-            """Guess the desired type of the parameter based on the string value."""
-            if Node._is_iterable(value):
-                return [Node._get_parameter_value(item) for item in value]
-            return _get_parameter_value(value)
-
-        def _get_parameter_value(string_value):
-            if string_value.lower() in ('true', 'false'):
-                return string_value.lower() == 'true'
-            if _is_integer(string_value):
-                return int(string_value)
-            if _is_float(string_value):
-                return float(string_value)
-            else:
-                return string_value
-
-        def _is_iterable(value):
-            try:
-                iter(value)
-            except TypeError:
-                return False
-            return True
-
-        def _is_integer(string_value):
-            try:
-                int(string_value)
-            except ValueError:
-                return False
-            return True
-
-        def _is_float(string_value):
-            try:
-                float(string_value)
-            except ValueError:
-                return False
-            return True
-
+        """Normalize parameters as expected by Node constructor argument."""
         def get_nested_dictionary_from_nested_key_value_pairs(params):
             """Convert nested params in a nested dictionary."""
             # TODO(ivanpauno): If our schema checking is not powerfull enough
@@ -223,7 +191,7 @@ class Node(ExecuteProcess):
             param_dict = {}
             for param in params:
                 if hasattr(param, 'value'):
-                    param_dict[param.name] = param.value
+                    param_dict[param.name] = guess_type_from_string(param.value)
                 else:
                     param_dict.update(
                         {param.name: get_nested_dictionary_from_nested_key_value_pairs(
@@ -254,34 +222,66 @@ class Node(ExecuteProcess):
         return normalized_params
 
     @staticmethod
-    def parse(entity: Entity):
+    def parse(entity: Entity, parser: Parser):
         """Parse node."""
-        def ps(x):
-            if x is None:
-                return x
-            return parse_substitution(x, entity.frontend)
-        package = ps(entity.package)
-        executable = ps(entity.executable)
-        name = ps(getattr(entity, 'name', None))
-        ns = ps(getattr(entity, 'ns', None))
-        prefix = ps(getattr(entity, 'launch-prefix', None))
+        package = parser.parse_substitution(entity.package)
+        executable = parser.parse_substitution(entity.executable)
+        kwargs = {}
+        name = getattr(entity, 'name', None)
+        if name is not None:
+            kwargs['node_name'] = parser.parse_substitution(name)
+        ns = getattr(entity, 'ns', None)
+        if ns is not None:
+            kwargs['node_namespace'] = parser.parse_substitution(ns)
+        prefix = getattr(entity, 'launch-prefix', None)
+        if prefix is not None:
+            kwargs['prefix'] = parser.parse_substitution(prefix)
         output = getattr(entity, 'output', None)
-        args = []
-        for arg in ps(getattr(entity, 'args', [])):
-            if isinstance(arg, str):
-                args.extend(arg.split(' '))
-            else:
-                args.append(arg)
-        # TODO(ivanpauno): Add conditions to substitutions
+        if output is not None:
+            kwargs['output'] = output
+        args = getattr(entity, 'args', None)
+        # `args` is supposed to be a list separated with ' '.
+        # All the found `TextSubstitution` items are split and
+        # added to the list again as a `TextSubstitution`.
+        # Another option: Enforce to explicetly write a list in
+        # the launch file (if that's wanted)
+        # In xml 'args' and 'args-sep' tags should be used.
+        if args is not None:
+            args = parser.parse_substitution(args)
+            new_args = []
+            for arg in args:
+                if isinstance(arg, TextSubstitution):
+                    text = arg.text
+                    text = shlex.split(text)
+                    text = [TextSubstitution(text=item) for item in text]
+                    new_args.extend(text)
+                else:
+                    new_args.append(arg)
+            args = new_args
+        else:
+            args = []
         env = getattr(entity, 'env', None)
         if env is not None:
-            env = {e.name: e.value for e in env}
+            env = {e.name: parser.parse_substitution(e.value) for e in env}
+            kwargs['additional_env'] = env
         remappings = getattr(entity, 'remap', None)
-        if remappings:
-            remappings = [(ps(remap.__getattr__('from')), ps(remap.to)) for remap in remappings]
-        # TODO(ivanpauno): Check how to handle substitutions parameters
+        if remappings is not None:
+            kwargs['remappings'] = [
+                (
+                    parser.parse_substitution(remap.__getattr__('from')),
+                    parser.parse_substitution(remap.to)
+                ) for remap in remappings
+            ]
+        # TODO(ivanpauno): Check how to handle substitutions in parameters
         parameters = Node.parse_nested_parameters(getattr(entity, 'param', None))
-        # TODO(ivanpauno): Handle if and unless attributes.
+        if_cond = getattr(entity, 'if', None)
+        unless_cond = getattr(entity, 'unless', None)
+        if if_cond is not None and unless_cond is not None:
+            raise RuntimeError("if and unless conditions can't be usede simultaneously")
+        if if_cond is not None:
+            kwargs['condition'] = IfCondition(predicate_expression=if_cond)
+        if unless_cond is not None:
+            kwargs['condition'] = UnlessCondition(predicate_expression=unless_cond)
 
         return Node(
             package=package,

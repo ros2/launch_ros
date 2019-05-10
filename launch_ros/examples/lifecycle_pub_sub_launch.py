@@ -48,7 +48,7 @@ def main(argv=sys.argv[1:]):
                 launch.actions.LogInfo(
                     msg="node 'talker' reached the 'inactive' state, 'activating'."),
                 launch.actions.EmitEvent(event=launch_ros.events.lifecycle.ChangeState(
-                    lifecycle_node_matcher=launch.events.process.matches_action(talker_node),
+                    lifecycle_node_matcher=launch.events.matches_action(talker_node),
                     transition_id=lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE,
                 )),
             ],
@@ -72,7 +72,7 @@ def main(argv=sys.argv[1:]):
     # Make the talker node take the 'configure' transition.
     emit_event_to_request_that_talker_does_configure_transition = launch.actions.EmitEvent(
         event=launch_ros.events.lifecycle.ChangeState(
-            lifecycle_node_matcher=launch.events.process.matches_action(talker_node),
+            lifecycle_node_matcher=launch.events.matches_action(talker_node),
             transition_id=lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE,
         )
     )

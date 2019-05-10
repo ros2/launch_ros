@@ -16,13 +16,13 @@
 
 import os
 import pathlib
+import shlex
 from tempfile import NamedTemporaryFile
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text  # noqa: F401
 from typing import Tuple  # noqa: F401
-import shlex
 
 from launch.action import Action
 from launch.actions import ExecuteProcess
@@ -40,7 +40,6 @@ from launch.utilities import perform_substitutions
 from launch_frontend import Entity
 from launch_frontend import Parser
 from launch_frontend import expose_action
-from launch_frontend.convert_text_to import guess_type_from_string
 
 from launch_ros.parameters_type import SomeParameters
 from launch_ros.remap_rule_type import SomeRemapRules
@@ -190,33 +189,34 @@ class Node(ExecuteProcess):
             # In that case, we should do some extra formal checking before processing.
             param_dict = {}
             for param in params:
-                if hasattr(param, 'value'):
-                    param_dict[param.name] = guess_type_from_string(param.value)
+                name = param.get_attr('name')
+                value = param.get_attr('value', types='guess', optional=True)
+                if value is not None:
+                    param_dict[name] = value
                 else:
                     param_dict.update(
-                        {param.name: get_nested_dictionary_from_nested_key_value_pairs(
-                            param.param)})
+                        {
+                            name: get_nested_dictionary_from_nested_key_value_pairs(
+                                param.get_attr('param', types='list[Entities]'))
+                        }
+                    )
             return param_dict
 
-        if not params:
-            return None
         normalized_params = []
         params_without_from = []
         for param in params:
-            if hasattr(param, 'from'):
-                # TODO(ivanpauno):
+            from_attr = param.get_attr('from', optional=True)
+            name = param.get_attr('name', optional=True)
+            if from_attr is not None:
                 # 'from' attribute ignores 'name' attribute,
                 # it's not accepted to be nested,
-                # and it can not have childs.
-                # The first two things could be supported,
-                # if 'SomeParameters' accept a file nested in
-                # a dictionary as a value.
-                normalized_params.append(param.__getattr__('from'))
+                # and it can not have children.
+                normalized_params.append(from_attr)
                 continue
-            if hasattr(param, 'name'):
+            if name is not None:
                 params_without_from.append(param)
                 continue
-            raise RuntimeError('name or from attributes are needed')
+            raise ValueError('param Entity should have name or from attribute')
         normalized_params.append(
             get_nested_dictionary_from_nested_key_value_pairs(params_without_from))
         return normalized_params
@@ -224,28 +224,23 @@ class Node(ExecuteProcess):
     @staticmethod
     def parse(entity: Entity, parser: Parser):
         """Parse node."""
-        package = parser.parse_substitution(entity.package)
-        executable = parser.parse_substitution(entity.executable)
+        # TODO(ivanpauno): Have some common code with ExecuteProcess parsing method.
+        package = parser.parse_substitution(entity.get_attr('package'))
+        executable = parser.parse_substitution(entity.get_attr('executable'))
         kwargs = {}
-        name = getattr(entity, 'name', None)
+        name = entity.get_attr('name', optional=True)
         if name is not None:
             kwargs['node_name'] = parser.parse_substitution(name)
-        ns = getattr(entity, 'ns', None)
+        ns = entity.get_attr('namespace', optional=True)
         if ns is not None:
             kwargs['node_namespace'] = parser.parse_substitution(ns)
-        prefix = getattr(entity, 'launch-prefix', None)
+        prefix = entity.get_attr('launch-prefix', optional=True)
         if prefix is not None:
             kwargs['prefix'] = parser.parse_substitution(prefix)
-        output = getattr(entity, 'output', None)
+        output = entity.get_attr('output', optional=True)
         if output is not None:
             kwargs['output'] = output
-        args = getattr(entity, 'args', None)
-        # `args` is supposed to be a list separated with ' '.
-        # All the found `TextSubstitution` items are split and
-        # added to the list again as a `TextSubstitution`.
-        # Another option: Enforce to explicetly write a list in
-        # the launch file (if that's wanted)
-        # In xml 'args' and 'args-sep' tags should be used.
+        args = entity.get_attr('args', optional=True)
         if args is not None:
             args = parser.parse_substitution(args)
             new_args = []
@@ -257,43 +252,34 @@ class Node(ExecuteProcess):
                     new_args.extend(text)
                 else:
                     new_args.append(arg)
-            args = new_args
-        else:
-            args = []
-        env = getattr(entity, 'env', None)
+            kwargs['arguments'] = new_args
+        env = entity.get_attr('env', optional=True)
         if env is not None:
             env = {e.name: parser.parse_substitution(e.value) for e in env}
             kwargs['additional_env'] = env
-        remappings = getattr(entity, 'remap', None)
+        remappings = entity.get_attr('remap', optional=True)
         if remappings is not None:
             kwargs['remappings'] = [
                 (
-                    parser.parse_substitution(remap.__getattr__('from')),
-                    parser.parse_substitution(remap.to)
+                    parser.parse_substitution(remap.get_attr('from')),
+                    parser.parse_substitution(remap.get_attr('to'))
                 ) for remap in remappings
             ]
-        # TODO(ivanpauno): Check how to handle substitutions in parameters
-        parameters = Node.parse_nested_parameters(getattr(entity, 'param', None))
-        if_cond = getattr(entity, 'if', None)
-        unless_cond = getattr(entity, 'unless', None)
+        parameters = entity.get_attr('param', types='list[Entities]', optional=True)
+        if parameters is not None:
+            parameters = Node.parse_nested_parameters(parameters)
+        if_cond = entity.get_attr('if_cond', optional=True)
+        unless_cond = entity.get_attr('unless_cond', optional=True)
         if if_cond is not None and unless_cond is not None:
             raise RuntimeError("if and unless conditions can't be usede simultaneously")
         if if_cond is not None:
             kwargs['condition'] = IfCondition(predicate_expression=if_cond)
         if unless_cond is not None:
             kwargs['condition'] = UnlessCondition(predicate_expression=unless_cond)
-
         return Node(
             package=package,
             node_executable=executable,
-            node_name=name,
-            node_namespace=ns,
-            prefix=prefix,
-            output=output,
-            arguments=args,
-            env=env,
-            remappings=remappings,
-            parameters=parameters)
+            **kwargs)
 
     @property
     def node_name(self):

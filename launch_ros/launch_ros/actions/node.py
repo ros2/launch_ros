@@ -197,7 +197,7 @@ class Node(ExecuteProcess):
                     param_dict.update(
                         {
                             name: get_nested_dictionary_from_nested_key_value_pairs(
-                                param.get_attr('param', types='list[Entities]'))
+                                param.get_attr('param', types='list[Entity]'))
                         }
                     )
             return param_dict
@@ -253,9 +253,9 @@ class Node(ExecuteProcess):
                 else:
                     new_args.append(arg)
             kwargs['arguments'] = new_args
-        env = entity.get_attr('env', optional=True)
+        env = entity.get_attr('env', optional=True, types='list[Entity]')
         if env is not None:
-            env = {e.name: parser.parse_substitution(e.value) for e in env}
+            env = {e.get_attr('name'): parser.parse_substitution(e.get_attr('value')) for e in env}
             kwargs['additional_env'] = env
         remappings = entity.get_attr('remap', optional=True)
         if remappings is not None:
@@ -265,9 +265,9 @@ class Node(ExecuteProcess):
                     parser.parse_substitution(remap.get_attr('to'))
                 ) for remap in remappings
             ]
-        parameters = entity.get_attr('param', types='list[Entities]', optional=True)
+        parameters = entity.get_attr('param', types='list[Entity]', optional=True)
         if parameters is not None:
-            parameters = Node.parse_nested_parameters(parameters)
+            kwargs['parameters'] = Node.parse_nested_parameters(parameters)
         if_cond = entity.get_attr('if_cond', optional=True)
         unless_cond = entity.get_attr('unless_cond', optional=True)
         if if_cond is not None and unless_cond is not None:

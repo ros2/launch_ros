@@ -79,7 +79,7 @@ def get_python_launch_file_paths(*, path):
     python_launch_file_paths = []
     for root, dirs, files in os.walk(path):
         for file_name in files:
-            if file_name.endswith('.launch.py'):
+            if file_name.endswith('launch.py'):
                 python_launch_file_paths.append(os.path.join(root, file_name))
     return python_launch_file_paths
 

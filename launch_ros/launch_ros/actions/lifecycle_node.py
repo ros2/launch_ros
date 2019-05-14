@@ -113,7 +113,8 @@ class LifecycleNode(Node):
         self.__rclpy_subscription = context.locals.launch_ros_node.create_subscription(
             lifecycle_msgs.msg.TransitionEvent,
             '{}/transition_event'.format(self.node_name),
-            functools.partial(self._on_transition_event, context))
+            functools.partial(self._on_transition_event, context),
+            10)
         # Create a service client to change state on demand.
         self.__rclpy_change_state_client = context.locals.launch_ros_node.create_client(
             lifecycle_msgs.srv.ChangeState,

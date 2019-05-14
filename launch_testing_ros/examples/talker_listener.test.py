@@ -77,7 +77,8 @@ class TestTalkerListenerLink(unittest.TestCase):
         # to publish for a few seconds until it sees output
         publisher = cls.node.create_publisher(
             std_msgs.msg.String,
-            'chatter'
+            'chatter',
+            10
         )
         msg = std_msgs.msg.String()
         msg.data = 'test message {}'.format(uuid.uuid4())
@@ -116,7 +117,8 @@ class TestTalkerListenerLink(unittest.TestCase):
         sub = self.node.create_subscription(
             std_msgs.msg.String,
             'talker_chatter',
-            callback=lambda msg: msgs_rx.append(msg)
+            lambda msg: msgs_rx.append(msg),
+            10
         )
         self.addCleanup(self.node.destroy_subscription, sub)
 
@@ -139,7 +141,8 @@ class TestTalkerListenerLink(unittest.TestCase):
     def test_listener_receives(self, listener):
         pub = self.node.create_publisher(
             std_msgs.msg.String,
-            'chatter'
+            'chatter',
+            10
         )
         self.addCleanup(self.node.destroy_publisher, pub)
 

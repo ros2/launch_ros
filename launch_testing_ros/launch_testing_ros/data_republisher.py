@@ -38,12 +38,14 @@ class DataRepublisher:
         self.__subscriber = node.create_subscription(
             msg_type,
             listen_topic,
-            callback=self.__cb
+            self.__cb,
+            10
         )
 
         self.__publisher = node.create_publisher(
             msg_type,
-            publish_topic
+            publish_topic,
+            10
         )
 
         self.__transform_fn = transform_fn

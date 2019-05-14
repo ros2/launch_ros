@@ -7,5 +7,6 @@
             </param>
             <param name="param3" value="2, 5, 8" value-sep=", "/>
         </param>
+        <env name="var" value="1"/>
     </node>
 </launch>

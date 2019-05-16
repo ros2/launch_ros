@@ -14,11 +14,11 @@
 
 """Module for a ROS aware LaunchTestRunner."""
 
-import rclpy
-
 import launch
 import launch_ros
 import launch_testing.test_runner
+
+import rclpy
 
 
 class LaunchTestRunner(launch_testing.test_runner.LaunchTestRunner):

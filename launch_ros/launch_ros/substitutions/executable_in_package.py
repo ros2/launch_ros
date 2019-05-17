@@ -56,9 +56,7 @@ class ExecutableInPackage(FindPackage):
         """Parse a ExecutableInPackage substitution."""
         if not data or len(data) != 2:
             raise AttributeError('exec-in-package substitution expects 2 arguments')
-        executable = data[0]
-        package = data[1]
-        return ExecutableInPackage(executable, package)
+        return ExecutableInPackage(*data)
 
     @property
     def executable(self) -> List[Substitution]:

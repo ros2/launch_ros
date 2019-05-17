@@ -146,17 +146,21 @@ class TestTalkerListenerLink(unittest.TestCase):
         )
         self.addCleanup(self.node.destroy_publisher, pub)
 
-        # Publish some unique messages on /chatter and verify that the listener gets them
-        # and prints them
-        for _ in range(5):
-            msg = std_msgs.msg.String()
-            msg.data = str(uuid.uuid4())
+        # Publish a unique message on /chatter and verify that the listener
+        # gets it and prints it
+        msg = std_msgs.msg.String()
+        msg.data = str(uuid.uuid4())
+        for _ in range(10):
 
             pub.publish(msg)
-            self.proc_output.assertWaitFor(
+            success = self.proc_output.waitFor(
                 expected_output=msg.data,
-                process=listener
+                process=listener,
+                timeout=1.0,
             )
+            if success:
+                break
+        assert success, 'Waiting for output timed out'
 
     def test_fuzzy_data(self, listener):
         # This test shows how to insert a node in between the talker and the listener to

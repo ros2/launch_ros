@@ -160,8 +160,7 @@ class TestTalkerListenerLink(unittest.TestCase):
             )
             if success:
                 break
-        else:
-            assert False, 'Waiting for output timed out'
+        assert success, 'Waiting for output timed out'
 
     def test_fuzzy_data(self, listener):
         # This test shows how to insert a node in between the talker and the listener to

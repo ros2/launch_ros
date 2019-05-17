@@ -33,7 +33,7 @@ class FindPackage(Substitution):
     The ROS package is located using ament_index_python.
 
     :raise: ament_index_python.packages.PackageNotFoundError when package is
-        not found during substitution
+        not found during substitution.
     """
 
     def __init__(self, package: SomeSubstitutionsType) -> None:
@@ -52,7 +52,7 @@ class FindPackage(Substitution):
         return 'Pkg(pkg={})'.format(pkg_str)
 
     def perform(self, context: LaunchContext) -> Text:
-        """Perform the substitution by locating the executable."""
+        """Perform the substitution by locating the package."""
         package = perform_substitutions(context, self.package)
         result = get_package_prefix(package)
         return result

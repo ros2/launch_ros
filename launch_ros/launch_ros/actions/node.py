@@ -16,7 +16,6 @@
 
 import os
 import pathlib
-import shlex
 from tempfile import NamedTemporaryFile
 from typing import Iterable
 from typing import List
@@ -26,15 +25,12 @@ from typing import Tuple  # noqa: F401
 
 from launch.action import Action
 from launch.actions import ExecuteProcess
-from launch.conditions import IfCondition
-from launch.conditions import UnlessCondition
 from launch.launch_context import LaunchContext
 
 import launch.logging
 
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitutions import LocalSubstitution
-from launch.substitutions import TextSubstitution
 from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
@@ -42,6 +38,7 @@ from launch.utilities import perform_substitutions
 from launch_frontend import Entity
 from launch_frontend import expose_action
 from launch_frontend import Parser
+from launch_frontend.action_parse_methods import parse_executable
 
 from launch_ros.parameters_type import SomeParameters
 from launch_ros.remap_rule_type import SomeRemapRules
@@ -226,39 +223,18 @@ class Node(ExecuteProcess):
     @staticmethod
     def parse(entity: Entity, parser: Parser):
         """Parse node."""
-        # TODO(ivanpauno): Have some common code with ExecuteProcess parsing method.
+        _, kwargs = parse_executable(entity, parser, True)
+        kwargs['arguments'] = kwargs['cmd']  # See parse_executable()
+        del kwargs['cmd']
+        kwargs['node_name'] = kwargs['name']
+        del kwargs['name']
         package = parser.parse_substitution(entity.get_attr('package'))
+        kwargs['package'] = package
         executable = parser.parse_substitution(entity.get_attr('executable'))
-        kwargs = {}
-        name = entity.get_attr('name', optional=True)
-        if name is not None:
-            kwargs['node_name'] = parser.parse_substitution(name)
+        kwargs['node_executable'] = executable
         ns = entity.get_attr('namespace', optional=True)
         if ns is not None:
             kwargs['node_namespace'] = parser.parse_substitution(ns)
-        prefix = entity.get_attr('launch-prefix', optional=True)
-        if prefix is not None:
-            kwargs['prefix'] = parser.parse_substitution(prefix)
-        output = entity.get_attr('output', optional=True)
-        if output is not None:
-            kwargs['output'] = output
-        args = entity.get_attr('args', optional=True)
-        if args is not None:
-            args = parser.parse_substitution(args)
-            new_args = []
-            for arg in args:
-                if isinstance(arg, TextSubstitution):
-                    text = arg.text
-                    text = shlex.split(text)
-                    text = [TextSubstitution(text=item) for item in text]
-                    new_args.extend(text)
-                else:
-                    new_args.append(arg)
-            kwargs['arguments'] = new_args
-        env = entity.get_attr('env', optional=True, types='list[Entity]')
-        if env is not None:
-            env = {e.get_attr('name'): parser.parse_substitution(e.get_attr('value')) for e in env}
-            kwargs['additional_env'] = env
         remappings = entity.get_attr('remap', optional=True)
         if remappings is not None:
             kwargs['remappings'] = [
@@ -270,18 +246,7 @@ class Node(ExecuteProcess):
         parameters = entity.get_attr('param', types='list[Entity]', optional=True)
         if parameters is not None:
             kwargs['parameters'] = Node.parse_nested_parameters(parameters)
-        if_cond = entity.get_attr('if_cond', optional=True)
-        unless_cond = entity.get_attr('unless_cond', optional=True)
-        if if_cond is not None and unless_cond is not None:
-            raise RuntimeError("if and unless conditions can't be used simultaneously")
-        if if_cond is not None:
-            kwargs['condition'] = IfCondition(predicate_expression=if_cond)
-        if unless_cond is not None:
-            kwargs['condition'] = UnlessCondition(predicate_expression=unless_cond)
-        return Node(
-            package=package,
-            node_executable=executable,
-            **kwargs)
+        return Node, kwargs
 
     @property
     def node_name(self):

@@ -22,6 +22,8 @@ from launch_ros.substitutions import FindPackage
 
 
 def test_find_package():
-    sub = FindPackage('test_launch_ros')
+    sub = FindPackage('launch_ros')
     context = LaunchContext()
-    package_prefix = sub.perform(context)
+    package_prefix = Path(sub.perform(context))
+    package_xml_file = package_prefix / Path('share/launch_ros/package.xml')
+    assert package_xml_file.is_file()

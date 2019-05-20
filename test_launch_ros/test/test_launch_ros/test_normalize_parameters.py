@@ -75,6 +75,12 @@ def test_dictionary_with_substitution():
     expected = ({'bar': 'baz'},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
+    # substitutions get yamlfied
+    orig = [{TextSubstitution(text='false'): TextSubstitution(text='off')}]
+    norm = normalize_parameters(orig)
+    expected = ({'false': False},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
 
 def test_dictionary_with_substitution_list_name():
     orig = [{(TextSubstitution(text='bar'), TextSubstitution(text='foo')): 1}]
@@ -92,6 +98,21 @@ def test_dictionary_with_substitution_list_value():
     orig = [{'foo': [[TextSubstitution(text='fiz')], [TextSubstitution(text='buz')]]}]
     norm = normalize_parameters(orig)
     expected = ({'foo': ('fiz', 'buz')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'bools': [[TextSubstitution(text='True')], [TextSubstitution(text='False')]]}]
+    norm = normalize_parameters(orig)
+    expected = ({'bools': (True, False)},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'ints': [[TextSubstitution(text='1')], [TextSubstitution(text='2')]]}]
+    norm = normalize_parameters(orig)
+    expected = ({'ints': (1, 2)},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'floats': [[TextSubstitution(text='1.0')], [TextSubstitution(text='2.0')]]}]
+    norm = normalize_parameters(orig)
+    expected = ({'floats': (1.0, 2.0)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
 

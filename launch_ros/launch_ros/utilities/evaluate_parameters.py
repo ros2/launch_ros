@@ -29,6 +29,8 @@ from launch.substitution import Substitution
 from launch.utilities import ensure_argument_type
 from launch.utilities import perform_substitutions
 
+import yaml
+
 from ..parameters_type import EvaluatedParameters
 from ..parameters_type import EvaluatedParameterValue  # noqa
 from ..parameters_type import Parameters
@@ -52,12 +54,29 @@ def evaluate_parameter_dict(
             if isinstance(value[0], Substitution):
                 # Value is a list of substitutions, so perform them to make a string
                 evaluated_value = perform_substitutions(context, list(value))
+                evaluated_value = yaml.safe_load(evaluated_value)
             elif isinstance(value[0], Sequence):
                 # Value is an array of a list of substitutions
                 output_subvalue = []  # List[str]
                 for subvalue in value:
-                    output_subvalue.append(perform_substitutions(context, list(subvalue)))
+                    value = perform_substitutions(context, list(subvalue))
+                    output_subvalue.append(value)
                     evaluated_value = tuple(output_subvalue)
+                # All values in a list must have the same type.
+                # If they don't then assume it is a list of strings
+                yaml_evaluated_value = []  # Union[List[str], List[int], List[float], List[bool]]
+                type_ = None
+                dissimilar_types = False
+                for subvalue in evaluated_value:
+                    yaml_subvalue = yaml.safe_load(subvalue)
+                    subtype = type(yaml_subvalue)
+                    if type_ is not None and type_ != subtype:
+                        dissimilar_types = True
+                        break
+                    yaml_evaluated_value.append(yaml_subvalue)
+                    type_ = subtype
+                if not dissimilar_types:
+                    evaluated_value = tuple(yaml_evaluated_value)
             else:
                 # Value is an array of the same type, so nothing to evaluate.
                 output_value = []
@@ -80,6 +99,8 @@ def evaluate_parameters(context: LaunchContext, parameters: Parameters) -> Evalu
     Evaluate substitutions to produce paths and name/value pairs.
 
     The parameters must have been normalized with normalize_parameters() prior to calling this.
+    Substitutions for parameter values in dictionaries will be evaluated according to yaml rules.
+    If you want the substitution to stay a string, the output of the substition must have quotes.
 
     :param parameters: normalized parameters
     :returns: values after evaluating lists of substitutions

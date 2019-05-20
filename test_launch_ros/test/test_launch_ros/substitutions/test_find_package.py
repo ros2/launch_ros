@@ -14,6 +14,8 @@
 
 """Test for the FindPackage substitution."""
 
+from pathlib import Path
+
 from launch import LaunchContext
 
 from launch_ros.substitutions import FindPackage
@@ -23,6 +25,6 @@ def test_find_package():
     sub = FindPackage('test_launch_ros')
     context = LaunchContext()
     package_prefix = sub.perform(context)
-    package_prefix_ending = 'install/test_launch_ros'
+    package_prefix_ending = str(Path('install/test_launch_ros'))
     assert len(package_prefix) >= len(package_prefix_ending)
     assert package_prefix[-len(package_prefix_ending):] == package_prefix_ending

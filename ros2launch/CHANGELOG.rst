@@ -2,6 +2,12 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.2 (2019-05-20)
+------------------
+* fix calling of print_arguments_of_launch_description() (`#27 <https://github.com/ros2/launch_ros/issues/27>`_)
+* Launch autocomplete doesnt require dot (`#24 <https://github.com/ros2/launch_ros/issues/24>`_)
+* Contributors: Matt Hansen, William Woodall
+
 0.8.1 (2019-05-08)
 ------------------
 

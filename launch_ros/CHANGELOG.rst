@@ -2,6 +2,12 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.2 (2019-05-20)
+------------------
+* Fix deprecation warnings (`#25 <https://github.com/ros2/launch_ros/issues/25>`_)
+* Corrected matches_action usage in lifecycle_pub_sub example (`#21 <https://github.com/ros2/launch_ros/issues/21>`_)
+* Contributors: Jacob Perron, ivanpauno
+
 0.8.1 (2019-05-08)
 ------------------
 

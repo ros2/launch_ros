@@ -43,12 +43,12 @@ def evaluate_parameter_dict(
 ) -> Dict[str, EvaluatedParameterValue]:
     if not isinstance(parameters, Mapping):
         raise TypeError('expected dict')
-    output_dict = {}  # type: Dict[str, EvaluatedParameterValue]
+    output_dict: Dict[str, EvaluatedParameterValue] = {}
     for name, value in parameters.items():
         if not isinstance(name, tuple):
             raise TypeError('Expecting tuple of substitutions got {}'.format(repr(name)))
-        evaluated_name = perform_substitutions(context, list(name))  # type: str
-        evaluated_value = None  # type: Optional[EvaluatedParameterValue]
+        evaluated_name: str = perform_substitutions(context, list(name))
+        evaluated_value: Optional[EvaluatedParameterValue] = None
 
         if isinstance(value, tuple) and len(value):
             if isinstance(value[0], Substitution):
@@ -57,14 +57,14 @@ def evaluate_parameter_dict(
                 evaluated_value = yaml.safe_load(evaluated_value)
             elif isinstance(value[0], Sequence):
                 # Value is an array of a list of substitutions
-                output_subvalue = []  # List[str]
+                output_subvalue: List[str] = []
                 for subvalue in value:
                     value = perform_substitutions(context, list(subvalue))
                     output_subvalue.append(value)
                     evaluated_value = tuple(output_subvalue)
                 # All values in a list must have the same type.
                 # If they don't then assume it is a list of strings
-                yaml_evaluated_value = []  # Union[List[str], List[int], List[float], List[bool]]
+                yaml_evaluated_value: Union[List[str], List[int], List[float], List[bool]] = []
                 type_ = None
                 dissimilar_types = False
                 for subvalue in evaluated_value:

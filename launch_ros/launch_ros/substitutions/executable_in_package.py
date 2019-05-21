@@ -18,8 +18,6 @@ import os
 from typing import List
 from typing import Text
 
-from ament_index_python.packages import get_package_prefix
-
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitution import Substitution
@@ -29,8 +27,10 @@ from launch.utilities import perform_substitutions
 
 from osrf_pycommon.process_utils import which
 
+from .find_package import FindPackage
 
-class ExecutableInPackage(Substitution):
+
+class ExecutableInPackage(FindPackage):
     """
     Substitution that tries to locate an executable in the libexec directory of a ROS package.
 
@@ -44,19 +44,13 @@ class ExecutableInPackage(Substitution):
 
     def __init__(self, executable: SomeSubstitutionsType, package: SomeSubstitutionsType) -> None:
         """Constructor."""
-        super().__init__()
+        super().__init__(package)
         self.__executable = normalize_to_list_of_substitutions(executable)
-        self.__package = normalize_to_list_of_substitutions(package)
 
     @property
     def executable(self) -> List[Substitution]:
         """Getter for executable."""
         return self.__executable
-
-    @property
-    def package(self) -> List[Substitution]:
-        """Getter for package."""
-        return self.__package
 
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
@@ -68,7 +62,7 @@ class ExecutableInPackage(Substitution):
         """Perform the substitution by locating the executable."""
         executable = perform_substitutions(context, self.executable)
         package = perform_substitutions(context, self.package)
-        package_prefix = get_package_prefix(package)
+        package_prefix = super().perform(context)
         package_libexec = os.path.join(package_prefix, 'lib', package)
         if not os.path.exists(package_libexec):
             raise SubstitutionFailure(

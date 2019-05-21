@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""substitutions Module."""
+"""Test for the FindPackage substitution."""
 
-from .executable_in_package import ExecutableInPackage
-from .find_package import FindPackage
+from pathlib import Path
 
-__all__ = [
-    'ExecutableInPackage',
-    'FindPackage'
-]
+from launch import LaunchContext
+
+from launch_ros.substitutions import FindPackage
+
+
+def test_find_package():
+    sub = FindPackage('launch_ros')
+    context = LaunchContext()
+    package_prefix = Path(sub.perform(context))
+    package_xml_file = package_prefix / Path('share/launch_ros/package.xml')
+    assert package_xml_file.is_file()

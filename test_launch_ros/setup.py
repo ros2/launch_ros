@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='test_launch_ros',
-    version='0.8.0',
+    version='0.8.3',
     packages=find_packages(exclude=['test']),
     install_requires=[
         'setuptools',

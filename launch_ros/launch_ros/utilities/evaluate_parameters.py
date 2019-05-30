@@ -21,7 +21,7 @@ import pathlib
 from typing import cast
 from typing import Dict
 from typing import List
-from typing import Optional  # noqa
+from typing import Optional
 from typing import Union
 
 from launch.launch_context import LaunchContext
@@ -32,7 +32,7 @@ from launch.utilities import perform_substitutions
 import yaml
 
 from ..parameters_type import EvaluatedParameters
-from ..parameters_type import EvaluatedParameterValue  # noqa
+from ..parameters_type import EvaluatedParameterValue
 from ..parameters_type import Parameters
 from ..parameters_type import ParametersDict
 

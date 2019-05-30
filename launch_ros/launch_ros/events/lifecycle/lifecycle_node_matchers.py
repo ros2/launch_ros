@@ -19,7 +19,7 @@ from typing import Text
 
 if False:
     # imports here would cause loops, but are only used as forward-references for type-checking
-    from ...actions import LifecycleNode  # noqa
+    from ...actions import LifecycleNode  # noqa: F401
 
 
 def matches_node_name(node_name: Text) -> Callable[['LifecycleNode'], bool]:

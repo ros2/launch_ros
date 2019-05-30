@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.8.2 (2019-05-20)
 ------------------
 * fix example test logic (`#28 <https://github.com/ros2/launch_ros/issues/28>`_)

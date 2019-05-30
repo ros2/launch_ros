@@ -15,7 +15,6 @@
 """Module with utility to transform evaluated parameters into parameter lists."""
 
 import pathlib
-from typing import Dict  # noqa
 from typing import List
 
 from launch.launch_context import LaunchContext
@@ -27,7 +26,6 @@ from .evaluate_parameters import evaluate_parameter_dict
 from .normalize_parameters import normalize_parameter_dict
 
 from ..parameters_type import EvaluatedParameters
-from ..parameters_type import EvaluatedParameterValue  # noqa
 
 
 def to_parameters_list(

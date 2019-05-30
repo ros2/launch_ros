@@ -15,9 +15,6 @@
 """Module containing the default LaunchDescription for ROS."""
 
 import threading
-from typing import Dict  # noqa: F401
-from typing import Text  # noqa: F401
-from typing import TextIO  # noqa: F401
 
 import launch
 import launch.actions

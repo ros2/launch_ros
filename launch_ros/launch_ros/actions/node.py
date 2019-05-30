@@ -18,12 +18,11 @@ from collections.abc import Mapping
 import os
 import pathlib
 from tempfile import NamedTemporaryFile
-from typing import Dict  # noqa: F401
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text  # noqa: F401
-from typing import Tuple
+from typing import Tuple  # noqa: F401
 
 from launch.action import Action
 from launch.actions import ExecuteProcess

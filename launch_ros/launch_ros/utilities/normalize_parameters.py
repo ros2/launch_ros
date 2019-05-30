@@ -18,12 +18,11 @@ from collections.abc import Mapping
 from collections.abc import Sequence
 import pathlib
 from typing import cast
-from typing import List  # noqa
+from typing import List
 from typing import Optional
 from typing import Sequence as SequenceTypeHint
-from typing import Tuple  # noqa
-from typing import Union  # noqa
-from typing import Set  # noqa
+from typing import Set  # noqa: F401
+from typing import Union
 
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.some_substitutions_type import SomeSubstitutionsType_types_tuple
@@ -32,7 +31,7 @@ from launch.substitutions import TextSubstitution
 from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 
-from ..parameters_type import ParameterFile
+from ..parameters_type import ParameterFile  # noqa: F401
 from ..parameters_type import Parameters
 from ..parameters_type import ParametersDict
 from ..parameters_type import ParameterValue

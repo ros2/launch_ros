@@ -23,7 +23,7 @@ import lifecycle_msgs.msg
 
 if False:
     # imports here would cause loops, but are only used as forward-references for type-checking
-    from ...actions import LifecycleNode  # noqa
+    from ...actions import LifecycleNode  # noqa: F401
 
 
 class ChangeState(Event):

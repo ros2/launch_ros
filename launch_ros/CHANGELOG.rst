@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.4 (2019-05-30)
+------------------
+* Update usage of 'noqa' for imports (`#32 <https://github.com/ros2/launch_ros/issues/32>`_)
+* Contributors: Jacob Perron
+
 0.8.3 (2019-05-29)
 ------------------
 * Added the ``FindPackage`` substitution. (`#22 <https://github.com/ros2/launch_ros/issues/22>`_)

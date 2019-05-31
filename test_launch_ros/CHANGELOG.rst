@@ -2,6 +2,9 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.4 (2019-05-30)
+------------------
+
 0.8.3 (2019-05-29)
 ------------------
 * Added the ``FindPackage`` substitution. (`#22 <https://github.com/ros2/launch_ros/issues/22>`_)

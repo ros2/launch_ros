@@ -21,11 +21,17 @@ from launch import LaunchService
 
 from launch_frontend import Parser
 
+from launch_ros.utilities import evaluate_parameters
+
 import pytest
 
+# Scaping the quote is needed in 'a_string' launch configuration, becuase of how the parser works.
+# TODO(ivanpauno): Check if it's possible to avoid that.
 xml_file = \
     """\
     <launch>
+        <let name="a_string" value="\\'[2, 5, 8]\\'"/>
+        <let name="a_list" value="[2, 5, 8]"/>
         <node package="demo_nodes_py" executable="talker_qos" output="screen" name="my_node" namespace="my_ns" args="--number_of_cycles 1">
             <param name="param1" value="ads"/>
             <param name="param_group1">
@@ -33,15 +39,23 @@ xml_file = \
                     <param name="param2" value="2"/>
                 </param>
                 <param name="param3" value="2, 5, 8" value-sep=", "/>
+                <param name="param4" value="$(var a_list)"/>
+                <param name="param5" value="$(var a_string)"/>
             </param>
             <env name="var" value="1"/>
         </node>
     </launch>
-"""  # noqa: E501
+    """  # noqa: E501
 xml_file = textwrap.dedent(xml_file)
 yaml_file = \
     """\
     launch:
+        - let:
+            name: 'a_string'
+            value: '\\"[2, 5, 8]\\"'
+        - let:
+            name: 'a_list'
+            value: '[2, 5, 8]'
         - node:
             package: demo_nodes_py
             executable: talker_qos
@@ -60,6 +74,10 @@ yaml_file = \
                             value: 2
                     -   name: param3
                         value: [2, 5, 8]
+                    -   name: param4
+                        value: $(var a_list)
+                    -   name: param5
+                        value: $(var a_string)
             env:
                 -   name: var
                     value: '1'
@@ -75,3 +93,17 @@ def test_node_frontend(file):
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert(0 == ls.run())
+    # TODO(ivanpauno): Test this in a cleaner way.
+    lc = ls._LaunchService__context
+    evaluated_parameters = evaluate_parameters(lc, ld.describe_sub_entities()[2]._Node__parameters)[0]
+    assert isinstance(evaluated_parameters, dict)
+    assert 'param1' in evaluated_parameters
+    assert evaluated_parameters['param1'] == 'ads'
+    assert 'param_group1.param_group2.param2' in evaluated_parameters
+    assert 'param_group1.param3' in evaluated_parameters
+    assert 'param_group1.param4' in evaluated_parameters
+    assert 'param_group1.param5' in evaluated_parameters
+    assert evaluated_parameters['param_group1.param_group2.param2'] == 2
+    assert evaluated_parameters['param_group1.param3'] == (2, 5, 8)
+    assert evaluated_parameters['param_group1.param4'] == (2, 5, 8)
+    assert evaluated_parameters['param_group1.param5'] == '[2, 5, 8]'

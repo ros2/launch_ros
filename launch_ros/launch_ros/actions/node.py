@@ -179,7 +179,7 @@ class Node(ExecuteProcess):
         self.__logger = launch.logging.get_logger(__name__)
 
     @staticmethod
-    def parse_nested_parameters(params):
+    def parse_nested_parameters(params, parser):
         """Normalize parameters as expected by Node constructor argument."""
         def get_nested_dictionary_from_nested_key_value_pairs(params):
             """Convert nested params in a nested dictionary."""
@@ -191,6 +191,8 @@ class Node(ExecuteProcess):
                 name = param.get_attr('name')
                 value = param.get_attr('value', types='guess', optional=True)
                 if value is not None:
+                    if isinstance(value, str):
+                        value = parser.parse_substitution(value)
                     param_dict[name] = value
                 else:
                     param_dict.update(
@@ -245,7 +247,7 @@ class Node(ExecuteProcess):
             ]
         parameters = entity.get_attr('param', types='list[Entity]', optional=True)
         if parameters is not None:
-            kwargs['parameters'] = Node.parse_nested_parameters(parameters)
+            kwargs['parameters'] = Node.parse_nested_parameters(parameters, parser)
         return Node, kwargs
 
     @property

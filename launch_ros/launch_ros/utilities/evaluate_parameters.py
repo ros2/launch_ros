@@ -54,7 +54,20 @@ def evaluate_parameter_dict(
             if isinstance(value[0], Substitution):
                 # Value is a list of substitutions, so perform them to make a string
                 evaluated_value = perform_substitutions(context, list(value))
-                evaluated_value = yaml.safe_load(evaluated_value)
+                yaml_evaluated_value = yaml.safe_load(evaluated_value)
+                if isinstance(evaluated_value, list):
+                    last_subtype = None
+                    dissimilar_types = False
+                    for subvalue in evaluated_value:
+                        subtype = type(subvalue)
+                        if last_subtype is not None and last_subtype != subtype:
+                            dissimilar_types = True
+                            break
+                        last_subtype = subtype
+                    if not dissimilar_types:
+                        evaluated_value = tuple(yaml_evaluated_value)
+                else:
+                    evaluated_value = yaml_evaluated_value
             elif isinstance(value[0], Sequence):
                 # Value is an array of a list of substitutions
                 output_subvalue: List[str] = []
@@ -70,6 +83,12 @@ def evaluate_parameter_dict(
                 for subvalue in evaluated_value:
                     yaml_subvalue = yaml.safe_load(subvalue)
                     subtype = type(yaml_subvalue)
+                    if isinstance(subtype, list):
+                        # Don't allow an array of arrays.
+                        # Assume it's a list of strings in that case.
+                        # TODO(ivanpauno): Maybe, raise an error.
+                        dissimilar_types = True
+                        break
                     if last_subtype is not None and last_subtype != subtype:
                         dissimilar_types = True
                         break

@@ -55,19 +55,22 @@ def evaluate_parameter_dict(
                 # Value is a list of substitutions, so perform them to make a string
                 evaluated_value = perform_substitutions(context, list(value))
                 yaml_evaluated_value = yaml.safe_load(evaluated_value)
-                if isinstance(evaluated_value, list):
+                evaluated_type = type(yaml_evaluated_value)
+                if evaluated_type in (bool, int, float, str):
+                    evaluated_value = yaml_evaluated_value
+                # TODO(ivanpauno): Maybe, add better checking of other sequence types.
+                if isinstance(yaml_evaluated_value, list):
+                    # If it is a list with dissimilar types, let the string without converting.
                     last_subtype = None
                     dissimilar_types = False
-                    for subvalue in evaluated_value:
+                    for subvalue in yaml_evaluated_value:
                         subtype = type(subvalue)
                         if last_subtype is not None and last_subtype != subtype:
                             dissimilar_types = True
                             break
                         last_subtype = subtype
-                    if not dissimilar_types:
+                    if not dissimilar_types and subtype in (bool, int, float, str):
                         evaluated_value = tuple(yaml_evaluated_value)
-                else:
-                    evaluated_value = yaml_evaluated_value
             elif isinstance(value[0], Sequence):
                 # Value is an array of a list of substitutions
                 output_subvalue: List[str] = []
@@ -94,7 +97,7 @@ def evaluate_parameter_dict(
                         break
                     yaml_evaluated_value.append(yaml_subvalue)
                     last_subtype = subtype
-                if not dissimilar_types:
+                if not dissimilar_types and subtype in (bool, int, float, str):
                     evaluated_value = tuple(yaml_evaluated_value)
             else:
                 # Value is an array of the same type, so nothing to evaluate.

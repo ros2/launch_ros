@@ -230,3 +230,55 @@ def test_mixed_path_dicts():
     norm = normalize_parameters(orig)
     expected = (pathlib.Path('/foo/bar'), {'fiz.buz': 3}, pathlib.Path('/tmp/baz'))
     assert evaluate_parameters(LaunchContext(), norm) == expected
+
+
+def test_yaml_list_in_substitutions():
+    orig = [{'foo': 1, 'fiz': TextSubstitution(text="['asd', 'fds', 'bsd']")}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': ('asd', 'fds', 'bsd')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': 1, 'fiz': TextSubstitution(text='[1, 2, 3]')}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': (1, 2, 3)},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': 1, 'fiz': TextSubstitution(text='[1., 2., 3.]')}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': (1., 2., 3.)},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': 1, 'fiz': TextSubstitution(text='[True, 2., 3]')}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': '[True, 2., 3]'},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': 1, 'fiz': TextSubstitution(text='[(2, 4, 5), (2, 4, 5), (2, 4, 5)]')}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': '[(2, 4, 5), (2, 4, 5), (2, 4, 5)]'},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+
+def test_unallowed_yaml_types_in_substitutions():
+    orig = [{'foo': 1, 'fiz': TextSubstitution(text="{'asd': 3}")}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': "{'asd': 3}"},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': 1, 'fiz': TextSubstitution(text='(1, 2, 3)')}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': '(1, 2, 3)'},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+
+def test_list_of_substitutions_with_yaml_lists():
+    orig = [{
+        'foo': 1,
+        'fiz': [
+            [TextSubstitution(text="['asd', 'bsd']")],
+            [TextSubstitution(text="['asd', 'csd']")]
+        ]
+    }]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': ("['asd', 'bsd']", "['asd', 'csd']")},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected

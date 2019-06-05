@@ -72,8 +72,19 @@ def evaluate_parameter_dict(
                 elif isinstance(yaml_evaluated_value, Sequence):
                     # str and bytes were already handled in the previous case
                     # If it is a list with dissimilar types, don't evaluate the value as yaml.
-                    if check_sequence_type_is_allowed(yaml_evaluated_value):
-                        evaluated_value = tuple(yaml_evaluated_value)
+                    if not check_sequence_type_is_allowed(yaml_evaluated_value):
+                        raise TypeError(
+                            'Expected a non-empty sequence, with items of uniform type. '
+                            'Allowed sequence item types are bool, int, float, str.'
+                        )
+                    evaluated_value = tuple(yaml_evaluated_value)
+                else:
+                    raise TypeError(
+                        'Allowed value types are bytes, bool, int, float, str, Sequence[bool]'
+                        ', Sequence[int], Sequence[float], Sequence[str]. Got {}.'.format(
+                            type(yaml_evaluated_value)
+                        )
+                    )
             elif isinstance(value[0], Sequence):
                 # Value is an array of a list of substitutions
                 output_subvalue: List[str] = []

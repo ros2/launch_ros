@@ -41,6 +41,18 @@ def evaluate_parameter_dict(
     context: LaunchContext,
     parameters: ParametersDict
 ) -> Dict[str, EvaluatedParameterValue]:
+    def check_sequence_type_is_allowed(sequence):
+        # Check if the items of the sequence aren't dissimilar.
+        # Also, check if the item type is one of bool, int, float, str.
+        if not sequence:  # Don't allow empty sequences
+            return False
+        subtype = type(sequence[0])
+        if subtype not in (bool, int, float, str):
+            return False
+        for item in sequence:
+            if not isinstance(item, subtype):
+                return False
+        return True
     if not isinstance(parameters, Mapping):
         raise TypeError('expected dict')
     output_dict: Dict[str, EvaluatedParameterValue] = {}
@@ -55,21 +67,12 @@ def evaluate_parameter_dict(
                 # Value is a list of substitutions, so perform them to make a string
                 evaluated_value = perform_substitutions(context, list(value))
                 yaml_evaluated_value = yaml.safe_load(evaluated_value)
-                evaluated_type = type(yaml_evaluated_value)
-                if evaluated_type in (bool, int, float, str):
+                if type(yaml_evaluated_value) in (bool, int, float, str, bytes):
                     evaluated_value = yaml_evaluated_value
-                # TODO(ivanpauno): Maybe, add better checking of other sequence types.
-                if isinstance(yaml_evaluated_value, list):
-                    # If it is a list with dissimilar types, let the string without converting.
-                    last_subtype = None
-                    dissimilar_types = False
-                    for subvalue in yaml_evaluated_value:
-                        subtype = type(subvalue)
-                        if last_subtype is not None and last_subtype != subtype:
-                            dissimilar_types = True
-                            break
-                        last_subtype = subtype
-                    if not dissimilar_types and subtype in (bool, int, float, str):
+                elif isinstance(yaml_evaluated_value, Sequence):
+                    # str and bytes were already handled in the previous case
+                    # If it is a list with dissimilar types, don't evaluate the value as yaml.
+                    if check_sequence_type_is_allowed(yaml_evaluated_value):
                         evaluated_value = tuple(yaml_evaluated_value)
             elif isinstance(value[0], Sequence):
                 # Value is an array of a list of substitutions
@@ -77,27 +80,13 @@ def evaluate_parameter_dict(
                 for subvalue in value:
                     value = perform_substitutions(context, list(subvalue))
                     output_subvalue.append(value)
-                    evaluated_value = tuple(output_subvalue)
+                evaluated_value = tuple(output_subvalue)
                 # All values in a list must have the same type.
                 # If they don't then assume it is a list of strings
-                yaml_evaluated_value: Union[List[str], List[int], List[float], List[bool]] = []
-                last_subtype = None
-                dissimilar_types = False
-                for subvalue in evaluated_value:
-                    yaml_subvalue = yaml.safe_load(subvalue)
-                    subtype = type(yaml_subvalue)
-                    if isinstance(subtype, list):
-                        # Don't allow an array of arrays.
-                        # Assume it's a list of strings in that case.
-                        # TODO(ivanpauno): Maybe, raise an error.
-                        dissimilar_types = True
-                        break
-                    if last_subtype is not None and last_subtype != subtype:
-                        dissimilar_types = True
-                        break
-                    yaml_evaluated_value.append(yaml_subvalue)
-                    last_subtype = subtype
-                if not dissimilar_types and subtype in (bool, int, float, str):
+                yaml_evaluated_value: Union[List[str], List[int], List[float], List[bool]] = [
+                    yaml.safe_load(item) for item in evaluated_value
+                ]
+                if check_sequence_type_is_allowed(yaml_evaluated_value):
                     evaluated_value = tuple(yaml_evaluated_value)
             else:
                 # Value is an array of the same type, so nothing to evaluate.

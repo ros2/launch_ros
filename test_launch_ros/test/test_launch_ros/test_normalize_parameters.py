@@ -115,6 +115,11 @@ def test_dictionary_with_substitution_list_value():
     expected = ({'floats': (1.0, 2.0)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
+    orig = [{'strings': ["'True'", "'1'", "'1.0'"]}]
+    norm = normalize_parameters(orig)
+    expected = ({'strings': ('True', '1', '1.0')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
     orig = [{'int_sequence': TextSubstitution(text='[2, 3, 4]')}]
     norm = normalize_parameters(orig)
     expected = ({'int_sequence': (2, 3, 4)},)
@@ -171,6 +176,11 @@ def test_dictionary_with_bool():
     expected = ({'foo': False, 'fiz': (True, False, True)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
+    orig = [{'foo': 'False', 'fiz': ['True', 'False', 'True']}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': False, 'fiz': (True, False, True)},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
 
 def test_dictionary_with_float():
     orig = [{'foo': 1.2, 'fiz': [2.3, 3.4, 4.5]}]
@@ -178,9 +188,19 @@ def test_dictionary_with_float():
     expected = ({'foo': 1.2, 'fiz': (2.3, 3.4, 4.5)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
+    orig = [{'foo': '1.2', 'fiz': ['2.3', '3.4', '4.5']}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1.2, 'fiz': (2.3, 3.4, 4.5)},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
 
 def test_dictionary_with_int():
     orig = [{'foo': 1, 'fiz': [2, 3, 4]}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': (2, 3, 4)},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': '1', 'fiz': ['2', '3', '4']}]
     norm = normalize_parameters(orig)
     expected = ({'foo': 1, 'fiz': (2, 3, 4)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
@@ -238,6 +258,22 @@ def test_dictionary_with_dissimilar_array():
 
     with pytest.raises(TypeError) as exc:
         orig = [{'foo': 1, 'fiz': [[TextSubstitution(text='foo')], True, 1]}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty' in str(exc.value)
+
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': [
+            [TextSubstitution(text='True')],
+            [TextSubstitution(text='2.0')],
+            [TextSubstitution(text='3')],
+        ]}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty' in str(exc.value)
+
+    with pytest.raises(TypeError) as exc:
+        orig = [{'strs': ['True', '2.0', '3']}]
         norm = normalize_parameters(orig)
         evaluate_parameters(LaunchContext(), norm)
     assert 'Expected a non-empty' in str(exc.value)

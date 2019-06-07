@@ -212,31 +212,35 @@ def test_dictionary_with_bytes():
 
 
 def test_dictionary_with_dissimilar_array():
-    orig = [{'foo': 1, 'fiz': [True, 2.0, 3]}]
-    norm = normalize_parameters(orig)
-    expected = ({'foo': 1, 'fiz': ('True', '2.0', '3')},)
-    # assert evaluate_parameters(LaunchContext(), norm) == expected
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': [True, 2.0, 3]}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty' in str(exc.value)
 
-    orig = [{'foo': 1, 'fiz': [True, 1, TextSubstitution(text='foo')]}]
-    norm = normalize_parameters(orig)
-    print(norm)
-    expected = ({'foo': 1, 'fiz': ('True', '1', 'foo')},)
-    assert evaluate_parameters(LaunchContext(), norm) == expected
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': [True, 1, TextSubstitution(text='foo')]}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty' in str(exc.value)
 
-    orig = [{'foo': 1, 'fiz': [TextSubstitution(text='foo'), True, 1]}]
-    norm = normalize_parameters(orig)
-    expected = ({'foo': 1, 'fiz': ('foo', 'True', '1')},)
-    assert evaluate_parameters(LaunchContext(), norm) == expected
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': [TextSubstitution(text='foo'), True, 1]}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty' in str(exc.value)
 
-    orig = [{'foo': 1, 'fiz': [True, 1, [TextSubstitution(text='foo')]]}]
-    norm = normalize_parameters(orig)
-    expected = ({'foo': 1, 'fiz': ('True', '1', 'foo')},)
-    assert evaluate_parameters(LaunchContext(), norm) == expected
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': [True, 1, [TextSubstitution(text='foo')]]}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty' in str(exc.value)
 
-    orig = [{'foo': 1, 'fiz': [[TextSubstitution(text='foo')], True, 1]}]
-    norm = normalize_parameters(orig)
-    expected = ({'foo': 1, 'fiz': ('foo', 'True', '1')},)
-    assert evaluate_parameters(LaunchContext(), norm) == expected
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': [[TextSubstitution(text='foo')], True, 1]}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty' in str(exc.value)
 
 
 def test_nested_dictionaries():
@@ -279,15 +283,14 @@ def test_unallowed_yaml_types_in_substitutions():
         evaluate_parameters(LaunchContext(), norm)
     assert 'Expected a non-empty sequence' in str(exc.value)
 
-
-def test_list_of_substitutions_with_yaml_lists():
-    orig = [{
-        'foo': 1,
-        'fiz': [
-            [TextSubstitution(text="['asd', 'bsd']")],
-            [TextSubstitution(text="['asd', 'csd']")]
-        ]
-    }]
-    norm = normalize_parameters(orig)
-    expected = ({'foo': 1, 'fiz': ("['asd', 'bsd']", "['asd', 'csd']")},)
-    assert evaluate_parameters(LaunchContext(), norm) == expected
+    with pytest.raises(TypeError) as exc:
+        orig = [{
+            'foo': 1,
+            'fiz': [
+                [TextSubstitution(text="['asd', 'bsd']")],
+                [TextSubstitution(text="['asd', 'csd']")]
+            ]
+        }]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty sequence' in str(exc.value)

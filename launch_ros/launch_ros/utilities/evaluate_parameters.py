@@ -97,8 +97,12 @@ def evaluate_parameter_dict(
                 yaml_evaluated_value: Union[List[str], List[int], List[float], List[bool]] = [
                     yaml.safe_load(item) for item in evaluated_value
                 ]
-                if check_sequence_type_is_allowed(yaml_evaluated_value):
-                    evaluated_value = tuple(yaml_evaluated_value)
+                if not check_sequence_type_is_allowed(yaml_evaluated_value):
+                    raise TypeError(
+                        'Expected a non-empty sequence, with items of uniform type. '
+                        'Allowed sequence item types are bool, int, float, str.'
+                    )
+                evaluated_value = tuple(yaml_evaluated_value)
             else:
                 # Value is an array of the same type, so nothing to evaluate.
                 output_value = []

@@ -95,7 +95,10 @@ def test_node_frontend(file):
     assert(0 == ls.run())
     # TODO(ivanpauno): Test this in a cleaner way.
     lc = ls._LaunchService__context
-    evaluated_parameters = evaluate_parameters(lc, ld.describe_sub_entities()[2]._Node__parameters)[0]
+    evaluated_parameters = evaluate_parameters(
+        lc,
+        ld.describe_sub_entities()[2]._Node__parameters
+    )[0]
     assert isinstance(evaluated_parameters, dict)
     assert 'param1' in evaluated_parameters
     assert evaluated_parameters['param1'] == 'ads'

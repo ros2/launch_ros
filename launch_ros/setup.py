@@ -33,7 +33,7 @@ setup(
     license='Apache License, Version 2.0',
     tests_require=['pytest'],
     entry_points={
-        'launch_frontend.parser_extension': [
+        'launch_frontend.launch_extension': [
             'launch_ros = launch_ros',
         ],
     }

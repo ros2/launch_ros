@@ -14,7 +14,6 @@
 
 """Module for the Node action."""
 
-from collections.abc import Mapping
 import os
 import pathlib
 from tempfile import NamedTemporaryFile
@@ -139,10 +138,6 @@ class Node(ExecuteProcess):
             # evaluate to paths), or dictionaries of parameters (fields can be substitutions).
             i = 0
             for param in parameters:
-                if isinstance(param, Mapping) and node_name is None:
-                    raise RuntimeError(
-                        'If a dictionary of parameters is specified, the node name must also be '
-                        'specified. See https://github.com/ros2/launch/issues/139')
                 i += 1
                 cmd += [LocalSubstitution(
                     'ros_specific_arguments[{}]'.format(ros_args_index),
@@ -188,9 +183,7 @@ class Node(ExecuteProcess):
         with NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False) as h:
             param_file_path = h.name
             # TODO(dhood): clean up generated parameter files.
-            param_dict = {self.__expanded_node_name: {'ros__parameters': params}}
-            if self.__expanded_node_namespace:
-                param_dict = {self.__expanded_node_namespace: param_dict}
+            param_dict = {'/**': {'ros__parameters': params}}
             yaml.dump(param_dict, h, default_flow_style=False)
             return param_file_path
 

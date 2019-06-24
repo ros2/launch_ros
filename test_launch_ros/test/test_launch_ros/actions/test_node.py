@@ -162,14 +162,12 @@ class TestNode(unittest.TestCase):
         with open(expanded_parameter_files[0], 'r') as h:
             expanded_parameters_dict = yaml.load(h)
             assert expanded_parameters_dict == {
-                '/my_ns': {
-                    'my_node': {
-                        'ros__parameters': {
-                            'param1': 'param1_value',
-                            'param2': 'param2_value',
-                            'param_group1.list_params': (1.2, 3.4),
-                            'param_group1.param_group2.param2_values': ('param2_value',),
-                        }
+                '/**': {
+                    'ros__parameters': {
+                        'param1': 'param1_value',
+                        'param2': 'param2_value',
+                        'param_group1.list_params': (1.2, 3.4),
+                        'param_group1.param_group2.param2_values': ('param2_value',),
                     }
                 }
             }
@@ -183,13 +181,13 @@ class TestNode(unittest.TestCase):
         self._assert_type_error_creating_node(
             parameters=str(parameter_file_path))  # Valid path, but not in a list.
 
-        # If a parameter dictionary is specified, the node name must be also.
-        with self.assertRaisesRegex(RuntimeError, 'node name must also be specified'):
-            launch_ros.actions.Node(
-                package='demo_nodes_py', node_executable='talker_qos', output='screen',
-                arguments=['--number_of_cycles', '1'],
-                parameters=[{'my_param': 'value'}],
-            )
+        # If a parameter dictionary is specified, the node name is no longer required.
+        node_action = launch_ros.actions.Node(
+            package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            arguments=['--number_of_cycles', '1'],
+            parameters=[{'my_param': 'value'}],
+        )
+        self._assert_launch_no_errors([node_action])
 
     def test_launch_node_with_invalid_parameter_dicts(self):
         """Test launching a node with invalid parameter dicts."""

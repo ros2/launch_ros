@@ -93,8 +93,7 @@ def test_node_frontend(file):
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert(0 == ls.run())
-    # TODO(ivanpauno): Test this in a cleaner way.
-    lc = ls._LaunchService__context
+    lc = ls.context
     evaluated_parameters = evaluate_parameters(
         lc,
         ld.describe_sub_entities()[2]._Node__parameters

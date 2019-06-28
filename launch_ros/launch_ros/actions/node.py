@@ -190,17 +190,21 @@ class Node(ExecuteProcess):
             for param in params:
                 name = param.get_attr('name')
                 value = param.get_attr('value', types='guess', optional=True)
-                if value is not None:
+                nested_params = param.get_attr('param', types='list[Entity]', optional=True)
+                if value is not None and nested_params:
+                    print(value)
+                    print(nested_params)
+                    raise RuntimeError('param and value attribute are mutually exclusive')
+                elif value is not None:
                     if isinstance(value, str):
                         value = parser.parse_substitution(value)
                     param_dict[name] = value
+                elif nested_params:
+                    param_dict.update({
+                        name: get_nested_dictionary_from_nested_key_value_pairs(nested_params)
+                    })
                 else:
-                    param_dict.update(
-                        {
-                            name: get_nested_dictionary_from_nested_key_value_pairs(
-                                param.get_attr('param', types='list[Entity]'))
-                        }
-                    )
+                    raise RuntimeError('one of value attribute or nested params is needed')
             return param_dict
 
         normalized_params = []
@@ -208,13 +212,15 @@ class Node(ExecuteProcess):
         for param in params:
             from_attr = param.get_attr('from', optional=True)
             name = param.get_attr('name', optional=True)
-            if from_attr is not None:
+            if from_attr is not None and name is not None:
+                raise RuntimeError('name and from_attr are mutually exclusive')
+            elif from_attr is not None:
                 # 'from' attribute ignores 'name' attribute,
                 # it's not accepted to be nested,
                 # and it can not have children.
                 normalized_params.append(from_attr)
                 continue
-            if name is not None:
+            elif name is not None:
                 params_without_from.append(param)
                 continue
             raise ValueError('param Entity should have name or from attribute')

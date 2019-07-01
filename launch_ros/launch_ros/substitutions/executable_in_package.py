@@ -20,13 +20,12 @@ from typing import List
 from typing import Text
 
 from launch.launch_context import LaunchContext
+from launch.launch_frontend import expose_substitution
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitution import Substitution
 from launch.substitutions.substitution_failure import SubstitutionFailure
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
-
-from launch_frontend import expose_substitution
 
 from osrf_pycommon.process_utils import which
 

@@ -26,7 +26,6 @@ from typing import Union
 
 from launch.launch_context import LaunchContext
 from launch.substitution import Substitution
-from launch.substitutions import TextSubstitution
 from launch.utilities import ensure_argument_type
 from launch.utilities import perform_substitutions
 
@@ -55,9 +54,6 @@ def evaluate_parameter_dict(
                 return False
         return True
 
-    def is_a_text_susbstitution(some_subs):
-        return len(some_subs) == 1 and isinstance(some_subs[0], TextSubstitution)
-
     if not isinstance(parameters, Mapping):
         raise TypeError('expected dict')
     output_dict: Dict[str, EvaluatedParameterValue] = {}
@@ -70,48 +66,44 @@ def evaluate_parameter_dict(
         if isinstance(value, tuple) and len(value):
             if isinstance(value[0], Substitution):
                 # Value is a list of substitutions, so perform them to make a string
-                try_evaluate_like_yaml = not is_a_text_susbstitution(value)
                 evaluated_value = perform_substitutions(context, list(value))
-                if try_evaluate_like_yaml:
-                    yaml_evaluated_value = yaml.safe_load(evaluated_value)
-                    if type(yaml_evaluated_value) in (bool, int, float, str, bytes):
-                        evaluated_value = yaml_evaluated_value
-                    elif isinstance(yaml_evaluated_value, Sequence):
-                        # str and bytes were already handled in the previous case
-                        # If it is a list with dissimilar types, don't evaluate the value as yaml.
-                        if not check_sequence_type_is_allowed(yaml_evaluated_value):
-                            raise TypeError(
-                                'Expected a non-empty sequence, with items of uniform type. '
-                                'Allowed sequence item types are bool, int, float, str.'
-                            )
-                        evaluated_value = tuple(yaml_evaluated_value)
-                    else:
-                        raise TypeError(
-                            'Allowed value types are bytes, bool, int, float, str, Sequence[bool]'
-                            ', Sequence[int], Sequence[float], Sequence[str]. Got {}.'.format(
-                                type(yaml_evaluated_value)
-                            )
-                        )
-            elif isinstance(value[0], Sequence):
-                # Value is an array of a list of substitutions
-                output_subvalue: List[str] = []
-                try_evaluate_like_yaml = not all(is_a_text_susbstitution(x) for x in value)
-                for subvalue in value:
-                    value = perform_substitutions(context, list(subvalue))
-                    output_subvalue.append(value)
-                evaluated_value = tuple(output_subvalue)
-                if try_evaluate_like_yaml:
-                    # All values in a list must have the same type.
-                    # If they don't then assume it is a list of strings
-                    yaml_evaluated_value = [
-                        yaml.safe_load(item) for item in evaluated_value
-                    ]
+                yaml_evaluated_value = yaml.safe_load(evaluated_value)
+                if type(yaml_evaluated_value) in (bool, int, float, str, bytes):
+                    evaluated_value = yaml_evaluated_value
+                elif isinstance(yaml_evaluated_value, Sequence):
+                    # str and bytes were already handled in the previous case
+                    # If it is a list with dissimilar types, don't evaluate the value as yaml.
                     if not check_sequence_type_is_allowed(yaml_evaluated_value):
                         raise TypeError(
                             'Expected a non-empty sequence, with items of uniform type. '
                             'Allowed sequence item types are bool, int, float, str.'
                         )
                     evaluated_value = tuple(yaml_evaluated_value)
+                else:
+                    raise TypeError(
+                        'Allowed value types are bytes, bool, int, float, str, Sequence[bool]'
+                        ', Sequence[int], Sequence[float], Sequence[str]. Got {}.'.format(
+                            type(yaml_evaluated_value)
+                        )
+                    )
+            elif isinstance(value[0], Sequence):
+                # Value is an array of a list of substitutions
+                output_subvalue: List[str] = []
+                for subvalue in value:
+                    value = perform_substitutions(context, list(subvalue))
+                    output_subvalue.append(value)
+                evaluated_value = tuple(output_subvalue)
+                # All values in a list must have the same type.
+                # If they don't then assume it is a list of strings
+                yaml_evaluated_value = [
+                    yaml.safe_load(item) for item in evaluated_value
+                ]
+                if not check_sequence_type_is_allowed(yaml_evaluated_value):
+                    raise TypeError(
+                        'Expected a non-empty sequence, with items of uniform type. '
+                        'Allowed sequence item types are bool, int, float, str.'
+                    )
+                evaluated_value = tuple(yaml_evaluated_value)
             else:
                 # Value is an array of the same type, so nothing to evaluate.
                 output_value = []

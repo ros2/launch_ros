@@ -31,6 +31,8 @@ from launch.substitutions import TextSubstitution
 from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 
+import yaml
+
 from ..parameters_type import ParameterFile  # noqa: F401
 from ..parameters_type import Parameters
 from ..parameters_type import ParametersDict
@@ -38,7 +40,6 @@ from ..parameters_type import ParameterValue
 from ..parameters_type import SomeParameters
 from ..parameters_type import SomeParametersDict
 from ..parameters_type import SomeParameterValue
-from ..substitutions import YamlLikeSubstitution
 
 
 def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValue:
@@ -86,8 +87,8 @@ def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValu
         # Normalize to a list of lists of substitutions
         new_value = []  # type: List[SomeSubstitutionsType]
         for element in value:
-            if isinstance(element, (float, int, bool)):
-                new_value.append(YamlLikeSubstitution(text=str(element)))
+            if isinstance(element, (float, int, bool, str)):
+                new_value.append(yaml.dump(element))
             else:
                 new_value.append(element)
         return tuple(normalize_to_list_of_substitutions(e) for e in new_value)
@@ -144,7 +145,9 @@ def normalize_parameter_dict(
             # Flatten recursive dictionaries
             sub_dict = normalize_parameter_dict(value, _prefix=name)
             normalized.update(sub_dict)
-        elif isinstance(value, (str, Substitution)):
+        elif isinstance(value, str):
+            normalized[tuple(name)] = tuple(normalize_to_list_of_substitutions(yaml.dump(value)))
+        elif isinstance(value, Substitution):
             normalized[tuple(name)] = tuple(normalize_to_list_of_substitutions(value))
         elif isinstance(value, (float, bool, int)):
             # Keep some types as is

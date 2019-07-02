@@ -186,8 +186,8 @@ class Node(ExecuteProcess):
             param_dict = {}
             for param in params:
                 name = param.get_attr('name')
-                value = param.get_attr('value', types='guess', optional=True)
-                nested_params = param.get_attr('param', types='list[Entity]', optional=True)
+                value = param.get_attr('value', types=None, optional=True)
+                nested_params = param.get_attr('param', types=List[Entity], optional=True)
                 if value is not None and nested_params:
                     print(value)
                     print(nested_params)
@@ -248,7 +248,7 @@ class Node(ExecuteProcess):
                     parser.parse_substitution(remap.get_attr('to'))
                 ) for remap in remappings
             ]
-        parameters = entity.get_attr('param', types='list[Entity]', optional=True)
+        parameters = entity.get_attr('param', types=List[Entity], optional=True)
         if parameters is not None:
             kwargs['parameters'] = Node.parse_nested_parameters(parameters, parser)
         return Node, kwargs

@@ -14,18 +14,21 @@
 
 """Module for the FindPackage substitution."""
 
+from typing import Iterable
 from typing import List
 from typing import Text
 
 from ament_index_python.packages import get_package_prefix
 
 from launch.launch_context import LaunchContext
+from launch.launch_frontend import expose_substitution
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitution import Substitution
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
 
+@expose_substitution('find-package')
 class FindPackage(Substitution):
     """
     Substitution that tries to locate the package prefix of a ROS package.
@@ -40,6 +43,14 @@ class FindPackage(Substitution):
         """Constructor."""
         super().__init__()
         self.__package = normalize_to_list_of_substitutions(package)
+
+    @staticmethod
+    def parse(data: Iterable[SomeSubstitutionsType]):
+        """Parse a FindPackage substitution."""
+        if not data or len(data) != 1:
+            raise AttributeError('find-package substitution expects 1 argument')
+        kwargs = {'package': data[0]}
+        return FindPackage, kwargs
 
     @property
     def package(self) -> List[Substitution]:

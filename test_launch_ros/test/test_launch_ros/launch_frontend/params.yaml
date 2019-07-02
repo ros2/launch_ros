@@ -1,0 +1,5 @@
+my_ns:
+  my_node:
+    ros__parameters:
+      param6: 1
+      param7: 'asd'

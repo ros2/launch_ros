@@ -215,7 +215,7 @@ class Node(ExecuteProcess):
                 # 'from' attribute ignores 'name' attribute,
                 # it's not accepted to be nested,
                 # and it can not have children.
-                normalized_params.append(from_attr)
+                normalized_params.append(parser.parse_substitution(from_attr))
                 continue
             elif name is not None:
                 params_without_from.append(param)

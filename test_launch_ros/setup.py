@@ -5,6 +5,10 @@ setup(
     name='test_launch_ros',
     version='0.8.4',
     packages=find_packages(exclude=['test']),
+    data_files=[
+        ('share/test_launch_ros/parameters',
+            ['test/test_launch_ros/launch_frontend/params.yaml']),
+    ],
     install_requires=[
         'setuptools',
         'demo_nodes_py',

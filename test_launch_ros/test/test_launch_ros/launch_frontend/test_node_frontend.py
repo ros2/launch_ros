@@ -15,6 +15,7 @@
 """Example of how to parse an xml."""
 
 import io
+import pathlib
 import textwrap
 
 from launch import LaunchService
@@ -41,6 +42,7 @@ xml_file = \
                 <param name="param4" value="$(var a_list)"/>
                 <param name="param5" value="$(var a_string)"/>
             </param>
+            <param from="$(find-package test_launch_ros)/share/test_launch_ros/parameters/params.yaml"/>
             <env name="var" value="1"/>
         </node>
     </launch>
@@ -77,10 +79,11 @@ yaml_file = \
                         value: $(var a_list)
                     -   name: param5
                         value: $(var a_string)
+                -   from: $(find-package test_launch_ros)/share/test_launch_ros/parameters/params.yaml
             env:
                 -   name: var
                     value: '1'
-    """
+    """  # noqa: E501
 yaml_file = textwrap.dedent(yaml_file)
 
 
@@ -96,15 +99,17 @@ def test_node_frontend(file):
     evaluated_parameters = evaluate_parameters(
         lc,
         ld.describe_sub_entities()[2]._Node__parameters
-    )[0]
-    assert isinstance(evaluated_parameters, dict)
-    assert 'param1' in evaluated_parameters
-    assert evaluated_parameters['param1'] == 'ads'
-    assert 'param_group1.param_group2.param2' in evaluated_parameters
-    assert 'param_group1.param3' in evaluated_parameters
-    assert 'param_group1.param4' in evaluated_parameters
-    assert 'param_group1.param5' in evaluated_parameters
-    assert evaluated_parameters['param_group1.param_group2.param2'] == 2
-    assert evaluated_parameters['param_group1.param3'] == (2, 5, 8)
-    assert evaluated_parameters['param_group1.param4'] == (2, 5, 8)
-    assert evaluated_parameters['param_group1.param5'] == '[2, 5, 8]'
+    )
+    assert isinstance(evaluated_parameters[0], pathlib.Path)
+    assert isinstance(evaluated_parameters[1], dict)
+    param_dict = evaluated_parameters[1]
+    assert 'param1' in param_dict
+    assert param_dict['param1'] == 'ads'
+    assert 'param_group1.param_group2.param2' in param_dict
+    assert 'param_group1.param3' in param_dict
+    assert 'param_group1.param4' in param_dict
+    assert 'param_group1.param5' in param_dict
+    assert param_dict['param_group1.param_group2.param2'] == 2
+    assert param_dict['param_group1.param3'] == (2, 5, 8)
+    assert param_dict['param_group1.param4'] == (2, 5, 8)
+    assert param_dict['param_group1.param5'] == '[2, 5, 8]'

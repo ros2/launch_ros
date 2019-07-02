@@ -51,7 +51,7 @@ class ComposableNode:
         :param node_namespace: namespace the node should create topics/services/etc in
         :param parameters: list of either paths to yaml files or dictionaries of parameters
         :param remappings: list of from/to pairs for remapping names
-        :pram extra_arguments: container specific arguments to be passed to the loaded node
+        :param extra_arguments: container specific arguments to be passed to the loaded node
         """
         self.__package = normalize_to_list_of_substitutions(package)
         self.__node_plugin = normalize_to_list_of_substitutions(node_plugin)

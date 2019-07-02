@@ -16,8 +16,11 @@
 
 from .executable_in_package import ExecutableInPackage
 from .find_package import FindPackage
+from .yaml_like_substitution import YamlLikeSubstitution
+
 
 __all__ = [
     'ExecutableInPackage',
-    'FindPackage'
+    'FindPackage',
+    'YamlLikeSubstitution',
 ]

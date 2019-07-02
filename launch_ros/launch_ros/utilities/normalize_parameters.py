@@ -38,6 +38,7 @@ from ..parameters_type import ParameterValue
 from ..parameters_type import SomeParameters
 from ..parameters_type import SomeParametersDict
 from ..parameters_type import SomeParameterValue
+from ..substitutions import YamlLikeSubstitution
 
 
 def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValue:
@@ -86,7 +87,7 @@ def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValu
         new_value = []  # type: List[SomeSubstitutionsType]
         for element in value:
             if isinstance(element, (float, int, bool)):
-                new_value.append(str(element))
+                new_value.append(YamlLikeSubstitution(text=str(element)))
             else:
                 new_value.append(element)
         return tuple(normalize_to_list_of_substitutions(e) for e in new_value)

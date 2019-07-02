@@ -18,8 +18,11 @@ import pathlib
 
 from launch import LaunchContext
 from launch.substitutions import TextSubstitution
+
+from launch_ros.substitutions import YamlLikeSubstitution
 from launch_ros.utilities import evaluate_parameters
 from launch_ros.utilities import normalize_parameters
+
 import pytest
 
 
@@ -76,7 +79,7 @@ def test_dictionary_with_substitution():
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
     # substitutions get yamlfied
-    orig = [{TextSubstitution(text='false'): TextSubstitution(text='off')}]
+    orig = [{TextSubstitution(text='false'): YamlLikeSubstitution(text='off')}]
     norm = normalize_parameters(orig)
     expected = ({'false': False},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
@@ -100,42 +103,42 @@ def test_dictionary_with_substitution_list_value():
     expected = ({'foo': ('fiz', 'buz')},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
-    orig = [{'bools': [[TextSubstitution(text='True')], [TextSubstitution(text='False')]]}]
+    orig = [{'bools': [[YamlLikeSubstitution(text='True')], [YamlLikeSubstitution(text='False')]]}]
     norm = normalize_parameters(orig)
     expected = ({'bools': (True, False)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
-    orig = [{'ints': [[TextSubstitution(text='1')], [TextSubstitution(text='2')]]}]
+    orig = [{'ints': [[YamlLikeSubstitution(text='1')], [YamlLikeSubstitution(text='2')]]}]
     norm = normalize_parameters(orig)
     expected = ({'ints': (1, 2)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
-    orig = [{'floats': [[TextSubstitution(text='1.0')], [TextSubstitution(text='2.0')]]}]
+    orig = [{'floats': [[YamlLikeSubstitution(text='1.0')], [YamlLikeSubstitution(text='2.0')]]}]
     norm = normalize_parameters(orig)
     expected = ({'floats': (1.0, 2.0)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
-    orig = [{'strings': ["'True'", "'1'", "'1.0'"]}]
+    orig = [{'strings': ['True', '1', '1.0']}]
     norm = normalize_parameters(orig)
     expected = ({'strings': ('True', '1', '1.0')},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
-    orig = [{'int_sequence': TextSubstitution(text='[2, 3, 4]')}]
+    orig = [{'int_sequence': YamlLikeSubstitution(text='[2, 3, 4]')}]
     norm = normalize_parameters(orig)
     expected = ({'int_sequence': (2, 3, 4)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
-    orig = [{'float_sequence': TextSubstitution(text='[2.0, 3.0, 4.0]')}]
+    orig = [{'float_sequence': YamlLikeSubstitution(text='[2.0, 3.0, 4.0]')}]
     norm = normalize_parameters(orig)
     expected = ({'float_sequence': (2., 3., 4.)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
-    orig = [{'bool_sequence': TextSubstitution(text='[True, False, True]')}]
+    orig = [{'bool_sequence': YamlLikeSubstitution(text='[True, False, True]')}]
     norm = normalize_parameters(orig)
     expected = ({'bool_sequence': (True, False, True)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
-    orig = [{'string_sequence': TextSubstitution(text="['True', '1', 'asd', '2.0']")}]
+    orig = [{'string_sequence': YamlLikeSubstitution(text="['True', '1', 'asd', '2.0']")}]
     norm = normalize_parameters(orig)
     expected = ({'string_sequence': ('True', '1', 'asd', '2.0')},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
@@ -169,14 +172,29 @@ def test_dictionary_with_str():
     expected = ({'foo': 'bar', 'fiz': ('b', 'u', 'z')},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
+    orig = [{'foo': 'False', 'fiz': ['True', 'False', 'True']}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 'False', 'fiz': ('True', 'False', 'True')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': '1.2', 'fiz': ['2.3', '3.4', '4.5']}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': '1.2', 'fiz': ('2.3', '3.4', '4.5')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': '1', 'fiz': ['2', '3', '4']}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': '1', 'fiz': ('2', '3', '4')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'strs': ['True', '2.0', '3']}]
+    norm = normalize_parameters(orig)
+    expected = ({'strs': ('True', '2.0', '3')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
 
 def test_dictionary_with_bool():
     orig = [{'foo': False, 'fiz': [True, False, True]}]
-    norm = normalize_parameters(orig)
-    expected = ({'foo': False, 'fiz': (True, False, True)},)
-    assert evaluate_parameters(LaunchContext(), norm) == expected
-
-    orig = [{'foo': 'False', 'fiz': ['True', 'False', 'True']}]
     norm = normalize_parameters(orig)
     expected = ({'foo': False, 'fiz': (True, False, True)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
@@ -188,19 +206,9 @@ def test_dictionary_with_float():
     expected = ({'foo': 1.2, 'fiz': (2.3, 3.4, 4.5)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
-    orig = [{'foo': '1.2', 'fiz': ['2.3', '3.4', '4.5']}]
-    norm = normalize_parameters(orig)
-    expected = ({'foo': 1.2, 'fiz': (2.3, 3.4, 4.5)},)
-    assert evaluate_parameters(LaunchContext(), norm) == expected
-
 
 def test_dictionary_with_int():
     orig = [{'foo': 1, 'fiz': [2, 3, 4]}]
-    norm = normalize_parameters(orig)
-    expected = ({'foo': 1, 'fiz': (2, 3, 4)},)
-    assert evaluate_parameters(LaunchContext(), norm) == expected
-
-    orig = [{'foo': '1', 'fiz': ['2', '3', '4']}]
     norm = normalize_parameters(orig)
     expected = ({'foo': 1, 'fiz': (2, 3, 4)},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
@@ -235,6 +243,7 @@ def test_dictionary_with_dissimilar_array():
     with pytest.raises(TypeError) as exc:
         orig = [{'foo': 1, 'fiz': [True, 2.0, 3]}]
         norm = normalize_parameters(orig)
+        print(norm)
         evaluate_parameters(LaunchContext(), norm)
     assert 'Expected a non-empty' in str(exc.value)
 
@@ -264,16 +273,10 @@ def test_dictionary_with_dissimilar_array():
 
     with pytest.raises(TypeError) as exc:
         orig = [{'foo': [
-            [TextSubstitution(text='True')],
-            [TextSubstitution(text='2.0')],
-            [TextSubstitution(text='3')],
+            [YamlLikeSubstitution(text='True')],
+            [YamlLikeSubstitution(text='2.0')],
+            [YamlLikeSubstitution(text='3')],
         ]}]
-        norm = normalize_parameters(orig)
-        evaluate_parameters(LaunchContext(), norm)
-    assert 'Expected a non-empty' in str(exc.value)
-
-    with pytest.raises(TypeError) as exc:
-        orig = [{'strs': ['True', '2.0', '3']}]
         norm = normalize_parameters(orig)
         evaluate_parameters(LaunchContext(), norm)
     assert 'Expected a non-empty' in str(exc.value)
@@ -295,26 +298,26 @@ def test_mixed_path_dicts():
 
 def test_unallowed_yaml_types_in_substitutions():
     with pytest.raises(TypeError) as exc:
-        orig = [{'foo': 1, 'fiz': TextSubstitution(text="{'asd': 3}")}]
+        orig = [{'foo': 1, 'fiz': YamlLikeSubstitution(text="{'asd': 3}")}]
         norm = normalize_parameters(orig)
         evaluate_parameters(LaunchContext(), norm)
     assert 'Allowed value types' in str(exc.value)
     assert 'dict' in str(exc.value)
 
     with pytest.raises(TypeError) as exc:
-        orig = [{'foo': 1, 'fiz': TextSubstitution(text='[1, 2.0, 3]')}]
+        orig = [{'foo': 1, 'fiz': YamlLikeSubstitution(text='[1, 2.0, 3]')}]
         norm = normalize_parameters(orig)
         evaluate_parameters(LaunchContext(), norm)
     assert 'Expected a non-empty sequence' in str(exc.value)
 
     with pytest.raises(TypeError) as exc:
-        orig = [{'foo': 1, 'fiz': TextSubstitution(text='[[2, 3], [2, 3], [2, 3]]')}]
+        orig = [{'foo': 1, 'fiz': YamlLikeSubstitution(text='[[2, 3], [2, 3], [2, 3]]')}]
         norm = normalize_parameters(orig)
         evaluate_parameters(LaunchContext(), norm)
     assert 'Expected a non-empty sequence' in str(exc.value)
 
     with pytest.raises(TypeError) as exc:
-        orig = [{'foo': 1, 'fiz': TextSubstitution(text='[]')}]
+        orig = [{'foo': 1, 'fiz': YamlLikeSubstitution(text='[]')}]
         norm = normalize_parameters(orig)
         evaluate_parameters(LaunchContext(), norm)
     assert 'Expected a non-empty sequence' in str(exc.value)
@@ -323,8 +326,8 @@ def test_unallowed_yaml_types_in_substitutions():
         orig = [{
             'foo': 1,
             'fiz': [
-                [TextSubstitution(text="['asd', 'bsd']")],
-                [TextSubstitution(text="['asd', 'csd']")]
+                [YamlLikeSubstitution(text="['asd', 'bsd']")],
+                [YamlLikeSubstitution(text="['asd', 'csd']")]
             ]
         }]
         norm = normalize_parameters(orig)

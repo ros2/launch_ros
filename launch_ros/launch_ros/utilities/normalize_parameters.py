@@ -76,7 +76,7 @@ def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValu
         # all were floats or ints, so return floats
         make_mypy_happy_float = cast(List[Union[int, float]], value)
         return tuple(float(e) for e in make_mypy_happy_float)
-    elif Substitution in has_types and has_types.issubset({str, Substitution, tuple}):
+    elif Substitution in has_types and has_types.issubset({str, Substitution}):
         # make a list of substitutions forming a single string
         return tuple(normalize_to_list_of_substitutions(cast(SomeSubstitutionsType, value)))
     elif {bool} == has_types:

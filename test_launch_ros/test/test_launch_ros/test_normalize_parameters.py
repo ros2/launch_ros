@@ -92,6 +92,14 @@ def test_dictionary_with_substitution_list_name():
 
 
 def test_dictionary_with_substitution_list_value():
+    orig = [{'foo': [
+        [TextSubstitution(text='fiz'), TextSubstitution(text='buz')],
+        TextSubstitution(text='fiz')
+    ]}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': ('fizbuz', 'fiz')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
     orig = [{'foo': [TextSubstitution(text='fiz'), TextSubstitution(text='buz')]}]
     norm = normalize_parameters(orig)
     expected = ({'foo': 'fizbuz'},)

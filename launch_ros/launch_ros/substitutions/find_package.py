@@ -44,13 +44,13 @@ class FindPackage(Substitution):
         super().__init__()
         self.__package = normalize_to_list_of_substitutions(package)
 
-    @staticmethod
-    def parse(data: Iterable[SomeSubstitutionsType]):
+    @classmethod
+    def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse a FindPackage substitution."""
         if not data or len(data) != 1:
             raise AttributeError('find-package substitution expects 1 argument')
         kwargs = {'package': data[0]}
-        return FindPackage, kwargs
+        return cls, kwargs
 
     @property
     def package(self) -> List[Substitution]:

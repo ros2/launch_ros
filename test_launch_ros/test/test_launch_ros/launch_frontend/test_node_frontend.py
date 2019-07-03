@@ -25,8 +25,8 @@ from launch_ros.utilities import evaluate_parameters
 
 import pytest
 
-# Scaping the quote is needed in 'a_string' launch configuration, becuase of how the parser works.
-# TODO(ivanpauno): Check if it's possible to avoid that.
+# Scaping the quote is needed in 'a_string' launch configuration,
+# becuase of how the substitution grammar works.
 yaml_params = str(pathlib.Path(__file__).parent / 'params.yaml')
 xml_file = \
     """\
@@ -96,9 +96,8 @@ def test_node_frontend(file):
     ls = LaunchService()
     ls.include_launch_description(ld)
     assert(0 == ls.run())
-    lc = ls.context
     evaluated_parameters = evaluate_parameters(
-        lc,
+        ls.context,
         ld.describe_sub_entities()[2]._Node__parameters
     )
     assert isinstance(evaluated_parameters[0], pathlib.Path)

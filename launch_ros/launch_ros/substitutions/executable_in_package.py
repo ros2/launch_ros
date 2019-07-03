@@ -50,13 +50,13 @@ class ExecutableInPackage(FindPackage):
         super().__init__(package)
         self.__executable = normalize_to_list_of_substitutions(executable)
 
-    @staticmethod
-    def parse(data: Iterable[SomeSubstitutionsType]):
+    @classmethod
+    def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse a ExecutableInPackage substitution."""
         if not data or len(data) != 2:
             raise AttributeError('exec-in-package substitution expects 2 arguments')
         kwargs = {'executable': data[0], 'package': data[1]}
-        return ExecutableInPackage, kwargs
+        return cls, kwargs
 
     @property
     def executable(self) -> List[Substitution]:

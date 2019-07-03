@@ -189,9 +189,7 @@ class Node(ExecuteProcess):
                 value = param.get_attr('value', types=None, optional=True)
                 nested_params = param.get_attr('param', types=List[Entity], optional=True)
                 if value is not None and nested_params:
-                    print(value)
-                    print(nested_params)
-                    raise RuntimeError('param and value attribute are mutually exclusive')
+                    raise RuntimeError('param and value attributes are mutually exclusive')
                 elif value is not None:
                     if isinstance(value, str):
                         value = parser.parse_substitution(value)
@@ -201,7 +199,7 @@ class Node(ExecuteProcess):
                         name: get_nested_dictionary_from_nested_key_value_pairs(nested_params)
                     })
                 else:
-                    raise RuntimeError('one of value attribute or nested params is needed')
+                    raise RuntimeError('either a value attribute or nested params are needed')
             return param_dict
 
         normalized_params = []
@@ -210,7 +208,7 @@ class Node(ExecuteProcess):
             from_attr = param.get_attr('from', optional=True)
             name = param.get_attr('name', optional=True)
             if from_attr is not None and name is not None:
-                raise RuntimeError('name and from_attr are mutually exclusive')
+                raise RuntimeError('name and from attributes are mutually exclusive')
             elif from_attr is not None:
                 # 'from' attribute ignores 'name' attribute,
                 # it's not accepted to be nested,
@@ -225,10 +223,10 @@ class Node(ExecuteProcess):
             get_nested_dictionary_from_nested_key_value_pairs(params_without_from))
         return normalized_params
 
-    @staticmethod
-    def parse(entity: Entity, parser: Parser):
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser):
         """Parse node."""
-        _, kwargs = super(Node, Node).parse(entity, parser, True)
+        _, kwargs = super().parse(entity, parser, True)
         kwargs['arguments'] = kwargs['cmd']  # See parse method of `ExecuteProcess`
         del kwargs['cmd']
         kwargs['node_name'] = kwargs['name']
@@ -250,8 +248,8 @@ class Node(ExecuteProcess):
             ]
         parameters = entity.get_attr('param', types=List[Entity], optional=True)
         if parameters is not None:
-            kwargs['parameters'] = Node.parse_nested_parameters(parameters, parser)
-        return Node, kwargs
+            kwargs['parameters'] = cls.parse_nested_parameters(parameters, parser)
+        return cls, kwargs
 
     @property
     def node_name(self):

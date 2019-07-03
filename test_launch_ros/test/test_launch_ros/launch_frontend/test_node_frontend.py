@@ -19,7 +19,7 @@ import pathlib
 import textwrap
 
 from launch import LaunchService
-from launch.launch_frontend import Parser
+from launch.frontend import Parser
 
 from launch_ros.utilities import evaluate_parameters
 

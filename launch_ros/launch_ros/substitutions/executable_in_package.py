@@ -19,8 +19,8 @@ from typing import Iterable
 from typing import List
 from typing import Text
 
+from launch.frontend import expose_substitution
 from launch.launch_context import LaunchContext
-from launch.launch_frontend import expose_substitution
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitution import Substitution
 from launch.substitutions.substitution_failure import SubstitutionFailure

@@ -25,11 +25,10 @@ from typing import Tuple  # noqa: F401
 
 from launch.action import Action
 from launch.actions import ExecuteProcess
+from launch.frontend import Entity
+from launch.frontend import expose_action
+from launch.frontend import Parser
 from launch.launch_context import LaunchContext
-
-from launch.launch_frontend import Entity
-from launch.launch_frontend import expose_action
-from launch.launch_frontend import Parser
 import launch.logging
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitutions import LocalSubstitution

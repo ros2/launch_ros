@@ -20,8 +20,8 @@ from typing import Text
 
 from ament_index_python.packages import get_package_prefix
 
+from launch.frontend import expose_substitution
 from launch.launch_context import LaunchContext
-from launch.launch_frontend import expose_substitution
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitution import Substitution
 from launch.utilities import normalize_to_list_of_substitutions

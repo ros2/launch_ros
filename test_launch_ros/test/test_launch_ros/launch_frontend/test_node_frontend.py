@@ -27,6 +27,7 @@ import pytest
 
 # Scaping the quote is needed in 'a_string' launch configuration, becuase of how the parser works.
 # TODO(ivanpauno): Check if it's possible to avoid that.
+yaml_params = str(pathlib.Path(__file__).parent / 'params.yaml')
 xml_file = \
     """\
     <launch>
@@ -42,11 +43,11 @@ xml_file = \
                 <param name="param4" value="$(var a_list)"/>
                 <param name="param5" value="$(var a_string)"/>
             </param>
-            <param from="$(find-package test_launch_ros)/share/test_launch_ros/parameters/params.yaml"/>
+            <param from="{}"/>
             <env name="var" value="1"/>
         </node>
     </launch>
-    """  # noqa: E501
+    """.format(yaml_params)  # noqa: E501
 xml_file = textwrap.dedent(xml_file)
 yaml_file = \
     """\
@@ -79,11 +80,11 @@ yaml_file = \
                         value: $(var a_list)
                     -   name: param5
                         value: $(var a_string)
-                -   from: $(find-package test_launch_ros)/share/test_launch_ros/parameters/params.yaml
+                -   from: {}
             env:
                 -   name: var
                     value: '1'
-    """  # noqa: E501
+    """.format(yaml_params)  # noqa: E501
 yaml_file = textwrap.dedent(yaml_file)
 
 

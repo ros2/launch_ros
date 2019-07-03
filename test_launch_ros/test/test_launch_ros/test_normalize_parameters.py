@@ -18,8 +18,10 @@ import pathlib
 
 from launch import LaunchContext
 from launch.substitutions import TextSubstitution
+
 from launch_ros.utilities import evaluate_parameters
 from launch_ros.utilities import normalize_parameters
+
 import pytest
 
 
@@ -90,6 +92,14 @@ def test_dictionary_with_substitution_list_name():
 
 
 def test_dictionary_with_substitution_list_value():
+    orig = [{'foo': [
+        [TextSubstitution(text='fiz'), TextSubstitution(text='buz')],
+        TextSubstitution(text='fiz')
+    ]}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': ('fizbuz', 'fiz')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
     orig = [{'foo': [TextSubstitution(text='fiz'), TextSubstitution(text='buz')]}]
     norm = normalize_parameters(orig)
     expected = ({'foo': 'fizbuz'},)
@@ -113,6 +123,31 @@ def test_dictionary_with_substitution_list_value():
     orig = [{'floats': [[TextSubstitution(text='1.0')], [TextSubstitution(text='2.0')]]}]
     norm = normalize_parameters(orig)
     expected = ({'floats': (1.0, 2.0)},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'strings': ['True', '1', '1.0']}]
+    norm = normalize_parameters(orig)
+    expected = ({'strings': ('True', '1', '1.0')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'int_sequence': TextSubstitution(text='[2, 3, 4]')}]
+    norm = normalize_parameters(orig)
+    expected = ({'int_sequence': (2, 3, 4)},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'float_sequence': TextSubstitution(text='[2.0, 3.0, 4.0]')}]
+    norm = normalize_parameters(orig)
+    expected = ({'float_sequence': (2., 3., 4.)},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'bool_sequence': TextSubstitution(text='[True, False, True]')}]
+    norm = normalize_parameters(orig)
+    expected = ({'bool_sequence': (True, False, True)},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'string_sequence': TextSubstitution(text="['True', '1', 'asd', '2.0']")}]
+    norm = normalize_parameters(orig)
+    expected = ({'string_sequence': ('True', '1', 'asd', '2.0')},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
 
@@ -142,6 +177,26 @@ def test_dictionary_with_str():
     orig = [{'foo': 'bar', 'fiz': ['b', 'u', 'z']}]
     norm = normalize_parameters(orig)
     expected = ({'foo': 'bar', 'fiz': ('b', 'u', 'z')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': 'False', 'fiz': ['True', 'False', 'True']}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 'False', 'fiz': ('True', 'False', 'True')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': '1.2', 'fiz': ['2.3', '3.4', '4.5']}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': '1.2', 'fiz': ('2.3', '3.4', '4.5')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': '1', 'fiz': ['2', '3', '4']}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': '1', 'fiz': ('2', '3', '4')},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'strs': ['True', '2.0', '3']}]
+    norm = normalize_parameters(orig)
+    expected = ({'strs': ('True', '2.0', '3')},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
 
@@ -192,30 +247,45 @@ def test_dictionary_with_bytes():
 
 
 def test_dictionary_with_dissimilar_array():
-    orig = [{'foo': 1, 'fiz': [True, 2.0, 3]}]
-    norm = normalize_parameters(orig)
-    expected = ({'foo': 1, 'fiz': ('True', '2.0', '3')},)
-    assert evaluate_parameters(LaunchContext(), norm) == expected
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': [True, 2.0, 3]}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty' in str(exc.value)
 
-    orig = [{'foo': 1, 'fiz': [True, 1, TextSubstitution(text='foo')]}]
-    norm = normalize_parameters(orig)
-    expected = ({'foo': 1, 'fiz': ('True', '1', 'foo')},)
-    assert evaluate_parameters(LaunchContext(), norm) == expected
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': [True, 1, TextSubstitution(text='foo')]}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty' in str(exc.value)
 
-    orig = [{'foo': 1, 'fiz': [TextSubstitution(text='foo'), True, 1]}]
-    norm = normalize_parameters(orig)
-    expected = ({'foo': 1, 'fiz': ('foo', 'True', '1')},)
-    assert evaluate_parameters(LaunchContext(), norm) == expected
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': [TextSubstitution(text='foo'), True, 1]}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty' in str(exc.value)
 
-    orig = [{'foo': 1, 'fiz': [True, 1, [TextSubstitution(text='foo')]]}]
-    norm = normalize_parameters(orig)
-    expected = ({'foo': 1, 'fiz': ('True', '1', 'foo')},)
-    assert evaluate_parameters(LaunchContext(), norm) == expected
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': [True, 1, [TextSubstitution(text='foo')]]}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty' in str(exc.value)
 
-    orig = [{'foo': 1, 'fiz': [[TextSubstitution(text='foo')], True, 1]}]
-    norm = normalize_parameters(orig)
-    expected = ({'foo': 1, 'fiz': ('foo', 'True', '1')},)
-    assert evaluate_parameters(LaunchContext(), norm) == expected
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': [[TextSubstitution(text='foo')], True, 1]}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty' in str(exc.value)
+
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': [
+            [TextSubstitution(text='True')],
+            [TextSubstitution(text='2.0')],
+            [TextSubstitution(text='3')],
+        ]}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty' in str(exc.value)
 
 
 def test_nested_dictionaries():
@@ -230,3 +300,42 @@ def test_mixed_path_dicts():
     norm = normalize_parameters(orig)
     expected = (pathlib.Path('/foo/bar'), {'fiz.buz': 3}, pathlib.Path('/tmp/baz'))
     assert evaluate_parameters(LaunchContext(), norm) == expected
+
+
+def test_unallowed_yaml_types_in_substitutions():
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': TextSubstitution(text="{'asd': 3}")}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Allowed value types' in str(exc.value)
+    assert 'dict' in str(exc.value)
+
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': TextSubstitution(text='[1, 2.0, 3]')}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty sequence' in str(exc.value)
+
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': TextSubstitution(text='[[2, 3], [2, 3], [2, 3]]')}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty sequence' in str(exc.value)
+
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': TextSubstitution(text='[]')}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty sequence' in str(exc.value)
+
+    with pytest.raises(TypeError) as exc:
+        orig = [{
+            'foo': 1,
+            'fiz': [
+                [TextSubstitution(text="['asd', 'bsd']")],
+                [TextSubstitution(text="['asd', 'csd']")]
+            ]
+        }]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Expected a non-empty sequence' in str(exc.value)

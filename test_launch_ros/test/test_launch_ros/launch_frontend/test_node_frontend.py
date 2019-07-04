@@ -42,6 +42,9 @@ xml_file = \
                 <param name="param3" value="2, 5, 8" value-sep=", "/>
                 <param name="param4" value="$(var a_list)"/>
                 <param name="param5" value="$(var a_string)"/>
+                <param name="param6" value="2., 5., 8." value-sep=", "/>
+                <param name="param7" value="'2', '5', '8'" value-sep=", "/>
+                <param name="param8" value="''2'', ''5'', ''8''" value-sep=", "/>
             </param>
             <param from="{}"/>
             <env name="var" value="1"/>
@@ -80,6 +83,12 @@ yaml_file = \
                         value: $(var a_list)
                     -   name: param5
                         value: $(var a_string)
+                    -   name: param6
+                        value: [2., 5., 8.]
+                    -   name: param7
+                        value: ['2', '5', '8']
+                    -   name: param8
+                        value: ["'2'", "'5'", "'8'"]
                 -   from: {}
             env:
                 -   name: var
@@ -109,7 +118,13 @@ def test_node_frontend(file):
     assert 'param_group1.param3' in param_dict
     assert 'param_group1.param4' in param_dict
     assert 'param_group1.param5' in param_dict
+    assert 'param_group1.param6' in param_dict
+    assert 'param_group1.param7' in param_dict
+    assert 'param_group1.param8' in param_dict
     assert param_dict['param_group1.param_group2.param2'] == 2
     assert param_dict['param_group1.param3'] == (2, 5, 8)
     assert param_dict['param_group1.param4'] == (2, 5, 8)
     assert param_dict['param_group1.param5'] == '[2, 5, 8]'
+    assert param_dict['param_group1.param6'] == [2., 5., 8.]
+    assert param_dict['param_group1.param7'] == ['2', '5', '8']
+    assert param_dict['param_group1.param8'] == ["'2'", "'5'", "'8'"]

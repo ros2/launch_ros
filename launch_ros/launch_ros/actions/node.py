@@ -225,9 +225,10 @@ class Node(ExecuteProcess):
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
         """Parse node."""
-        _, kwargs = super().parse(entity, parser, True)
-        kwargs['arguments'] = kwargs['cmd']  # See parse method of `ExecuteProcess`
-        del kwargs['cmd']
+        # See parse method of `ExecuteProcess`
+        _, kwargs = super().parse(entity, parser, 'args')
+        kwargs['arguments'] = kwargs['args']
+        del kwargs['args']
         kwargs['node_name'] = kwargs['name']
         del kwargs['name']
         package = parser.parse_substitution(entity.get_attr('package'))

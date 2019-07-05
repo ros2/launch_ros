@@ -184,7 +184,7 @@ class Node(ExecuteProcess):
             # In that case, we should do some extra formal checking before processing.
             param_dict = {}
             for param in params:
-                name = param.get_attr('name')
+                name = tuple(parser.parse_substitution(param.get_attr('name')))
                 value = param.get_attr('value', types=None, optional=True)
                 nested_params = param.get_attr('param', types=List[Entity], optional=True)
                 if value is not None and nested_params:

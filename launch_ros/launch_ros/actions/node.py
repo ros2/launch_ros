@@ -32,6 +32,7 @@ from launch.launch_context import LaunchContext
 import launch.logging
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitutions import LocalSubstitution
+from launch.substitutions import TextSubstitution
 from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
@@ -190,8 +191,16 @@ class Node(ExecuteProcess):
                 if value is not None and nested_params:
                     raise RuntimeError('param and value attributes are mutually exclusive')
                 elif value is not None:
-                    if isinstance(value, str):
-                        value = parser.parse_substitution(value)
+                    def normalize_scalar_value(value):
+                        if isinstance(value, str):
+                            value = parser.parse_substitution(value)
+                            if len(value) == 1 and isinstance(value[0], TextSubstitution):
+                                value = value[0].text  # python `str` are not converted like yaml
+                        return value
+                    if isinstance(value, list):
+                        value = [normalize_scalar_value(x) for x in value]
+                    else:
+                        value = normalize_scalar_value(value)
                     param_dict[name] = value
                 elif nested_params:
                     param_dict.update({

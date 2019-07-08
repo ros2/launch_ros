@@ -25,13 +25,11 @@ from launch_ros.utilities import evaluate_parameters
 
 import pytest
 
-# Scaping the quote is needed in 'a_string' launch configuration,
-# becuase of how the substitution grammar works.
 yaml_params = str(pathlib.Path(__file__).parent / 'params.yaml')
 xml_file = \
-    """\
+    r"""
     <launch>
-        <let name="a_string" value="\\'[2, 5, 8]\\'"/>
+        <let name="a_string" value="\'[2, 5, 8]\'"/>
         <let name="a_list" value="[2, 5, 8]"/>
         <node package="demo_nodes_py" executable="talker_qos" output="screen" name="my_node" namespace="my_ns" args="--number_of_cycles 1">
             <param name="param1" value="ads"/>
@@ -45,9 +43,9 @@ xml_file = \
                 <param name="param6" value="2., 5., 8." value-sep=", "/>
                 <param name="param7" value="'2', '5', '8'" value-sep=", "/>
                 <param name="param8" value="''2'', ''5'', ''8''" value-sep=", "/>
-                <param name="param9" value="\\'2\\', \\'5\\', \\'8\\'" value-sep=", "/>
+                <param name="param9" value="\'2\', \'5\', \'8\'" value-sep=", "/>
                 <param name="param10" value="''asd'', ''bsd'', ''csd''" value-sep=", "/>
-                <param name="param11" value="'\\asd', '\\bsd', '\\csd'" value-sep=", "/>
+                <param name="param11" value="'\asd', '\bsd', '\csd'" value-sep=", "/>
             </param>
             <param from="{}"/>
             <env name="var" value="1"/>
@@ -56,11 +54,11 @@ xml_file = \
     """.format(yaml_params)  # noqa: E501
 xml_file = textwrap.dedent(xml_file)
 yaml_file = \
-    """\
+    r"""
     launch:
         - let:
             name: 'a_string'
-            value: '\\"[2, 5, 8]\\"'
+            value: "'[2, 5, 8]'"
         - let:
             name: 'a_list'
             value: '[2, 5, 8]'
@@ -97,7 +95,7 @@ yaml_file = \
                     -   name: param10
                         value: ["'asd'", "'bsd'", "'csd'"]
                     -   name: param11
-                        value: ["\\asd", "\\bsd", "\\csd"]
+                        value: ['\asd', '\bsd', '\csd']
                 -   from: {}
             env:
                 -   name: var
@@ -137,9 +135,9 @@ def test_node_frontend(file):
     assert param_dict['param_group1.param3'] == (2, 5, 8)
     assert param_dict['param_group1.param4'] == (2, 5, 8)
     assert param_dict['param_group1.param5'] == '[2, 5, 8]'
-    assert param_dict['param_group1.param6'] == [2., 5., 8.]
-    assert param_dict['param_group1.param7'] == ['2', '5', '8']
-    assert param_dict['param_group1.param8'] == ["'2'", "'5'", "'8'"]
-    assert param_dict['param_group1.param9'] == ["'2'", "'5'", "'8'"]
-    assert param_dict['param_group1.param10'] == ["'asd'", "'bsd'", "'csd'"]
-    assert param_dict['param_group1.param11'] == ['asd', 'bsd', 'csd']
+    assert param_dict['param_group1.param6'] == (2., 5., 8.)
+    assert param_dict['param_group1.param7'] == ('2', '5', '8')
+    assert param_dict['param_group1.param8'] == ("'2'", "'5'", "'8'")
+    assert param_dict['param_group1.param9'] == ("'2'", "'5'", "'8'")
+    assert param_dict['param_group1.param10'] == ("'asd'", "'bsd'", "'csd'")
+    assert param_dict['param_group1.param11'] == ('asd', 'bsd', 'csd')

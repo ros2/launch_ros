@@ -185,8 +185,8 @@ class Node(ExecuteProcess):
             param_dict = {}
             for param in params:
                 name = tuple(parser.parse_substitution(param.get_attr('name')))
-                value = param.get_attr('value', types=None, optional=True)
-                nested_params = param.get_attr('param', types=List[Entity], optional=True)
+                value = param.get_attr('value', data_type=None, optional=True)
+                nested_params = param.get_attr('param', data_type=List[Entity], optional=True)
                 if value is not None and nested_params:
                     raise RuntimeError('param and value attributes are mutually exclusive')
                 elif value is not None:
@@ -246,7 +246,7 @@ class Node(ExecuteProcess):
                     parser.parse_substitution(remap.get_attr('to'))
                 ) for remap in remappings
             ]
-        parameters = entity.get_attr('param', types=List[Entity], optional=True)
+        parameters = entity.get_attr('param', data_type=List[Entity], optional=True)
         if parameters is not None:
             kwargs['parameters'] = cls.parse_nested_parameters(parameters, parser)
         return cls, kwargs

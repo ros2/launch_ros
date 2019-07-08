@@ -45,6 +45,9 @@ xml_file = \
                 <param name="param6" value="2., 5., 8." value-sep=", "/>
                 <param name="param7" value="'2', '5', '8'" value-sep=", "/>
                 <param name="param8" value="''2'', ''5'', ''8''" value-sep=", "/>
+                <param name="param9" value="\\'2\\', \\'5\\', \\'8\\'" value-sep=", "/>
+                <param name="param10" value="''asd'', ''bsd'', ''csd''" value-sep=", "/>
+                <param name="param11" value="'\\asd', '\\bsd', '\\csd'" value-sep=", "/>
             </param>
             <param from="{}"/>
             <env name="var" value="1"/>
@@ -89,6 +92,12 @@ yaml_file = \
                         value: ['2', '5', '8']
                     -   name: param8
                         value: ["'2'", "'5'", "'8'"]
+                    -   name: param9
+                        value: ["\\'2\\'", "\\'5\\'", "\\'8\\'"]
+                    -   name: param10
+                        value: ["'asd'", "'bsd'", "'csd'"]
+                    -   name: param11
+                        value: ["\\asd", "\\bsd", "\\csd"]
                 -   from: {}
             env:
                 -   name: var
@@ -121,6 +130,9 @@ def test_node_frontend(file):
     assert 'param_group1.param6' in param_dict
     assert 'param_group1.param7' in param_dict
     assert 'param_group1.param8' in param_dict
+    assert 'param_group1.param9' in param_dict
+    assert 'param_group1.param10' in param_dict
+    assert 'param_group1.param11' in param_dict
     assert param_dict['param_group1.param_group2.param2'] == 2
     assert param_dict['param_group1.param3'] == (2, 5, 8)
     assert param_dict['param_group1.param4'] == (2, 5, 8)
@@ -128,3 +140,6 @@ def test_node_frontend(file):
     assert param_dict['param_group1.param6'] == [2., 5., 8.]
     assert param_dict['param_group1.param7'] == ['2', '5', '8']
     assert param_dict['param_group1.param8'] == ["'2'", "'5'", "'8'"]
+    assert param_dict['param_group1.param9'] == ["'2'", "'5'", "'8'"]
+    assert param_dict['param_group1.param10'] == ["'asd'", "'bsd'", "'csd'"]
+    assert param_dict['param_group1.param11'] == ['asd', 'bsd', 'csd']

@@ -15,9 +15,11 @@
 """Module for the ExecutableInPackage substitution."""
 
 import os
+from typing import Iterable
 from typing import List
 from typing import Text
 
+from launch.frontend import expose_substitution
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitution import Substitution
@@ -30,6 +32,7 @@ from osrf_pycommon.process_utils import which
 from .find_package import FindPackage
 
 
+@expose_substitution('exec-in-package')
 class ExecutableInPackage(FindPackage):
     """
     Substitution that tries to locate an executable in the libexec directory of a ROS package.
@@ -46,6 +49,14 @@ class ExecutableInPackage(FindPackage):
         """Constructor."""
         super().__init__(package)
         self.__executable = normalize_to_list_of_substitutions(executable)
+
+    @classmethod
+    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+        """Parse a ExecutableInPackage substitution."""
+        if not data or len(data) != 2:
+            raise AttributeError('exec-in-package substitution expects 2 arguments')
+        kwargs = {'executable': data[0], 'package': data[1]}
+        return cls, kwargs
 
     @property
     def executable(self) -> List[Substitution]:

@@ -25,12 +25,14 @@ from typing import Tuple  # noqa: F401
 
 from launch.action import Action
 from launch.actions import ExecuteProcess
+from launch.frontend import Entity
+from launch.frontend import expose_action
+from launch.frontend import Parser
 from launch.launch_context import LaunchContext
-
 import launch.logging
-
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitutions import LocalSubstitution
+from launch.substitutions import TextSubstitution
 from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
@@ -48,6 +50,7 @@ from rclpy.validate_node_name import validate_node_name
 import yaml
 
 
+@expose_action('node')
 class Node(ExecuteProcess):
     """Action that executes a ROS node."""
 
@@ -171,6 +174,86 @@ class Node(ExecuteProcess):
         self.__substitutions_performed = False
 
         self.__logger = launch.logging.get_logger(__name__)
+
+    @staticmethod
+    def parse_nested_parameters(params, parser):
+        """Normalize parameters as expected by Node constructor argument."""
+        def get_nested_dictionary_from_nested_key_value_pairs(params):
+            """Convert nested params in a nested dictionary."""
+            param_dict = {}
+            for param in params:
+                name = tuple(parser.parse_substitution(param.get_attr('name')))
+                value = param.get_attr('value', data_type=None, optional=True)
+                nested_params = param.get_attr('param', data_type=List[Entity], optional=True)
+                if value is not None and nested_params:
+                    raise RuntimeError('param and value attributes are mutually exclusive')
+                elif value is not None:
+                    def normalize_scalar_value(value):
+                        if isinstance(value, str):
+                            value = parser.parse_substitution(value)
+                            if len(value) == 1 and isinstance(value[0], TextSubstitution):
+                                value = value[0].text  # python `str` are not converted like yaml
+                        return value
+                    if isinstance(value, list):
+                        value = [normalize_scalar_value(x) for x in value]
+                    else:
+                        value = normalize_scalar_value(value)
+                    param_dict[name] = value
+                elif nested_params:
+                    param_dict.update({
+                        name: get_nested_dictionary_from_nested_key_value_pairs(nested_params)
+                    })
+                else:
+                    raise RuntimeError('either a value attribute or nested params are needed')
+            return param_dict
+
+        normalized_params = []
+        params_without_from = []
+        for param in params:
+            from_attr = param.get_attr('from', optional=True)
+            name = param.get_attr('name', optional=True)
+            if from_attr is not None and name is not None:
+                raise RuntimeError('name and from attributes are mutually exclusive')
+            elif from_attr is not None:
+                # 'from' attribute ignores 'name' attribute,
+                # it's not accepted to be nested,
+                # and it can not have children.
+                normalized_params.append(parser.parse_substitution(from_attr))
+                continue
+            elif name is not None:
+                params_without_from.append(param)
+                continue
+            raise ValueError('param Entity should have name or from attribute')
+        normalized_params.append(
+            get_nested_dictionary_from_nested_key_value_pairs(params_without_from))
+        return normalized_params
+
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser):
+        """Parse node."""
+        # See parse method of `ExecuteProcess`
+        _, kwargs = super().parse(entity, parser, 'args')
+        kwargs['arguments'] = kwargs['args']
+        del kwargs['args']
+        kwargs['node_name'] = kwargs['name']
+        del kwargs['name']
+        kwargs['package'] = parser.parse_substitution(entity.get_attr('package'))
+        kwargs['node_executable'] = parser.parse_substitution(entity.get_attr('executable'))
+        ns = entity.get_attr('namespace', optional=True)
+        if ns is not None:
+            kwargs['node_namespace'] = parser.parse_substitution(ns)
+        remappings = entity.get_attr('remap', optional=True)
+        if remappings is not None:
+            kwargs['remappings'] = [
+                (
+                    parser.parse_substitution(remap.get_attr('from')),
+                    parser.parse_substitution(remap.get_attr('to'))
+                ) for remap in remappings
+            ]
+        parameters = entity.get_attr('param', data_type=List[Entity], optional=True)
+        if parameters is not None:
+            kwargs['parameters'] = cls.parse_nested_parameters(parameters, parser)
+        return cls, kwargs
 
     @property
     def node_name(self):

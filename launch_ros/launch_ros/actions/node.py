@@ -180,9 +180,6 @@ class Node(ExecuteProcess):
         """Normalize parameters as expected by Node constructor argument."""
         def get_nested_dictionary_from_nested_key_value_pairs(params):
             """Convert nested params in a nested dictionary."""
-            # TODO(ivanpauno): If our schema checking is not powerfull enough
-            # this could easily end in an infinite loop.
-            # In that case, we should do some extra formal checking before processing.
             param_dict = {}
             for param in params:
                 name = tuple(parser.parse_substitution(param.get_attr('name')))
@@ -240,10 +237,8 @@ class Node(ExecuteProcess):
         del kwargs['args']
         kwargs['node_name'] = kwargs['name']
         del kwargs['name']
-        package = parser.parse_substitution(entity.get_attr('package'))
-        kwargs['package'] = package
-        executable = parser.parse_substitution(entity.get_attr('executable'))
-        kwargs['node_executable'] = executable
+        kwargs['package'] = parser.parse_substitution(entity.get_attr('package'))
+        kwargs['node_executable'] = parser.parse_substitution(entity.get_attr('executable'))
         ns = entity.get_attr('namespace', optional=True)
         if ns is not None:
             kwargs['node_namespace'] = parser.parse_substitution(ns)

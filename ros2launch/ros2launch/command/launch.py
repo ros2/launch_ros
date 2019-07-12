@@ -21,11 +21,11 @@ from ament_index_python.packages import PackageNotFoundError
 from ros2cli.command import CommandExtension
 from ros2launch.api import get_share_file_path_from_package
 from ros2launch.api import InvalidPythonLaunchFileError
-from ros2launch.api import launch_a_python_launch_file
+from ros2launch.api import launch_a_launch_file
 from ros2launch.api import LaunchFileNameCompleter
 from ros2launch.api import MultipleLaunchFilesError
-from ros2launch.api import print_a_python_launch_file
-from ros2launch.api import print_arguments_of_python_launch_file
+from ros2launch.api import print_a_launch_file
+from ros2launch.api import print_arguments_of_launch_file
 from ros2pkg.api import package_name_completer
 
 
@@ -113,12 +113,12 @@ class LaunchCommand(CommandExtension):
             if args.show_all_subprocesses_output:
                 os.environ['OVERRIDE_LAUNCH_PROCESS_OUTPUT'] = 'both'
             if args.print:
-                return print_a_python_launch_file(python_launch_file_path=path)
+                return print_a_launch_file(launch_file_path=path)
             elif args.show_args:
-                return print_arguments_of_python_launch_file(python_launch_file_path=path)
+                return print_arguments_of_launch_file(launch_file_path=path)
             else:
-                return launch_a_python_launch_file(
-                    python_launch_file_path=path,
+                return launch_a_launch_file(
+                    launch_file_path=path,
                     launch_file_arguments=launch_arguments,
                     debug=args.debug
                 )
@@ -139,3 +139,8 @@ Notice: Your launch file may have been designed to be used with an older version
 Or that the file you specified is Python code, but not a launch file.
 """, file=sys.stderr)
             raise RuntimeError('InvalidPythonLaunchFileError: {}'.format(str(exc)))
+        except RuntimeError as exc:
+            print("""
+Notice: Your launch file may be not a python, xml or yaml launch file. Or it may have a syntax error.
+""", file=sys.stderr)
+            raise RuntimeError('{}'.format(str(exc)))

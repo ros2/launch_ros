@@ -23,14 +23,10 @@ from typing import Tuple
 from ament_index_python.packages import get_package_share_directory
 from ament_index_python.packages import PackageNotFoundError
 import launch
-from launch.launch_description_sources import AnyLaunchDescriptionSource
-from launch.launch_description_sources import InvalidPythonLaunchFileError
+from launch.launch_description_sources import get_launch_description_from_any_launch_file
 import launch_ros
 import rclpy
 import rclpy.context
-
-# forward functions into this module's default namespace (useful for some autocompletion tools)
-InvalidPythonLaunchFileError = InvalidPythonLaunchFileError
 
 
 class MultipleLaunchFilesError(Exception):
@@ -83,9 +79,7 @@ def get_launch_file_paths(*, path):
 
 def print_a_launch_file(*, launch_file_path):
     """Print the description of a launch file to the console."""
-    launch_description = AnyLaunchDescriptionSource(launch_file_path).get_launch_description(
-        launch.LaunchContext()
-    )
+    launch_description = get_launch_description_from_any_launch_file(launch_file_path)
     print(launch.LaunchIntrospector().format_launch_description(launch_description))
 
 
@@ -117,9 +111,7 @@ def print_arguments_of_launch_description(*, launch_description):
 
 def print_arguments_of_launch_file(*, launch_file_path):
     """Print the arguments of a launch file to the console."""
-    launch_description = AnyLaunchDescriptionSource(launch_file_path).get_launch_description(
-        launch.LaunchContext()
-    )
+    launch_description = get_launch_description_from_any_launch_file(launch_file_path)
     print_arguments_of_launch_description(launch_description=launch_description)
 
 

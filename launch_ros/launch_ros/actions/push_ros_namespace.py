@@ -16,8 +16,8 @@
 
 from typing import List
 
+from launch import Action
 from launch import Substitution
-from launch.actions import Action
 from launch.frontend import Entity
 from launch.frontend import Parser
 from launch.launch_context import LaunchContext
@@ -57,8 +57,8 @@ class PushRosNamespace(Action):
 
     def execute(self, context: LaunchContext):
         """Execute the action."""
-        namespace = perform_substitutions(context, self.namespace).rstrip('/')
+        namespace = perform_substitutions(context, self.namespace)
         if not namespace.startswith('/'):
             namespace = context.launch_configurations.get('ros_namespace', '') \
                 + '/' + namespace
-        context.launch_configurations['ros_namespace'] = namespace
+        context.launch_configurations['ros_namespace'] = namespace.rstrip('/')

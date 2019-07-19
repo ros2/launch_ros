@@ -18,10 +18,12 @@ from .composable_node_container import ComposableNodeContainer
 from .lifecycle_node import LifecycleNode
 from .load_composable_nodes import LoadComposableNodes
 from .node import Node
+from .push_ros_namespace import PushRosNamespace
 
 __all__ = [
     'ComposableNodeContainer',
     'LifecycleNode',
     'LoadComposableNodes',
     'Node',
+    'PushRosNamespace',
 ]

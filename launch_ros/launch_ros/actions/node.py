@@ -166,7 +166,7 @@ class Node(ExecuteProcess):
         self.__arguments = arguments
 
         self.__expanded_node_name = '<node_name_unspecified>'
-        self.__expanded_node_namespace = '/'
+        self.__expanded_node_namespace = ''
         self.__final_node_name = None  # type: Optional[Text]
         self.__expanded_parameter_files = None  # type: Optional[List[Text]]
         self.__expanded_remappings = None  # type: Optional[List[Tuple[Text, Text]]]
@@ -285,7 +285,12 @@ class Node(ExecuteProcess):
                 self.__expanded_node_namespace = perform_substitutions(
                     context, normalize_to_list_of_substitutions(self.__node_namespace))
             if not self.__expanded_node_namespace.startswith('/'):
-                self.__expanded_node_namespace = '/' + self.__expanded_node_namespace
+                base_ns = context.launch_configurations.get('ros_namespace', '')
+                self.__expanded_node_namespace = (
+                    base_ns + '/' + self.__expanded_node_namespace
+                ).rstrip('/')
+                if not self.__expanded_node_namespace.startswith('/'):
+                    self.__expanded_node_namespace = '/' + self.__expanded_node_namespace
             validate_namespace(self.__expanded_node_namespace)
         except Exception:
             self.__logger.error(
@@ -350,3 +355,8 @@ class Node(ExecuteProcess):
                 ros_specific_arguments.append('{}:={}'.format(remapping_from, remapping_to))
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
         return super().execute(context)
+
+    @property
+    def expanded_node_namespace(self):
+        """Getter for expanded_node_namespace."""
+        return self.__expanded_node_namespace

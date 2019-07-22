@@ -82,6 +82,7 @@ get_launch_file_paths.extensions = [
     'launch.' + extension for extension in Parser.get_available_extensions()
 ]
 get_launch_file_paths.extensions.append('launch.py')
+get_launch_file_paths.extensions = tuple(get_launch_file_paths.extensions)
 
 
 def print_a_launch_file(*, launch_file_path):

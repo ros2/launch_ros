@@ -23,6 +23,7 @@ from typing import Tuple
 from ament_index_python.packages import get_package_share_directory
 from ament_index_python.packages import PackageNotFoundError
 import launch
+from launch.frontend import Parser
 from launch.launch_description_sources import get_launch_description_from_any_launch_file
 import launch_ros
 import rclpy
@@ -72,9 +73,15 @@ def get_launch_file_paths(*, path):
     launch_file_paths = []
     for root, dirs, files in os.walk(path):
         for file_name in files:
-            if file_name.endswith(('.launch.py', '.launch.xml', '.launch.yaml')):
+            if file_name.endswith(get_launch_file_paths.extensions):
                 launch_file_paths.append(os.path.join(root, file_name))
     return launch_file_paths
+
+
+get_launch_file_paths.extensions = [
+    'launch.' + extension for extension in Parser.get_available_extensions()
+]
+get_launch_file_paths.extensions.append('launch.py')
 
 
 def print_a_launch_file(*, launch_file_path):

@@ -30,49 +30,41 @@ class Config:
         push_ns,
         node_ns,
         expected_ns,
-        second_push_ns=None,
-        ns_in_command
+        second_push_ns=None
     ):
         self.push_ns = push_ns
         self.node_ns = node_ns
         self.expected_ns = expected_ns
         self.second_push_ns = second_push_ns
-        self.ns_in_command = ns_in_command
 
 
 @pytest.mark.parametrize('config', (
     Config(
         push_ns='relative_ns',
         node_ns='node_ns',
-        expected_ns='/relative_ns/node_ns',
-        ns_in_command=True),
+        expected_ns='/relative_ns/node_ns'),
     Config(
         push_ns='relative_ns',
         node_ns='/node_ns',
-        expected_ns='/node_ns',
-        ns_in_command=True),
+        expected_ns='/node_ns'),
     Config(
         push_ns='relative_ns',
-        node_ns=None,
-        expected_ns='/',
-        ns_in_command=False),
+        node_ns='/',
+        expected_ns='/'),
     Config(
         push_ns='relative_ns',
         node_ns='',
-        expected_ns='/relative_ns',
-        ns_in_command=True),
+        expected_ns='/relative_ns'),
     Config(
         push_ns='relative_ns',
         second_push_ns='another_relative_ns',
         node_ns='node_ns',
-        expected_ns='/relative_ns/another_relative_ns/node_ns',
-        ns_in_command=True),
+        expected_ns='/relative_ns/another_relative_ns/node_ns'),
     Config(
         push_ns='relative_ns',
         second_push_ns='/absolute_ns',
         node_ns='node_ns',
-        expected_ns='/absolute_ns/node_ns',
-        ns_in_command=True),
+        expected_ns='/absolute_ns/node_ns'),
 ))
 def test_push_ros_namespace(config):
     lc = LaunchContext()
@@ -88,5 +80,4 @@ def test_push_ros_namespace(config):
     )
     node._perform_substitutions(lc)
     assert node.expanded_node_namespace == config.expected_ns
-    expected_cmd_len = 2 if config.ns_in_command else 1
-    assert expected_cmd_len == len(node.cmd)
+    assert 2 == len(node.cmd)

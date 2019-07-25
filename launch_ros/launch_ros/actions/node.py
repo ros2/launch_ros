@@ -59,7 +59,7 @@ class Node(ExecuteProcess):
         package: SomeSubstitutionsType,
         node_executable: SomeSubstitutionsType,
         node_name: Optional[SomeSubstitutionsType] = None,
-        node_namespace: Optional[SomeSubstitutionsType] = None,
+        node_namespace: Optional[SomeSubstitutionsType] = '',
         parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
@@ -284,13 +284,15 @@ class Node(ExecuteProcess):
             if self.__node_namespace is not None:
                 self.__expanded_node_namespace = perform_substitutions(
                     context, normalize_to_list_of_substitutions(self.__node_namespace))
-            if not self.__expanded_node_namespace.startswith('/'):
-                base_ns = context.launch_configurations.get('ros_namespace', '')
-                self.__expanded_node_namespace = (
-                    base_ns + '/' + self.__expanded_node_namespace
-                ).rstrip('/')
                 if not self.__expanded_node_namespace.startswith('/'):
-                    self.__expanded_node_namespace = '/' + self.__expanded_node_namespace
+                    base_ns = context.launch_configurations.get('ros_namespace', '')
+                    self.__expanded_node_namespace = (
+                        base_ns + '/' + self.__expanded_node_namespace
+                    ).rstrip('/')
+                    if not self.__expanded_node_namespace.startswith('/'):
+                        self.__expanded_node_namespace = '/' + self.__expanded_node_namespace
+            else:
+                self.__expanded_node_namespace = '/'
             validate_namespace(self.__expanded_node_namespace)
         except Exception:
             self.__logger.error(

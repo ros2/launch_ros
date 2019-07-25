@@ -49,7 +49,11 @@ class Config:
         expected_ns='/node_ns'),
     Config(
         push_ns='relative_ns',
-        node_ns=None,
+        node_ns='/',
+        expected_ns='/'),
+    Config(
+        push_ns='relative_ns',
+        node_ns='',
         expected_ns='/relative_ns'),
     Config(
         push_ns='relative_ns',
@@ -76,3 +80,4 @@ def test_push_ros_namespace(config):
     )
     node._perform_substitutions(lc)
     assert node.expanded_node_namespace == config.expected_ns
+    assert 2 == len(node.cmd)

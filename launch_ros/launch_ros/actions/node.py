@@ -59,7 +59,7 @@ class Node(ExecuteProcess):
         package: SomeSubstitutionsType,
         node_executable: SomeSubstitutionsType,
         node_name: Optional[SomeSubstitutionsType] = None,
-        node_namespace: Optional[SomeSubstitutionsType] = None,
+        node_namespace: SomeSubstitutionsType = '',
         parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
@@ -131,10 +131,9 @@ class Node(ExecuteProcess):
             cmd += [LocalSubstitution(
                 'ros_specific_arguments[{}]'.format(ros_args_index), description='node name')]
             ros_args_index += 1
-        if node_namespace is not None:
-            cmd += [LocalSubstitution(
-                'ros_specific_arguments[{}]'.format(ros_args_index), description='node namespace')]
-            ros_args_index += 1
+        cmd += [LocalSubstitution(
+            'ros_specific_arguments[{}]'.format(ros_args_index), description='node namespace')]
+        ros_args_index += 1
         if parameters is not None:
             ensure_argument_type(parameters, (list), 'parameters', 'Node')
             # All elements in the list are paths to files with parameters (or substitutions that
@@ -281,9 +280,8 @@ class Node(ExecuteProcess):
                     context, normalize_to_list_of_substitutions(self.__node_name))
                 validate_node_name(self.__expanded_node_name)
             self.__expanded_node_name.lstrip('/')
-            if self.__node_namespace is not None:
-                self.__expanded_node_namespace = perform_substitutions(
-                    context, normalize_to_list_of_substitutions(self.__node_namespace))
+            self.__expanded_node_namespace = perform_substitutions(
+                context, normalize_to_list_of_substitutions(self.__node_namespace))
             if not self.__expanded_node_namespace.startswith('/'):
                 base_ns = context.launch_configurations.get('ros_namespace', '')
                 self.__expanded_node_namespace = (
@@ -345,8 +343,7 @@ class Node(ExecuteProcess):
         ros_specific_arguments = []  # type: List[Text]
         if self.__node_name is not None:
             ros_specific_arguments.append('__node:={}'.format(self.__expanded_node_name))
-        if self.__node_namespace is not None:
-            ros_specific_arguments.append('__ns:={}'.format(self.__expanded_node_namespace))
+        ros_specific_arguments.append('__ns:={}'.format(self.__expanded_node_namespace))
         if self.__expanded_parameter_files is not None:
             for param_file_path in self.__expanded_parameter_files:
                 ros_specific_arguments.append('__params:={}'.format(param_file_path))

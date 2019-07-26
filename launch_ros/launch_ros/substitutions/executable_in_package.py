@@ -32,7 +32,7 @@ from osrf_pycommon.process_utils import which
 from .find_package import FindPackage
 
 
-@expose_substitution('exec-in-package')
+@expose_substitution('exec-in-pkg')
 class ExecutableInPackage(FindPackage):
     """
     Substitution that tries to locate an executable in the libexec directory of a ROS package.

@@ -31,7 +31,7 @@ xml_file = \
     <launch>
         <let name="a_string" value="\'[2, 5, 8]\'"/>
         <let name="a_list" value="[2, 5, 8]"/>
-        <node package="demo_nodes_py" executable="talker_qos" output="screen" name="my_node" namespace="my_ns" args="--number_of_cycles 1">
+        <node pkg="demo_nodes_py" exec="talker_qos" output="screen" name="my_node" namespace="my_ns" args="--number_of_cycles 1">
             <param name="param1" value="ads"/>
             <param name="param_group1">
                 <param name="param_group2">
@@ -63,8 +63,8 @@ yaml_file = \
             name: 'a_list'
             value: '[2, 5, 8]'
         - node:
-            package: demo_nodes_py
-            executable: talker_qos
+            pkg: demo_nodes_py
+            exec: talker_qos
             output: screen
             name: my_node
             namespace: my_ns

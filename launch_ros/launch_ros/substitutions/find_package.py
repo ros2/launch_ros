@@ -28,7 +28,7 @@ from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
 
-@expose_substitution('find-package')
+@expose_substitution('find-pkg')
 class FindPackage(Substitution):
     """
     Substitution that tries to locate the package prefix of a ROS package.

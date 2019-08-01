@@ -14,14 +14,11 @@
 
 from argparse import REMAINDER
 import os
-import sys
 
 from ament_index_python.packages import get_package_prefix
 from ament_index_python.packages import PackageNotFoundError
 from ros2cli.command import CommandExtension
 from ros2launch.api import get_share_file_path_from_package
-from ros2launch.api import InvalidLaunchFileError
-from ros2launch.api import InvalidPythonLaunchFileError
 from ros2launch.api import launch_a_launch_file
 from ros2launch.api import LaunchFileNameCompleter
 from ros2launch.api import MultipleLaunchFilesError

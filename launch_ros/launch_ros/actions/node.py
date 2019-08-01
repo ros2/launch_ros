@@ -17,11 +17,14 @@
 import os
 import pathlib
 from tempfile import NamedTemporaryFile
+from typing import cast
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Text  # noqa: F401
 from typing import Tuple  # noqa: F401
+from typing import Union
 
 from launch.action import Action
 from launch.actions import ExecuteProcess
@@ -340,19 +343,21 @@ class Node(ExecuteProcess):
         self._perform_substitutions(context)
         # Prepare the ros_specific_arguments list and add it to the context so that the
         # LocalSubstitution placeholders added to the the cmd can be expanded using the contents.
-        ros_specific_arguments = {}
+        ros_specific_arguments: Dict[str, Union[str, List[str]]] = {}
         if self.__node_name is not None:
             ros_specific_arguments['name'] = '__node:={}'.format(self.__expanded_node_name)
         if self.__expanded_node_namespace != '':
             ros_specific_arguments['ns'] = '__ns:={}'.format(self.__expanded_node_namespace)
         if self.__expanded_parameter_files is not None:
             ros_specific_arguments['params'] = []
+            param_arguments = cast(List[str], ros_specific_arguments['params'])
             for param_file_path in self.__expanded_parameter_files:
-                ros_specific_arguments['params'].append('__params:={}'.format(param_file_path))
+                param_arguments.append('__params:={}'.format(param_file_path))
         if self.__expanded_remappings is not None:
             ros_specific_arguments['remaps'] = []
             for remapping_from, remapping_to in self.__expanded_remappings:
-                ros_specific_arguments['remaps'].append(
+                remap_arguments = cast(List[str], ros_specific_arguments['remaps'])
+                remap_arguments.append(
                     '{}:={}'.format(remapping_from, remapping_to)
                 )
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})

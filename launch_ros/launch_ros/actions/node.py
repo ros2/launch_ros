@@ -126,35 +126,28 @@ class Node(ExecuteProcess):
         cmd += [] if arguments is None else arguments
         # Reserve space for ros specific arguments.
         # The substitutions will get expanded when the action is executed.
-        ros_args_index = 0
         if node_name is not None:
             cmd += [LocalSubstitution(
-                'ros_specific_arguments[{}]'.format(ros_args_index), description='node name')]
-            ros_args_index += 1
-        cmd += [LocalSubstitution(
-            'ros_specific_arguments[{}]'.format(ros_args_index), description='node namespace')]
-        ros_args_index += 1
+                "ros_specific_arguments['name']", description='node name')]
         if parameters is not None:
             ensure_argument_type(parameters, (list), 'parameters', 'Node')
             # All elements in the list are paths to files with parameters (or substitutions that
             # evaluate to paths), or dictionaries of parameters (fields can be substitutions).
             i = 0
             for param in parameters:
-                i += 1
                 cmd += [LocalSubstitution(
-                    'ros_specific_arguments[{}]'.format(ros_args_index),
+                    "ros_specific_arguments['params'][{}]".format(i),
                     description='parameter {}'.format(i))]
-                ros_args_index += 1
+                i += 1
             normalized_params = normalize_parameters(parameters)
         if remappings is not None:
             i = 0
             for remapping in normalize_remap_rules(remappings):
                 k, v = remapping
-                i += 1
                 cmd += [LocalSubstitution(
-                    'ros_specific_arguments[{}]'.format(ros_args_index),
+                    "ros_specific_arguments['remaps'][{}]".format(i),
                     description='remapping {}'.format(i))]
-                ros_args_index += 1
+                i += 1
         super().__init__(cmd=cmd, **kwargs)
         self.__package = package
         self.__node_executable = node_executable
@@ -287,9 +280,16 @@ class Node(ExecuteProcess):
                 self.__expanded_node_namespace = (
                     base_ns + '/' + self.__expanded_node_namespace
                 ).rstrip('/')
-                if not self.__expanded_node_namespace.startswith('/'):
+                if (
+                    self.__expanded_node_namespace != '' and not
+                    self.__expanded_node_namespace.startswith('/')
+                ):
                     self.__expanded_node_namespace = '/' + self.__expanded_node_namespace
-            validate_namespace(self.__expanded_node_namespace)
+            if self.__expanded_node_namespace != '':
+                self.cmd.append(normalize_to_list_of_substitutions([
+                    LocalSubstitution("ros_specific_arguments['ns']")
+                ]))
+                validate_namespace(self.__expanded_node_namespace)
         except Exception:
             self.__logger.error(
                 "Error while expanding or validating node name or namespace for '{}':"
@@ -340,16 +340,21 @@ class Node(ExecuteProcess):
         self._perform_substitutions(context)
         # Prepare the ros_specific_arguments list and add it to the context so that the
         # LocalSubstitution placeholders added to the the cmd can be expanded using the contents.
-        ros_specific_arguments = []  # type: List[Text]
+        ros_specific_arguments = {}
         if self.__node_name is not None:
-            ros_specific_arguments.append('__node:={}'.format(self.__expanded_node_name))
-        ros_specific_arguments.append('__ns:={}'.format(self.__expanded_node_namespace))
+            ros_specific_arguments['name'] = '__node:={}'.format(self.__expanded_node_name)
+        if self.__expanded_node_namespace != '':
+            ros_specific_arguments['ns'] = '__ns:={}'.format(self.__expanded_node_namespace)
         if self.__expanded_parameter_files is not None:
+            ros_specific_arguments['params'] = []
             for param_file_path in self.__expanded_parameter_files:
-                ros_specific_arguments.append('__params:={}'.format(param_file_path))
+                ros_specific_arguments['params'].append('__params:={}'.format(param_file_path))
         if self.__expanded_remappings is not None:
+            ros_specific_arguments['remaps'] = []
             for remapping_from, remapping_to in self.__expanded_remappings:
-                ros_specific_arguments.append('{}:={}'.format(remapping_from, remapping_to))
+                ros_specific_arguments['remaps'].append(
+                    '{}:={}'.format(remapping_from, remapping_to)
+                )
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
         return super().execute(context)
 

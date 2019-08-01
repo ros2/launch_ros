@@ -27,9 +27,9 @@ class Config:
     def __init__(
         self,
         *,
-        push_ns,
-        node_ns,
-        expected_ns,
+        node_ns='',
+        push_ns=None,
+        expected_ns=None,
         second_push_ns=None
     ):
         self.push_ns = push_ns
@@ -65,11 +65,14 @@ class Config:
         second_push_ns='/absolute_ns',
         node_ns='node_ns',
         expected_ns='/absolute_ns/node_ns'),
+    Config(),
+    Config(push_ns=''),
 ))
 def test_push_ros_namespace(config):
     lc = LaunchContext()
-    pns1 = PushRosNamespace(config.push_ns)
-    pns1.execute(lc)
+    if config.push_ns is not None:
+        pns1 = PushRosNamespace(config.push_ns)
+        pns1.execute(lc)
     if config.second_push_ns is not None:
         pns2 = PushRosNamespace(config.second_push_ns)
         pns2.execute(lc)
@@ -79,5 +82,7 @@ def test_push_ros_namespace(config):
         node_namespace=config.node_ns,
     )
     node._perform_substitutions(lc)
-    assert node.expanded_node_namespace == config.expected_ns
-    assert 2 == len(node.cmd)
+    expected_cmd_len = 2 if config.expected_ns is not None else 1
+    assert expected_cmd_len == len(node.cmd)
+    expected_ns = config.expected_ns if config.expected_ns is not None else ''
+    assert expected_ns == node.expanded_node_namespace

@@ -14,22 +14,26 @@
 
 """Python package for the ros2 launch api."""
 
+from launch.launch_description_sources import InvalidLaunchFileError
+from launch.launch_description_sources import InvalidPythonLaunchFileError
+
 from .api import get_share_file_path_from_package
-from .api import InvalidPythonLaunchFileError
-from .api import launch_a_python_launch_file
+from .api import launch_a_launch_file
 from .api import LaunchFileNameCompleter
 from .api import MultipleLaunchFilesError
-from .api import print_a_python_launch_file
+from .api import print_a_launch_file
 from .api import print_arguments_of_launch_description
-from .api import print_arguments_of_python_launch_file
+from .api import print_arguments_of_launch_file
+
 
 __all__ = [
     'get_share_file_path_from_package',
+    'InvalidLaunchFileError',
     'InvalidPythonLaunchFileError',
     'LaunchFileNameCompleter',
-    'launch_a_python_launch_file',
+    'launch_a_launch_file',
     'MultipleLaunchFilesError',
-    'print_a_python_launch_file',
+    'print_a_launch_file',
     'print_arguments_of_launch_description',
-    'print_arguments_of_python_launch_file',
+    'print_arguments_of_launch_file',
 ]

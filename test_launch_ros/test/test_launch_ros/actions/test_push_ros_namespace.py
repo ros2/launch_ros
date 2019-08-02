@@ -66,7 +66,6 @@ class Config:
         node_ns='node_ns',
         expected_ns='/absolute_ns/node_ns'),
     Config(),
-    Config(push_ns=''),
 ))
 def test_push_ros_namespace(config):
     lc = LaunchContext()

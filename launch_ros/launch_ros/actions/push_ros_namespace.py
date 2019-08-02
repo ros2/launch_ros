@@ -25,6 +25,8 @@ from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
+from rclpy.validate_namespace import validate_namespace
+
 
 class PushRosNamespace(Action):
     """
@@ -61,4 +63,6 @@ class PushRosNamespace(Action):
         if not namespace.startswith('/'):
             namespace = context.launch_configurations.get('ros_namespace', '') \
                 + '/' + namespace
-        context.launch_configurations['ros_namespace'] = namespace.rstrip('/')
+        namespace = namespace.rstrip('/')
+        validate_namespace(namespace)
+        context.launch_configurations['ros_namespace'] = namespace

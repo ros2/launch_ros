@@ -66,13 +66,14 @@ class PushRosNamespace(Action):
         if not pushed_namespace.startswith('/'):
             namespace = previous_namespace + '/' + pushed_namespace
         namespace = namespace.rstrip('/')
-        try:
-            validate_namespace(namespace)
-        except Exception:
-            raise SubstitutionFailure(
-                'The resulting namespace is invalid:'
-                " [previous_namespace='{}', pushed_namespace='{}']".format(
-                    previous_namespace, pushed_namespace
+        if namespace != '':
+            try:
+                validate_namespace(namespace)
+            except Exception:
+                raise SubstitutionFailure(
+                    'The resulting namespace is invalid:'
+                    " [previous_namespace='{}', pushed_namespace='{}']".format(
+                        previous_namespace, pushed_namespace
+                    )
                 )
-            )
         context.launch_configurations['ros_namespace'] = namespace

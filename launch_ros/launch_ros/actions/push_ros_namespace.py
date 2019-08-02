@@ -21,6 +21,7 @@ from launch import Substitution
 from launch.frontend import Entity
 from launch.frontend import Parser
 from launch.launch_context import LaunchContext
+from launch.substitutions import SubstitutionFailure
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
@@ -59,10 +60,19 @@ class PushRosNamespace(Action):
 
     def execute(self, context: LaunchContext):
         """Execute the action."""
-        namespace = perform_substitutions(context, self.namespace)
-        if not namespace.startswith('/'):
-            namespace = context.launch_configurations.get('ros_namespace', '') \
-                + '/' + namespace
+        pushed_namespace = perform_substitutions(context, self.namespace)
+        previous_namespace = context.launch_configurations.get('ros_namespace', '')
+        namespace = pushed_namespace
+        if not pushed_namespace.startswith('/'):
+            namespace = previous_namespace + '/' + pushed_namespace
         namespace = namespace.rstrip('/')
-        validate_namespace(namespace)
+        try:
+            validate_namespace(namespace)
+        except Exception:
+            raise SubstitutionFailure(
+                'The resulting namespace is invalid:'
+                " [previous_namespace='{}', pushed_namespace='{}']".format(
+                    previous_namespace, pushed_namespace
+                )
+            )
         context.launch_configurations['ros_namespace'] = namespace

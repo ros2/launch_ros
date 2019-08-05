@@ -21,8 +21,8 @@ from launch import Substitution
 from launch.frontend import Entity
 from launch.frontend import Parser
 from launch.launch_context import LaunchContext
-from launch.substitutions import SubstitutionFailure
 from launch.some_substitutions_type import SomeSubstitutionsType
+from launch.substitutions import SubstitutionFailure
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 

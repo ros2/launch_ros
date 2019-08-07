@@ -82,7 +82,5 @@ def test_push_ros_namespace(config):
         node_namespace=config.node_ns,
     )
     node._perform_substitutions(lc)
-    expected_cmd_len = 2 if config.expected_ns is not None else 1
-    assert expected_cmd_len == len(node.cmd)
     expected_ns = config.expected_ns if config.expected_ns is not None else ''
     assert expected_ns == node.expanded_node_namespace

@@ -129,6 +129,7 @@ class Node(ExecuteProcess):
         cmd += [] if arguments is None else arguments
         # Reserve space for ros specific arguments.
         # The substitutions will get expanded when the action is executed.
+        cmd += ['--ros-args']  # Prepend ros specific arguments with --ros-args flag
         if node_name is not None:
             cmd += [LocalSubstitution(
                 "ros_specific_arguments['name']", description='node name')]

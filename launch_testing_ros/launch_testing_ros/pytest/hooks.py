@@ -12,12 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
+from launch_testing.pytest.hooks import LaunchTestItem
+from launch_testing.pytest.hooks import LaunchTestModule
 
 from ..test_runner import LaunchTestRunner
 
 
-def pytest_launch_test_makerunner(test_runs, launch_args, debug):
-    return LaunchTestRunner(
-        test_runs=test_runs, launch_file_arguments=launch_args, debug=debug
+class LaunchROSTestItem(LaunchTestItem):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs, runner_cls=LaunchTestRunner)
+
+
+class LaunchROSTestModule(LaunchTestModule):
+
+    def makeitem(self, *args, **kwargs):
+        return LaunchROSTestItem(*args, **kwargs)
+
+
+def pytest_launch_collect_makemodule(path, parent, entrypoint):
+    marks = getattr(entrypoint, 'pytestmark', [])
+    if marks and len(marks) == 1 and marks[0].name == 'rostest':
+        return LaunchROSTestModule(path, parent)
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        'markers', 'rostest: mark a launch test as a ROS launch test'
     )

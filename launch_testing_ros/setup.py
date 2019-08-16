@@ -14,7 +14,7 @@ setup(
     ],
     entry_points={
         'pytest11': ['launch_ros = launch_testing_ros.pytest.hooks'],
-    }
+    },
     install_requires=['setuptools'],
     zip_safe=True,
     author='Pete Baughman',

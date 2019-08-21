@@ -1,9 +1,14 @@
-# Examples
+# launch\_testing\_ros
 
-## `talker_listener_launch_test.py`
+## Examples
+
+### `talker_listener_launch_test.py`
 
 Usage:
-> launch\_test talker_listener\_launch\_test.py
+
+```sh
+launch_test test/examples/talker_listener_launch_test.py
+```
 
 This test launches the talker and listener example nodes from demo\_nodes\_py and interacts
 with them via their ROS interfaces.  Remapping rules are used so that one of the tests can sit in

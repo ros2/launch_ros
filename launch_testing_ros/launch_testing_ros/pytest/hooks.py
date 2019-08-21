@@ -38,5 +38,6 @@ def pytest_launch_collect_makemodule(path, parent, entrypoint):
 
 def pytest_configure(config):
     config.addinivalue_line(
-        'markers', 'rostest: mark a generate_test_description function as a ROS launch test entrypoint'
+        'markers',
+        'rostest: mark a generate_test_description function as a ROS launch test entrypoint'
     )

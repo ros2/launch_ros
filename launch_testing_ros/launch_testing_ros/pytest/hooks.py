@@ -32,7 +32,7 @@ class LaunchROSTestModule(LaunchTestModule):
 
 def pytest_launch_collect_makemodule(path, parent, entrypoint):
     marks = getattr(entrypoint, 'pytestmark', [])
-    if marks and len(marks) == 1 and marks[0].name == 'rostest':
+    if marks and any(m.name == 'rostest' for m in marks):
         return LaunchROSTestModule(path, parent)
 
 

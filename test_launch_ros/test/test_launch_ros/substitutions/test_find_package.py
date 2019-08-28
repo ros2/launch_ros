@@ -19,6 +19,7 @@ from pathlib import Path
 from launch import LaunchContext
 
 from launch_ros.substitutions import FindPackage
+from launch_ros.substitutions import FindPackageShare
 
 
 def test_find_package():
@@ -26,4 +27,12 @@ def test_find_package():
     context = LaunchContext()
     package_prefix = Path(sub.perform(context))
     package_xml_file = package_prefix / Path('share/launch_ros/package.xml')
+    assert package_xml_file.is_file()
+
+
+def test_find_package_share():
+    sub = FindPackageShare('launch_ros')
+    context = LaunchContext()
+    package_prefix = Path(sub.perform(context))
+    package_xml_file = package_prefix / Path('package.xml')
     assert package_xml_file.is_file()

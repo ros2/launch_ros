@@ -14,11 +14,13 @@
 
 """Module for the FindPackage substitution."""
 
+from typing import Callable
 from typing import Iterable
 from typing import List
 from typing import Text
 
 from ament_index_python.packages import get_package_prefix
+from ament_index_python.packages import get_package_share_directory
 
 from launch.frontend import expose_substitution
 from launch.launch_context import LaunchContext
@@ -28,7 +30,7 @@ from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
 
-@expose_substitution('find-pkg')
+@expose_substitution('find-pkg-root')
 class FindPackage(Substitution):
     """
     Substitution that tries to locate the package prefix of a ROS package.
@@ -39,10 +41,16 @@ class FindPackage(Substitution):
         not found during substitution.
     """
 
-    def __init__(self, package: SomeSubstitutionsType) -> None:
+    def __init__(
+        self,
+        package: SomeSubstitutionsType,
+        *,
+        find_package_func: Callable[[str], str] = get_package_prefix
+    ) -> None:
         """Constructor."""
         super().__init__()
         self.__package = normalize_to_list_of_substitutions(package)
+        self.__find_package_func = find_package_func
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
@@ -65,5 +73,21 @@ class FindPackage(Substitution):
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by locating the package."""
         package = perform_substitutions(context, self.package)
-        result = get_package_prefix(package)
+        result = self.__find_package_func(package)
         return result
+
+
+@expose_substitution('find-pkg')
+class FindPackageShare(FindPackage):
+    """
+    Substitution that tries to locate the share directory of a ROS package.
+
+    The directory located using ament_index_python.
+
+    :raise: ament_index_python.packages.PackageNotFoundError when package is
+        not found during substitution.
+    """
+
+    def __init__(self, package: SomeSubstitutionsType) -> None:
+        """Constructor."""
+        super().__init__(package, find_package_func=get_package_share_directory)

@@ -30,7 +30,7 @@ from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
 
-@expose_substitution('find-pkg-root')
+@expose_substitution('find-pkg-prefix')
 class FindPackage(Substitution):
     """
     Substitution that tries to locate the package prefix of a ROS package.
@@ -77,7 +77,7 @@ class FindPackage(Substitution):
         return result
 
 
-@expose_substitution('find-pkg')
+@expose_substitution('find-pkg-share')
 class FindPackageShare(FindPackage):
     """
     Substitution that tries to locate the share directory of a ROS package.

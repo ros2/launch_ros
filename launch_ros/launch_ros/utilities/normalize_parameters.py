@@ -143,6 +143,12 @@ def normalize_parameter_dict(
         # Normalize the value next
         if isinstance(value, Mapping):
             # Flatten recursive dictionaries
+            pos = -1
+            for index, text_sub in enumerate(name):
+                if text_sub.text == 'ros__parameters':
+                    pos = index
+            if pos != -1:
+                name = name[pos+1:]
             sub_dict = normalize_parameter_dict(value, _prefix=name)
             normalized.update(sub_dict)
         elif isinstance(value, str):

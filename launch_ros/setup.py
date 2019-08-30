@@ -1,10 +1,17 @@
 from setuptools import find_packages
 from setuptools import setup
 
+package_name = 'launch_ros'
+
 setup(
-    name='launch_ros',
+    name=package_name,
     version='0.8.5',
     packages=find_packages(exclude=['test']),
+    data_files=[
+        ('share/' + package_name, ['package.xml']),
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+    ],
     install_requires=[
         'setuptools',
         'ament_index_python',

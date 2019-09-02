@@ -290,9 +290,8 @@ class Node(ExecuteProcess):
                 ):
                     self.__expanded_node_namespace = '/' + self.__expanded_node_namespace
             if self.__expanded_node_namespace != '':
-                self.cmd.extend(['-r', normalize_to_list_of_substitutions([
-                    LocalSubstitution("ros_specific_arguments['ns']")
-                ])])
+                cmd_extension = ['-r', LocalSubstitution("ros_specific_arguments['ns']")]
+                self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
                 validate_namespace(self.__expanded_node_namespace)
         except Exception:
             self.__logger.error(

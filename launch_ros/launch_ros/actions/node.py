@@ -131,7 +131,7 @@ class Node(ExecuteProcess):
         # The substitutions will get expanded when the action is executed.
         cmd += ['--ros-args']  # Prepend ros specific arguments with --ros-args flag
         if node_name is not None:
-            cmd += [LocalSubstitution(
+            cmd += ['-r', LocalSubstitution(
                 "ros_specific_arguments['name']", description='node name')]
         if parameters is not None:
             ensure_argument_type(parameters, (list), 'parameters', 'Node')
@@ -148,7 +148,7 @@ class Node(ExecuteProcess):
             i = 0
             for remapping in normalize_remap_rules(remappings):
                 k, v = remapping
-                cmd += [LocalSubstitution(
+                cmd += ['-r', LocalSubstitution(
                     "ros_specific_arguments['remaps'][{}]".format(i),
                     description='remapping {}'.format(i))]
                 i += 1
@@ -290,9 +290,8 @@ class Node(ExecuteProcess):
                 ):
                     self.__expanded_node_namespace = '/' + self.__expanded_node_namespace
             if self.__expanded_node_namespace != '':
-                self.cmd.append(normalize_to_list_of_substitutions([
-                    LocalSubstitution("ros_specific_arguments['ns']")
-                ]))
+                cmd_extension = ['-r', LocalSubstitution("ros_specific_arguments['ns']")]
+                self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
                 validate_namespace(self.__expanded_node_namespace)
         except Exception:
             self.__logger.error(

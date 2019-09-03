@@ -43,7 +43,7 @@ def evaluate_parameter_dict(
 ) -> Dict[str, EvaluatedParameterValue]:
     if not isinstance(parameters, Mapping):
         raise TypeError('expected dict')
-    output_dict: Dict[str, EvaluatedParameterValue] = {}
+    output_dict = {} # type: Dict[str, EvaluatedParameterValue] 
     for name, value in parameters.items():
         if not isinstance(name, tuple):
             raise TypeError('Expecting tuple of substitutions got {}'.format(repr(name)))

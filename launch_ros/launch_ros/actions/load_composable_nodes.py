@@ -40,7 +40,7 @@ class LoadComposableNodes(Action):
         *,
         composable_node_descriptions: List[ComposableNode],
         target_container: ComposableNodeContainer,
-        **kwargs,
+        **kwargs
     ) -> None:
         """
         Construct a LoadComposableNodes action.

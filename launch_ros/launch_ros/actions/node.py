@@ -139,7 +139,7 @@ class Node(ExecuteProcess):
             # evaluate to paths), or dictionaries of parameters (fields can be substitutions).
             i = 0
             for param in parameters:
-                cmd += [LocalSubstitution(
+                cmd += ['-f', LocalSubstitution(
                     "ros_specific_arguments['params'][{}]".format(i),
                     description='parameter {}'.format(i))]
                 i += 1
@@ -349,10 +349,7 @@ class Node(ExecuteProcess):
         if self.__expanded_node_namespace != '':
             ros_specific_arguments['ns'] = '__ns:={}'.format(self.__expanded_node_namespace)
         if self.__expanded_parameter_files is not None:
-            ros_specific_arguments['params'] = []
-            param_arguments = cast(List[str], ros_specific_arguments['params'])
-            for param_file_path in self.__expanded_parameter_files:
-                param_arguments.append('__params:={}'.format(param_file_path))
+            ros_specific_arguments['params'] = self.__expanded_parameter_files
         if self.__expanded_remappings is not None:
             ros_specific_arguments['remaps'] = []
             for remapping_from, remapping_to in self.__expanded_remappings:

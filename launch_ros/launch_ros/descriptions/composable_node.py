@@ -40,7 +40,7 @@ class ComposableNode:
         node_namespace: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
-        extra_arguments: Optional[SomeParameters] = None,
+        extra_arguments: Optional[SomeParameters] = None
     ) -> None:
         """
         Initialize a ComposableNode description.

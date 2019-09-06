@@ -20,8 +20,8 @@ from collections.abc import Sequence
 import pathlib
 from typing import cast
 from typing import Dict
-from typing import List
-from typing import Optional
+from typing import List  # noqa: F401
+from typing import Optional  # noqa: F401
 from typing import Union
 
 from launch.launch_context import LaunchContext

@@ -64,7 +64,7 @@ def evaluate_parameter_dict(
                     evaluated_value = tuple(output_subvalue)
                 # All values in a list must have the same type.
                 # If they don't then assume it is a list of strings
-                yaml_evaluated_value = []  # type: Union[List[str], List[int], List[float], List[bool]]
+                yaml_evaluated_value = []
                 last_subtype = None
                 dissimilar_types = False
                 for subvalue in evaluated_value:

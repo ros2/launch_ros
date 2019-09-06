@@ -2,6 +2,9 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.6 (2019-09-06)
+------------------
+
 0.8.5 (2019-07-31)
 ------------------
 * Use wildcard syntax in generated parameter YAML files (`#48 <https://github.com/ros2/launch_ros/issues/48>`_)

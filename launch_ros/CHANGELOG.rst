@@ -2,6 +2,13 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.6 (2019-09-06)
+------------------
+* Additional fixes for Python 3.5. (`#67 <https://github.com/ros2/launch_ros/issues/67>`_)
+* Restore Python 3.5 support. (`#65 <https://github.com/ros2/launch_ros/issues/65>`_)
+* Install package marker and manifest. (`#62 <https://github.com/ros2/launch_ros/issues/62>`_) (`#63 <https://github.com/ros2/launch_ros/issues/63>`_)
+* Contributors: Dirk Thomas, Steven! Ragnarök
+
 0.8.5 (2019-07-31)
 ------------------
 * Use wildcard syntax in generated parameter YAML files (`#48 <https://github.com/ros2/launch_ros/issues/48>`_)

@@ -15,12 +15,11 @@
 from launch_testing.pytest.hooks import LaunchTestItem
 from launch_testing.pytest.hooks import LaunchTestModule
 
-from ..test_runner import LaunchTestRunner
-
 
 class LaunchROSTestItem(LaunchTestItem):
 
     def __init__(self, *args, **kwargs):
+        import launch_testing_ros.test_runner import LaunchTestRunner
         super().__init__(*args, **kwargs, runner_cls=LaunchTestRunner)
 
 

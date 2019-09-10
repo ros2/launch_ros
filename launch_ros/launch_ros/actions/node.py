@@ -139,7 +139,7 @@ class Node(ExecuteProcess):
             # evaluate to paths), or dictionaries of parameters (fields can be substitutions).
             i = 0
             for param in parameters:
-                cmd += ['-f', LocalSubstitution(
+                cmd += ['--params-file', LocalSubstitution(
                     "ros_specific_arguments['params'][{}]".format(i),
                     description='parameter {}'.format(i))]
                 i += 1

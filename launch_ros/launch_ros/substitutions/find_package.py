@@ -51,7 +51,7 @@ class FindPackage(Substitution):
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse a FindPackage substitution."""
         if not data or len(data) != 1:
-            raise AttributeError('find-package substitution expects 1 argument')
+            raise AttributeError('find package substitutions expect 1 argument')
         kwargs = {'package': data[0]}
         return cls, kwargs
 
@@ -74,7 +74,7 @@ class FindPackage(Substitution):
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
         pkg_str = ' + '.join([sub.describe() for sub in self.package])
-        return 'Pkg(pkg={})'.format(pkg_str)
+        return '{}(pkg={})'.format(self.__class__.__name__, pkg_str)
 
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by locating the package."""

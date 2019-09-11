@@ -15,20 +15,19 @@
 """Module for a ROS aware LaunchTestRunner."""
 
 import launch
-import launch_ros
 import launch_testing.test_runner
-
-import rclpy
 
 
 class LaunchTestRunner(launch_testing.test_runner.LaunchTestRunner):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        import rclpy  # Import on first use to avoid races at module level
         self._rclpy_context = rclpy.context.Context()
         rclpy.init(args=self._launch_file_arguments, context=self._rclpy_context)
 
     def generate_preamble(self):
+        import launch_ros  # Import on first use to avoid races at module level
         return [launch.actions.IncludeLaunchDescription(
             launch_description_source=launch.LaunchDescriptionSource(
                 launch_description=launch_ros.get_default_launch_description(

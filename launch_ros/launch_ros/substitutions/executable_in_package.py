@@ -29,11 +29,11 @@ from launch.utilities import perform_substitutions
 
 from osrf_pycommon.process_utils import which
 
-from .find_package import FindPackage
+from .find_package import FindPackagePrefix
 
 
 @expose_substitution('exec-in-pkg')
-class ExecutableInPackage(FindPackage):
+class ExecutableInPackage(FindPackagePrefix):
     """
     Substitution that tries to locate an executable in the libexec directory of a ROS package.
 

@@ -16,9 +16,13 @@
 
 from .executable_in_package import ExecutableInPackage
 from .find_package import FindPackage
+from .find_package import FindPackagePrefix
+from .find_package import FindPackageShare
 
 
 __all__ = [
     'ExecutableInPackage',
     'FindPackage',
+    'FindPackagePrefix',
+    'FindPackageShare',
 ]

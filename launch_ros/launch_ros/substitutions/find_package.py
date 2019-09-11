@@ -14,7 +14,6 @@
 
 """Module for the FindPackage substitution."""
 
-from typing import Callable
 from typing import Iterable
 from typing import List
 from typing import Text
@@ -40,12 +39,10 @@ class FindPackage(Substitution):
     def __init__(
         self,
         package: SomeSubstitutionsType,
-        find_package_func: Callable[[str], str] = get_package_prefix
     ) -> None:
         """Constructor."""
         super().__init__()
         self.__package = normalize_to_list_of_substitutions(package)
-        self.__find_package_func = find_package_func
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
@@ -104,7 +101,7 @@ class FindPackageShare(FindPackage):
     """
     Substitution that tries to locate the share directory of a ROS package.
 
-    The directory located using ament_index_python.
+    The directory is located using ament_index_python.
 
     :raise: ament_index_python.packages.PackageNotFoundError when package is
         not found during substitution.

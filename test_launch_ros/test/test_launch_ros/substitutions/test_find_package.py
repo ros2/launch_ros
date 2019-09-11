@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Test for the FindPackage substitution."""
+"""Test for the FindPackage substitutions."""
 
 from pathlib import Path
 
 from launch import LaunchContext
 
-from launch_ros.substitutions import FindPackage
+from launch_ros.substitutions import FindPackagePrefix
 from launch_ros.substitutions import FindPackageShare
 
 
-def test_find_package():
-    sub = FindPackage('launch_ros')
+def test_find_package_prefix():
+    sub = FindPackagePrefix('launch_ros')
     context = LaunchContext()
     package_prefix = Path(sub.perform(context))
     package_xml_file = package_prefix / Path('share/launch_ros/package.xml')

@@ -30,21 +30,16 @@ from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
 
-@expose_substitution('find-pkg-prefix')
 class FindPackage(Substitution):
     """
-    Substitution that tries to locate the package prefix of a ROS package.
+    Abstract base class for substitutions involving finding a package.
 
-    The ROS package is located using ament_index_python.
-
-    :raise: ament_index_python.packages.PackageNotFoundError when package is
-        not found during substitution.
+    Subclasses should implement the find() method.
     """
 
     def __init__(
         self,
         package: SomeSubstitutionsType,
-        *,
         find_package_func: Callable[[str], str] = get_package_prefix
     ) -> None:
         """Constructor."""
@@ -65,6 +60,17 @@ class FindPackage(Substitution):
         """Getter for package."""
         return self.__package
 
+    def find(self, package_name: Text) -> Text:
+        """
+        Find a directory for a package.
+
+        Called when the substitution is performed.
+
+        :param: package_name The name of the package.
+        :return: A directory related to the package.
+        """
+        raise NotImplementedError()
+
     def describe(self) -> Text:
         """Return a description of this substitution as a string."""
         pkg_str = ' + '.join([sub.describe() for sub in self.package])
@@ -73,8 +79,24 @@ class FindPackage(Substitution):
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution by locating the package."""
         package = perform_substitutions(context, self.package)
-        result = self.__find_package_func(package)
+        result = self.find(package)
         return result
+
+
+@expose_substitution('find-pkg-prefix')
+class FindPackagePrefix(FindPackage):
+    """
+    Substitution that tries to locate the package prefix of a ROS package.
+
+    The ROS package is located using ament_index_python.
+
+    :raise: ament_index_python.packages.PackageNotFoundError when package is
+        not found during substitution.
+    """
+
+    def find(self, package_name: Text) -> Text:
+        """Find the package prefix."""
+        return get_package_prefix(package_name)
 
 
 @expose_substitution('find-pkg-share')
@@ -88,6 +110,6 @@ class FindPackageShare(FindPackage):
         not found during substitution.
     """
 
-    def __init__(self, package: SomeSubstitutionsType) -> None:
-        """Constructor."""
-        super().__init__(package, find_package_func=get_package_share_directory)
+    def find(self, package_name: Text) -> Text:
+        """Find the share directory of a package."""
+        return get_package_share_directory(package_name)

@@ -1,10 +1,15 @@
 from setuptools import find_packages
 from setuptools import setup
 
+package_name = 'ros2launch'
+
 setup(
-    name='ros2launch',
+    name=package_name,
     version='0.8.4',
     packages=find_packages(exclude=['test']),
+    data_files=[
+        ('share/' + package_name, ['package.xml']),
+    ],
     install_requires=['ros2cli'],
     zip_safe=True,
     author='William Woodall',

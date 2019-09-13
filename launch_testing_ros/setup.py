@@ -10,6 +10,7 @@ setup(
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/launch_testing_ros']),
         ('lib/launch_testing_ros', glob.glob('example_nodes/**')),
+        ('share/launch_testing_ros', ['package.xml']),
         ('share/launch_testing_ros/examples', glob.glob('test/examples/[!_]**')),
     ],
     entry_points={

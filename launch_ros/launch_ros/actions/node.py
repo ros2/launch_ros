@@ -228,11 +228,15 @@ class Node(ExecuteProcess):
     def parse(cls, entity: Entity, parser: Parser):
         """Parse node."""
         # See parse method of `ExecuteProcess`
-        _, kwargs = super().parse(entity, parser, 'args')
-        kwargs['arguments'] = kwargs['args']
-        del kwargs['args']
-        kwargs['node_name'] = kwargs['name']
-        del kwargs['name']
+        _, kwargs = super().parse(entity, parser, ignore=['cmd'])
+        args = entity.get_attr('args', optional=True)
+        if args is not None:
+            kwargs['arguments'] = super()._parse_cmdline(args, parser)
+        node_name = entity.get_attr('node_name', optional=True)
+        if node_name is None and 'name' in kwargs:
+            node_name = kwargs['name']
+        if node_name is not None:
+            kwargs['node_name'] = node_name
         kwargs['package'] = parser.parse_substitution(entity.get_attr('pkg'))
         kwargs['node_executable'] = parser.parse_substitution(entity.get_attr('exec'))
         ns = entity.get_attr('namespace', optional=True)
@@ -249,6 +253,7 @@ class Node(ExecuteProcess):
         parameters = entity.get_attr('param', data_type=List[Entity], optional=True)
         if parameters is not None:
             kwargs['parameters'] = cls.parse_nested_parameters(parameters, parser)
+
         return cls, kwargs
 
     @property

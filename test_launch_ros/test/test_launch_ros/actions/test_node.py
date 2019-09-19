@@ -151,7 +151,8 @@ class TestNode(unittest.TestCase):
                     'param_group2': {
                         (EnvironmentVariable('PARAM2'), '_values'): ['param2_value'],
                     }
-                }
+                },
+                'param3': ''
             }],
         )
         self._assert_launch_no_errors([node_action])
@@ -166,6 +167,7 @@ class TestNode(unittest.TestCase):
                     'ros__parameters': {
                         'param1': 'param1_value',
                         'param2': 'param2_value',
+                        'param3': '',
                         'param_group1.list_params': (1.2, 3.4),
                         'param_group1.param_group2.param2_values': ('param2_value',),
                     }

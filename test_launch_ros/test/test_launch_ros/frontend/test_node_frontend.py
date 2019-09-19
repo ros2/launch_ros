@@ -46,6 +46,7 @@ xml_file = \
                 <param name="param9" value="\'2\', \'5\', \'8\'" value-sep=", "/>
                 <param name="param10" value="''asd'', ''bsd'', ''csd''" value-sep=", "/>
                 <param name="param11" value="'\asd', '\bsd', '\csd'" value-sep=", "/>
+                <param name="param12" value=""/>
             </param>
             <param from="{}"/>
             <env name="var" value="1"/>
@@ -96,6 +97,8 @@ yaml_file = \
                         value: ["'asd'", "'bsd'", "'csd'"]
                     -   name: param11
                         value: ['\asd', '\bsd', '\csd']
+                    -   name: param12
+                        value: ''
                 -   from: {}
             env:
                 -   name: var
@@ -141,3 +144,4 @@ def test_node_frontend(file):
     assert param_dict['param_group1.param9'] == ("'2'", "'5'", "'8'")
     assert param_dict['param_group1.param10'] == ("'asd'", "'bsd'", "'csd'")
     assert param_dict['param_group1.param11'] == ('asd', 'bsd', 'csd')
+    assert param_dict['param_group1.param12'] == ''

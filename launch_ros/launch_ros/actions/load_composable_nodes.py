@@ -16,13 +16,16 @@
 
 from typing import List
 from typing import Optional
+from typing import Text
+from typing import Union
 
 import composition_interfaces.srv
 
 from launch.action import Action
 from launch.launch_context import LaunchContext
 import launch.logging
-from launch.utilities import ensure_argument_type
+from launch.some_substitutions_type import SomeSubstitutionsType
+from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
 from .composable_node_container import ComposableNodeContainer
@@ -36,11 +39,11 @@ class LoadComposableNodes(Action):
     """Action that loads composable ROS nodes into a running container."""
 
     def __init__(
-        self,
-        *,
-        composable_node_descriptions: List[ComposableNode],
-        target_container: ComposableNodeContainer,
-        **kwargs,
+            self,
+            *,
+            composable_node_descriptions: List[ComposableNode],
+            target_container: Union[SomeSubstitutionsType, ComposableNodeContainer],
+            **kwargs,
     ) -> None:
         """
         Construct a LoadComposableNodes action.
@@ -55,21 +58,16 @@ class LoadComposableNodes(Action):
         :param composable_node_descriptions: descriptions of composable nodes to be loaded
         :param target_container: the container to load the nodes into
         """
-        ensure_argument_type(
-            target_container,
-            ComposableNodeContainer,
-            'target_container',
-            'LoadComposableNodes'
-        )
         super().__init__(**kwargs)
         self.__composable_node_descriptions = composable_node_descriptions
         self.__target_container = target_container
+        self.__final_target_container_name = None  # type: Optional[Text]
         self.__logger = launch.logging.get_logger(__name__)
 
     def _load_node(
-        self,
-        composable_node_description: ComposableNode,
-        context: LaunchContext
+            self,
+            composable_node_description: ComposableNode,
+            context: LaunchContext
     ) -> None:
         """
         Load node synchronously.
@@ -128,17 +126,17 @@ class LoadComposableNodes(Action):
             self.__logger.error(
                 "Failed to load node '{}' of type '{}' in container '{}': {}".format(
                     response.full_node_name if response.full_node_name else request.node_name,
-                    request.plugin_name, self.__target_container.node_name, response.error_message
+                    request.plugin_name, self.__final_target_container_name, response.error_message
                 )
             )
         self.__logger.info("Loaded node '{}' in container '{}'".format(
-            response.full_node_name, self.__target_container.node_name
+            response.full_node_name, self.__final_target_container_name
         ))
 
     def _load_in_sequence(
-        self,
-        composable_node_descriptions: List[ComposableNode],
-        context: LaunchContext
+            self,
+            composable_node_descriptions: List[ComposableNode],
+            context: LaunchContext
     ) -> None:
         """
         Load composable nodes sequentially.
@@ -157,14 +155,21 @@ class LoadComposableNodes(Action):
             )
 
     def execute(
-        self,
-        context: LaunchContext
+            self,
+            context: LaunchContext
     ) -> Optional[List[Action]]:
         """Execute the action."""
+        # resolve target container node name
+        if isinstance(self.__target_container, ComposableNodeContainer):
+            self.__final_target_container_name = self.__target_container.node_name
+        else:  # TODO: maybe should do better type checking here
+            subs = normalize_to_list_of_substitutions(self.__target_container)
+            self.__final_target_container_name = perform_substitutions(context, subs)
+
         # Create a client to load nodes in the target container.
         self.__rclpy_load_node_client = context.locals.launch_ros_node.create_client(
             composition_interfaces.srv.LoadNode, '{}/_container/load_node'.format(
-                self.__target_container.node_name
+                self.__final_target_container_name
             )
         )
         # Assume user has configured `LoadComposableNodes` to happen after container action

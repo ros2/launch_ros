@@ -39,11 +39,11 @@ class LoadComposableNodes(Action):
     """Action that loads composable ROS nodes into a running container."""
 
     def __init__(
-            self,
-            *,
-            composable_node_descriptions: List[ComposableNode],
-            target_container: Union[SomeSubstitutionsType, ComposableNodeContainer],
-            **kwargs,
+        self,
+        *,
+        composable_node_descriptions: List[ComposableNode],
+        target_container: Union[SomeSubstitutionsType, ComposableNodeContainer],
+        **kwargs,
     ) -> None:
         """
         Construct a LoadComposableNodes action.
@@ -65,9 +65,9 @@ class LoadComposableNodes(Action):
         self.__logger = launch.logging.get_logger(__name__)
 
     def _load_node(
-            self,
-            composable_node_description: ComposableNode,
-            context: LaunchContext
+        self,
+        composable_node_description: ComposableNode,
+        context: LaunchContext
     ) -> None:
         """
         Load node synchronously.
@@ -134,9 +134,9 @@ class LoadComposableNodes(Action):
         ))
 
     def _load_in_sequence(
-            self,
-            composable_node_descriptions: List[ComposableNode],
-            context: LaunchContext
+        self,
+        composable_node_descriptions: List[ComposableNode],
+        context: LaunchContext
     ) -> None:
         """
         Load composable nodes sequentially.
@@ -155,8 +155,8 @@ class LoadComposableNodes(Action):
             )
 
     def execute(
-            self,
-            context: LaunchContext
+        self,
+        context: LaunchContext
     ) -> Optional[List[Action]]:
         """Execute the action."""
         # resolve target container node name

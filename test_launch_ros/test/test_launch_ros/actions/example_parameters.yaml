@@ -3,6 +3,7 @@
         ros__parameters:
             some_int: 42
             a_string: "Hello world"
+            no_string: ""
             some_list:
                 sub_list:
                     some_integers: [1, 2, 3, 4]

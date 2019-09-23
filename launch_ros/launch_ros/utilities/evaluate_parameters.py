@@ -68,6 +68,8 @@ def evaluate_parameter_dict(
                 # Value is a list of substitutions, so perform them to make a string
                 evaluated_value = perform_substitutions(context, list(value))
                 yaml_evaluated_value = yaml.safe_load(evaluated_value)
+                if yaml_evaluated_value is None:
+                    yaml_evaluated_value = ''
                 if type(yaml_evaluated_value) in (bool, int, float, str, bytes):
                     evaluated_value = yaml_evaluated_value
                 elif isinstance(yaml_evaluated_value, Sequence):

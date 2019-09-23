@@ -232,9 +232,7 @@ class Node(ExecuteProcess):
         args = entity.get_attr('args', optional=True)
         if args is not None:
             kwargs['arguments'] = super()._parse_cmdline(args, parser)
-        node_name = entity.get_attr('node_name', optional=True)
-        if node_name is None and 'name' in kwargs:
-            node_name = kwargs['name']
+        node_name = entity.get_attr('node-name', optional=True)
         if node_name is not None:
             kwargs['node_name'] = node_name
         kwargs['package'] = parser.parse_substitution(entity.get_attr('pkg'))

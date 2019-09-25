@@ -2,6 +2,20 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.0 (2019-09-25)
+------------------
+* Handle zero-width string parameters. (`#72 <https://github.com/ros2/launch_ros/issues/72>`_)
+* Add substitution for finding package share directory (`#57 <https://github.com/ros2/launch_ros/issues/57>`_)
+* Adapt to '--ros-args ... [--]'-based ROS args extraction (`#52 <https://github.com/ros2/launch_ros/issues/52>`_)
+* Use node namespace if no other was specified (`#51 <https://github.com/ros2/launch_ros/issues/51>`_)
+* [launch frontend] Rename some tag attributes (`#47 <https://github.com/ros2/launch_ros/issues/47>`_)
+* Fix PushRosNamespace action (`#44 <https://github.com/ros2/launch_ros/issues/44>`_)
+* Add PushRosNamespace action (`#42 <https://github.com/ros2/launch_ros/issues/42>`_)
+* Add frontend parsing methods for Node, ExecutableInPackage and FindPackage substitution (`#23 <https://github.com/ros2/launch_ros/issues/23>`_)
+* Restrict yaml loading in evaluate_parameters (`#33 <https://github.com/ros2/launch_ros/issues/33>`_)
+* Use wildcard syntax in generated parameter YAML files (`#35 <https://github.com/ros2/launch_ros/issues/35>`_)
+* Contributors: Jacob Perron, Michel Hidalgo, Scott K Logan, ivanpauno
+
 0.8.4 (2019-05-30)
 ------------------
 

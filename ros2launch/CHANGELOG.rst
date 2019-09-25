@@ -2,6 +2,13 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.0 (2019-09-25)
+------------------
+* install resource marker file for package (`#78 <https://github.com/ros2/launch_ros/issues/78>`_)
+* install package manifest (`#71 <https://github.com/ros2/launch_ros/issues/71>`_)
+* Support xml and yaml files in ros2launch (`#40 <https://github.com/ros2/launch_ros/issues/40>`_)
+* Contributors: Dirk Thomas, ivanpauno
+
 0.8.4 (2019-05-30)
 ------------------
 

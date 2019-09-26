@@ -25,8 +25,11 @@ from launch.action import Action
 from launch.launch_context import LaunchContext
 import launch.logging
 from launch.some_substitutions_type import SomeSubstitutionsType
+from launch.some_substitutions_type import SomeSubstitutionsType_types_tuple
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
+from launch.utilities import ensure_argument_type
+from launch.utilities import is_a_subclass
 
 from .composable_node_container import ComposableNodeContainer
 
@@ -58,6 +61,12 @@ class LoadComposableNodes(Action):
         :param composable_node_descriptions: descriptions of composable nodes to be loaded
         :param target_container: the container to load the nodes into
         """
+        ensure_argument_type(
+            target_container,
+            list(SomeSubstitutionsType_types_tuple) + [ComposableNodeContainer],
+            'target_container',
+            'LoadComposableNodes'
+        )
         super().__init__(**kwargs)
         self.__composable_node_descriptions = composable_node_descriptions
         self.__target_container = target_container
@@ -160,11 +169,15 @@ class LoadComposableNodes(Action):
     ) -> Optional[List[Action]]:
         """Execute the action."""
         # resolve target container node name
-        if isinstance(self.__target_container, ComposableNodeContainer):
+
+        if is_a_subclass(self.__target_container, ComposableNodeContainer):
             self.__final_target_container_name = self.__target_container.node_name
-        else:  # TODO: maybe should do better type checking here
+        elif isinstance(self.__target_container, SomeSubstitutionsType_types_tuple):
             subs = normalize_to_list_of_substitutions(self.__target_container)
             self.__final_target_container_name = perform_substitutions(context, subs)
+        else:
+            self.__logger.error('target container is neither a ComposableNodeContainer nor a SubstitutionType')
+            return
 
         # Create a client to load nodes in the target container.
         self.__rclpy_load_node_client = context.locals.launch_ros_node.create_client(

@@ -2,6 +2,9 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.1 (2019-09-28)
+------------------
+
 0.9.0 (2019-09-25)
 ------------------
 * Refactor Node parse() function. (`#73 <https://github.com/ros2/launch_ros/issues/73>`_)

@@ -2,6 +2,9 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.1 (2019-09-28)
+------------------
+
 0.9.0 (2019-09-25)
 ------------------
 * install resource marker file for package (`#78 <https://github.com/ros2/launch_ros/issues/78>`_)

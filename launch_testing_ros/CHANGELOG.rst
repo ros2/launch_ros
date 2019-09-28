@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.1 (2019-09-28)
+------------------
+* Make launch_testing_ros examples standalone. (`#80 <https://github.com/ros2/launch_ros/issues/80>`_)
+* Contributors: Michel Hidalgo
+
 0.9.0 (2019-09-25)
 ------------------
 * install package manifest (`#71 <https://github.com/ros2/launch_ros/issues/71>`_)

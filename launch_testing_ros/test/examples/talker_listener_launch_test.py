@@ -33,15 +33,15 @@ def generate_test_description(ready_fn):
     # will remap these topics when we launch the nodes and insert our own node that can
     # change the data as it passes through
     talker_node = launch_ros.actions.Node(
-        package='demo_nodes_py',
-        node_executable='talker',
+        package='launch_testing_ros',
+        node_executable='example_talker',
         additional_env={'PYTHONUNBUFFERED': '1'},
         remappings=[('chatter', 'talker_chatter')]
     )
 
     listener_node = launch_ros.actions.Node(
-        package='demo_nodes_py',
-        node_executable='listener',
+        package='launch_testing_ros',
+        node_executable='example_listener',
         additional_env={'PYTHONUNBUFFERED': '1'},
         remappings=[('chatter', 'listener_chatter')]
     )

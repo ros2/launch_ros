@@ -13,10 +13,6 @@ setup(
         ('share/launch_testing_ros/examples', glob.glob('test/examples/[!_]*.*')),
     ],
     entry_points={
-        'console_scripts': [
-            'example_talker = launch_testing_ros.examples.talker:main',
-            'example_listener = launch_testing_ros.examples.listener:main'
-        ],
         'pytest11': ['launch_ros = launch_testing_ros.pytest.hooks'],
     },
     install_requires=['setuptools'],

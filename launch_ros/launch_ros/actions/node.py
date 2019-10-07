@@ -59,8 +59,8 @@ class Node(ExecuteProcess):
 
     def __init__(
         self, *,
-        package: SomeSubstitutionsType,
         node_executable: SomeSubstitutionsType,
+        package: Optional[SomeSubstitutionsType] = None,
         node_name: Optional[SomeSubstitutionsType] = None,
         node_namespace: SomeSubstitutionsType = '',
         parameters: Optional[SomeParameters] = None,
@@ -115,8 +115,9 @@ class Node(ExecuteProcess):
         passed in in order to the node (where the last definition of a
         parameter takes effect).
 
+        :param: node_executable the name of the executable to find if a package
+            is provided or otherwise a path to the executable to run.
         :param: package the package in which the node executable can be found
-        :param: node_executable the name of the executable to find
         :param: node_name the name of the node
         :param: node_namespace the ros namespace for this Node
         :param: parameters list of names of yaml files with parameter rules,
@@ -125,7 +126,10 @@ class Node(ExecuteProcess):
             passed to the node as ROS remapping rules
         :param: arguments list of extra arguments for the node
         """
-        cmd = [ExecutableInPackage(package=package, executable=node_executable)]
+        if package is not None:
+            cmd = [ExecutableInPackage(package=package, executable=node_executable)]
+        else:
+            cmd = [node_executable]
         cmd += [] if arguments is None else arguments
         # Reserve space for ros specific arguments.
         # The substitutions will get expanded when the action is executed.
@@ -235,7 +239,9 @@ class Node(ExecuteProcess):
         node_name = entity.get_attr('node-name', optional=True)
         if node_name is not None:
             kwargs['node_name'] = node_name
-        kwargs['package'] = parser.parse_substitution(entity.get_attr('pkg'))
+        package = parser.parse_substitution(entity.get_attr('pkg'), optional=True)
+        if package is not None:
+            kwargs['package'] = package
         kwargs['node_executable'] = parser.parse_substitution(entity.get_attr('exec'))
         ns = entity.get_attr('namespace', optional=True)
         if ns is not None:

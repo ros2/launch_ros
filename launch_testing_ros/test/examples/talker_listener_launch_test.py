@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import sys
 import time
 import unittest
 import uuid
@@ -32,16 +34,18 @@ def generate_test_description(ready_fn):
     # 'chatter' topic, but we want to show how to use remappings to munge the data so we
     # will remap these topics when we launch the nodes and insert our own node that can
     # change the data as it passes through
+    path_to_test = os.path.dirname(__file__)
+
     talker_node = launch_ros.actions.Node(
-        package='launch_testing_ros',
-        node_executable='example_talker',
+        node_executable=sys.executable,
+        arguments=[os.path.join(path_to_test, 'talker.py')],
         additional_env={'PYTHONUNBUFFERED': '1'},
         remappings=[('chatter', 'talker_chatter')]
     )
 
     listener_node = launch_ros.actions.Node(
-        package='launch_testing_ros',
-        node_executable='example_listener',
+        node_executable=sys.executable,
+        arguments=[os.path.join(path_to_test, 'listener.py')],
         additional_env={'PYTHONUNBUFFERED': '1'},
         remappings=[('chatter', 'listener_chatter')]
     )

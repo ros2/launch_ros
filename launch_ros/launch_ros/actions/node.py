@@ -239,9 +239,9 @@ class Node(ExecuteProcess):
         node_name = entity.get_attr('node-name', optional=True)
         if node_name is not None:
             kwargs['node_name'] = node_name
-        package = parser.parse_substitution(entity.get_attr('pkg'), optional=True)
+        package = entity.get_attr('pkg', optional=True)
         if package is not None:
-            kwargs['package'] = package
+            kwargs['package'] = parser.parse_substitution(package)
         kwargs['node_executable'] = parser.parse_substitution(entity.get_attr('exec'))
         ns = entity.get_attr('namespace', optional=True)
         if ns is not None:

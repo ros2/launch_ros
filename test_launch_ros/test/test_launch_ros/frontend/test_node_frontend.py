@@ -27,6 +27,11 @@ from launch_ros.utilities import evaluate_parameters
 import pytest
 
 yaml_params = str(pathlib.Path(__file__).parent / 'params.yaml')
+
+# Escape backslashes if any to keep them after parsing takes place
+yaml_params = yaml_params.replace('\\', '\\\\')
+python_executable = sys.executable.replace('\\', '\\\\')
+
 xml_file = \
     r"""
     <launch>
@@ -54,7 +59,7 @@ xml_file = \
         </node>
         <node exec="{}" args="-c 'import sys; print(sys.argv[1:])'" node-name="my_listener" namespace="my_ns" output="screen"/>
     </launch>
-    """.format(yaml_params, sys.executable)  # noqa: E501
+    """.format(yaml_params, python_executable)  # noqa: E501
 xml_file = textwrap.dedent(xml_file)
 yaml_file = \
     r"""
@@ -111,7 +116,7 @@ yaml_file = \
             namespace: my_ns
             node-name: my_listener
             args: -c 'import sys; print(sys.argv[1:])'
-    """.format(yaml_params, sys.executable)  # noqa: E501
+    """.format(yaml_params, python_executable)  # noqa: E501
 yaml_file = textwrap.dedent(yaml_file)
 
 

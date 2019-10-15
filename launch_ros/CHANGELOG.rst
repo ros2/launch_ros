@@ -2,6 +2,9 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.7 (2019-10-14)
+------------------
+
 0.8.6 (2019-09-06)
 ------------------
 * Additional fixes for Python 3.5. (`#67 <https://github.com/ros2/launch_ros/issues/67>`_)

@@ -239,7 +239,7 @@ class Node(ExecuteProcess):
         node_name = entity.get_attr('node-name', optional=True)
         if node_name is not None:
             kwargs['node_name'] = node_name
-        package = parser.parse_substitution(entity.get_attr('pkg'), optional=True)
+        package = parser.parse_substitution(entity.get_attr('pkg'))
         if package is not None:
             kwargs['package'] = package
         kwargs['node_executable'] = parser.parse_substitution(entity.get_attr('exec'))

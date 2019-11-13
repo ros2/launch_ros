@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.3 (2019-11-13)
+------------------
+
 0.9.2 (2019-10-23)
 ------------------
 * Remove self.proc_output and ready_fn (`#90 <https://github.com/ros2/launch_ros/issues/90>`_)

@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.3 (2019-11-13)
+------------------
+* Install package.xml (`#92 <https://github.com/ros2/launch_ros/issues/92>`_)
+* Contributors: Gaël Écorchard
+
 0.9.2 (2019-10-23)
 ------------------
 * Fix launch_ros.actions.Node parsing function (`#83 <https://github.com/ros2/launch_ros/issues/83>`_)

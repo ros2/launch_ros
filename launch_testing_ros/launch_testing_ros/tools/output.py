@@ -29,7 +29,7 @@ def get_rmw_output_filter(rmw_implementation, filter_type):
 
     # Treat each line of the resource as an independent filter.
     rmw_output_filter, _ = ament_index_python.get_resource(resource_name, rmw_implementation)
-    return [l for l in rmw_output_filter.splitlines()]
+    return rmw_output_filter.splitlines()
 
 
 def basic_output_filter(

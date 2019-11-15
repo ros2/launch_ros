@@ -135,7 +135,7 @@ def normalize_parameter_dict(
         if _prefix:
             # Prefix name if there is a recursive dictionary
             # weird looking logic to combine into one list to appease mypy
-            combined = [e for e in _prefix]
+            combined = list(_prefix)
             combined.append(TextSubstitution(text='.'))
             combined.extend(name)
             name = combined

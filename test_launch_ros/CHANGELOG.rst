@@ -2,6 +2,9 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.4 (2019-11-19)
+------------------
+
 0.9.3 (2019-11-13)
 ------------------
 * Install package.xml (`#92 <https://github.com/ros2/launch_ros/issues/92>`_)

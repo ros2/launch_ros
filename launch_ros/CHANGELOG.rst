@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.4 (2019-11-19)
+------------------
+* fix new linter warnings as of flake8-comprehensions 3.1.0 (`#94 <https://github.com/ros2/launch_ros/issues/94>`_)
+* Contributors: Dirk Thomas
+
 0.9.3 (2019-11-13)
 ------------------
 

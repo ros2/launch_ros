@@ -14,6 +14,7 @@
 
 """Module containing the default LaunchDescription for ROS."""
 
+import os
 import threading
 
 import launch
@@ -61,7 +62,9 @@ class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
             if 'rcl_init called while already initialized' in str(exc):
                 pass
             raise
-        self.__launch_ros_node = rclpy.create_node('launch_ros', context=self.__rclpy_context)
+        self.__launch_ros_node = rclpy.create_node(
+            'launch_ros_{}'.format(os.getpid()),
+            context=self.__rclpy_context)
         context.extend_globals({
             'ros_startup_action': self,
             'launch_ros_node': self.__launch_ros_node

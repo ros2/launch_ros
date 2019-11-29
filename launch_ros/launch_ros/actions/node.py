@@ -208,7 +208,6 @@ class Node(ExecuteProcess):
             return param_dict
 
         normalized_params = []
-        params_without_from = []
         for param in params:
             from_attr = param.get_attr('from', optional=True)
             name = param.get_attr('name', optional=True)
@@ -221,11 +220,10 @@ class Node(ExecuteProcess):
                 normalized_params.append(parser.parse_substitution(from_attr))
                 continue
             elif name is not None:
-                params_without_from.append(param)
+                normalized_params.append(
+                    get_nested_dictionary_from_nested_key_value_pairs([param]))
                 continue
             raise ValueError('param Entity should have name or from attribute')
-        normalized_params.append(
-            get_nested_dictionary_from_nested_key_value_pairs(params_without_from))
         return normalized_params
 
     @classmethod

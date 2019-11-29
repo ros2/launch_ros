@@ -132,11 +132,14 @@ def test_node_frontend(file):
         ls.context,
         ld.describe_sub_entities()[2]._Node__parameters
     )
-    assert isinstance(evaluated_parameters[0], pathlib.Path)
+    assert isinstance(evaluated_parameters[0], dict)
     assert isinstance(evaluated_parameters[1], dict)
+    assert isinstance(evaluated_parameters[2], pathlib.Path)
+
+    assert 'param1' in evaluated_parameters[0]
+    assert evaluated_parameters[0]['param1'] == 'ads'
+
     param_dict = evaluated_parameters[1]
-    assert 'param1' in param_dict
-    assert param_dict['param1'] == 'ads'
     assert 'param_group1.param_group2.param2' in param_dict
     assert 'param_group1.param3' in param_dict
     assert 'param_group1.param4' in param_dict

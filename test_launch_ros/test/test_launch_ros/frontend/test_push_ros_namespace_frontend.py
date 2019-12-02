@@ -15,14 +15,10 @@
 """Example of how to parse an xml."""
 
 import io
-import pathlib
-import sys
 import textwrap
 
 from launch import LaunchService
 from launch.frontend import Parser
-
-from launch_ros.utilities import evaluate_parameters
 
 import pytest
 
@@ -51,4 +47,4 @@ def test_node_frontend(file):
     ls.include_launch_description(ld)
     assert 0 == ls.run()
     assert 'ros_namespace' in ls.context.launch_configurations
-    assert 'asd' == ls.context.launch_configurations['ros_namespace']
+    assert '/asd' == ls.context.launch_configurations['ros_namespace']

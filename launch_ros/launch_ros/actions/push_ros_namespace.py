@@ -18,8 +18,8 @@ from typing import List
 
 from launch import Action
 from launch import Substitution
-from launch.frontend import expose_action
 from launch.frontend import Entity
+from launch.frontend import expose_action
 from launch.frontend import Parser
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType

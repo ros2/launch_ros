@@ -26,10 +26,10 @@ from launch.launch_context import LaunchContext
 import launch.logging
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.some_substitutions_type import SomeSubstitutionsType_types_tuple
-from launch.utilities import normalize_to_list_of_substitutions
-from launch.utilities import perform_substitutions
 from launch.utilities import ensure_argument_type
 from launch.utilities import is_a_subclass
+from launch.utilities import normalize_to_list_of_substitutions
+from launch.utilities import perform_substitutions
 
 from .composable_node_container import ComposableNodeContainer
 
@@ -63,7 +63,8 @@ class LoadComposableNodes(Action):
         """
         ensure_argument_type(
             target_container,
-            list(SomeSubstitutionsType_types_tuple) + [ComposableNodeContainer],
+            list(SomeSubstitutionsType_types_tuple) +
+            [ComposableNodeContainer],
             'target_container',
             'LoadComposableNodes'
         )
@@ -174,9 +175,11 @@ class LoadComposableNodes(Action):
             self.__final_target_container_name = self.__target_container.node_name
         elif isinstance(self.__target_container, SomeSubstitutionsType_types_tuple):
             subs = normalize_to_list_of_substitutions(self.__target_container)
-            self.__final_target_container_name = perform_substitutions(context, subs)
+            self.__final_target_container_name = perform_substitutions(
+                context, subs)
         else:
-            self.__logger.error('target container is neither a ComposableNodeContainer nor a SubstitutionType')
+            self.__logger.error(
+                'target container is neither a ComposableNodeContainer nor a SubstitutionType')
             return
 
         # Create a client to load nodes in the target container.

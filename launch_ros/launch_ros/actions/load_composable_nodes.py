@@ -16,13 +16,19 @@
 
 from typing import List
 from typing import Optional
+from typing import Text
+from typing import Union
 
 import composition_interfaces.srv
 
 from launch.action import Action
 from launch.launch_context import LaunchContext
 import launch.logging
+from launch.some_substitutions_type import SomeSubstitutionsType
+from launch.some_substitutions_type import SomeSubstitutionsType_types_tuple
 from launch.utilities import ensure_argument_type
+from launch.utilities import is_a_subclass
+from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
 from .composable_node_container import ComposableNodeContainer
@@ -39,7 +45,7 @@ class LoadComposableNodes(Action):
         self,
         *,
         composable_node_descriptions: List[ComposableNode],
-        target_container: ComposableNodeContainer,
+        target_container: Union[SomeSubstitutionsType, ComposableNodeContainer],
         **kwargs,
     ) -> None:
         """
@@ -57,13 +63,15 @@ class LoadComposableNodes(Action):
         """
         ensure_argument_type(
             target_container,
-            ComposableNodeContainer,
+            list(SomeSubstitutionsType_types_tuple) +
+            [ComposableNodeContainer],
             'target_container',
             'LoadComposableNodes'
         )
         super().__init__(**kwargs)
         self.__composable_node_descriptions = composable_node_descriptions
         self.__target_container = target_container
+        self.__final_target_container_name = None  # type: Optional[Text]
         self.__logger = launch.logging.get_logger(__name__)
 
     def _load_node(
@@ -128,11 +136,11 @@ class LoadComposableNodes(Action):
             self.__logger.error(
                 "Failed to load node '{}' of type '{}' in container '{}': {}".format(
                     response.full_node_name if response.full_node_name else request.node_name,
-                    request.plugin_name, self.__target_container.node_name, response.error_message
+                    request.plugin_name, self.__final_target_container_name, response.error_message
                 )
             )
         self.__logger.info("Loaded node '{}' in container '{}'".format(
-            response.full_node_name, self.__target_container.node_name
+            response.full_node_name, self.__final_target_container_name
         ))
 
     def _load_in_sequence(
@@ -161,10 +169,23 @@ class LoadComposableNodes(Action):
         context: LaunchContext
     ) -> Optional[List[Action]]:
         """Execute the action."""
+        # resolve target container node name
+
+        if is_a_subclass(self.__target_container, ComposableNodeContainer):
+            self.__final_target_container_name = self.__target_container.node_name
+        elif isinstance(self.__target_container, SomeSubstitutionsType_types_tuple):
+            subs = normalize_to_list_of_substitutions(self.__target_container)
+            self.__final_target_container_name = perform_substitutions(
+                context, subs)
+        else:
+            self.__logger.error(
+                'target container is neither a ComposableNodeContainer nor a SubstitutionType')
+            return
+
         # Create a client to load nodes in the target container.
         self.__rclpy_load_node_client = context.locals.launch_ros_node.create_client(
             composition_interfaces.srv.LoadNode, '{}/_container/load_node'.format(
-                self.__target_container.node_name
+                self.__final_target_container_name
             )
         )
         # Assume user has configured `LoadComposableNodes` to happen after container action

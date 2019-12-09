@@ -32,7 +32,7 @@ import lifecycle_msgs.msg
 
 
 def main(argv=sys.argv[1:]):
-    """Main."""
+    """Run lifecycle nodes via launch."""
     ld = launch.LaunchDescription()
 
     # Prepare the talker node.

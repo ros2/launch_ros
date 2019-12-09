@@ -34,7 +34,7 @@ class MultipleLaunchFilesError(Exception):
     """Exception raised when multiple candidate launch files are found in a package."""
 
     def __init__(self, msg, paths):
-        """Constructor."""
+        """Create a MultipleLaunchFilesError."""
         super().__init__(msg)
         self.paths = paths
 

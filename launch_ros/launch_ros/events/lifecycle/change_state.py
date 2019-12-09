@@ -71,7 +71,7 @@ class ChangeState(Event):
         transition_id: int
     ) -> None:
         """
-        Constructor.
+        Create a ChangeState event.
 
         :param: lifecycle_node_matcher is a callable which returns True if the
             given lifecycle node should be affected by this event.

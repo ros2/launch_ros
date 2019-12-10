@@ -28,7 +28,7 @@ import launch_ros.actions
 
 
 def main(argv=sys.argv[1:]):
-    """Main."""
+    """Run demo nodes via launch."""
     ld = LaunchDescription([
         launch_ros.actions.Node(
             package='demo_nodes_cpp', node_executable='talker', output='screen',

@@ -29,7 +29,7 @@ class ROSSpecificLaunchStartup(launch.actions.OpaqueFunction):
     """Does ROS specific launch startup."""
 
     def __init__(self, rclpy_context=None):
-        """Constructor."""
+        """Create a ROSSpecificLaunchStartup opaque function."""
         super().__init__(function=self._function)
         self.__shutting_down = False
         self.__rclpy_context = rclpy_context

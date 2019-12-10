@@ -34,7 +34,7 @@ class MultipleLaunchFilesError(Exception):
     """Exception raised when multiple candidate launch files are found in a package."""
 
     def __init__(self, msg, paths):
-        """Constructor."""
+        """Create a MultipleLaunchFilesError."""
         super().__init__(msg)
         self.paths = paths
 
@@ -168,7 +168,7 @@ class LaunchFileNameCompleter:
     """Callable returning a list of launch file names within a package's share directory."""
 
     def __init__(self, *, package_name_key=None):
-        """Constructor."""
+        """Create LaunchFileNameCompleter."""
         self.package_name_key = 'package_name' if package_name_key is None else package_name_key
 
     def __call__(self, prefix, parsed_args, **kwargs):

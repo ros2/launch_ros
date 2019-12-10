@@ -44,7 +44,7 @@ class PushRosNamespace(Action):
         namespace: SomeSubstitutionsType,
         **kwargs
     ) -> None:
-        """Constructor."""
+        """Create a PushRosNamespace action."""
         super().__init__(**kwargs)
         self.__namespace = normalize_to_list_of_substitutions(namespace)
 

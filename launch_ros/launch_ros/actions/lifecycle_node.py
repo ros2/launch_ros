@@ -78,7 +78,7 @@ class LifecycleNode(Node):
     def _call_change_state(self, request, context: launch.LaunchContext):
         while not self.__rclpy_change_state_client.wait_for_service(timeout_sec=1.0):
             if context.is_shutdown:
-                self.___logger.warning(
+                self.__logger.warning(
                     "Abandoning wait for the '{}' service, due to shutdown.".format(
                         self.__rclpy_change_state_client.srv_name),
                 )
@@ -96,7 +96,7 @@ class LifecycleNode(Node):
 
         while not event.wait(1.0):
             if context.is_shutdown:
-                self.___logger.warning(
+                self.__logger.warning(
                     "Abandoning wait for the '{}' service response, due to shutdown.".format(
                         self.__rclpy_change_state_client.srv_name),
                 )

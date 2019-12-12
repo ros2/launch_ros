@@ -61,9 +61,6 @@ class LaunchCommand(CommandExtension):
             nargs='*',
             help="Arguments to the launch file; '<name>:=<value>' (for duplicates, last one wins)")
         arg.completer = LaunchFileNameCompleter()
-        parser.add_argument(
-            'argv', nargs=REMAINDER,
-            help='Pass arbitrary arguments to the launch file')
 
     def main(self, *, parser, args):
         """Entry point for CLI program."""

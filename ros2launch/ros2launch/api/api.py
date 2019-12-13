@@ -141,7 +141,7 @@ def launch_a_launch_file(*, launch_file_path, launch_file_arguments, debug=False
     """Launch a given launch file (by path) and pass it the given launch file arguments."""
     launch_service = launch.LaunchService(argv=launch_file_arguments, debug=debug)
     context = rclpy.context.Context()
-    rclpy.init(args=launch_file_arguments, context=context)
+    rclpy.init(args=[], context=context)
     launch_service.include_launch_description(
         launch_ros.get_default_launch_description(
             rclpy_context=context,

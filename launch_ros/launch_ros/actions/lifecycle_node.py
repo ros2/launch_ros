@@ -15,6 +15,7 @@
 """Module for the LifecycleNode action."""
 
 import functools
+import threading
 from typing import cast
 from typing import List
 from typing import Optional
@@ -77,12 +78,35 @@ class LifecycleNode(Node):
     def _call_change_state(self, request, context: launch.LaunchContext):
         while not self.__rclpy_change_state_client.wait_for_service(timeout_sec=1.0):
             if context.is_shutdown:
-                self.___logger.warning(
+                self.__logger.warning(
                     "Abandoning wait for the '{}' service, due to shutdown.".format(
                         self.__rclpy_change_state_client.srv_name),
                 )
                 return
-        response = self.__rclpy_change_state_client.call(request)
+
+        # Asynchronously wait so that we can periodically check for shutdown.
+        event = threading.Event()
+
+        def unblock(future):
+            nonlocal event
+            event.set()
+
+        response_future = self.__rclpy_change_state_client.call_async(request)
+        response_future.add_done_callback(unblock)
+
+        while not event.wait(1.0):
+            if context.is_shutdown:
+                self.__logger.warning(
+                    "Abandoning wait for the '{}' service response, due to shutdown.".format(
+                        self.__rclpy_change_state_client.srv_name),
+                )
+                response_future.cancel()
+                return
+
+        if response_future.exception() is not None:
+            raise response_future.exception()
+        response = response_future.result()
+
         if not response.success:
             self.__logger.error(
                 "Failed to make transition '{}' for LifecycleNode '{}'".format(

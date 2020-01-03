@@ -18,7 +18,6 @@ import time
 import unittest
 import uuid
 
-import launch
 import launch_ros
 import launch_ros.actions
 import launch_testing.actions
@@ -51,13 +50,15 @@ def generate_test_description():
         remappings=[('chatter', 'listener_chatter')]
     )
 
+    # Note, if we use 'ros2 test', then this default description is injected for us
+    ld = launch_ros.get_default_launch_description()
+    ld.add_action(talker_node)
+    ld.add_action(listener_node)
+    # Start tests right away - no need to wait for anything
+    ld.add_action(launch_testing.actions.ReadyToTest())
+
     return (
-        launch.LaunchDescription([
-            talker_node,
-            listener_node,
-            # Start tests right away - no need to wait for anything
-            launch_testing.actions.ReadyToTest(),
-        ]),
+        ld,
         {
             'talker': talker_node,
             'listener': listener_node,

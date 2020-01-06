@@ -244,7 +244,7 @@ class Node(ExecuteProcess):
         ns = entity.get_attr('namespace', optional=True)
         if ns is not None:
             kwargs['node_namespace'] = parser.parse_substitution(ns)
-        remappings = entity.get_attr('remap', optional=True)
+        remappings = entity.get_attr('remap', data_type=List[Entity], optional=True)
         if remappings is not None:
             kwargs['remappings'] = [
                 (

@@ -56,6 +56,8 @@ xml_file = \
             </param>
             <param from="{}"/>
             <env name="var" value="1"/>
+            <remap from="foo" to="bar"/>
+            <remap from="baz" to="foobar"/>
         </node>
         <node exec="{}" args="-c 'import sys; print(sys.argv[1:])'" node-name="my_listener" namespace="my_ns" output="screen"/>
     </launch>
@@ -110,6 +112,11 @@ yaml_file = \
             env:
                 -   name: var
                     value: '1'
+            remap:
+                -   from: "foo"
+                    to: "bar"
+                -   from: "baz"
+                    to: "foobar"
         - node:
             exec: {}
             output: screen
@@ -161,6 +168,11 @@ def test_node_frontend(file):
     assert param_dict['param_group1.param10'] == ("'asd'", "'bsd'", "'csd'")
     assert param_dict['param_group1.param11'] == ('asd', 'bsd', 'csd')
     assert param_dict['param_group1.param12'] == ''
+
+    # Check remappings exist
+    remappings = ld.describe_sub_entities()[2]._Node__remappings
+    assert remappings is not None
+    assert len(remappings) == 2
 
     listener_node_action = ld.describe_sub_entities()[3]
     listener_node_cmd = listener_node_action.process_details['cmd']

@@ -14,6 +14,8 @@
 
 """Module for the LoadComposableNodes action."""
 
+import threading
+
 from typing import List
 from typing import Optional
 from typing import Text
@@ -156,7 +158,9 @@ class LoadComposableNodes(Action):
         """
         next_composable_node_description = composable_node_descriptions[0]
         composable_node_descriptions = composable_node_descriptions[1:]
-        self._load_node(next_composable_node_description, context)
+        thread = threading.Thread(
+             target=self._load_node, args=(next_composable_node_description, context))
+        thread.start()
         if len(composable_node_descriptions) > 0:
             context.add_completion_future(
                 context.asyncio_loop.run_in_executor(
@@ -188,5 +192,4 @@ class LoadComposableNodes(Action):
                 self.__final_target_container_name
             )
         )
-        # Assume user has configured `LoadComposableNodes` to happen after container action
         self._load_in_sequence(self.__composable_node_descriptions, context)

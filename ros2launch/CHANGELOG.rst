@@ -2,6 +2,12 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.5 (2020-01-21)
+------------------
+* Fix misleading deprecated warnings when using launch arguments (`#106 <https://github.com/ros2/launch_ros/issues/106>`_)
+* Use imperative mood in constructor docstrings. (`#103 <https://github.com/ros2/launch_ros/issues/103>`_)
+* Contributors: Ivan Santiago Paunovic, Steven! Ragnarök
+
 0.9.4 (2019-11-19)
 ------------------
 

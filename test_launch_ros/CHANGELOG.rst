@@ -2,6 +2,13 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.5 (2020-01-21)
+------------------
+* Fix remapping rules when using xml/yaml launch files (`#111 <https://github.com/ros2/launch_ros/issues/111>`_)
+* Maintain order of parameters regarding name and from (`#99 <https://github.com/ros2/launch_ros/issues/99>`_)
+* Fix push-ros-namespace in xml/yaml launch files (`#100 <https://github.com/ros2/launch_ros/issues/100>`_)
+* Contributors: Brian Marchi, Ivan Santiago Paunovic, Jacob Perron
+
 0.9.4 (2019-11-19)
 ------------------
 

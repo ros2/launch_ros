@@ -2,6 +2,18 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.5 (2020-01-21)
+------------------
+* Fix remapping rules when using xml/yaml launch files (`#111 <https://github.com/ros2/launch_ros/issues/111>`_)
+* Check for shutdown while waiting for a service response to avoid hang during shutdown (`#104 <https://github.com/ros2/launch_ros/issues/104>`_)
+* Fix misleading deprecated warnings when using launch arguments (`#106 <https://github.com/ros2/launch_ros/issues/106>`_)
+* Use imperative mood in constructor docstrings. (`#103 <https://github.com/ros2/launch_ros/issues/103>`_)
+* Maintain order of parameters regarding name and from (`#99 <https://github.com/ros2/launch_ros/issues/99>`_)
+* Fix push-ros-namespace in xml/yaml launch files (`#100 <https://github.com/ros2/launch_ros/issues/100>`_)
+* Pass the node-name attribute through the substitution parser (`#101 <https://github.com/ros2/launch_ros/issues/101>`_)
+* Add pid to launch_ros node name as suffix (`#98 <https://github.com/ros2/launch_ros/pull/98>`_)
+* Contributors: Brian Ezequiel Marchi, Grey, Ivan Santiago Paunovic, Jacob Perron, Steven! Ragnarök, William Woodall
+
 0.9.4 (2019-11-19)
 ------------------
 * fix new linter warnings as of flake8-comprehensions 3.1.0 (`#94 <https://github.com/ros2/launch_ros/issues/94>`_)

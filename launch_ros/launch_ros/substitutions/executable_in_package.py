@@ -46,7 +46,7 @@ class ExecutableInPackage(FindPackagePrefix):
     """
 
     def __init__(self, executable: SomeSubstitutionsType, package: SomeSubstitutionsType) -> None:
-        """Constructor."""
+        """Create an ExecutableInPackage substitution."""
         super().__init__(package)
         self.__executable = normalize_to_list_of_substitutions(executable)
 

@@ -40,7 +40,7 @@ class FindPackage(Substitution):
         self,
         package: SomeSubstitutionsType,
     ) -> None:
-        """Constructor."""
+        """Create a FindPackage substitution."""
         super().__init__()
         self.__package = normalize_to_list_of_substitutions(package)
 

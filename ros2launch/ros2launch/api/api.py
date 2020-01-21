@@ -34,7 +34,7 @@ class MultipleLaunchFilesError(Exception):
     """Exception raised when multiple candidate launch files are found in a package."""
 
     def __init__(self, msg, paths):
-        """Constructor."""
+        """Create a MultipleLaunchFilesError."""
         super().__init__(msg)
         self.paths = paths
 
@@ -141,7 +141,7 @@ def launch_a_launch_file(*, launch_file_path, launch_file_arguments, debug=False
     """Launch a given launch file (by path) and pass it the given launch file arguments."""
     launch_service = launch.LaunchService(argv=launch_file_arguments, debug=debug)
     context = rclpy.context.Context()
-    rclpy.init(args=launch_file_arguments, context=context)
+    rclpy.init(args=[], context=context)
     launch_service.include_launch_description(
         launch_ros.get_default_launch_description(
             rclpy_context=context,
@@ -168,7 +168,7 @@ class LaunchFileNameCompleter:
     """Callable returning a list of launch file names within a package's share directory."""
 
     def __init__(self, *, package_name_key=None):
-        """Constructor."""
+        """Create LaunchFileNameCompleter."""
         self.package_name_key = 'package_name' if package_name_key is None else package_name_key
 
     def __call__(self, prefix, parsed_args, **kwargs):

@@ -19,6 +19,7 @@ from typing import List
 from launch import Action
 from launch import Substitution
 from launch.frontend import Entity
+from launch.frontend import expose_action
 from launch.frontend import Parser
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
@@ -29,6 +30,7 @@ from launch.utilities import perform_substitutions
 from rclpy.validate_namespace import validate_namespace
 
 
+@expose_action('push-ros-namespace')
 class PushRosNamespace(Action):
     """
     Action that pushes the ros namespace.
@@ -42,7 +44,7 @@ class PushRosNamespace(Action):
         namespace: SomeSubstitutionsType,
         **kwargs
     ) -> None:
-        """Constructor."""
+        """Create a PushRosNamespace action."""
         super().__init__(**kwargs)
         self.__namespace = normalize_to_list_of_substitutions(namespace)
 

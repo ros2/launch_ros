@@ -26,6 +26,8 @@ import launch_testing_ros
 
 import pytest
 
+import rclpy
+
 import std_msgs.msg
 
 
@@ -67,15 +69,28 @@ def generate_test_description():
 
 class TestTalkerListenerLink(unittest.TestCase):
 
-    def test_talker_transmits(self, launch_service, talker, proc_output):
-        # Get launch context ROS node
-        launch_context = launch_service.context
-        node = launch_context.locals.launch_ros_node
+    @classmethod
+    def setUpClass(cls):
+        # Initialize the ROS context for the test node
+        rclpy.init()
 
+    @classmethod
+    def tearDownClass(cls):
+        # Shutdown the ROS context
+        rclpy.shutdown()
+
+    def setUp(self):
+        # Create a ROS node for tests
+        self.node = rclpy.create_node('test_talker_listener_link')
+
+    def tearDown(self):
+        self.node.destroy_node()
+
+    def test_talker_transmits(self, launch_service, talker, proc_output):
         # Expect the talker to publish strings on '/talker_chatter' and also write to stdout
         msgs_rx = []
 
-        sub = node.create_subscription(
+        sub = self.node.create_subscription(
             std_msgs.msg.String,
             'talker_chatter',
             lambda msg: msgs_rx.append(msg),
@@ -85,7 +100,7 @@ class TestTalkerListenerLink(unittest.TestCase):
             # Wait until the talker transmits two messages over the ROS topic
             end_time = time.time() + 10
             while time.time() < end_time:
-                time.sleep(1.0)
+                rclpy.spin_once(self.node, timeout_sec=0.1)
                 if len(msgs_rx) > 2:
                     break
 
@@ -97,14 +112,10 @@ class TestTalkerListenerLink(unittest.TestCase):
                     expected_output=msg.data, process=talker
                 )
         finally:
-            node.destroy_subscription(sub)
+            self.node.destroy_subscription(sub)
 
     def test_listener_receives(self, launch_service, listener, proc_output):
-        # Get launch context ROS node
-        launch_context = launch_service.context
-        node = launch_context.locals.launch_ros_node
-
-        pub = node.create_publisher(
+        pub = self.node.create_publisher(
             std_msgs.msg.String,
             'listener_chatter',
             10
@@ -125,13 +136,9 @@ class TestTalkerListenerLink(unittest.TestCase):
                     break
             assert success, 'Waiting for output timed out'
         finally:
-            node.destroy_publisher(pub)
+            self.node.destroy_publisher(pub)
 
     def test_fuzzy_data(self, launch_service, listener, proc_output):
-        # Get launch context ROS node
-        launch_context = launch_service.context
-        node = launch_context.locals.launch_ros_node
-
         # This test shows how to insert a node in between the talker and the listener to
         # change the data.  Here we're going to change 'Hello World' to 'Aloha World'
         def data_mangler(msg):
@@ -139,7 +146,7 @@ class TestTalkerListenerLink(unittest.TestCase):
             return msg
 
         republisher = launch_testing_ros.DataRepublisher(
-            node,
+            self.node,
             'talker_chatter',
             'listener_chatter',
             std_msgs.msg.String,
@@ -149,7 +156,7 @@ class TestTalkerListenerLink(unittest.TestCase):
             # Spin for a few seconds until we've republished some mangled messages
             end_time = time.time() + 10
             while time.time() < end_time:
-                time.sleep(1.0)
+                rclpy.spin_once(self.node, timeout_sec=0.1)
                 if republisher.get_num_republished() > 2:
                     break
 

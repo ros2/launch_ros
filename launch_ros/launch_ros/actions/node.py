@@ -26,6 +26,8 @@ from typing import Text  # noqa: F401
 from typing import Tuple  # noqa: F401
 from typing import Union
 
+import warnings
+
 from launch.action import Action
 from launch.actions import ExecuteProcess
 from launch.frontend import Entity
@@ -235,6 +237,11 @@ class Node(ExecuteProcess):
         if args is not None:
             kwargs['arguments'] = super()._parse_cmdline(args, parser)
         node_name = entity.get_attr('node-name', optional=True)
+        if node_name is not None:
+            warnings.warn(
+                "The attribute 'node-name' is deprecated. Use the attribute 'name' instead.")
+            kwargs['node_name'] = parser.parse_substitution(node_name)
+        node_name = entity.get_attr('name', optional=True)
         if node_name is not None:
             kwargs['node_name'] = parser.parse_substitution(node_name)
         package = entity.get_attr('pkg', optional=True)

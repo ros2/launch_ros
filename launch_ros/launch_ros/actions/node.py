@@ -63,6 +63,8 @@ class Node(ExecuteProcess):
         self, *,
         node_executable: SomeSubstitutionsType,
         package: Optional[SomeSubstitutionsType] = None,
+        name: Optional[SomeSubstitutionsType] = None,
+        namespace: Optional[SomeSubstitutionsType] = '',
         node_name: Optional[SomeSubstitutionsType] = None,
         node_namespace: SomeSubstitutionsType = '',
         parameters: Optional[SomeParameters] = None,
@@ -88,17 +90,17 @@ class Node(ExecuteProcess):
         exceptions that substituion can raise when the package or executable
         are not found.
 
-        If the node_name is not given (or is None) then no name is passed to
+        If the name is not given (or is None) then no name is passed to
         the node on creation and instead the default name specified within the
         code of the node is used instead.
 
-        The node_namespace can either be absolute (i.e. starts with /) or
+        The namespace can either be absolute (i.e. starts with /) or
         relative.
         If absolute, then nothing else is considered and this is passed
         directly to the node to set the namespace.
         If relative, the namespace in the 'ros_namespace' LaunchConfiguration
         will be prepended to the given relative node namespace.
-        If no node_namespace is given, then the default namespace `/` is
+        If no namespace is given, then the default namespace `/` is
         assumed.
 
         The parameters are passed as a list, with each element either a yaml
@@ -117,9 +119,14 @@ class Node(ExecuteProcess):
         passed in in order to the node (where the last definition of a
         parameter takes effect).
 
+        .. warning:: Parameters `node_name` and `node_namespace` are deprecated.
+           Use `name` and `namespace` instead.
+
         :param: node_executable the name of the executable to find if a package
             is provided or otherwise a path to the executable to run.
         :param: package the package in which the node executable can be found
+        :param: name the name of the node
+        :param: namespace the ROS namespace for this Node
         :param: node_name the name of the node
         :param: node_namespace the ros namespace for this Node
         :param: parameters list of names of yaml files with parameter rules,
@@ -137,8 +144,18 @@ class Node(ExecuteProcess):
         # The substitutions will get expanded when the action is executed.
         cmd += ['--ros-args']  # Prepend ros specific arguments with --ros-args flag
         if node_name is not None:
+            warnings.warn("The parameter 'node_name' is deprecated, use 'name' instead")
+            if name is None:
+                cmd += ['-r', LocalSubstitution(
+                    "ros_specific_arguments['name']", description='node name')]
+                name = node_name
+        if name is not None:
             cmd += ['-r', LocalSubstitution(
                 "ros_specific_arguments['name']", description='node name')]
+        if node_namespace:
+            warnings.warn("The parameter 'node_namespace' is deprecated, use 'namespace' instead")
+            if not namespace:
+                namespace = node_namespace
         if parameters is not None:
             ensure_argument_type(parameters, (list), 'parameters', 'Node')
             # All elements in the list are paths to files with parameters (or substitutions that
@@ -161,8 +178,8 @@ class Node(ExecuteProcess):
         super().__init__(cmd=cmd, **kwargs)
         self.__package = package
         self.__node_executable = node_executable
-        self.__node_name = node_name
-        self.__node_namespace = node_namespace
+        self.__node_name = name
+        self.__node_namespace = namespace
         self.__parameters = [] if parameters is None else normalized_params
         self.__remappings = [] if remappings is None else remappings
         self.__arguments = arguments
@@ -238,19 +255,17 @@ class Node(ExecuteProcess):
             kwargs['arguments'] = super()._parse_cmdline(args, parser)
         node_name = entity.get_attr('node-name', optional=True)
         if node_name is not None:
-            warnings.warn(
-                "The attribute 'node-name' is deprecated. Use the attribute 'name' instead.")
             kwargs['node_name'] = parser.parse_substitution(node_name)
         node_name = entity.get_attr('name', optional=True)
         if node_name is not None:
-            kwargs['node_name'] = parser.parse_substitution(node_name)
+            kwargs['name'] = parser.parse_substitution(node_name)
         package = entity.get_attr('pkg', optional=True)
         if package is not None:
             kwargs['package'] = parser.parse_substitution(package)
         kwargs['node_executable'] = parser.parse_substitution(entity.get_attr('exec'))
         ns = entity.get_attr('namespace', optional=True)
         if ns is not None:
-            kwargs['node_namespace'] = parser.parse_substitution(ns)
+            kwargs['namespace'] = parser.parse_substitution(ns)
         remappings = entity.get_attr('remap', data_type=List[Entity], optional=True)
         if remappings is not None:
             kwargs['remappings'] = [

@@ -130,8 +130,8 @@ class Node(ExecuteProcess):
         :param: namespace the ROS namespace for this Node
         :param: exec_name the label used to represent the process.
             Defaults to the basename of node executable.
-        :param: node_name the name of the node
-        :param: node_namespace the ros namespace for this Node
+        :param: node_name (DEPRECATED) the name of the node
+        :param: node_namespace (DEPRECATED) the ros namespace for this Node
         :param: parameters list of names of yaml files with parameter rules,
             or dictionaries of parameters.
         :param: remappings ordered list of 'to' and 'from' string pairs to be

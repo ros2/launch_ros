@@ -148,17 +148,24 @@ class Node(ExecuteProcess):
         cmd += ['--ros-args']  # Prepend ros specific arguments with --ros-args flag
         if node_name is not None:
             warnings.warn("The parameter 'node_name' is deprecated, use 'name' instead")
-            if name is None:
-                cmd += ['-r', LocalSubstitution(
-                    "ros_specific_arguments['name']", description='node name')]
-                name = node_name
+            if name is not None:
+                raise RuntimeError(
+                    "Passing both 'node_name' and 'name' parameters. Only use 'name'."
+                )
+            cmd += ['-r', LocalSubstitution(
+                "ros_specific_arguments['name']", description='node name')]
+            name = node_name
         if name is not None:
             cmd += ['-r', LocalSubstitution(
                 "ros_specific_arguments['name']", description='node name')]
         if node_namespace:
             warnings.warn("The parameter 'node_namespace' is deprecated, use 'namespace' instead")
-            if not namespace:
-                namespace = node_namespace
+            if namespace:
+                raise RuntimeError(
+                    "Passing both 'node_namespace' and 'namespace' parameters. "
+                    "Only use 'namespace'."
+                )
+            namespace = node_namespace
         if parameters is not None:
             ensure_argument_type(parameters, (list), 'parameters', 'Node')
             # All elements in the list are paths to files with parameters (or substitutions that

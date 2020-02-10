@@ -45,7 +45,7 @@ class TestNode(unittest.TestCase):
             package='demo_nodes_py', node_executable='talker_qos', output='screen',
             # The node name is required for parameter dicts.
             # See https://github.com/ros2/launch/issues/139.
-            node_name='my_node', node_namespace='my_ns',
+            name='my_node', namespace='my_ns',
             arguments=['--number_of_cycles', '1'],
             parameters=parameters,
             remappings=remappings,
@@ -90,7 +90,7 @@ class TestNode(unittest.TestCase):
         # This node will never exit on its own, it'll keep publishing forever.
         long_running_node = launch_ros.actions.Node(
             package='demo_nodes_py', node_executable='talker_qos', output='screen',
-            node_namespace='my_ns',
+            namespace='my_ns',
         )
 
         # This node will exit after publishing a single message. It is required, so we
@@ -99,7 +99,7 @@ class TestNode(unittest.TestCase):
         # exit on its own.
         required_node = launch_ros.actions.Node(
             package='demo_nodes_py', node_executable='talker_qos', output='screen',
-            node_namespace='my_ns2', arguments=['--number_of_cycles', '1'],
+            namespace='my_ns2', arguments=['--number_of_cycles', '1'],
             on_exit=Shutdown()
         )
 
@@ -188,6 +188,13 @@ class TestNode(unittest.TestCase):
             package='demo_nodes_py', node_executable='talker_qos', output='screen',
             arguments=['--number_of_cycles', '1'],
             parameters=[{'my_param': 'value'}],
+        )
+        self._assert_launch_no_errors([node_action])
+
+    def test_deprecated_node_parameters(self):
+        node_action = launch_ros.actions.Node(
+            package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            node_name='my_node', node_namespace='my_ns'
         )
         self._assert_launch_no_errors([node_action])
 

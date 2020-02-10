@@ -60,7 +60,7 @@ class LifecycleNode(Node):
             one, or even all lifecycle nodes, and it requests the targeted nodes
             to change state, see its documentation for more details.
         """
-        super().__init__(node_name=node_name, **kwargs)
+        super().__init__(name=node_name, **kwargs)
         self.__logger = launch.logging.get_logger(__name__)
         self.__rclpy_subscription = None
         self.__current_state = \

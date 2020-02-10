@@ -67,6 +67,7 @@ class Node(ExecuteProcess):
         namespace: Optional[SomeSubstitutionsType] = '',
         node_name: Optional[SomeSubstitutionsType] = None,
         node_namespace: SomeSubstitutionsType = '',
+        exec_name: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
@@ -127,6 +128,8 @@ class Node(ExecuteProcess):
         :param: package the package in which the node executable can be found
         :param: name the name of the node
         :param: namespace the ROS namespace for this Node
+        :param: exec_name the label used to represent the process.
+            Defaults to the basename of node executable.
         :param: node_name the name of the node
         :param: node_namespace the ros namespace for this Node
         :param: parameters list of names of yaml files with parameter rules,
@@ -175,6 +178,8 @@ class Node(ExecuteProcess):
                     "ros_specific_arguments['remaps'][{}]".format(i),
                     description='remapping {}'.format(i))]
                 i += 1
+        # Forward 'exec_name' as to ExecuteProcess constructor
+        kwargs['name'] = exec_name
         super().__init__(cmd=cmd, **kwargs)
         self.__package = package
         self.__node_executable = node_executable
@@ -259,6 +264,9 @@ class Node(ExecuteProcess):
         node_name = entity.get_attr('name', optional=True)
         if node_name is not None:
             kwargs['name'] = parser.parse_substitution(node_name)
+        exec_name = entity.get_attr('exec_name', optional=True)
+        if exec_name is not None:
+            kwargs['exec_name'] = parser.parse_substitution(exec_name)
         package = entity.get_attr('pkg', optional=True)
         if package is not None:
             kwargs['package'] = parser.parse_substitution(package)

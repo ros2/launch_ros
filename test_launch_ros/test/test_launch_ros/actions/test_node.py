@@ -46,6 +46,7 @@ class TestNode(unittest.TestCase):
             # The node name is required for parameter dicts.
             # See https://github.com/ros2/launch/issues/139.
             name='my_node', namespace='my_ns',
+            exec_name='my_node_process',
             arguments=['--number_of_cycles', '1'],
             parameters=parameters,
             remappings=remappings,

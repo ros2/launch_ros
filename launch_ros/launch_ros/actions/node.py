@@ -244,13 +244,6 @@ class Node(ExecuteProcess):
         node_name = entity.get_attr('name', optional=True)
         if node_name is not None:
             kwargs['node_name'] = parser.parse_substitution(node_name)
-            # Undo the parent action parsing 'name' as the process name
-            # For node actions, use 'exec-name' to rename the process
-            if 'name' in kwargs:
-                del kwargs['name']
-        exec_name = entity.get_attr('exec-name', optional=True)
-        if exec_name is not None:
-            kwargs['name'] = parser.parse_substitution(exec_name)
         package = entity.get_attr('pkg', optional=True)
         if package is not None:
             kwargs['package'] = parser.parse_substitution(package)

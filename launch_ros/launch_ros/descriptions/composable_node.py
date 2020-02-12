@@ -85,7 +85,6 @@ class ComposableNode:
                 )
             namespace = node_namespace
 
-
         self.__package = normalize_to_list_of_substitutions(package)
         self.__node_plugin = normalize_to_list_of_substitutions(plugin)
 

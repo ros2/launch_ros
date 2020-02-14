@@ -91,16 +91,20 @@ def test_set_param_with_node():
     set_param = SetParameter(name='my_param', value='my_value')
     set_param.execute(lc)
     node._perform_substitutions(lc)
-    expanded_parameter_files = node._Node__expanded_parameter_files
-    assert len(expanded_parameter_files) == 2
-    with open(expanded_parameter_files[0], 'r') as h:
+    expanded_parameter_arguments = node._Node__expanded_parameter_arguments
+    assert len(expanded_parameter_arguments) == 2
+    param_file_path, is_file = expanded_parameter_arguments[0]
+    assert is_file
+    with open(param_file_path, 'r') as h:
         expanded_parameters_dict = yaml.load(h, Loader=yaml.FullLoader)
         assert expanded_parameters_dict == {
             '/my_ns/my_node': {
                 'ros__parameters': {'my_param': 'my_value'}
             }
         }
-    with open(expanded_parameter_files[1], 'r') as h:
+    param_file_path, is_file = expanded_parameter_arguments[1]
+    assert is_file
+    with open(param_file_path, 'r') as h:
         expanded_parameters_dict = yaml.load(h, Loader=yaml.FullLoader)
         assert expanded_parameters_dict == {
             '/my_ns/my_node': {

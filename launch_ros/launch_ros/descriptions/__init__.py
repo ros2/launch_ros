@@ -15,7 +15,10 @@
 """descriptions Module."""
 
 from .composable_node import ComposableNode
+from ..parameter import Parameter
+
 
 __all__ = [
     'ComposableNode',
+    'Parameter',
 ]

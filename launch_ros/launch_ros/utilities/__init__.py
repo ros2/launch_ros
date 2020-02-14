@@ -18,6 +18,7 @@ Module for descriptions of launchable entities.
 Descriptions are not executable and are immutable so they can be reused by launch entities.
 """
 
+from . import type_utils
 from .evaluate_parameters import evaluate_parameters
 from .namespace_utils import is_namespace_absolute
 from .namespace_utils import is_root_namespace
@@ -44,4 +45,5 @@ __all__ = [
     'normalize_remap_rules',
     'prefix_namespace',
     'to_parameters_list',
+    'type_utils',
 ]

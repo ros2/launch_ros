@@ -172,6 +172,9 @@ def normalize_parameters(parameters: SomeParameters) -> Parameters:
     The normalized parameters will have all paths converted to a list of :class:`Substitution`,
     and dictionaries normalized using :meth:`normalize_parameter_dict`.
     """
+    # Here to avoid cyclic import
+    from ..parameter import Parameter as ParameterDescription
+
     if isinstance(parameters, str) or not isinstance(parameters, Sequence):
         raise TypeError('Expecting list of parameters, got {}'.format(parameters))
 
@@ -179,6 +182,8 @@ def normalize_parameters(parameters: SomeParameters) -> Parameters:
     for param in parameters:
         if isinstance(param, Mapping):
             normalized_params.append(normalize_parameter_dict(param))
+        elif isinstance(param, ParameterDescription):
+            normalized_params.append(param)
         else:
             # It's a path, normalize to a list of substitutions
             if isinstance(param, pathlib.Path):

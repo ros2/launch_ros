@@ -37,7 +37,13 @@ from ..events.lifecycle import StateTransition
 class LifecycleNode(Node):
     """Action that executes a ROS lifecycle node."""
 
-    def __init__(self, *, name: Text = None, node_name: Optional[Text] = None, **kwargs) -> None:
+    def __init__(
+        self,
+        *,
+        name: Optional[Text] = None,
+        node_name: Optional[Text] = None,
+        **kwargs
+    ) -> None:
         """
         Construct a LifecycleNode action.
 

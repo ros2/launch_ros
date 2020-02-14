@@ -35,8 +35,8 @@ class ComposableNodeContainer(Node):
     def __init__(
         self,
         *,
-        name: SomeSubstitutionsType = None,
-        namespace: SomeSubstitutionsType = None,
+        name: Optional[SomeSubstitutionsType] = None,
+        namespace: Optional[SomeSubstitutionsType] = None,
         node_name: Optional[SomeSubstitutionsType] = None,
         node_namespace: Optional[SomeSubstitutionsType] = None,
         composable_node_descriptions: Optional[List[ComposableNode]] = None,

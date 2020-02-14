@@ -49,6 +49,10 @@ class ComposableNode:
         """
         Initialize a ComposableNode description.
 
+        .. deprecated:: Foxy
+           Parameters `node_plugin`, `node_name`, and `node_namespace` are deprecated.
+           Use `plugin`, `name`, and `namespace` instead.
+
         :param package: name of the ROS package the node plugin lives in
         :param plugin: name of the plugin to be loaded
         :param name: name to give to the ROS node

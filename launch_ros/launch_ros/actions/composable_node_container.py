@@ -48,7 +48,8 @@ class ComposableNodeContainer(Node):
         Most arguments are forwarded to :class:`launch_ros.actions.Node`, so see the documentation
         of that class for further details.
 
-        .. warning:: Parameters `node_name` and `node_namespace` are deprecated.
+        .. deprecated:: Foxy
+           Parameters `node_name` and `node_namespace` are deprecated.
            Use `name` and `namespace` instead.
 
         :param: name the name of the node, mandatory for full container node name resolution

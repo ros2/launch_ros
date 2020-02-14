@@ -67,7 +67,8 @@ class LifecycleNode(Node):
             one, or even all lifecycle nodes, and it requests the targeted nodes
             to change state, see its documentation for more details.
 
-        .. warning:: The parameter `node_name` is deprecated, use `name` instead.
+        .. deprecated:: Foxy
+           The parameter `node_name` is deprecated, use `name` instead.
 
         :param name: The name of the lifecycle node.
           Although it defaults to None it is a required parameter and the default will be removed

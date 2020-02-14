@@ -120,7 +120,8 @@ class Node(ExecuteProcess):
         passed in in order to the node (where the last definition of a
         parameter takes effect).
 
-        .. warning:: Parameters `node_name` and `node_namespace` are deprecated.
+        .. deprecated:: Foxy
+           Parameters `node_name` and `node_namespace` are deprecated.
            Use `name` and `namespace` instead.
 
         :param: node_executable the name of the executable to find if a package

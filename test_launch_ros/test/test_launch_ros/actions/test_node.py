@@ -199,6 +199,20 @@ class TestNode(unittest.TestCase):
         )
         self._assert_launch_no_errors([node_action])
 
+        # Providing both 'node_name' and 'name' should throw
+        with self.assertRaises(RuntimeError):
+            launch_ros.actions.Node(
+                package='demo_nodes_py', node_executable='talker_qos', output='screen',
+                node_name='my_node', name='my_node', node_namespace='my_ns'
+            )
+
+        # Providing both 'node_namespace' and 'namespace' should throw
+        with self.assertRaises(RuntimeError):
+            launch_ros.actions.Node(
+                package='demo_nodes_py', node_executable='talker_qos', output='screen',
+                node_name='my_node', node_namespace='my_ns', namespace='my_ns'
+            )
+
     def test_launch_node_with_invalid_parameter_dicts(self):
         """Test launching a node with invalid parameter dicts."""
         # Substitutions aren't expanded until the node action is executed, at which time a type

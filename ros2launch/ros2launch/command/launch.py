@@ -55,11 +55,11 @@ class LaunchCommand(CommandExtension):
             # TODO(wjwwood) make this not optional when full launch path is supported.
             nargs='?',
             help='Name of the launch file')
+        arg.completer = LaunchFileNameCompleter()
         arg = parser.add_argument(
             'launch_arguments',
             nargs='*',
             help="Arguments to the launch file; '<name>:=<value>' (for duplicates, last one wins)")
-        arg.completer = LaunchFileNameCompleter()
 
     def main(self, *, parser, args):
         """Entry point for CLI program."""

@@ -18,6 +18,7 @@ from ament_index_python.packages import get_package_prefix
 from ament_index_python.packages import PackageNotFoundError
 from argcomplete.completers import SuppressCompleter
 from ros2cli.command import CommandExtension
+from ros2launch.api import get_launch_file_paths
 from ros2launch.api import get_share_file_path_from_package
 from ros2launch.api import launch_a_launch_file
 from ros2launch.api import LaunchFileNameCompleter
@@ -32,6 +33,42 @@ class SuppressCompleterWorkaround(SuppressCompleter):
 
     def __call__(self, *args, **kwargs):
         return tuple()
+
+
+def package_name_or_launch_file_completer(prefix, parsed_args, **kwargs):
+    # Complete package names
+    completions = [n for n in package_name_completer(prefix=prefix, **kwargs)]
+
+    # list of 2-tuples: (directory, part of prefix to prepend)
+    dirs_to_check = []
+
+    if os.path.isdir(prefix) and not prefix.endswith(os.sep):
+        # if prefix is directory 'foo' then suggest 'foo/'
+        completions.append(prefix + os.sep)
+    if os.path.isdir(prefix) and prefix.endswith(os.sep):
+        # if prefix is 'foo/' then check 'foo/' for launch files
+        dirs_to_check.append((prefix, prefix))
+    if not prefix.endswith(os.sep) and os.path.isdir(os.path.dirname(prefix)):
+        # if prefix is 'foo/bar' and then check 'foo' for launch files
+        dirname = os.path.dirname(prefix)
+        basename = os.path.basename(prefix)
+        prepend = prefix[:-len(basename)]
+        dirs_to_check.append((dirname, prepend))
+    if os.sep not in prefix:
+        # if prefix is 'foo' then check current directory for files starting with 'foo'
+        dirs_to_check.append((os.curdir, ''))
+
+    for dirname, prepend in dirs_to_check:
+        # complete launch files in a directory
+        for launch_file in get_launch_file_paths(path=dirname):
+            completions.append(prepend + os.path.basename(launch_file))
+
+        # complete directories since they may contain launch files
+        for path in os.listdir(path=dirname):
+            if os.path.isdir(os.path.join(dirname, path)):
+                completions.append(prepend + path + os.sep)
+
+    return completions
 
 
 class LaunchCommand(CommandExtension):
@@ -57,7 +94,7 @@ class LaunchCommand(CommandExtension):
         arg = parser.add_argument(
             'package_name',
             help='Name of the ROS package which contains the launch file')
-        arg.completer = package_name_completer
+        arg.completer = package_name_or_launch_file_completer
         arg = parser.add_argument(
             'launch_file_name',
             # TODO(wjwwood) make this not optional when full launch path is supported.

@@ -16,6 +16,7 @@ import os
 
 from ament_index_python.packages import get_package_prefix
 from ament_index_python.packages import PackageNotFoundError
+from argcomplete.completers import SuppressCompleter
 from ros2cli.command import CommandExtension
 from ros2launch.api import get_share_file_path_from_package
 from ros2launch.api import launch_a_launch_file
@@ -24,6 +25,13 @@ from ros2launch.api import MultipleLaunchFilesError
 from ros2launch.api import print_a_launch_file
 from ros2launch.api import print_arguments_of_launch_file
 from ros2pkg.api import package_name_completer
+
+
+class SuppressCompleterWorkaround(SuppressCompleter):
+    """Workaround https://github.com/kislyuk/argcomplete/pull/289 ."""
+
+    def __call__(self, *args, **kwargs):
+        return tuple()
 
 
 class LaunchCommand(CommandExtension):
@@ -60,6 +68,7 @@ class LaunchCommand(CommandExtension):
             'launch_arguments',
             nargs='*',
             help="Arguments to the launch file; '<name>:=<value>' (for duplicates, last one wins)")
+        arg.completer = SuppressCompleterWorkaround()
 
     def main(self, *, parser, args):
         """Entry point for CLI program."""

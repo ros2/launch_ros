@@ -62,7 +62,7 @@ def package_name_or_launch_file_completer(prefix, parsed_args, **kwargs):
         # complete launch files in a directory
         for launch_file in get_launch_file_paths(path=dirname):
             if os.path.normpath(os.path.dirname(launch_file)) == os.path.normpath(dirname):
-                # Get launch_file_paths is recursive; complete only launch files in first level
+                # get_launch_file_paths() is recursive; complete only launch files in first level
                 completions.append(prepend + os.path.basename(launch_file))
 
         # complete directories since they may contain launch files

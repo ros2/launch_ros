@@ -32,12 +32,13 @@ class SuppressCompleterWorkaround(SuppressCompleter):
     """Workaround https://github.com/kislyuk/argcomplete/pull/289 ."""
 
     def __call__(self, *args, **kwargs):
-        return tuple()
+        """Make SupressCompleter callable by returning no completions."""
+        return ()
 
 
 def package_name_or_launch_file_completer(prefix, parsed_args, **kwargs):
     # Complete package names
-    completions = [n for n in package_name_completer(prefix=prefix, **kwargs)]
+    completions = list(package_name_completer(prefix=prefix, **kwargs))
 
     # list of 2-tuples: (directory, part of prefix to prepend)
     dirs_to_check = []

@@ -81,7 +81,7 @@ def get_launch_file_paths(*, path):
 
 def is_launch_file(*, path):
     """Return True if the path is a launch file."""
-    return os.path.basename(path).endswith(is_launch_file.extensions) and os.path.isfile(path)
+    return path.endswith(is_launch_file.extensions) and os.path.isfile(path)
 
 
 is_launch_file.extensions = [

@@ -79,7 +79,7 @@ def get_launch_file_paths(*, path):
     return launch_file_paths
 
 
-def is_launch_file(*, path):
+def is_launch_file(path):
     """Return True if the path is a launch file."""
     return path.endswith(is_launch_file.extensions) and os.path.isfile(path)
 

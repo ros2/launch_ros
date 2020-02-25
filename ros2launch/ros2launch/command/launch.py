@@ -16,10 +16,11 @@ import os
 
 from ament_index_python.packages import get_package_prefix
 from ament_index_python.packages import PackageNotFoundError
+from argcomplete.completers import FilesCompleter
 from argcomplete.completers import SuppressCompleter
 from ros2cli.command import CommandExtension
-from ros2launch.api import get_launch_file_paths
 from ros2launch.api import get_share_file_path_from_package
+from ros2launch.api import is_launch_file
 from ros2launch.api import launch_a_launch_file
 from ros2launch.api import LaunchFileNameCompleter
 from ros2launch.api import MultipleLaunchFilesError
@@ -37,39 +38,19 @@ class SuppressCompleterWorkaround(SuppressCompleter):
 
 
 def package_name_or_launch_file_completer(prefix, parsed_args, **kwargs):
+    """Complete package names or paths to launch files."""
+    pass_through_kwargs = {k: v for k, v in kwargs.items()}
+    pass_through_kwargs['prefix'] = prefix
+    pass_through_kwargs['parsed_args'] = parsed_args
+
     # Complete package names
-    completions = list(package_name_completer(prefix=prefix, **kwargs))
+    completions = list(package_name_completer(**pass_through_kwargs))
 
-    # list of 2-tuples: (directory, part of prefix to prepend)
-    dirs_to_check = []
+    def is_launch_file_or_dir(path):
+        return is_launch_file(path=path) or os.path.isdir(path)
 
-    if os.path.isdir(prefix) and not prefix.endswith(os.sep):
-        # if prefix is directory 'foo' then suggest 'foo/'
-        completions.append(prefix + os.sep)
-    if os.path.isdir(prefix) and prefix.endswith(os.sep):
-        # if prefix is 'foo/' then check 'foo/' for launch files
-        dirs_to_check.append((prefix, prefix))
-    if not prefix.endswith(os.sep) and os.path.isdir(os.path.dirname(prefix)):
-        # if prefix is 'foo/bar' and then check 'foo' for launch files
-        dirname = os.path.dirname(prefix)
-        basename = os.path.basename(prefix)
-        prepend = prefix[:-len(basename)]
-        dirs_to_check.append((dirname, prepend))
-    if os.sep not in prefix:
-        # if prefix is 'foo' then check current directory for files starting with 'foo'
-        dirs_to_check.append((os.curdir, ''))
-
-    for dirname, prepend in dirs_to_check:
-        # complete launch files in a directory
-        for launch_file in get_launch_file_paths(path=dirname):
-            if os.path.normpath(os.path.dirname(launch_file)) == os.path.normpath(dirname):
-                # get_launch_file_paths() is recursive; complete only launch files in first level
-                completions.append(prepend + os.path.basename(launch_file))
-
-        # complete directories since they may contain launch files
-        for path in os.listdir(path=dirname):
-            if os.path.isdir(os.path.join(dirname, path)):
-                completions.append(prepend + path + os.sep)
+    # Complete paths to launch files
+    completions.extend(filter(is_launch_file_or_dir, FilesCompleter()(**pass_through_kwargs)))
 
     return completions
 

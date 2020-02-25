@@ -365,7 +365,19 @@ class Node(ExecuteProcess):
                     '{}:={}'.format(remapping_from, remapping_to)
                 )
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
-        return super().execute(context)
+        ret = super().execute(context)
+
+        self.__logger = launch.logging.get_logger(self.name)
+        try:
+            unique_node_names = context.locals.unique_ros_node_names
+        except AttributeError:
+            unique_node_names = set()
+        if self.node_name in unique_node_names:
+            self.__logger.warning('{} is not a unique node name'.format(self.node_name))
+        else:
+            unique_node_names.add(self.node_name)
+            context.extend_globals({'unique_ros_node_names': unique_node_names})
+        return ret
 
     @property
     def expanded_node_namespace(self):

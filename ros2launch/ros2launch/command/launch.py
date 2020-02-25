@@ -17,7 +17,11 @@ import os
 from ament_index_python.packages import get_package_prefix
 from ament_index_python.packages import PackageNotFoundError
 from argcomplete.completers import FilesCompleter
-from argcomplete.completers import SuppressCompleter
+try:
+    from argcomplete.completers import SuppressCompleter
+except ImportError:
+    # argcomplete < 1.9.0
+    SuppressCompleter = object
 from ros2cli.command import CommandExtension
 from ros2launch.api import get_share_file_path_from_package
 from ros2launch.api import is_launch_file

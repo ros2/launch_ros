@@ -16,6 +16,7 @@
 
 import os
 import pathlib
+from collections import defaultdict
 from tempfile import NamedTemporaryFile
 from typing import cast
 from typing import Dict
@@ -371,12 +372,13 @@ class Node(ExecuteProcess):
         try:
             unique_node_names = context.locals.unique_ros_node_names
         except AttributeError:
-            unique_node_names = set()
-        if self.node_name in unique_node_names:
-            self.__logger.warning('{} is not a unique node name'.format(self.node_name))
-        else:
-            unique_node_names.add(self.node_name)
-            context.extend_globals({'unique_ros_node_names': unique_node_names})
+            unique_node_names = defaultdict(int)
+        unique_node_names[self.node_name] += 1
+        if unique_node_names[self.node_name] > 1:
+            self.__logger.warning('there are now {} nodes with the name {}'.format(
+                unique_node_names[self.node_name], self.node_name))
+        context.extend_globals({'unique_ros_node_names': unique_node_names})
+
         return ret
 
     @property

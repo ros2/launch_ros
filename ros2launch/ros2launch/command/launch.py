@@ -39,7 +39,7 @@ class SuppressCompleterWorkaround(SuppressCompleter):
 
 def package_name_or_launch_file_completer(prefix, parsed_args, **kwargs):
     """Complete package names or paths to launch files."""
-    pass_through_kwargs = {k: v for k, v in kwargs.items()}
+    pass_through_kwargs = dict(kwargs)
     pass_through_kwargs['prefix'] = prefix
     pass_through_kwargs['parsed_args'] = parsed_args
 

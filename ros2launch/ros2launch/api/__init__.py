@@ -17,8 +17,8 @@
 from launch.launch_description_sources import InvalidLaunchFileError
 from launch.launch_description_sources import InvalidPythonLaunchFileError
 
-from .api import get_launch_file_paths
 from .api import get_share_file_path_from_package
+from .api import is_launch_file
 from .api import launch_a_launch_file
 from .api import LaunchFileNameCompleter
 from .api import MultipleLaunchFilesError
@@ -28,8 +28,8 @@ from .api import print_arguments_of_launch_file
 
 
 __all__ = [
-    'get_launch_file_paths',
     'get_share_file_path_from_package',
+    'is_launch_file',
     'InvalidLaunchFileError',
     'InvalidPythonLaunchFileError',
     'LaunchFileNameCompleter',

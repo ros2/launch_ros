@@ -73,16 +73,22 @@ def get_launch_file_paths(*, path):
     launch_file_paths = []
     for root, dirs, files in os.walk(path):
         for file_name in files:
-            if file_name.endswith(get_launch_file_paths.extensions):
-                launch_file_paths.append(os.path.join(root, file_name))
+            file_path = os.path.join(root, file_name)
+            if is_launch_file(path=file_path):
+                launch_file_paths.append(file_path)
     return launch_file_paths
 
 
-get_launch_file_paths.extensions = [
+def is_launch_file(*, path):
+    """Return True if the path is a launch file."""
+    return os.path.basename(path).endswith(is_launch_file.extensions) and os.path.isfile(path)
+
+
+is_launch_file.extensions = [
     'launch.' + extension for extension in Parser.get_available_extensions()
 ]
-get_launch_file_paths.extensions.append('launch.py')
-get_launch_file_paths.extensions = tuple(get_launch_file_paths.extensions)
+is_launch_file.extensions.append('launch.py')
+is_launch_file.extensions = tuple(is_launch_file.extensions)
 
 
 def print_a_launch_file(*, launch_file_path):

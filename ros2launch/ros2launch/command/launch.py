@@ -16,14 +16,47 @@ import os
 
 from ament_index_python.packages import get_package_prefix
 from ament_index_python.packages import PackageNotFoundError
+from argcomplete.completers import FilesCompleter
+try:
+    from argcomplete.completers import SuppressCompleter
+except ImportError:
+    # argcomplete < 1.9.0
+    SuppressCompleter = object
 from ros2cli.command import CommandExtension
 from ros2launch.api import get_share_file_path_from_package
+from ros2launch.api import is_launch_file
 from ros2launch.api import launch_a_launch_file
 from ros2launch.api import LaunchFileNameCompleter
 from ros2launch.api import MultipleLaunchFilesError
 from ros2launch.api import print_a_launch_file
 from ros2launch.api import print_arguments_of_launch_file
 from ros2pkg.api import package_name_completer
+
+
+class SuppressCompleterWorkaround(SuppressCompleter):
+    """Workaround https://github.com/kislyuk/argcomplete/pull/289 ."""
+
+    def __call__(self, *args, **kwargs):
+        """Make SupressCompleter callable by returning no completions."""
+        return ()
+
+
+def package_name_or_launch_file_completer(prefix, parsed_args, **kwargs):
+    """Complete package names or paths to launch files."""
+    pass_through_kwargs = dict(kwargs)
+    pass_through_kwargs['prefix'] = prefix
+    pass_through_kwargs['parsed_args'] = parsed_args
+
+    # Complete package names
+    completions = list(package_name_completer(**pass_through_kwargs))
+
+    def is_launch_file_or_dir(path):
+        return is_launch_file(path) or os.path.isdir(path)
+
+    # Complete paths to launch files
+    completions.extend(filter(is_launch_file_or_dir, FilesCompleter()(**pass_through_kwargs)))
+
+    return completions
 
 
 class LaunchCommand(CommandExtension):
@@ -49,17 +82,18 @@ class LaunchCommand(CommandExtension):
         arg = parser.add_argument(
             'package_name',
             help='Name of the ROS package which contains the launch file')
-        arg.completer = package_name_completer
+        arg.completer = package_name_or_launch_file_completer
         arg = parser.add_argument(
             'launch_file_name',
             # TODO(wjwwood) make this not optional when full launch path is supported.
             nargs='?',
             help='Name of the launch file')
+        arg.completer = LaunchFileNameCompleter()
         arg = parser.add_argument(
             'launch_arguments',
             nargs='*',
             help="Arguments to the launch file; '<name>:=<value>' (for duplicates, last one wins)")
-        arg.completer = LaunchFileNameCompleter()
+        arg.completer = SuppressCompleterWorkaround()
 
     def main(self, *, parser, args):
         """Entry point for CLI program."""

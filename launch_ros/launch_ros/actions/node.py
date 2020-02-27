@@ -16,7 +16,6 @@
 
 import os
 import pathlib
-from collections import defaultdict
 from tempfile import NamedTemporaryFile
 from typing import cast
 from typing import Dict
@@ -47,6 +46,8 @@ from launch_ros.substitutions import ExecutableInPackage
 from launch_ros.utilities import evaluate_parameters
 from launch_ros.utilities import normalize_parameters
 from launch_ros.utilities import normalize_remap_rules
+from launch_ros.utilities import add_node_name
+from launch_ros.utilities import get_node_name_count
 
 from rclpy.validate_namespace import validate_namespace
 from rclpy.validate_node_name import validate_node_name
@@ -369,15 +370,11 @@ class Node(ExecuteProcess):
         ret = super().execute(context)
 
         self.__logger = launch.logging.get_logger(self.name)
-        try:
-            unique_node_names = context.locals.unique_ros_node_names
-        except AttributeError:
-            unique_node_names = defaultdict(int)
-        unique_node_names[self.node_name] += 1
-        if unique_node_names[self.node_name] > 1:
+        add_node_name(context, self.node_name)
+        node_name_count = get_node_name_count(context, self.node_name)
+        if node_name_count > 1:
             self.__logger.warning('there are now {} nodes with the name {}'.format(
-                unique_node_names[self.node_name], self.node_name))
-        context.extend_globals({'unique_ros_node_names': unique_node_names})
+                node_name_count, self.node_name))
 
         return ret
 

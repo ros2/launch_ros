@@ -16,7 +16,6 @@
 
 from typing import List
 from typing import Optional
-from typing import Text
 from typing import Union
 
 import composition_interfaces.srv
@@ -36,6 +35,8 @@ from .composable_node_container import ComposableNodeContainer
 from ..descriptions import ComposableNode
 from ..utilities import evaluate_parameters
 from ..utilities import to_parameters_list
+from ..utilities import add_node_name
+from ..utilities import get_node_name_count
 
 
 class LoadComposableNodes(Action):
@@ -134,15 +135,11 @@ class LoadComposableNodes(Action):
         response = self.__rclpy_load_node_client.call(request)
         if response.success:
             node_name = response.full_node_name if response.full_node_name else request.node_name
-            try:
-                unique_node_names = context.locals.unique_ros_node_names
-            except AttributeError:
-                unique_node_names = defaultdict(int)
-            unique_node_names[node_name] += 1
-            if unique_node_names[node_name] > 1:
+            add_node_name(context, node_name)
+            node_name_count = get_node_name_count(context, node_name)
+            if node_name_count > 1:
                 self.__logger.warning('there are now {} nodes with the name {}'.format(
-                    unique_node_names[node_name], node_name))
-            context.extend_globals({'unique_ros_node_names': unique_node_names})
+                    node_name_count, node_name))
             self.__logger.info("Loaded node '{}' in container '{}'".format(
                 response.full_node_name, self.__final_target_container_name
             ))

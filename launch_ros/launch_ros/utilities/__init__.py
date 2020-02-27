@@ -23,6 +23,8 @@ from .normalize_parameters import normalize_parameters
 from .normalize_remap_rule import normalize_remap_rule
 from .normalize_remap_rule import normalize_remap_rules
 from .to_parameters_list import to_parameters_list
+from .track_node_names import add_node_name
+from .track_node_names import get_node_name_count
 
 __all__ = [
     'evaluate_parameters',
@@ -30,4 +32,6 @@ __all__ = [
     'normalize_remap_rule',
     'normalize_remap_rules',
     'to_parameters_list',
+    'add_node_name',
+    'get_node_name_count'
 ]

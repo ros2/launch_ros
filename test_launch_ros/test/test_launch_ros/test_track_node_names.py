@@ -46,7 +46,7 @@ def test_node_name_count_after_execute():
 
     node1 = Node(
         package='demo_nodes_py',
-        node_executable='talker_qos',
+        node_executable='listener_qos',
         node_name=node_name,
         node_namespace='',
         output='screen',
@@ -54,7 +54,7 @@ def test_node_name_count_after_execute():
 
     node2 = LifecycleNode(
         package='lifecycle',
-        node_executable='lifecycle_talker',
+        node_executable='lifecycle_listener',
         node_name=node_name,
         node_namespace='',
         output='screen',
@@ -66,10 +66,6 @@ def test_node_name_count_after_execute():
         node_name=node_name,
         node_namespace='',
         composable_node_descriptions=[
-            ComposableNode(
-                package='composition',
-                node_plugin='composition::Talker',
-                node_name=node_name),
             ComposableNode(
                 package='composition',
                 node_plugin='composition::Listener',
@@ -90,4 +86,4 @@ def test_node_name_count_after_execute():
         asyncio.ensure_future(ls.shutdown(), loop=loop)
         loop.run_until_complete(launch_task)
 
-    assert get_node_name_count(ls.context, '/{}'.format(node_name)) == 5
+    assert get_node_name_count(ls.context, '/{}'.format(node_name)) == 4

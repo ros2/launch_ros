@@ -138,8 +138,8 @@ class LoadComposableNodes(Action):
             add_node_name(context, node_name)
             node_name_count = get_node_name_count(context, node_name)
             if node_name_count > 1:
-                self.__logger.warning('there are now {} nodes with the name {}'.format(
-                    node_name_count, node_name))
+                self.__target_container.__logger.warning(
+                    'there are now {} nodes with the name {}'.format(node_name_count, node_name))
             self.__logger.info("Loaded node '{}' in container '{}'".format(
                 response.full_node_name, self.__final_target_container_name
             ))

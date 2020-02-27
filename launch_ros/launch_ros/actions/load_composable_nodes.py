@@ -132,16 +132,27 @@ class LoadComposableNodes(Action):
                 )
             ]
         response = self.__rclpy_load_node_client.call(request)
-        if not response.success:
+        if response.success:
+            node_name = response.full_node_name if response.full_node_name else request.node_name
+            try:
+                unique_node_names = context.locals.unique_ros_node_names
+            except AttributeError:
+                unique_node_names = defaultdict(int)
+            unique_node_names[node_name] += 1
+            if unique_node_names[node_name] > 1:
+                self.__logger.warning('there are now {} nodes with the name {}'.format(
+                    unique_node_names[node_name], node_name))
+            context.extend_globals({'unique_ros_node_names': unique_node_names})
+            self.__logger.info("Loaded node '{}' in container '{}'".format(
+                response.full_node_name, self.__final_target_container_name
+            ))
+        else:
             self.__logger.error(
                 "Failed to load node '{}' of type '{}' in container '{}': {}".format(
                     response.full_node_name if response.full_node_name else request.node_name,
                     request.plugin_name, self.__final_target_container_name, response.error_message
                 )
             )
-        self.__logger.info("Loaded node '{}' in container '{}'".format(
-            response.full_node_name, self.__final_target_container_name
-        ))
 
     def _load_in_sequence(
         self,

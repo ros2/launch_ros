@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module with utility for tracking node names."""
+"""Utility functions to help detect non-unique node names."""
 
 from collections import defaultdict
 

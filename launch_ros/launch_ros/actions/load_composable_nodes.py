@@ -33,10 +33,10 @@ from launch.utilities import perform_substitutions
 from .composable_node_container import ComposableNodeContainer
 
 from ..descriptions import ComposableNode
-from ..utilities import evaluate_parameters
-from ..utilities import to_parameters_list
 from ..utilities import add_node_name
+from ..utilities import evaluate_parameters
 from ..utilities import get_node_name_count
+from ..utilities import to_parameters_list
 
 
 class LoadComposableNodes(Action):
@@ -136,7 +136,8 @@ class LoadComposableNodes(Action):
         if response.success:
             container_logger = launch.logging.get_logger(self.__target_container.name)
             if composable_node_description.node_name is None:
-                container_logger.warning('A node without an explicit name is being launched, '
+                container_logger.warning(
+                    'A node without an explicit name is being launched, '
                     'this may have the unintended side effect of non-unique node names. '
                     'It is recommended to explicitly name all nodes in launch files.')
             node_name = response.full_node_name if response.full_node_name else request.node_name
@@ -144,7 +145,8 @@ class LoadComposableNodes(Action):
             node_name_count = get_node_name_count(context, node_name)
             if node_name is not None and node_name_count > 1:
                 container_logger.warning(
-                    'there are now {} nodes with the name {}'.format(node_name_count, node_name))
+                    'there are now {} nodes with the name {} created within this launch context'
+                    .format(node_name_count, node_name))
             self.__logger.info("Loaded node '{}' in container '{}'".format(
                 response.full_node_name, self.__final_target_container_name
             ))

@@ -31,7 +31,6 @@ def add_node_name(context: LaunchContext, node_name: str) -> None:
     except AttributeError:
         context.extend_globals({'unique_ros_node_names': defaultdict(int)})
         unique_node_names = context.locals.unique_ros_node_names
-    unique_node_names = context.locals.unique_ros_node_names
     unique_node_names[node_name] += 1
 
 

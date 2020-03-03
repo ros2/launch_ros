@@ -369,12 +369,18 @@ class Node(ExecuteProcess):
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
         ret = super().execute(context)
 
-        self.__logger = launch.logging.get_logger(self.name)
-        add_node_name(context, self.node_name)
-        node_name_count = get_node_name_count(context, self.node_name)
-        if node_name_count > 1:
-            self.__logger.warning('there are now {} nodes with the name {}'.format(
-                node_name_count, self.node_name))
+        execute_process_logger = launch.logging.get_logger(self.name)
+        if '<node_name_unspecified>' in self.node_name:
+            add_node_name(context, None)
+            execute_process_logger.warning('A node without an explicit name is being launched, '
+                'this may have the unintended side effect of non-unique node names. '
+                'It is recommended to explicitly name all nodes in launch files.')
+        else:
+            add_node_name(context, self.node_name)
+            node_name_count = get_node_name_count(context, self.node_name)
+            if node_name_count > 1:
+                execute_process_logger.warning('there are now {} nodes with the name {}'.format(
+                    node_name_count, self.node_name))
 
         return ret
 

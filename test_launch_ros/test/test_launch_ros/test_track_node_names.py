@@ -17,6 +17,7 @@
 import asyncio
 
 import osrf_pycommon.process_utils
+import rclpy
 
 from launch import LaunchContext
 from launch import LaunchDescription
@@ -31,7 +32,10 @@ from launch_ros.utilities import add_node_name
 from launch_ros.utilities import get_node_name_count
 
 
-def test_node_name_count_basic():
+TEST_NODE_NAME = 'my_node'
+
+
+def test_node_name_count():
     lc = LaunchContext()
     add_node_name(lc, 'node_name_1')
     add_node_name(lc, 'node_name_1')
@@ -41,13 +45,91 @@ def test_node_name_count_basic():
     assert get_node_name_count(lc, 'node_name_3') == 0
 
 
-def test_node_name_count_after_execute():
-    node_name = 'my_node'
+def _launch(launch_description):
+    loop = osrf_pycommon.process_utils.get_loop()
+    ls = LaunchService()
+    ls.include_launch_description(get_default_launch_description())
+    ls.include_launch_description(launch_description)
+    launch_task = loop.create_task(ls.run_async())
+    loop.run_until_complete(asyncio.sleep(5, loop=loop))
+    if not launch_task.done():
+        loop.create_task(ls.shutdown())
+        loop.run_until_complete(launch_task)
+    rclpy.shutdown()
+    print(ls.context.locals.unique_ros_node_names)
+    return ls.context
 
+
+def test_launch_node_with_name():
+    node = Node(
+        package='demo_nodes_py',
+        node_executable='listener_qos',
+        node_name=TEST_NODE_NAME,
+        node_namespace='',
+        output='screen',
+    )
+    ld = LaunchDescription([node])
+    context = _launch(ld)
+    assert get_node_name_count(context, '/{}'.format(TEST_NODE_NAME)) == 1
+
+
+def test_launch_node_without_name():
+    node = Node(
+        package='demo_nodes_py',
+        node_executable='listener_qos',
+        node_namespace='',
+        output='screen',
+    )
+    ld = LaunchDescription([node])
+    context = _launch(ld)
+    assert get_node_name_count(context, None) == 1
+
+
+def test_launch_composable_node_with_names():
+    node = ComposableNodeContainer(
+        package='rclcpp_components',
+        node_executable='component_container',
+        node_name=TEST_NODE_NAME,
+        node_namespace='',
+        composable_node_descriptions=[
+            ComposableNode(
+                package='composition',
+                node_plugin='composition::Listener',
+                node_name=TEST_NODE_NAME
+            )
+        ],
+        output='screen'
+    )
+    ld = LaunchDescription([node])
+    context = _launch(ld)
+    assert get_node_name_count(context, '/{}'.format(TEST_NODE_NAME)) == 2
+
+
+def test_launch_composable_node_without_component_name():
+    node = ComposableNodeContainer(
+        package='rclcpp_components',
+        node_executable='component_container',
+        node_name=TEST_NODE_NAME,
+        node_namespace='',
+        composable_node_descriptions=[
+            ComposableNode(
+                package='composition',
+                node_plugin='composition::Listener',
+            )
+        ],
+        output='screen'
+    )
+    ld = LaunchDescription([node])
+    context = _launch(ld)
+    assert get_node_name_count(context, '/{}'.format(TEST_NODE_NAME)) == 1
+    assert get_node_name_count(context, '/listener') == 1
+
+
+def test_launch_nodes_with_same_names():
     node1 = Node(
         package='demo_nodes_py',
         node_executable='listener_qos',
-        node_name=node_name,
+        node_name=TEST_NODE_NAME,
         node_namespace='',
         output='screen',
     )
@@ -55,7 +137,7 @@ def test_node_name_count_after_execute():
     node2 = LifecycleNode(
         package='lifecycle',
         node_executable='lifecycle_listener',
-        node_name=node_name,
+        node_name=TEST_NODE_NAME,
         node_namespace='',
         output='screen',
     )
@@ -63,27 +145,18 @@ def test_node_name_count_after_execute():
     node3 = ComposableNodeContainer(
         package='rclcpp_components',
         node_executable='component_container',
-        node_name=node_name,
+        node_name=TEST_NODE_NAME,
         node_namespace='',
         composable_node_descriptions=[
             ComposableNode(
                 package='composition',
                 node_plugin='composition::Listener',
-                node_name=node_name)
+                node_name=TEST_NODE_NAME
+            )
         ],
         output='screen'
     )
 
     ld = LaunchDescription([node1, node2, node3])
-
-    loop = osrf_pycommon.process_utils.get_loop()
-    ls = LaunchService()
-    ls.include_launch_description(get_default_launch_description())
-    ls.include_launch_description(ld)
-    launch_task = loop.create_task(ls.run_async())
-    loop.run_until_complete(asyncio.sleep(5, loop=loop))
-    if not launch_task.done():
-        asyncio.ensure_future(ls.shutdown(), loop=loop)
-        loop.run_until_complete(launch_task)
-
-    assert get_node_name_count(ls.context, '/{}'.format(node_name)) == 4
+    context = _launch(ld)
+    assert get_node_name_count(context, '/{}'.format(TEST_NODE_NAME)) == 4

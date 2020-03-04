@@ -56,7 +56,6 @@ def _launch(launch_description):
         loop.create_task(ls.shutdown())
         loop.run_until_complete(launch_task)
     rclpy.shutdown()
-    print(ls.context.locals.unique_ros_node_names)
     return ls.context
 
 
@@ -82,7 +81,7 @@ def test_launch_node_without_name():
     )
     ld = LaunchDescription([node])
     context = _launch(ld)
-    assert get_node_name_count(context, None) == 1
+    assert get_node_name_count(context, '/{}'.format(TEST_NODE_NAME)) == 0
 
 
 def test_launch_composable_node_with_names():

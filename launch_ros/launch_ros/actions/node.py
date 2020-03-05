@@ -375,8 +375,8 @@ class Node(ExecuteProcess):
             if node_name_count > 1:
                 execute_process_logger = launch.logging.get_logger(self.name)
                 execute_process_logger.warning(
-                    'there are now {} nodes with the name {} created within this launch context'
-                    .format(node_name_count, self.node_name)
+                    'there are now at least {} nodes with the name {} created within this '
+                    'launch context'.format(node_name_count, self.node_name)
                 )
 
         return ret

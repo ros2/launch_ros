@@ -141,8 +141,8 @@ class LoadComposableNodes(Action):
                 if node_name_count > 1:
                     container_logger = launch.logging.get_logger(self.__target_container.name)
                     container_logger.warning(
-                        'there are now {} nodes with the name {} created within this launch '
-                        'context'.format(node_name_count, node_name)
+                        'there are now at least {} nodes with the name {} created within this '
+                        'launch context'.format(node_name_count, node_name)
                     )
             self.__logger.info("Loaded node '{}' in container '{}'".format(
                 response.full_node_name, self.__final_target_container_name

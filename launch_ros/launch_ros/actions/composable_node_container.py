@@ -16,6 +16,7 @@
 
 from typing import List
 from typing import Optional
+import warnings
 
 from launch.action import Action
 from launch.actions import RegisterEventHandler
@@ -34,8 +35,10 @@ class ComposableNodeContainer(Node):
     def __init__(
         self,
         *,
-        node_name: SomeSubstitutionsType,
-        node_namespace: SomeSubstitutionsType,
+        name: Optional[SomeSubstitutionsType] = None,
+        namespace: Optional[SomeSubstitutionsType] = None,
+        node_name: Optional[SomeSubstitutionsType] = None,
+        node_namespace: Optional[SomeSubstitutionsType] = None,
         composable_node_descriptions: Optional[List[ComposableNode]] = None,
         **kwargs
     ) -> None:
@@ -45,12 +48,36 @@ class ComposableNodeContainer(Node):
         Most arguments are forwarded to :class:`launch_ros.actions.Node`, so see the documentation
         of that class for further details.
 
-        :param: node_name the name of the node, mandatory for full container node name resolution
-        :param: node_namespace the ros namespace for this Node, mandatory for full container node
-           name resolution
+        .. deprecated:: Foxy
+           Parameters `node_name` and `node_namespace` are deprecated.
+           Use `name` and `namespace` instead.
+
+        :param: name the name of the node, mandatory for full container node name resolution
+        :param: namespace the ROS namespace for this Node, mandatory for full container node
+             name resolution
+        :param: node_name (DEPRECATED) the name of the node, mandatory for full container node
+            name resolution
+        :param: node_namespace (DEPRECATED) the ros namespace for this Node, mandatory for full
+            container node name resolution
         :param composable_node_descriptions: optional descriptions of composable nodes to be loaded
         """
-        super().__init__(node_name=node_name, node_namespace=node_namespace, **kwargs)
+        if node_name is not None:
+            warnings.warn("The parameter 'node_name' is deprecated, use 'name' instead")
+            if name is not None:
+                raise RuntimeError(
+                    "Passing both 'node_name' and 'name' parameters. Only use 'name'."
+                )
+            name = node_name
+        if node_namespace is not None:
+            warnings.warn("The parameter 'node_namespace' is deprecated, use 'namespace' instead")
+            if namespace is not None:
+                raise RuntimeError(
+                    "Passing both 'node_namespace' and 'namespace' parameters. "
+                    "Only use 'namespace'."
+                )
+            namespace = node_namespace
+
+        super().__init__(name=name, namespace=namespace, **kwargs)
         self.__composable_node_descriptions = composable_node_descriptions
 
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:

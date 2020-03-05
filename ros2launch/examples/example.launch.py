@@ -29,8 +29,8 @@ def generate_launch_description():
             description='prefix for node names'),
         launch_ros.actions.Node(
             package='demo_nodes_cpp', node_executable='talker', output='screen',
-            node_name=[launch.substitutions.LaunchConfiguration('node_prefix'), 'talker']),
+            name=[launch.substitutions.LaunchConfiguration('node_prefix'), 'talker']),
         launch_ros.actions.Node(
             package='demo_nodes_cpp', node_executable='listener', output='screen',
-            node_name=[launch.substitutions.LaunchConfiguration('node_prefix'), 'listener']),
+            name=[launch.substitutions.LaunchConfiguration('node_prefix'), 'listener']),
     ])

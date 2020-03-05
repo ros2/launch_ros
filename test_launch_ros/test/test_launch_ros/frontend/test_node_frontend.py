@@ -37,7 +37,7 @@ xml_file = \
     <launch>
         <let name="a_string" value="\'[2, 5, 8]\'"/>
         <let name="a_list" value="[2, 5, 8]"/>
-        <node pkg="demo_nodes_py" exec="talker_qos" output="screen" node-name="my_talker" namespace="my_ns" args="--number_of_cycles 1">
+        <node pkg="demo_nodes_py" exec="talker_qos" output="screen" name="my_talker" namespace="my_ns" exec_name="my_talker_process" args="--number_of_cycles 1">
             <param name="param1" value="ads"/>
             <param name="param_group1">
                 <param name="param_group2">
@@ -59,7 +59,7 @@ xml_file = \
             <remap from="foo" to="bar"/>
             <remap from="baz" to="foobar"/>
         </node>
-        <node exec="{}" args="-c 'import sys; print(sys.argv[1:])'" node-name="my_listener" namespace="my_ns" output="screen"/>
+        <node exec="{}" args="-c 'import sys; print(sys.argv[1:])'" name="my_listener" namespace="my_ns" output="screen"/>
     </launch>
     """.format(yaml_params, python_executable)  # noqa: E501
 xml_file = textwrap.dedent(xml_file)
@@ -76,8 +76,9 @@ yaml_file = \
             pkg: demo_nodes_py
             exec: talker_qos
             output: screen
-            node-name: my_talker
+            name: my_talker
             namespace: my_ns
+            exec_name: my_talker_process
             args: '--number_of_cycles 1'
             param:
                 -   name: param1
@@ -121,7 +122,7 @@ yaml_file = \
             exec: {}
             output: screen
             namespace: my_ns
-            node-name: my_listener
+            name: my_listener
             args: -c 'import sys; print(sys.argv[1:])'
     """.format(yaml_params, python_executable)  # noqa: E501
 yaml_file = textwrap.dedent(yaml_file)

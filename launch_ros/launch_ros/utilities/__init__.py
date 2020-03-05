@@ -33,5 +33,5 @@ __all__ = [
     'normalize_parameters',
     'normalize_remap_rule',
     'normalize_remap_rules',
-    'to_parameters_list'
+    'to_parameters_list',
 ]

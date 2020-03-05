@@ -32,6 +32,7 @@ from launch_ros.utilities import add_node_name
 from launch_ros.utilities import get_node_name_count
 
 
+TEST_NODE_NAMESPACE = '/my_namespace'
 TEST_NODE_NAME = 'my_node'
 
 
@@ -64,24 +65,40 @@ def test_launch_node_with_name():
         package='demo_nodes_py',
         node_executable='listener_qos',
         node_name=TEST_NODE_NAME,
-        node_namespace='',
+        node_namespace=TEST_NODE_NAMESPACE,
         output='screen',
     )
     ld = LaunchDescription([node])
     context = _launch(ld)
-    assert get_node_name_count(context, '/{}'.format(TEST_NODE_NAME)) == 1
+    assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}') == 1
+    assert get_node_name_count(context, f'/{TEST_NODE_NAME}') == 0
 
 
 def test_launch_node_without_name():
     node = Node(
         package='demo_nodes_py',
         node_executable='listener_qos',
-        node_namespace='',
+        node_namespace=TEST_NODE_NAMESPACE,
         output='screen',
     )
     ld = LaunchDescription([node])
     context = _launch(ld)
-    assert get_node_name_count(context, '/{}'.format(TEST_NODE_NAME)) == 0
+    # For Nodes, when node_name is omitted, launch_ros is unable to track it
+    assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}') == 0
+    assert get_node_name_count(context, f'/{TEST_NODE_NAME}') == 0
+
+
+def test_launch_node_with_name_without_namespace():
+    node = Node(
+        package='demo_nodes_py',
+        node_executable='listener_qos',
+        node_name=TEST_NODE_NAME,
+        output='screen',
+    )
+    ld = LaunchDescription([node])
+    context = _launch(ld)
+    assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}') == 0
+    assert get_node_name_count(context, f'/{TEST_NODE_NAME}') == 1
 
 
 def test_launch_composable_node_with_names():
@@ -89,19 +106,20 @@ def test_launch_composable_node_with_names():
         package='rclcpp_components',
         node_executable='component_container',
         node_name=TEST_NODE_NAME,
-        node_namespace='',
+        node_namespace=TEST_NODE_NAMESPACE,
         composable_node_descriptions=[
             ComposableNode(
                 package='composition',
                 node_plugin='composition::Listener',
-                node_name=TEST_NODE_NAME
+                node_name=TEST_NODE_NAME,
+                node_namespace=TEST_NODE_NAMESPACE
             )
         ],
         output='screen'
     )
     ld = LaunchDescription([node])
     context = _launch(ld)
-    assert get_node_name_count(context, '/{}'.format(TEST_NODE_NAME)) == 2
+    assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}') == 2
 
 
 def test_launch_composable_node_without_component_name():
@@ -109,19 +127,22 @@ def test_launch_composable_node_without_component_name():
         package='rclcpp_components',
         node_executable='component_container',
         node_name=TEST_NODE_NAME,
-        node_namespace='',
+        node_namespace=TEST_NODE_NAMESPACE,
         composable_node_descriptions=[
             ComposableNode(
                 package='composition',
                 node_plugin='composition::Listener',
+                node_namespace=TEST_NODE_NAMESPACE
             )
         ],
         output='screen'
     )
     ld = LaunchDescription([node])
     context = _launch(ld)
-    assert get_node_name_count(context, '/{}'.format(TEST_NODE_NAME)) == 1
-    assert get_node_name_count(context, '/listener') == 1
+    assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}') == 1
+    # Unlike for Nodes, launch_ros is able to track component node names even when
+    # node_name is not provided for the component
+    assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/listener') == 1
 
 
 def test_launch_nodes_with_same_names():
@@ -129,7 +150,7 @@ def test_launch_nodes_with_same_names():
         package='demo_nodes_py',
         node_executable='listener_qos',
         node_name=TEST_NODE_NAME,
-        node_namespace='',
+        node_namespace=TEST_NODE_NAMESPACE,
         output='screen',
     )
 
@@ -137,7 +158,7 @@ def test_launch_nodes_with_same_names():
         package='lifecycle',
         node_executable='lifecycle_listener',
         node_name=TEST_NODE_NAME,
-        node_namespace='',
+        node_namespace=TEST_NODE_NAMESPACE,
         output='screen',
     )
 
@@ -145,7 +166,7 @@ def test_launch_nodes_with_same_names():
         package='rclcpp_components',
         node_executable='component_container',
         node_name=TEST_NODE_NAME,
-        node_namespace='',
+        node_namespace=TEST_NODE_NAMESPACE,
         composable_node_descriptions=[
             ComposableNode(
                 package='composition',
@@ -158,4 +179,45 @@ def test_launch_nodes_with_same_names():
 
     ld = LaunchDescription([node1, node2, node3])
     context = _launch(ld)
-    assert get_node_name_count(context, '/{}'.format(TEST_NODE_NAME)) == 4
+    assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}') == 3
+    assert get_node_name_count(context, f'/{TEST_NODE_NAME}') == 1
+
+
+def test_launch_nodes_with_different_names():
+    node1 = Node(
+        package='demo_nodes_py',
+        node_executable='listener_qos',
+        node_name=f'{TEST_NODE_NAME}_1',
+        node_namespace=TEST_NODE_NAMESPACE,
+        output='screen',
+    )
+
+    node2 = LifecycleNode(
+        package='lifecycle',
+        node_executable='lifecycle_listener',
+        node_name=f'{TEST_NODE_NAME}_2',
+        node_namespace=TEST_NODE_NAMESPACE,
+        output='screen',
+    )
+
+    node3 = ComposableNodeContainer(
+        package='rclcpp_components',
+        node_executable='component_container',
+        node_name=f'{TEST_NODE_NAME}_3',
+        node_namespace=TEST_NODE_NAMESPACE,
+        composable_node_descriptions=[
+            ComposableNode(
+                package='composition',
+                node_plugin='composition::Listener',
+                node_name=f'{TEST_NODE_NAME}_4',
+            )
+        ],
+        output='screen'
+    )
+
+    ld = LaunchDescription([node1, node2, node3])
+    context = _launch(ld)
+    assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}_1') == 1
+    assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}_2') == 1
+    assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}_3') == 1
+    assert get_node_name_count(context, f'/{TEST_NODE_NAME}_4') == 1

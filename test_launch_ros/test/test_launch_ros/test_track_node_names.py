@@ -101,7 +101,7 @@ def test_launch_node_with_name_without_namespace():
     assert get_node_name_count(context, f'/{TEST_NODE_NAME}') == 1
 
 
-def test_launch_composable_node_with_names():
+def test_launch_composable_node_with_names(pytestconfig):
     node = ComposableNodeContainer(
         package='rclcpp_components',
         node_executable='component_container',
@@ -119,7 +119,11 @@ def test_launch_composable_node_with_names():
     )
     ld = LaunchDescription([node])
     context = _launch(ld)
+    captured = pytestconfig.pluginmanager.getplugin('capturemanager').read_global_capture()
     assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}') == 2
+    expected_line = f'there are now at least 2 nodes with the name {TEST_NODE_NAMESPACE}' \
+        f'/{TEST_NODE_NAME} created within this launch context'
+    assert expected_line in captured.out
 
 
 def test_launch_composable_node_without_component_name():
@@ -145,7 +149,7 @@ def test_launch_composable_node_without_component_name():
     assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/listener') == 1
 
 
-def test_launch_nodes_with_same_names():
+def test_launch_nodes_with_same_names(pytestconfig):
     node1 = Node(
         package='demo_nodes_py',
         node_executable='listener_qos',
@@ -179,7 +183,11 @@ def test_launch_nodes_with_same_names():
 
     ld = LaunchDescription([node1, node2, node3])
     context = _launch(ld)
+    captured = pytestconfig.pluginmanager.getplugin('capturemanager').read_global_capture()
     assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}') == 3
+    expected_line = f'there are now at least 3 nodes with the name {TEST_NODE_NAMESPACE}' \
+        f'/{TEST_NODE_NAME} created within this launch context'
+    assert expected_line in captured.out
     assert get_node_name_count(context, f'/{TEST_NODE_NAME}') == 1
 
 

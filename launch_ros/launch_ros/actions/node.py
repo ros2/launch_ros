@@ -43,11 +43,11 @@ from launch.utilities import perform_substitutions
 from launch_ros.parameters_type import SomeParameters
 from launch_ros.remap_rule_type import SomeRemapRules
 from launch_ros.substitutions import ExecutableInPackage
+from launch_ros.utilities import add_node_name
 from launch_ros.utilities import evaluate_parameters
+from launch_ros.utilities import get_node_name_count
 from launch_ros.utilities import normalize_parameters
 from launch_ros.utilities import normalize_remap_rules
-from launch_ros.utilities import add_node_name
-from launch_ros.utilities import get_node_name_count
 
 from rclpy.validate_namespace import validate_namespace
 from rclpy.validate_node_name import validate_node_name

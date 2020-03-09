@@ -26,8 +26,7 @@ import launch
 from launch.frontend import Parser
 from launch.launch_description_sources import get_launch_description_from_any_launch_file
 import launch_ros
-import rclpy
-import rclpy.context
+import launch_ros.actions
 
 
 class MultipleLaunchFilesError(Exception):
@@ -146,13 +145,6 @@ def parse_launch_arguments(launch_arguments: List[Text]) -> List[Tuple[Text, Tex
 def launch_a_launch_file(*, launch_file_path, launch_file_arguments, debug=False):
     """Launch a given launch file (by path) and pass it the given launch file arguments."""
     launch_service = launch.LaunchService(argv=launch_file_arguments, debug=debug)
-    context = rclpy.context.Context()
-    rclpy.init(args=[], context=context)
-    launch_service.include_launch_description(
-        launch_ros.get_default_launch_description(
-            rclpy_context=context,
-        )
-    )
     parsed_launch_arguments = parse_launch_arguments(launch_file_arguments)
     # Include the user provided launch file using IncludeLaunchDescription so that the
     # location of the current launch file is set.
@@ -166,7 +158,6 @@ def launch_a_launch_file(*, launch_file_path, launch_file_arguments, debug=False
     ])
     launch_service.include_launch_description(launch_description)
     ret = launch_service.run()
-    context = rclpy.shutdown(context=context)
     return ret
 
 

@@ -34,7 +34,9 @@ from launch.utilities import perform_substitutions
 from .composable_node_container import ComposableNodeContainer
 
 from ..descriptions import ComposableNode
+from ..utilities import add_node_name
 from ..utilities import evaluate_parameters
+from ..utilities import get_node_name_count
 from ..utilities import to_parameters_list
 
 
@@ -132,16 +134,27 @@ class LoadComposableNodes(Action):
                 )
             ]
         response = self.__rclpy_load_node_client.call(request)
-        if not response.success:
+        node_name = response.full_node_name if response.full_node_name else request.node_name
+        if response.success:
+            if node_name is not None:
+                add_node_name(context, node_name)
+                node_name_count = get_node_name_count(context, node_name)
+                if node_name_count > 1:
+                    container_logger = launch.logging.get_logger(self.__target_container.name)
+                    container_logger.warning(
+                        'there are now at least {} nodes with the name {} created within this '
+                        'launch context'.format(node_name_count, node_name)
+                    )
+            self.__logger.info("Loaded node '{}' in container '{}'".format(
+                response.full_node_name, self.__final_target_container_name
+            ))
+        else:
             self.__logger.error(
                 "Failed to load node '{}' of type '{}' in container '{}': {}".format(
-                    response.full_node_name if response.full_node_name else request.node_name,
-                    request.plugin_name, self.__final_target_container_name, response.error_message
+                    node_name, request.plugin_name, self.__final_target_container_name,
+                    response.error_message
                 )
             )
-        self.__logger.info("Loaded node '{}' in container '{}'".format(
-            response.full_node_name, self.__final_target_container_name
-        ))
 
     def _load_in_sequence(
         self,

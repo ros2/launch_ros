@@ -45,7 +45,9 @@ from launch.utilities import perform_substitutions
 from launch_ros.parameters_type import SomeParameters
 from launch_ros.remap_rule_type import SomeRemapRules
 from launch_ros.substitutions import ExecutableInPackage
+from launch_ros.utilities import add_node_name
 from launch_ros.utilities import evaluate_parameters
+from launch_ros.utilities import get_node_name_count
 from launch_ros.utilities import normalize_parameters
 from launch_ros.utilities import normalize_remap_rules
 
@@ -403,7 +405,19 @@ class Node(ExecuteProcess):
                     '{}:={}'.format(remapping_from, remapping_to)
                 )
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
-        return super().execute(context)
+        ret = super().execute(context)
+
+        if '<node_name_unspecified>' not in self.node_name:
+            add_node_name(context, self.node_name)
+            node_name_count = get_node_name_count(context, self.node_name)
+            if node_name_count > 1:
+                execute_process_logger = launch.logging.get_logger(self.name)
+                execute_process_logger.warning(
+                    'there are now at least {} nodes with the name {} created within this '
+                    'launch context'.format(node_name_count, self.node_name)
+                )
+
+        return ret
 
     @property
     def expanded_node_namespace(self):

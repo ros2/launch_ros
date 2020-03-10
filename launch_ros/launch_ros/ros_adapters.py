@@ -16,6 +16,8 @@
 
 import os
 import threading
+from typing import List
+from typing import Optional
 
 import launch
 import launch.events
@@ -30,11 +32,13 @@ class ROSAdapter:
     def __init__(
         self,
         *,
-        argv: Optional[List[str]]=None,
-        context: Optional[rclpy.Context]=None,
-        autostart: bool=True
+        argv: Optional[List[str]] = None,
+        context: Optional[rclpy.Context] = None,
+        autostart: bool = True
     ):
         """
+        Construct adapter.
+
         :param: argv List of global arguments for rclpy context initialization.
         :param: context Provide a context other than the default rclpy context
           to pass down to rclpy.init.
@@ -78,7 +82,7 @@ class ROSAdapter:
                 # TODO(wjwwood): switch this to `spin()` when it considers
                 #   asynchronously added subscriptions.
                 #   see: https://github.com/ros2/rclpy/issues/188
-                executor.spin_once(timeout_sec=1.0)
+                self.__executor.spin_once(timeout_sec=1.0)
         except KeyboardInterrupt:
             pass
         finally:

@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List
+from typing import Optional
+
 import launch.actions
 import launch_ros.ros_adapters
+
+import rclpy
 
 
 class ExplicitROSStartup(launch.actions.OpaqueFunction):
@@ -22,8 +27,8 @@ class ExplicitROSStartup(launch.actions.OpaqueFunction):
     def __init__(
         self,
         *,
-        argv: Optional[List[str]]=None,
-        rclpy_context: Optional[rclpy.Context]=None
+        argv: Optional[List[str]] = None,
+        rclpy_context: Optional[rclpy.Context] = None
     ):
         """
         Create a ExplicitROSStartup opaque function.

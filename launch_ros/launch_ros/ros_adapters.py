@@ -33,23 +33,18 @@ class ROSAdapter:
         self,
         *,
         argv: Optional[List[str]] = None,
-        context: Optional[rclpy.Context] = None,
         autostart: bool = True
     ):
         """
         Construct adapter.
 
         :param: argv List of global arguments for rclpy context initialization.
-        :param: context Provide a context other than the default rclpy context
-          to pass down to rclpy.init.
-          The context is expected to have already been initialized by the caller
-          using rclpy.init().
         :param: autostart Whether to start adapter on construction or not.
         """
         self.__argv = argv
-        self.__context = context
-        self.__node = None
-        self.__executor = None
+        self.__ros_context = None
+        self.__ros_node = None
+        self.__ros_executor = None
         self.__is_running = False
 
         if autostart:
@@ -59,59 +54,55 @@ class ROSAdapter:
         """Start ROS adapter."""
         if self.__is_running:
             raise RuntimeError('Cannot start a ROS adapter that is already running')
-        try:
-            if self.__context is not None:
-                rclpy.init(args=self.__argv, context=self.__context)
-        except RuntimeError as exc:
-            if 'rcl_init called while already initialized' in str(exc):
-                pass
-            raise
-        self.__node = rclpy.create_node(
+        self.__ros_context = rclpy.Context()
+        rclpy.init(args=self.__argv, context=self.__ros_context)
+        self.__ros_node = rclpy.create_node(
             'launch_ros_{}'.format(os.getpid()),
-            context=self.__context
+            context=self.__ros_context
         )
+        self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)
         self.__is_running = True
-        self.__executor = SingleThreadedExecutor(context=self.__context)
-        self.__executor_thread = threading.Thread(target=self._run)
-        self.__executor_thread.start()
+
+        self.__ros_executor_thread = threading.Thread(target=self._run)
+        self.__ros_executor_thread.start()
 
     def _run(self):
         try:
-            self.__executor.add_node(self.__node)
+            self.__ros_executor.add_node(self.__ros_node)
             while self.__is_running:
                 # TODO(wjwwood): switch this to `spin()` when it considers
                 #   asynchronously added subscriptions.
                 #   see: https://github.com/ros2/rclpy/issues/188
-                self.__executor.spin_once(timeout_sec=1.0)
+                self.__ros_executor.spin_once(timeout_sec=1.0)
         except KeyboardInterrupt:
             pass
         finally:
-            self.__executor.remove_node(self.__node)
+            self.__ros_executor.remove_node(self.__ros_node)
 
     def shutdown(self):
         """Shutdown ROS adapter."""
         if not self.__is_running:
             raise RuntimeError('Cannot shutdown a ROS adapter that is not running')
-        self.__executor_thread.join()
-        self.__node.destroy_node()
-        rclpy.shutdown(context=self.__context)
         self.__is_running = False
+        self.__ros_executor_thread.join()
+        self.__ros_node.destroy_node()
+        rclpy.shutdown(context=self.__ros_context)
 
     @property
     def argv(self):
         return self.__argv
 
     @property
-    def context(self):
-        return self.__context
+    def ros_context(self):
+        return self.__ros_context
 
     @property
-    def node(self):
-        return self.__node
+    def ros_node(self):
+        return self.__ros_node
 
     @property
-    def executor(self):
-        return self.__executor
+    def ros_executor(self):
+        return self.__ros_executor
 
 
 def get_ros_adapter(*, context: launch.LaunchContext):
@@ -135,4 +126,4 @@ def get_ros_node(*, context: launch.LaunchContext):
 
     If no node is found, one will be created.
     """
-    return get_ros_adapter(context).node
+    return get_ros_adapter(context).ros_node

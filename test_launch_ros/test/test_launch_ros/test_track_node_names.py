@@ -20,7 +20,6 @@ from launch import LaunchContext
 from launch import LaunchDescription
 from launch import LaunchService
 
-from launch_ros import get_default_launch_description
 from launch_ros.actions.composable_node_container import ComposableNodeContainer
 from launch_ros.actions.lifecycle_node import LifecycleNode
 from launch_ros.actions.node import Node
@@ -29,8 +28,6 @@ from launch_ros.utilities import add_node_name
 from launch_ros.utilities import get_node_name_count
 
 import osrf_pycommon.process_utils
-import rclpy
-
 
 TEST_NODE_NAMESPACE = '/my_namespace'
 TEST_NODE_NAME = 'my_node'
@@ -49,14 +46,12 @@ def test_node_name_count():
 def _launch(launch_description):
     loop = osrf_pycommon.process_utils.get_loop()
     ls = LaunchService()
-    ls.include_launch_description(get_default_launch_description())
     ls.include_launch_description(launch_description)
     launch_task = loop.create_task(ls.run_async())
     loop.run_until_complete(asyncio.sleep(5, loop=loop))
     if not launch_task.done():
         loop.create_task(ls.shutdown())
         loop.run_until_complete(launch_task)
-    rclpy.shutdown()
     return ls.context
 
 

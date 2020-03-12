@@ -105,7 +105,7 @@ class ROSAdapter:
         return self.__ros_executor
 
 
-def get_ros_adapter(*, context: launch.LaunchContext):
+def get_ros_adapter(context: launch.LaunchContext):
     """
     Get the ROS adapter managed by the given launch context.
 
@@ -117,10 +117,10 @@ def get_ros_adapter(*, context: launch.LaunchContext):
         context.register_event_handler(launch.event_handlers.OnShutdown(
             on_shutdown=lambda *args, **kwargs: ros_adapter.shutdown()
         ))
-    return context.locals['ros_adapter']
+    return context.locals.ros_adapter
 
 
-def get_ros_node(*, context: launch.LaunchContext):
+def get_ros_node(context: launch.LaunchContext):
     """
     Get the ROS node managed by the given launch context.
 

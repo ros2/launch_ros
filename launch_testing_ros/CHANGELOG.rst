@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.8 (2020-03-13)
+------------------
+
 0.8.7 (2019-10-14)
 ------------------
 * Install package manifest. (`#71 <https://github.com/ros2/launch_ros/issues/71>`_) (`#86 <https://github.com/ros2/launch_ros/issues/86>`_)

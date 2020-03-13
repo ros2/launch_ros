@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.8 (2020-03-13)
+------------------
+* Fix LoadComposableNodes action so that loading happens asynchronously. (`#131 <https://github.com/ros2/launch_ros/issues/131>`_)
+* Contributors: Jacob Perron
+
 0.8.7 (2019-10-14)
 ------------------
 

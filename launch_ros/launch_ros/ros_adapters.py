@@ -110,6 +110,9 @@ def get_ros_adapter(context: launch.LaunchContext):
     Get the ROS adapter managed by the given launch context.
 
     If no adapter is found, one will be created.
+
+    This function is reentrant but concurrent calls on the
+    same `context` are not safe.
     """
     if not hasattr(context.locals, 'ros_adapter'):
         ros_adapter = ROSAdapter()
@@ -125,5 +128,8 @@ def get_ros_node(context: launch.LaunchContext):
     Get the ROS node managed by the given launch context.
 
     If no node is found, one will be created.
+
+    This function is reentrant but concurrent calls on the
+    same `context` are not safe.
     """
     return get_ros_adapter(context).ros_node

@@ -23,7 +23,6 @@ from launch import LaunchDescription
 from launch import LaunchIntrospector
 from launch import LaunchService
 
-from launch_ros import get_default_launch_description
 import launch_ros.actions
 
 
@@ -49,7 +48,6 @@ def main(argv=sys.argv[1:]):
 
     # ls = LaunchService(debug=True)
     ls = LaunchService()
-    ls.include_launch_description(get_default_launch_description())
     ls.include_launch_description(ld)
     return ls.run()
 

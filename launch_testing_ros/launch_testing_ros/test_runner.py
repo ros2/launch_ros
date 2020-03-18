@@ -14,7 +14,6 @@
 
 """Module for a ROS aware LaunchTestRunner."""
 
-import launch
 import launch_testing.test_runner
 
 

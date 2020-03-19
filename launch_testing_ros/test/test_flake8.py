@@ -17,4 +17,6 @@ from ament_flake8.main import main
 
 def test_flake8():
     rc = main(argv=[])
-    assert rc == 0, 'Found code style errors / warnings'
+    assert rc == 0, \
+        'Found %d code style errors / warnings:' % len(rc.error_strings) + \
+        ''.join('\n' + e for e in rc.error_strings)

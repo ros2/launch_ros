@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ament_flake8.main import main
+from ament_flake8.main import main_with_errors
 
 
 def test_flake8():
-    rc = main(argv=[])
+    rc, errors = main_with_errors(argv=[])
     assert rc == 0, \
-        'Found %d code style errors / warnings:' % len(rc.error_strings) + \
-        ''.join('\n' + e for e in rc.error_strings)
+        'Found %d code style errors / warnings:\n' % len(errors) + \
+        '\n'.join(errors)

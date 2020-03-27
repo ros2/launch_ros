@@ -150,7 +150,9 @@ class Node(ExecuteProcess):
         # The substitutions will get expanded when the action is executed.
         cmd += ['--ros-args']  # Prepend ros specific arguments with --ros-args flag
         if node_name is not None:
-            warnings.warn("The parameter 'node_name' is deprecated, use 'name' instead")
+            warnings.warn(
+                "The parameter 'node_name' is deprecated, use 'name' instead",
+                stacklevel=2)
             if name is not None:
                 raise RuntimeError(
                     "Passing both 'node_name' and 'name' parameters. Only use 'name'."

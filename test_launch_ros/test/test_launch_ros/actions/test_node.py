@@ -42,7 +42,7 @@ class TestNode(unittest.TestCase):
 
     def _create_node(self, *, parameters=None, remappings=None):
         return launch_ros.actions.Node(
-            package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            package='demo_nodes_py', executable='talker_qos', output='screen',
             # The node name is required for parameter dicts.
             # See https://github.com/ros2/launch/issues/139.
             name='my_node', namespace='my_ns',
@@ -59,7 +59,7 @@ class TestNode(unittest.TestCase):
     def test_launch_invalid_node(self):
         """Test launching an invalid node."""
         node_action = launch_ros.actions.Node(
-            package='nonexistent_package', node_executable='node', output='screen')
+            package='nonexistent_package', executable='node', output='screen')
         self._assert_launch_errors([node_action])
 
     def test_launch_node(self):
@@ -90,7 +90,7 @@ class TestNode(unittest.TestCase):
     def test_launch_required_node(self):
         # This node will never exit on its own, it'll keep publishing forever.
         long_running_node = launch_ros.actions.Node(
-            package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            package='demo_nodes_py', executable='talker_qos', output='screen',
             namespace='my_ns',
         )
 
@@ -99,7 +99,7 @@ class TestNode(unittest.TestCase):
         # bring down the whole launched system, including the above node that will never
         # exit on its own.
         required_node = launch_ros.actions.Node(
-            package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            package='demo_nodes_py', executable='talker_qos', output='screen',
             namespace='my_ns2', arguments=['--number_of_cycles', '1'],
             on_exit=Shutdown()
         )
@@ -186,7 +186,7 @@ class TestNode(unittest.TestCase):
 
         # If a parameter dictionary is specified, the node name is no longer required.
         node_action = launch_ros.actions.Node(
-            package='demo_nodes_py', node_executable='talker_qos', output='screen',
+            package='demo_nodes_py', executable='talker_qos', output='screen',
             arguments=['--number_of_cycles', '1'],
             parameters=[{'my_param': 'value'}],
         )
@@ -198,6 +198,13 @@ class TestNode(unittest.TestCase):
             node_name='my_node', node_namespace='my_ns'
         )
         self._assert_launch_no_errors([node_action])
+
+        # Providing both 'node_executable' and 'executable' should throw
+        with self.assertRaises(RuntimeError):
+            launch_ros.actions.Node(
+                package='demo_nodes_py', node_executable='talker_qos', executable='talker_qos',
+                output='screen', node_name='my_node', node_namespace='my_ns'
+            )
 
         # Providing both 'node_name' and 'name' should throw
         with self.assertRaises(RuntimeError):

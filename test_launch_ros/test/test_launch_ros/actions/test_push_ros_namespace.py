@@ -78,7 +78,7 @@ def test_push_ros_namespace(config):
         pns2.execute(lc)
     node = Node(
         package='dont_care',
-        node_executable='whatever',
+        executable='whatever',
         node_namespace=config.node_ns,
     )
     node._perform_substitutions(lc)

@@ -40,14 +40,14 @@ def generate_test_description():
     path_to_test = os.path.dirname(__file__)
 
     talker_node = launch_ros.actions.Node(
-        node_executable=sys.executable,
+        executable=sys.executable,
         arguments=[os.path.join(path_to_test, 'talker.py')],
         additional_env={'PYTHONUNBUFFERED': '1'},
         remappings=[('chatter', 'talker_chatter')]
     )
 
     listener_node = launch_ros.actions.Node(
-        node_executable=sys.executable,
+        executable=sys.executable,
         arguments=[os.path.join(path_to_test, 'listener.py')],
         additional_env={'PYTHONUNBUFFERED': '1'},
         remappings=[('chatter', 'listener_chatter')]

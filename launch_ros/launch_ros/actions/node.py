@@ -63,7 +63,8 @@ class Node(ExecuteProcess):
 
     def __init__(
         self, *,
-        node_executable: SomeSubstitutionsType,
+        executable: Optional[SomeSubstitutionsType] = None,
+        node_executable: Optional[SomeSubstitutionsType] = None,
         package: Optional[SomeSubstitutionsType] = None,
         name: Optional[SomeSubstitutionsType] = None,
         namespace: Optional[SomeSubstitutionsType] = '',
@@ -82,7 +83,7 @@ class Node(ExecuteProcess):
         :class:`launch.actions.ExecuteProcess`, so see the documentation of
         that class for additional details.
         However, the `cmd` is not meant to be used, instead use the
-        `node_executable` and `arguments` keyword arguments to this function.
+        `executable` and `arguments` keyword arguments to this function.
 
         This action, once executed, delegates most work to the
         :class:`launch.actions.ExecuteProcess`, but it also converts some ROS
@@ -123,10 +124,12 @@ class Node(ExecuteProcess):
         parameter takes effect).
 
         .. deprecated:: Foxy
-           Parameters `node_name` and `node_namespace` are deprecated.
-           Use `name` and `namespace` instead.
+           Parameters `node_executable`, `node_name`, and `node_namespace` are deprecated.
+           Use `executable`, `name`, and `namespace` instead.
 
-        :param: node_executable the name of the executable to find if a package
+        :param: executable the name of the executable to find if a package
+            is provided or otherwise a path to the executable to run.
+        :param: node_executable (DEPRECATED) the name of the executable to find if a package
             is provided or otherwise a path to the executable to run.
         :param: package the package in which the node executable can be found
         :param: name the name of the node
@@ -141,10 +144,21 @@ class Node(ExecuteProcess):
             passed to the node as ROS remapping rules
         :param: arguments list of extra arguments for the node
         """
+        if node_executable is not None:
+            warnings.warn(
+                "The parameter 'node_executable' is deprecated, use 'executable' instead",
+                stacklevel=2
+            )
+            if executable is not None:
+                raise RuntimeError(
+                    "Passing both 'node_executable' and 'executable' parameters. "
+                    "Only use 'executable'"
+                )
+            executable = node_executable
         if package is not None:
-            cmd = [ExecutableInPackage(package=package, executable=node_executable)]
+            cmd = [ExecutableInPackage(package=package, executable=executable)]
         else:
-            cmd = [node_executable]
+            cmd = [executable]
         cmd += [] if arguments is None else arguments
         # Reserve space for ros specific arguments.
         # The substitutions will get expanded when the action is executed.
@@ -194,7 +208,7 @@ class Node(ExecuteProcess):
         kwargs['name'] = exec_name
         super().__init__(cmd=cmd, **kwargs)
         self.__package = package
-        self.__node_executable = node_executable
+        self.__node_executable = executable
         self.__node_name = name
         self.__node_namespace = namespace
         self.__parameters = [] if parameters is None else normalized_params
@@ -282,7 +296,7 @@ class Node(ExecuteProcess):
         package = entity.get_attr('pkg', optional=True)
         if package is not None:
             kwargs['package'] = parser.parse_substitution(package)
-        kwargs['node_executable'] = parser.parse_substitution(entity.get_attr('exec'))
+        kwargs['executable'] = parser.parse_substitution(entity.get_attr('exec'))
         ns = entity.get_attr('namespace', optional=True)
         if ns is not None:
             kwargs['namespace'] = parser.parse_substitution(ns)
@@ -345,7 +359,7 @@ class Node(ExecuteProcess):
         except Exception:
             self.__logger.error(
                 "Error while expanding or validating node name or namespace for '{}':"
-                .format('package={}, node_executable={}, name={}, namespace={}'.format(
+                .format('package={}, executable={}, name={}, namespace={}'.format(
                     self.__package,
                     self.__node_executable,
                     self.__node_name,

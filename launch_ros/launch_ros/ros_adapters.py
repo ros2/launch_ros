@@ -41,7 +41,8 @@ class ROSAdapter:
         :param: argv List of global arguments for rclpy context initialization.
         :param: autostart Whether to start adapter on construction or not.
         """
-        self.__argv = argv
+        # Do not use `None` here, as `rclpy.init` will use `sys.argv` in that case.
+        self.__argv = [] if argv is None else argv
         self.__ros_context = None
         self.__ros_node = None
         self.__ros_executor = None

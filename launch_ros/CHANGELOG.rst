@@ -2,6 +2,27 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.0 (2020-04-29)
+-------------------
+* Avoid using sys.argv in rclpy.init (`#144 <https://github.com/ros2/launch_ros/issues/144>`_)
+* Deprecated 'node_executable' parameter and replace with 'executable' (`#140 <https://github.com/ros2/launch_ros/issues/140>`_)
+* Bump node_name warning stacklevel (`#138 <https://github.com/ros2/launch_ros/issues/138>`_)
+* More verbose test_flake8 error messages (same as `ros2/launch_ros#135 <https://github.com/ros2/launch_ros/issues/135>`_)
+* Enable implicit ROS startup by launch_ros actions  (`#128 <https://github.com/ros2/launch_ros/issues/128>`_)
+* Add warning message when launching Non-Uniquely Named Nodes (`#127 <https://github.com/ros2/launch_ros/issues/127>`_)
+* Rename node-related parameters (`#122 <https://github.com/ros2/launch_ros/issues/122>`_)
+* Fix LoadComposableNodes action so that loading happens asynchronously (`#113 <https://github.com/ros2/launch_ros/issues/113>`_)
+* Fix frontend topic remapping (`#111 <https://github.com/ros2/launch_ros/issues/111>`_)
+* Check for shutdown while waiting for a service response to avoid hang during shutdown (`#104 <https://github.com/ros2/launch_ros/issues/104>`_)
+* Fix misleading deprecated warnings when using launch arguments (`#106 <https://github.com/ros2/launch_ros/issues/106>`_)
+* Use imperative mood in constructor docstrings (`#103 <https://github.com/ros2/launch_ros/issues/103>`_)
+* Maintain order of parameters regarding name and from (`#99 <https://github.com/ros2/launch_ros/issues/99>`_)
+* Allow separate launch composition (`#77 <https://github.com/ros2/launch_ros/issues/77>`_)
+* Fix push-ros-namespace in xml/yaml launch files (`#100 <https://github.com/ros2/launch_ros/issues/100>`_)
+* Pass the node-name attribute through the substitution parser (`#101 <https://github.com/ros2/launch_ros/issues/101>`_)
+* Add pid to launch_ros node name as suffix (`#98 <https://github.com/ros2/launch_ros/issues/98>`_)
+* Contributors: Brian Ezequiel Marchi, Brian Marchi, Dirk Thomas, Eric Fang, Grey, Ivan Santiago Paunovic, Jacob Perron, Miaofei Mei, Michel Hidalgo, Shane Loretz, Steven! Ragnarök, William Woodall
+
 0.9.4 (2019-11-19)
 ------------------
 * fix new linter warnings as of flake8-comprehensions 3.1.0 (`#94 <https://github.com/ros2/launch_ros/issues/94>`_)

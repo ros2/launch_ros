@@ -2,6 +2,16 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.0 (2020-04-29)
+-------------------
+* Deprecated 'node_executable' parameter and replace with 'executable' (`#140 <https://github.com/ros2/launch_ros/issues/140>`_)
+* Avoid deprecation warning, use from_parent (`#141 <https://github.com/ros2/launch_ros/issues/141>`_)
+* Show error strings as part of the flake8 test (`#135 <https://github.com/ros2/launch_ros/issues/135>`_)
+* Remove unused 'launch' import (`#133 <https://github.com/ros2/launch_ros/issues/133>`_)
+* Enable implicit ROS startup by launch_ros actions  (`#128 <https://github.com/ros2/launch_ros/issues/128>`_)
+* Fix launch_testing_ros example (`#121 <https://github.com/ros2/launch_ros/issues/121>`_)
+* Contributors: Dirk Thomas, Jacob Perron, Michel Hidalgo
+
 0.9.4 (2019-11-19)
 ------------------
 * fix new linter warnings as of flake8-comprehensions 3.1.0 (`#94 <https://github.com/ros2/launch_ros/issues/94>`_)

@@ -2,6 +2,18 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.0 (2020-04-29)
+-------------------
+* Deprecated 'node_executable' parameter and replace with 'executable' (`#140 <https://github.com/ros2/launch_ros/issues/140>`_)
+* More verbose test_flake8 error messages (same as `ros2/launch_ros#135 <https://github.com/ros2/launch_ros/issues/135>`_)
+* Enable implicit ROS startup by launch_ros actions  (`#128 <https://github.com/ros2/launch_ros/issues/128>`_)
+* Rename node-related parameters (`#122 <https://github.com/ros2/launch_ros/issues/122>`_)
+* Legal tab completion of launch files (`#126 <https://github.com/ros2/launch_ros/issues/126>`_)
+* Fix linter by removing unused import (`#110 <https://github.com/ros2/launch_ros/issues/110>`_)
+* Fix misleading deprecated warnings when using launch arguments (`#106 <https://github.com/ros2/launch_ros/issues/106>`_)
+* Use imperative mood in constructor docstrings (`#103 <https://github.com/ros2/launch_ros/issues/103>`_)
+* Contributors: Dirk Thomas, Emerson Knapp, Ivan Santiago Paunovic, Jacob Perron, Michel Hidalgo, Shane Loretz, Steven! Ragnarök
+
 0.9.4 (2019-11-19)
 ------------------
 

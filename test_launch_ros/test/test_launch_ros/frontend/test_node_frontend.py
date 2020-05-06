@@ -24,114 +24,120 @@ from launch.frontend import Parser
 
 from launch_ros.utilities import evaluate_parameters
 
-import pytest
-
 yaml_params = str(pathlib.Path(__file__).parent / 'params.yaml')
 
 # Escape backslashes if any to keep them after parsing takes place
 yaml_params = yaml_params.replace('\\', '\\\\')
 python_executable = sys.executable.replace('\\', '\\\\')
 
-xml_file = \
-    r"""
-    <launch>
-        <let name="a_string" value="\'[2, 5, 8]\'"/>
-        <let name="a_list" value="[2, 5, 8]"/>
-        <node pkg="demo_nodes_py" exec="talker_qos" output="screen" name="my_talker" namespace="my_ns" exec_name="my_talker_process" args="--number_of_cycles 1">
-            <param name="param1" value="ads"/>
-            <param name="param_group1">
-                <param name="param_group2">
-                    <param name="param2" value="2"/>
+
+def test_node_frontend_xml():
+    xml_file = textwrap.dedent(
+        r"""
+        <launch>
+            <let name="a_string" value="\'[2, 5, 8]\'"/>
+            <let name="a_list" value="[2, 5, 8]"/>
+            <node pkg="demo_nodes_py" exec="talker_qos" output="screen" name="my_talker" namespace="my_ns" exec_name="my_talker_process" args="--number_of_cycles 1">
+                <param name="param1" value="ads"/>
+                <param name="param_group1">
+                    <param name="param_group2">
+                        <param name="param2" value="2"/>
+                    </param>
+                    <param name="param3" value="2, 5, 8" value-sep=", "/>
+                    <param name="param4" value="$(var a_list)"/>
+                    <param name="param5" value="$(var a_string)"/>
+                    <param name="param6" value="2., 5., 8." value-sep=", "/>
+                    <param name="param7" value="'2', '5', '8'" value-sep=", "/>
+                    <param name="param8" value="''2'', ''5'', ''8''" value-sep=", "/>
+                    <param name="param9" value="\'2\', \'5\', \'8\'" value-sep=", "/>
+                    <param name="param10" value="''asd'', ''bsd'', ''csd''" value-sep=", "/>
+                    <param name="param11" value="'\asd', '\bsd', '\csd'" value-sep=", "/>
+                    <param name="param12" value=""/>
                 </param>
-                <param name="param3" value="2, 5, 8" value-sep=", "/>
-                <param name="param4" value="$(var a_list)"/>
-                <param name="param5" value="$(var a_string)"/>
-                <param name="param6" value="2., 5., 8." value-sep=", "/>
-                <param name="param7" value="'2', '5', '8'" value-sep=", "/>
-                <param name="param8" value="''2'', ''5'', ''8''" value-sep=", "/>
-                <param name="param9" value="\'2\', \'5\', \'8\'" value-sep=", "/>
-                <param name="param10" value="''asd'', ''bsd'', ''csd''" value-sep=", "/>
-                <param name="param11" value="'\asd', '\bsd', '\csd'" value-sep=", "/>
-                <param name="param12" value=""/>
-            </param>
-            <param from="{}"/>
-            <env name="var" value="1"/>
-            <remap from="foo" to="bar"/>
-            <remap from="baz" to="foobar"/>
-        </node>
-        <node exec="{}" args="-c 'import sys; print(sys.argv[1:])'" name="my_listener" namespace="my_ns" output="screen"/>
-    </launch>
-    """.format(yaml_params, python_executable)  # noqa: E501
-xml_file = textwrap.dedent(xml_file)
-yaml_file = \
-    r"""
-    launch:
-        - let:
-            name: 'a_string'
-            value: "'[2, 5, 8]'"
-        - let:
-            name: 'a_list'
-            value: '[2, 5, 8]'
-        - node:
-            pkg: demo_nodes_py
-            exec: talker_qos
-            output: screen
-            name: my_talker
-            namespace: my_ns
-            exec_name: my_talker_process
-            args: '--number_of_cycles 1'
-            param:
-                -   name: param1
-                    value: ads
-                -   name: param_group1
-                    param:
-                    -   name: param_group2
+                <param from="{}"/>
+                <env name="var" value="1"/>
+                <remap from="foo" to="bar"/>
+                <remap from="baz" to="foobar"/>
+            </node>
+            <node exec="{}" args="-c 'import sys; print(sys.argv[1:])'" name="my_listener" namespace="my_ns" output="screen"/>
+        </launch>
+        """.format(yaml_params, python_executable))  # noqa: E501
+
+    with io.StringIO(xml_file) as f:
+        validate_launch_result(f)
+
+
+def test_node_frontend_yaml():
+    yaml_file = textwrap.dedent(
+        r"""
+        launch:
+            - let:
+                name: 'a_string'
+                value: "'[2, 5, 8]'"
+            - let:
+                name: 'a_list'
+                value: '[2, 5, 8]'
+            - node:
+                pkg: demo_nodes_py
+                exec: talker_qos
+                output: screen
+                name: my_talker
+                namespace: my_ns
+                exec_name: my_talker_process
+                args: '--number_of_cycles 1'
+                param:
+                    -   name: param1
+                        value: ads
+                    -   name: param_group1
                         param:
-                        -   name: param2
-                            value: 2
-                    -   name: param3
-                        value: [2, 5, 8]
-                    -   name: param4
-                        value: $(var a_list)
-                    -   name: param5
-                        value: $(var a_string)
-                    -   name: param6
-                        value: [2., 5., 8.]
-                    -   name: param7
-                        value: ['2', '5', '8']
-                    -   name: param8
-                        value: ["'2'", "'5'", "'8'"]
-                    -   name: param9
-                        value: ["\\'2\\'", "\\'5\\'", "\\'8\\'"]
-                    -   name: param10
-                        value: ["'asd'", "'bsd'", "'csd'"]
-                    -   name: param11
-                        value: ['\asd', '\bsd', '\csd']
-                    -   name: param12
-                        value: ''
-                -   from: {}
-            env:
-                -   name: var
-                    value: '1'
-            remap:
-                -   from: "foo"
-                    to: "bar"
-                -   from: "baz"
-                    to: "foobar"
-        - node:
-            exec: {}
-            output: screen
-            namespace: my_ns
-            name: my_listener
-            args: -c 'import sys; print(sys.argv[1:])'
-    """.format(yaml_params, python_executable)  # noqa: E501
-yaml_file = textwrap.dedent(yaml_file)
+                        -   name: param_group2
+                            param:
+                            -   name: param2
+                                value: 2
+                        -   name: param3
+                            value: [2, 5, 8]
+                        -   name: param4
+                            value: $(var a_list)
+                        -   name: param5
+                            value: $(var a_string)
+                        -   name: param6
+                            value: [2., 5., 8.]
+                        -   name: param7
+                            value: ['2', '5', '8']
+                        -   name: param8
+                            value: ["'2'", "'5'", "'8'"]
+                        -   name: param9
+                            value: ["\\'2\\'", "\\'5\\'", "\\'8\\'"]
+                        -   name: param10
+                            value: ["'asd'", "'bsd'", "'csd'"]
+                        -   name: param11
+                            value: ['\asd', '\bsd', '\csd']
+                        -   name: param12
+                            value: ''
+                    -   from: {}
+                env:
+                    -   name: var
+                        value: '1'
+                remap:
+                    -   from: "foo"
+                        to: "bar"
+                    -   from: "baz"
+                        to: "foobar"
+            - node:
+                exec: {}
+                output: screen
+                namespace: my_ns
+                name: my_listener
+                args: -c 'import sys; print(sys.argv[1:])'
+        """.format(yaml_params, python_executable))  # noqa: E501
+
+    with io.StringIO(yaml_file) as f:
+        validate_launch_result(f)
 
 
-@pytest.mark.parametrize('file', (xml_file, yaml_file))
-def test_node_frontend(file):
+def validate_launch_result(file):
     """Parse node xml example."""
-    root_entity, parser = Parser.load(io.StringIO(file))
+    root_entity, parser = Parser.load(file)
     ld = parser.parse_description(root_entity)
     ls = LaunchService()
     ls.include_launch_description(ld)

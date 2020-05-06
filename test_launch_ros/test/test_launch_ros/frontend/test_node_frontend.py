@@ -1,4 +1,5 @@
 # Copyright 2019 Open Source Robotics Foundation, Inc.
+# Copyright 2020 Rover Robotics c/o Dan Rose
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,8 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-"""Example of how to parse an xml."""
 
 import io
 import pathlib
@@ -31,7 +30,7 @@ yaml_params = yaml_params.replace('\\', '\\\\')
 python_executable = sys.executable.replace('\\', '\\\\')
 
 
-def test_node_frontend_xml():
+def test_launch_remapping_xml():
     xml_file = textwrap.dedent(
         r"""
         <launch>
@@ -64,10 +63,10 @@ def test_node_frontend_xml():
         """.format(yaml_params, python_executable))  # noqa: E501
 
     with io.StringIO(xml_file) as f:
-        validate_launch_result(f)
+        check_launch_remapping(f)
 
 
-def test_node_frontend_yaml():
+def test_launch_remapping_yaml():
     yaml_file = textwrap.dedent(
         r"""
         launch:
@@ -132,11 +131,10 @@ def test_node_frontend_yaml():
         """.format(yaml_params, python_executable))  # noqa: E501
 
     with io.StringIO(yaml_file) as f:
-        validate_launch_result(f)
+        check_launch_remapping(f)
 
 
-def validate_launch_result(file):
-    """Parse node xml example."""
+def check_launch_remapping(file):
     root_entity, parser = Parser.load(file)
     ld = parser.parse_description(root_entity)
     ls = LaunchService()

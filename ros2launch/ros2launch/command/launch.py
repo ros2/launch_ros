@@ -16,7 +16,11 @@ import os
 
 from ament_index_python.packages import get_package_prefix
 from ament_index_python.packages import PackageNotFoundError
-from argcomplete.completers import FilesCompleter
+try:
+    from argcomplete.completers import FilesCompleter
+except ImportError:
+    # argcomplete is not supported on Windows
+    pass
 try:
     from argcomplete.completers import SuppressCompleter
 except ImportError:
@@ -54,7 +58,11 @@ def package_name_or_launch_file_completer(prefix, parsed_args, **kwargs):
         return is_launch_file(path) or os.path.isdir(path)
 
     # Complete paths to launch files
-    completions.extend(filter(is_launch_file_or_dir, FilesCompleter()(**pass_through_kwargs)))
+    try:
+        completions.extend(filter(is_launch_file_or_dir, FilesCompleter()(**pass_through_kwargs)))
+    except NameError:
+        # argcomplete is not supported on Windows
+        pass
 
     return completions
 

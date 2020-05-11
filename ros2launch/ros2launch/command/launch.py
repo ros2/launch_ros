@@ -19,7 +19,7 @@ from ament_index_python.packages import PackageNotFoundError
 try:
     from argcomplete.completers import FilesCompleter
 except ImportError:
-    # argcomplete is not supported on Windows
+    # argcomplete is optional
     pass
 try:
     from argcomplete.completers import SuppressCompleter
@@ -61,7 +61,7 @@ def package_name_or_launch_file_completer(prefix, parsed_args, **kwargs):
     try:
         completions.extend(filter(is_launch_file_or_dir, FilesCompleter()(**pass_through_kwargs)))
     except NameError:
-        # argcomplete is not supported on Windows
+        # argcomplete is optional
         pass
 
     return completions

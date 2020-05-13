@@ -59,8 +59,8 @@ def test_launch_node_with_name():
     node = Node(
         package='demo_nodes_py',
         executable='listener_qos',
-        node_name=TEST_NODE_NAME,
-        node_namespace=TEST_NODE_NAMESPACE,
+        name=TEST_NODE_NAME,
+        namespace=TEST_NODE_NAMESPACE,
         output='screen',
     )
     ld = LaunchDescription([node])
@@ -73,7 +73,7 @@ def test_launch_node_without_name():
     node = Node(
         package='demo_nodes_py',
         executable='listener_qos',
-        node_namespace=TEST_NODE_NAMESPACE,
+        namespace=TEST_NODE_NAMESPACE,
         output='screen',
     )
     ld = LaunchDescription([node])
@@ -87,7 +87,7 @@ def test_launch_node_with_name_without_namespace():
     node = Node(
         package='demo_nodes_py',
         executable='listener_qos',
-        node_name=TEST_NODE_NAME,
+        name=TEST_NODE_NAME,
         output='screen',
     )
     ld = LaunchDescription([node])
@@ -100,14 +100,14 @@ def test_launch_composable_node_with_names(pytestconfig):
     node = ComposableNodeContainer(
         package='rclcpp_components',
         executable='component_container',
-        node_name=TEST_NODE_NAME,
-        node_namespace=TEST_NODE_NAMESPACE,
+        name=TEST_NODE_NAME,
+        namespace=TEST_NODE_NAMESPACE,
         composable_node_descriptions=[
             ComposableNode(
                 package='composition',
-                node_plugin='composition::Listener',
-                node_name=TEST_NODE_NAME,
-                node_namespace=TEST_NODE_NAMESPACE
+                plugin='composition::Listener',
+                name=TEST_NODE_NAME,
+                namespace=TEST_NODE_NAMESPACE
             )
         ],
         output='screen'
@@ -125,13 +125,13 @@ def test_launch_composable_node_without_component_name():
     node = ComposableNodeContainer(
         package='rclcpp_components',
         executable='component_container',
-        node_name=TEST_NODE_NAME,
-        node_namespace=TEST_NODE_NAMESPACE,
+        name=TEST_NODE_NAME,
+        namespace=TEST_NODE_NAMESPACE,
         composable_node_descriptions=[
             ComposableNode(
                 package='composition',
-                node_plugin='composition::Listener',
-                node_namespace=TEST_NODE_NAMESPACE
+                plugin='composition::Listener',
+                namespace=TEST_NODE_NAMESPACE
             )
         ],
         output='screen'
@@ -148,29 +148,29 @@ def test_launch_nodes_with_same_names(pytestconfig):
     node1 = Node(
         package='demo_nodes_py',
         executable='listener_qos',
-        node_name=TEST_NODE_NAME,
-        node_namespace=TEST_NODE_NAMESPACE,
+        name=TEST_NODE_NAME,
+        namespace=TEST_NODE_NAMESPACE,
         output='screen',
     )
 
     node2 = LifecycleNode(
         package='lifecycle',
         executable='lifecycle_listener',
-        node_name=TEST_NODE_NAME,
-        node_namespace=TEST_NODE_NAMESPACE,
+        name=TEST_NODE_NAME,
+        namespace=TEST_NODE_NAMESPACE,
         output='screen',
     )
 
     node3 = ComposableNodeContainer(
         package='rclcpp_components',
         executable='component_container',
-        node_name=TEST_NODE_NAME,
-        node_namespace=TEST_NODE_NAMESPACE,
+        name=TEST_NODE_NAME,
+        namespace=TEST_NODE_NAMESPACE,
         composable_node_descriptions=[
             ComposableNode(
                 package='composition',
-                node_plugin='composition::Listener',
-                node_name=TEST_NODE_NAME
+                plugin='composition::Listener',
+                name=TEST_NODE_NAME
             )
         ],
         output='screen'
@@ -190,29 +190,29 @@ def test_launch_nodes_with_different_names():
     node1 = Node(
         package='demo_nodes_py',
         executable='listener_qos',
-        node_name=f'{TEST_NODE_NAME}_1',
-        node_namespace=TEST_NODE_NAMESPACE,
+        name=f'{TEST_NODE_NAME}_1',
+        namespace=TEST_NODE_NAMESPACE,
         output='screen',
     )
 
     node2 = LifecycleNode(
         package='lifecycle',
         executable='lifecycle_listener',
-        node_name=f'{TEST_NODE_NAME}_2',
-        node_namespace=TEST_NODE_NAMESPACE,
+        name=f'{TEST_NODE_NAME}_2',
+        namespace=TEST_NODE_NAMESPACE,
         output='screen',
     )
 
     node3 = ComposableNodeContainer(
         package='rclcpp_components',
         executable='component_container',
-        node_name=f'{TEST_NODE_NAME}_3',
-        node_namespace=TEST_NODE_NAMESPACE,
+        name=f'{TEST_NODE_NAME}_3',
+        namespace=TEST_NODE_NAMESPACE,
         composable_node_descriptions=[
             ComposableNode(
                 package='composition',
-                node_plugin='composition::Listener',
-                node_name=f'{TEST_NODE_NAME}_4',
+                plugin='composition::Listener',
+                name=f'{TEST_NODE_NAME}_4',
             )
         ],
         output='screen'

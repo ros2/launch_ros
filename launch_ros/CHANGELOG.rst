@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.1 (2020-05-13)
+-------------------
+* Fix new flake8 errors (`#148 <https://github.com/ros2/launch_ros/issues/148>`_)
+* Contributors: Michel Hidalgo
+
 0.10.0 (2020-04-29)
 -------------------
 * Avoid using sys.argv in rclpy.init (`#144 <https://github.com/ros2/launch_ros/issues/144>`_)

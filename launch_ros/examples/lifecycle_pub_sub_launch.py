@@ -19,15 +19,15 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))  # noqa
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'launch'))  # noqa
 
-import launch
-import launch.actions
-import launch.events
+import launch  # noqa: E402
+import launch.actions  # noqa: E402
+import launch.events  # noqa: E402
 
-import launch_ros.actions
-import launch_ros.events
-import launch_ros.events.lifecycle
+import launch_ros.actions  # noqa: E402
+import launch_ros.events  # noqa: E402
+import launch_ros.events.lifecycle  # noqa: E402
 
-import lifecycle_msgs.msg
+import lifecycle_msgs.msg  # noqa: E402
 
 
 def main(argv=sys.argv[1:]):

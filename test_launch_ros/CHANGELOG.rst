@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.1 (2020-05-13)
+-------------------
+* Clean up various pytest warnings (`#143 <https://github.com/ros2/launch_ros/issues/143>`_)
+* Contributors: Michael Carroll
+
 0.10.0 (2020-04-29)
 -------------------
 * Deprecated 'node_executable' parameter and replace with 'executable' (`#140 <https://github.com/ros2/launch_ros/issues/140>`_)

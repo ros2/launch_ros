@@ -2,6 +2,11 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.1 (2020-05-13)
+-------------------
+* argcomplete is optional (`#147 <https://github.com/ros2/launch_ros/issues/147>`_)
+* Contributors: Alejandro Hernández Cordero
+
 0.10.0 (2020-04-29)
 -------------------
 * Deprecated 'node_executable' parameter and replace with 'executable' (`#140 <https://github.com/ros2/launch_ros/issues/140>`_)

@@ -79,7 +79,7 @@ def test_push_ros_namespace(config):
     node = Node(
         package='dont_care',
         executable='whatever',
-        node_namespace=config.node_ns,
+        namespace=config.node_ns,
     )
     node._perform_substitutions(lc)
     expected_ns = config.expected_ns if config.expected_ns is not None else ''

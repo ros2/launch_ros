@@ -1,3 +1,4 @@
+# Copyright 2020 Rover Robotics, c/o Dan Rose
 # Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

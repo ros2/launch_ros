@@ -22,11 +22,11 @@ from launch.frontend import Parser
 
 def test_launch_namespace_yaml():
     yaml_file = textwrap.dedent(
-    r"""
-    launch:
-       - push-ros-namespace:
-           namespace: 'asd'
-    """
+        r"""
+        launch:
+           - push-ros-namespace:
+               namespace: 'asd'
+        """
     )
     with io.StringIO(yaml_file) as f:
         check_launch_namespace(f)
@@ -38,7 +38,8 @@ def test_launch_namespace_xml():
         <launch>
             <push-ros-namespace namespace="asd"/>
         </launch>
-        """)
+        """
+    )
     with io.StringIO(xml_file) as f:
         check_launch_namespace(f)
 

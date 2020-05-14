@@ -38,7 +38,7 @@ class LaunchROSTestModule(LaunchTestModule):
 def pytest_launch_collect_makemodule(path, parent, entrypoint):
     marks = getattr(entrypoint, 'pytestmark', [])
     if marks and any(m.name == 'rostest' for m in marks):
-        return LaunchROSTestModule(path, parent)
+        return LaunchROSTestModule.from_parent(parent=parent, fspath=path)
 
 
 def pytest_configure(config):

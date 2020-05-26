@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Call LaunchROSTestModule with the new API. (`#150 <https://github.com/ros2/launch_ros/issues/150>`_)
+* Contributors: Chris Lalancette
+
 0.10.1 (2020-05-13)
 -------------------
 

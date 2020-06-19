@@ -27,7 +27,7 @@ class Config:
     def __init__(
         self,
         *,
-        node_ns='',
+        node_ns=None,
         push_ns=None,
         expected_ns=None,
         second_push_ns=None
@@ -66,7 +66,9 @@ class Config:
         node_ns='node_ns',
         expected_ns='/absolute_ns/node_ns'),
     Config(),
-    Config(push_ns=''),
+    Config(
+        push_ns='',
+        expected_ns='/'),
 ))
 def test_push_ros_namespace(config):
     lc = LaunchContext()
@@ -82,5 +84,7 @@ def test_push_ros_namespace(config):
         namespace=config.node_ns,
     )
     node._perform_substitutions(lc)
-    expected_ns = config.expected_ns if config.expected_ns is not None else ''
+    expected_ns = (
+        config.expected_ns if config.expected_ns is not None else Node.UNSPECIFIED_NODE_NAMESPACE
+    )
     assert expected_ns == node.expanded_node_namespace

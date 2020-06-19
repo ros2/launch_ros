@@ -70,9 +70,9 @@ class Node(ExecuteProcess):
         node_executable: Optional[SomeSubstitutionsType] = None,
         package: Optional[SomeSubstitutionsType] = None,
         name: Optional[SomeSubstitutionsType] = None,
-        namespace: Optional[SomeSubstitutionsType] = '',
+        namespace: Optional[SomeSubstitutionsType] = None,
         node_name: Optional[SomeSubstitutionsType] = None,
-        node_namespace: SomeSubstitutionsType = '',
+        node_namespace: SomeSubstitutionsType = None,
         exec_name: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
@@ -219,7 +219,7 @@ class Node(ExecuteProcess):
         self.__arguments = arguments
 
         self.__expanded_node_name = self.UNSPECIFIED_NODE_NAME
-        self.__expanded_node_namespace = ''
+        self.__expanded_node_namespace = self.UNSPECIFIED_NODE_NAMESPACE
         self.__final_node_name = None  # type: Optional[Text]
         self.__expanded_parameter_files = None  # type: Optional[List[Text]]
         self.__expanded_remappings = None  # type: Optional[List[Tuple[Text, Text]]]
@@ -347,19 +347,24 @@ class Node(ExecuteProcess):
                     context, normalize_to_list_of_substitutions(self.__node_name))
                 validate_node_name(self.__expanded_node_name)
             self.__expanded_node_name.lstrip('/')
-            self.__expanded_node_namespace = perform_substitutions(
-                context, normalize_to_list_of_substitutions(self.__node_namespace))
-            if not self.__expanded_node_namespace.startswith('/'):
-                base_ns = context.launch_configurations.get('ros_namespace', '')
-                self.__expanded_node_namespace = (
-                    base_ns + '/' + self.__expanded_node_namespace
-                ).rstrip('/')
-                if (
-                    self.__expanded_node_namespace != '' and not
-                    self.__expanded_node_namespace.startswith('/')
-                ):
-                    self.__expanded_node_namespace = '/' + self.__expanded_node_namespace
-            if self.__expanded_node_namespace != '':
+            expanded_node_namespace = None
+            if self.__node_namespace is not None:
+                expanded_node_namespace = perform_substitutions(
+                    context, normalize_to_list_of_substitutions(self.__node_namespace))
+            base_ns = context.launch_configurations.get('ros_namespace', None)
+            if any(x is not None for x in (base_ns, expanded_node_namespace)):
+                expanded_node_namespace = (
+                    '' if expanded_node_namespace is None else expanded_node_namespace
+                )
+                base_ns = '' if base_ns is None else base_ns
+                if not expanded_node_namespace.startswith('/'):
+                    expanded_node_namespace = (
+                        base_ns + '/' + expanded_node_namespace
+                    ).rstrip('/')
+                if not expanded_node_namespace.startswith('/'):
+                    expanded_node_namespace = '/' + expanded_node_namespace
+                self.__expanded_node_namespace = expanded_node_namespace
+            if expanded_node_namespace is not None:
                 cmd_extension = ['-r', LocalSubstitution("ros_specific_arguments['ns']")]
                 self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
                 validate_namespace(self.__expanded_node_namespace)

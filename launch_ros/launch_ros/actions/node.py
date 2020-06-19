@@ -331,8 +331,10 @@ class Node(ExecuteProcess):
     def _create_params_file_from_dict(self, params):
         with NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False) as h:
             param_file_path = h.name
-            # TODO(dhood): clean up generated parameter files.
-            param_dict = {'/**': {'ros__parameters': params}}
+            param_dict = {
+                self.node_name if self.is_node_name_fully_specified() else '/**':
+                {'ros__parameters': params}
+            }
             yaml.dump(param_dict, h, default_flow_style=False)
             return param_file_path
 

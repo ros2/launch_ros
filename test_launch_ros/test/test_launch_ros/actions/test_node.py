@@ -165,7 +165,7 @@ class TestNode(unittest.TestCase):
         with open(expanded_parameter_files[0], 'r') as h:
             expanded_parameters_dict = yaml.load(h, Loader=yaml.FullLoader)
             assert expanded_parameters_dict == {
-                '/**': {
+                '/my_ns/my_node': {
                     'ros__parameters': {
                         'param1': 'param1_value',
                         'param2': 'param2_value',

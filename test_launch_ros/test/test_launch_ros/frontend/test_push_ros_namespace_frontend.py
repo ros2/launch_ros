@@ -1,4 +1,5 @@
 # Copyright 2019 Open Source Robotics Foundation, Inc.
+# Copyright 2020 Open Avatar Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,36 +13,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Example of how to parse an xml."""
-
 import io
 import textwrap
 
 from launch import LaunchService
 from launch.frontend import Parser
 
-import pytest
 
-xml_file = \
-    r"""
-    <launch>
-        <push-ros-namespace namespace="asd"/>
-    </launch>
-    """
-xml_file = textwrap.dedent(xml_file)
-yaml_file = \
-    r"""
-    launch:
-        - push-ros-namespace:
-            namespace: 'asd'
-    """
-yaml_file = textwrap.dedent(yaml_file)
+def test_launch_namespace_yaml():
+    yaml_file = textwrap.dedent(
+        r"""
+        launch:
+           - push-ros-namespace:
+               namespace: 'asd'
+        """
+    )
+    with io.StringIO(yaml_file) as f:
+        check_launch_namespace(f)
 
 
-@pytest.mark.parametrize('file', (xml_file, yaml_file))
-def test_node_frontend(file):
-    """Parse node xml example."""
-    root_entity, parser = Parser.load(io.StringIO(file))
+def test_launch_namespace_xml():
+    xml_file = textwrap.dedent(
+        r"""
+        <launch>
+            <push-ros-namespace namespace="asd"/>
+        </launch>
+        """
+    )
+    with io.StringIO(xml_file) as f:
+        check_launch_namespace(f)
+
+
+def check_launch_namespace(file):
+    root_entity, parser = Parser.load(file)
     ld = parser.parse_description(root_entity)
     ls = LaunchService()
     ls.include_launch_description(ld)

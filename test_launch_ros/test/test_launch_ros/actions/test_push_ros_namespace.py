@@ -27,11 +27,13 @@ class Config:
     def __init__(
         self,
         *,
+        node_name=None,
         node_ns=None,
         push_ns=None,
         expected_ns=None,
         second_push_ns=None
     ):
+        self.node_name = node_name
         self.push_ns = push_ns
         self.node_ns = node_ns
         self.expected_ns = expected_ns
@@ -65,6 +67,16 @@ class Config:
         second_push_ns='/absolute_ns',
         node_ns='node_ns',
         expected_ns='/absolute_ns/node_ns'),
+    Config(
+        node_name='my_node',
+        push_ns='relative_ns',
+        second_push_ns='/absolute_ns',
+        node_ns='node_ns',
+        expected_ns='/absolute_ns/node_ns'),
+    Config(
+        node_name='my_node',
+        node_ns='node_ns',
+        expected_ns='/node_ns'),
     Config(),
     Config(
         push_ns='',
@@ -82,9 +94,15 @@ def test_push_ros_namespace(config):
         package='dont_care',
         executable='whatever',
         namespace=config.node_ns,
+        name=config.node_name
     )
     node._perform_substitutions(lc)
     expected_ns = (
         config.expected_ns if config.expected_ns is not None else Node.UNSPECIFIED_NODE_NAMESPACE
     )
+    expected_name = (
+        config.node_name if config.node_name is not None else Node.UNSPECIFIED_NODE_NAME
+    )
+    expected_fqn = expected_ns.rstrip('/') + '/' + expected_name
     assert expected_ns == node.expanded_node_namespace
+    assert expected_fqn == node.node_name

@@ -352,11 +352,11 @@ class Node(ExecuteProcess):
                 expanded_node_namespace = perform_substitutions(
                     context, normalize_to_list_of_substitutions(self.__node_namespace))
             base_ns = context.launch_configurations.get('ros_namespace', None)
-            if any(x is not None for x in (base_ns, expanded_node_namespace)):
-                expanded_node_namespace = (
-                    '' if expanded_node_namespace is None else expanded_node_namespace
-                )
-                base_ns = '' if base_ns is None else base_ns
+            if base_ns is not None or expanded_node_namespace is not None:
+                if expanded_node_namespace is None:
+                    expanded_node_namespace = ''
+                if base_ns is None:
+                    base_ns = ''
                 if not expanded_node_namespace.startswith('/'):
                     expanded_node_namespace = (
                         base_ns + '/' + expanded_node_namespace
@@ -380,10 +380,8 @@ class Node(ExecuteProcess):
             )
             raise
         self.__final_node_name = ''
-        if self.__expanded_node_namespace not in ['', '/']:
+        if self.__expanded_node_namespace != '/':
             self.__final_node_name += self.__expanded_node_namespace
-        elif self.__expanded_node_namespace == '':
-            self.__final_node_name += self.UNSPECIFIED_NODE_NAMESPACE
         self.__final_node_name += '/' + self.__expanded_node_name
         # expand parameters too
         if self.__parameters is not None:

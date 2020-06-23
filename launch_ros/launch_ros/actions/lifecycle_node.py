@@ -43,7 +43,7 @@ class LifecycleNode(Node):
         self,
         *,
         name: Optional[SomeSubstitutionsType] = None,
-        namespace: SomeSubstitutionsType = '',
+        namespace: SomeSubstitutionsType,
         node_name: Optional[SomeSubstitutionsType] = None,
         **kwargs
     ) -> None:

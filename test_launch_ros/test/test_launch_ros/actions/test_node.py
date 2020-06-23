@@ -44,8 +44,6 @@ class TestNode(unittest.TestCase):
     def _create_node(self, *, parameters=None, remappings=None):
         return launch_ros.actions.Node(
             package='demo_nodes_py', executable='talker_qos', output='screen',
-            # The node name is required for parameter dicts.
-            # See https://github.com/ros2/launch/issues/139.
             name='my_node', namespace='my_ns',
             exec_name='my_node_process',
             arguments=['--number_of_cycles', '1'],
@@ -300,3 +298,32 @@ class TestNode(unittest.TestCase):
                     },
                 },
             }])
+
+def test_node_name():
+    node_without_ns = launch_ros.actions.Node(
+        package='asd',
+        executable='bsd',
+        name='my_node',
+    )
+    lc = launch.LaunchContext()
+    node_without_ns._perform_substitutions(context)
+    assert not node.is_node_name_fully_specified()
+
+    node_without_name = launch_ros.actions.Node(
+        package='asd',
+        executable='bsd',
+        namespace='my_ns',
+    )
+    lc = launch.LaunchContext()
+    node_without_ns._perform_substitutions(context)
+    assert not node.is_node_name_fully_specified()
+
+    node_with_fqn = launch_ros.actions.Node(
+        package='asd',
+        executable='bsd',
+        name='my_node',
+        namespace='my_ns',
+    )
+    lc = launch.LaunchContext()
+    node_without_ns._perform_substitutions(context)
+    assert node.is_node_name_fully_specified()

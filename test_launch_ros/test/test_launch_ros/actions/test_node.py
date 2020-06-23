@@ -25,8 +25,10 @@ from launch import LaunchService
 from launch.actions import Shutdown
 from launch.substitutions import EnvironmentVariable
 import launch_ros.actions.node
+import launch_ros.actions.lifecycle_node
 import yaml
 
+import pytest
 
 class TestNode(unittest.TestCase):
 
@@ -301,31 +303,65 @@ class TestNode(unittest.TestCase):
             }])
 
 
-def test_node_name():
-    node_without_ns = launch_ros.actions.Node(
-        package='asd',
-        executable='bsd',
-        name='my_node',
-    )
-    lc = LaunchContext()
-    node_without_ns._perform_substitutions(lc)
-    assert not node_without_ns.is_node_name_fully_specified()
+def get_test_node_name_parameters():
+    return [
+        pytest.param((
+            launch_ros.actions.Node(
+                package='asd',
+                executable='bsd',
+                name='my_node',
+            ), False),
+            id="Node without namespace"
+        ),
+        pytest.param((
+            launch_ros.actions.Node(
+                package='asd',
+                executable='bsd',
+                namespace='my_ns',
+            ), False),
+            id="Node without name"
+        ),
+        pytest.param((
+            launch_ros.actions.Node(
+                package='asd',
+                executable='bsd',
+                name='my_node',
+                namespace='my_ns',
+            ), True),
+            id="Node with fully qualified name"
+        ),
+        pytest.param((
+            launch_ros.actions.LifecycleNode(
+                package='asd',
+                executable='bsd',
+                name='my_node',
+            ), False),
+            id="LifecycleNode without namespace"
+        ),
+        pytest.param((
+            launch_ros.actions.LifecycleNode(
+                package='asd',
+                executable='bsd',
+                namespace='my_ns',
+            ), False),
+            id="LifecycleNode without name"
+        ),
+        pytest.param((
+            launch_ros.actions.LifecycleNode(
+                package='asd',
+                executable='bsd',
+                name='my_node',
+                namespace='my_ns',
+            ), True),
+            id="LifecycleNode with fully qualified name"
+        ),
+    ]
 
-    node_without_name = launch_ros.actions.Node(
-        package='asd',
-        executable='bsd',
-        namespace='my_ns',
-    )
+@pytest.mark.parametrize(
+    "node_object",
+    get_test_node_name_parameters()
+)
+def test_node_name(node_object, expected_result):
     lc = LaunchContext()
-    node_without_name._perform_substitutions(lc)
-    assert not node_without_name.is_node_name_fully_specified()
-
-    node_with_fqn = launch_ros.actions.Node(
-        package='asd',
-        executable='bsd',
-        name='my_node',
-        namespace='my_ns',
-    )
-    lc = LaunchContext()
-    node_with_fqn._perform_substitutions(lc)
-    assert node_with_fqn.is_node_name_fully_specified()
+    node_object._perform_substitutions(lc)
+    assert node_object.is_node_name_fully_specified() is expected_result

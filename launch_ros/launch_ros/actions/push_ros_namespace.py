@@ -29,7 +29,8 @@ from launch.utilities import perform_substitutions
 
 from rclpy.validate_namespace import validate_namespace
 
-
+# TODO(ivanpauno): Generalize launch.frontend so both hyphens and underscores are equivalent.
+@expose_action('push_ros_namespace')
 @expose_action('push-ros-namespace')
 class PushRosNamespace(Action):
     """
@@ -50,14 +51,14 @@ class PushRosNamespace(Action):
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
-        """Return `SetLaunchConfiguration` action and kwargs for constructing it."""
+        """Return `PushRosNamespace` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         kwargs['namespace'] = parser.parse_substitution(entity.get_attr('namespace'))
         return cls, kwargs
 
     @property
     def namespace(self) -> List[Substitution]:
-        """Getter for self.__name."""
+        """Getter for self.__namespace."""
         return self.__namespace
 
     def execute(self, context: LaunchContext):

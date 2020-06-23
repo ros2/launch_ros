@@ -62,7 +62,7 @@ def main(argv=sys.argv[1:]):
                 launch.actions.LogInfo(
                     msg="node 'talker' reached the 'active' state, launching 'listener'."),
                 launch_ros.actions.LifecycleNode(
-                    name='listener', namespace=''
+                    name='listener', namespace='',
                     package='lifecycle', executable='lifecycle_listener', output='screen'),
             ],
         )

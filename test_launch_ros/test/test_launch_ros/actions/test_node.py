@@ -19,6 +19,7 @@ import pathlib
 import unittest
 import warnings
 
+from launch import LaunchContext
 from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import Shutdown
@@ -299,24 +300,25 @@ class TestNode(unittest.TestCase):
                 },
             }])
 
+
 def test_node_name():
     node_without_ns = launch_ros.actions.Node(
         package='asd',
         executable='bsd',
         name='my_node',
     )
-    lc = launch.LaunchContext()
-    node_without_ns._perform_substitutions(context)
-    assert not node.is_node_name_fully_specified()
+    lc = LaunchContext()
+    node_without_ns._perform_substitutions(lc)
+    assert not node_without_ns.is_node_name_fully_specified()
 
     node_without_name = launch_ros.actions.Node(
         package='asd',
         executable='bsd',
         namespace='my_ns',
     )
-    lc = launch.LaunchContext()
-    node_without_ns._perform_substitutions(context)
-    assert not node.is_node_name_fully_specified()
+    lc = LaunchContext()
+    node_without_name._perform_substitutions(lc)
+    assert not node_without_name.is_node_name_fully_specified()
 
     node_with_fqn = launch_ros.actions.Node(
         package='asd',
@@ -324,6 +326,6 @@ def test_node_name():
         name='my_node',
         namespace='my_ns',
     )
-    lc = launch.LaunchContext()
-    node_without_ns._perform_substitutions(context)
-    assert node.is_node_name_fully_specified()
+    lc = LaunchContext()
+    node_with_fqn._perform_substitutions(lc)
+    assert node_with_fqn.is_node_name_fully_specified()

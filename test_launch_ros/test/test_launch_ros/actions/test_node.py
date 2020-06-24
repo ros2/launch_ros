@@ -25,10 +25,9 @@ from launch import LaunchService
 from launch.actions import Shutdown
 from launch.substitutions import EnvironmentVariable
 import launch_ros.actions.node
-import launch_ros.actions.lifecycle_node
+import pytest
 import yaml
 
-import pytest
 
 class TestNode(unittest.TestCase):
 
@@ -305,60 +304,39 @@ class TestNode(unittest.TestCase):
 
 def get_test_node_name_parameters():
     return [
-        pytest.param((
+        pytest.param(
             launch_ros.actions.Node(
                 package='asd',
                 executable='bsd',
                 name='my_node',
-            ), False),
-            id="Node without namespace"
+            ),
+            False,
+            id='Node without namespace'
         ),
-        pytest.param((
+        pytest.param(
             launch_ros.actions.Node(
                 package='asd',
                 executable='bsd',
                 namespace='my_ns',
-            ), False),
-            id="Node without name"
+            ),
+            False,
+            id='Node without name'
         ),
-        pytest.param((
+        pytest.param(
             launch_ros.actions.Node(
                 package='asd',
                 executable='bsd',
                 name='my_node',
                 namespace='my_ns',
-            ), True),
-            id="Node with fully qualified name"
-        ),
-        pytest.param((
-            launch_ros.actions.LifecycleNode(
-                package='asd',
-                executable='bsd',
-                name='my_node',
-            ), False),
-            id="LifecycleNode without namespace"
-        ),
-        pytest.param((
-            launch_ros.actions.LifecycleNode(
-                package='asd',
-                executable='bsd',
-                namespace='my_ns',
-            ), False),
-            id="LifecycleNode without name"
-        ),
-        pytest.param((
-            launch_ros.actions.LifecycleNode(
-                package='asd',
-                executable='bsd',
-                name='my_node',
-                namespace='my_ns',
-            ), True),
-            id="LifecycleNode with fully qualified name"
+            ),
+            True,
+            id='Node with fully qualified name'
         ),
     ]
 
+
 @pytest.mark.parametrize(
-    "node_object",
+    'node_object, expected_result',
     get_test_node_name_parameters()
 )
 def test_node_name(node_object, expected_result):

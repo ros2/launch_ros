@@ -16,6 +16,8 @@
 
 from launch_ros.actions import Node
 from launch_ros.actions import SetParameter
+from launch_ros.actions.load_composable_nodes import get_composable_node_load_request
+from launch_ros.descriptions import ComposableNode
 
 import pytest
 import yaml
@@ -88,3 +90,28 @@ def test_set_param_with_node():
                 'ros__parameters': {'asd': 'bsd'}
             }
         }
+
+
+def test_set_param_with_composable_node():
+    lc = MockContext()
+    node_description = ComposableNode(
+        package='asd',
+        plugin='my_plugin',
+        name='my_node',
+        namespace='my_ns',
+        parameters=[{'asd': 'bsd'}]
+    )
+    set_param_1 = SetParameter(name='my_param', value='my_value')
+    set_param_2 = SetParameter(name='asd', value='csd')
+    set_param_1.execute(lc)
+    set_param_2.execute(lc)
+    request = get_composable_node_load_request(node_description, lc)
+    parameters = request.parameters
+    print(parameters)
+    assert len(parameters) == 3
+    assert parameters[0].name == 'my_param'
+    assert parameters[0].value.string_value == 'my_value'
+    assert parameters[1].name == 'asd'
+    assert parameters[1].value.string_value == 'csd'
+    assert parameters[2].name == 'asd'
+    assert parameters[2].value.string_value == 'bsd'

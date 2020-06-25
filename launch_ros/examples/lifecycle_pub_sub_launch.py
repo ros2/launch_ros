@@ -36,7 +36,7 @@ def main(argv=sys.argv[1:]):
 
     # Prepare the talker node.
     talker_node = launch_ros.actions.LifecycleNode(
-        node_name='talker',
+        name='talker', namespace='',
         package='lifecycle', executable='lifecycle_talker', output='screen')
 
     # When the talker reaches the 'inactive' state, make it take the 'activate' transition.
@@ -62,7 +62,7 @@ def main(argv=sys.argv[1:]):
                 launch.actions.LogInfo(
                     msg="node 'talker' reached the 'active' state, launching 'listener'."),
                 launch_ros.actions.LifecycleNode(
-                    node_name='listener',
+                    name='listener', namespace='',
                     package='lifecycle', executable='lifecycle_listener', output='screen'),
             ],
         )

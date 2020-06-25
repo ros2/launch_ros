@@ -48,7 +48,7 @@ def _launch(launch_description):
     ls = LaunchService()
     ls.include_launch_description(launch_description)
     launch_task = loop.create_task(ls.run_async())
-    loop.run_until_complete(asyncio.sleep(5, loop=loop))
+    loop.run_until_complete(asyncio.sleep(5))
     if not launch_task.done():
         loop.create_task(ls.shutdown())
         loop.run_until_complete(launch_task)

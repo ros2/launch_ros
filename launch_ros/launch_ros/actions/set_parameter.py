@@ -25,8 +25,8 @@ from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 
 from launch_ros.parameters_type import SomeParameterValue
-from launch_ros.utilities import evaluate_parameter_dict
-from launch_ros.utilities import normalize_parameter_dict
+from launch_ros.utilities.evaluate_parameters import evaluate_parameter_dict
+from launch_ros.utilities.normalize_parameters import normalize_parameter_dict
 
 
 # TODO(ivanpauno): Generalize launch.frontend so both hyphens and underscores are equivalent.

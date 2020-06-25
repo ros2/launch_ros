@@ -19,11 +19,13 @@ import pathlib
 import unittest
 import warnings
 
+from launch import LaunchContext
 from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import Shutdown
 from launch.substitutions import EnvironmentVariable
 import launch_ros.actions.node
+import pytest
 import yaml
 
 
@@ -44,8 +46,6 @@ class TestNode(unittest.TestCase):
     def _create_node(self, *, parameters=None, remappings=None):
         return launch_ros.actions.Node(
             package='demo_nodes_py', executable='talker_qos', output='screen',
-            # The node name is required for parameter dicts.
-            # See https://github.com/ros2/launch/issues/139.
             name='my_node', namespace='my_ns',
             exec_name='my_node_process',
             arguments=['--number_of_cycles', '1'],
@@ -300,3 +300,46 @@ class TestNode(unittest.TestCase):
                     },
                 },
             }])
+
+
+def get_test_node_name_parameters():
+    return [
+        pytest.param(
+            launch_ros.actions.Node(
+                package='asd',
+                executable='bsd',
+                name='my_node',
+            ),
+            False,
+            id='Node without namespace'
+        ),
+        pytest.param(
+            launch_ros.actions.Node(
+                package='asd',
+                executable='bsd',
+                namespace='my_ns',
+            ),
+            False,
+            id='Node without name'
+        ),
+        pytest.param(
+            launch_ros.actions.Node(
+                package='asd',
+                executable='bsd',
+                name='my_node',
+                namespace='my_ns',
+            ),
+            True,
+            id='Node with fully qualified name'
+        ),
+    ]
+
+
+@pytest.mark.parametrize(
+    'node_object, expected_result',
+    get_test_node_name_parameters()
+)
+def test_node_name(node_object, expected_result):
+    lc = LaunchContext()
+    node_object._perform_substitutions(lc)
+    assert node_object.is_node_name_fully_specified() is expected_result

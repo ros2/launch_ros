@@ -29,9 +29,7 @@ from launch_ros.utilities.evaluate_parameters import evaluate_parameter_dict
 from launch_ros.utilities.normalize_parameters import normalize_parameter_dict
 
 
-# TODO(ivanpauno): Generalize launch.frontend so both hyphens and underscores are equivalent.
 @expose_action('set_parameter')
-@expose_action('set-parameter')
 class SetParameter(Action):
     """
     Action that sets a parameter in the current context.

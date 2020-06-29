@@ -29,8 +29,7 @@ from launch.utilities import perform_substitutions
 
 from rclpy.validate_namespace import validate_namespace
 
-# TODO(ivanpauno): Generalize launch.frontend so both hyphens and underscores are equivalent.
-@expose_action('push_ros_namespace')
+
 @expose_action('push-ros-namespace')
 class PushRosNamespace(Action):
     """

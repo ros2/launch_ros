@@ -36,12 +36,12 @@ def get_set_parameter_test_parameters():
     return [
         pytest.param(
             [{'my_param': '2'}],  # to set
-            [{'my_param': '2'}],  # expected
+            {'my_param': '2'},  # expected
             id='One param'
         ),
         pytest.param(
             [{'my_param': '2', 'another_param': '2'}, {'my_param': '3'}],
-            [{'my_param': '3', 'another_param': '2'}],
+            {'my_param': '3', 'another_param': '2'},
             id='Two params, overriding one'
         ),
     ]
@@ -59,7 +59,7 @@ def test_set_param(params_to_set, expected_result):
     lc = MockContext()
     for set_param in set_parameter_actions:
         set_param.execute(lc)
-    lc.launch_configurations == {'ros_params': expected_result}
+    assert lc.launch_configurations == {'ros_params': expected_result}
 
 
 def test_set_param_with_node():
@@ -107,7 +107,6 @@ def test_set_param_with_composable_node():
     set_param_2.execute(lc)
     request = get_composable_node_load_request(node_description, lc)
     parameters = request.parameters
-    print(parameters)
     assert len(parameters) == 3
     assert parameters[0].name == 'my_param'
     assert parameters[0].value.string_value == 'my_value'
@@ -115,3 +114,18 @@ def test_set_param_with_composable_node():
     assert parameters[1].value.string_value == 'csd'
     assert parameters[2].name == 'asd'
     assert parameters[2].value.string_value == 'bsd'
+
+    lc = MockContext()
+    node_description = ComposableNode(
+        package='asd',
+        plugin='my_plugin',
+        name='my_node',
+        namespace='my_ns',
+    )
+    set_param = SetParameter(name='my_param', value='my_value')
+    set_param.execute(lc)
+    request = get_composable_node_load_request(node_description, lc)
+    parameters = request.parameters
+    assert len(parameters) == 1
+    assert parameters[0].name == 'my_param'
+    assert parameters[0].value.string_value == 'my_value'

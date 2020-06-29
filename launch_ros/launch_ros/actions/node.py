@@ -396,6 +396,7 @@ class Node(ExecuteProcess):
             for i, params in enumerate(evaluated_parameters):
                 if isinstance(params, dict):
                     param_file_path = self._create_params_file_from_dict(params)
+                    assert os.path.isfile(param_file_path)
                 elif isinstance(params, pathlib.Path):
                     param_file_path = str(params)
                 else:

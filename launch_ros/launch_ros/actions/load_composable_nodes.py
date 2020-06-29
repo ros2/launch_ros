@@ -202,10 +202,12 @@ def get_composable_node_load_request(
                 perform_substitutions(context, list(to)),
             ))
     global_params = context.launch_configurations.get('ros_params', None)
-    parameters = composable_node_description.parameters
+    parameters = []
     if global_params is not None:
-        parameters = (normalize_parameter_dict(global_params), *parameters)
+        parameters.append(normalize_parameter_dict(global_params))
     if composable_node_description.parameters is not None:
+        parameters.extend(list(composable_node_description.parameters))
+    if parameters:
         request.parameters = [
             param.to_parameter_msg() for param in to_parameters_list(
                 context, evaluate_parameters(

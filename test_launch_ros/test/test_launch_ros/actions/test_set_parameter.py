@@ -14,6 +14,10 @@
 
 """Tests for the SetParameter Action."""
 
+from launch import LaunchContext
+from launch.actions import PopLaunchConfigurations
+from launch.actions import PushLaunchConfigurations
+
 from launch_ros.actions import Node
 from launch_ros.actions import SetParameter
 from launch_ros.actions.load_composable_nodes import get_composable_node_load_request
@@ -60,6 +64,19 @@ def test_set_param(params_to_set, expected_result):
     for set_param in set_parameter_actions:
         set_param.execute(lc)
     assert lc.launch_configurations == {'ros_params': expected_result}
+
+
+def test_set_param_is_scoped():
+    lc = LaunchContext()
+    push_conf = PushLaunchConfigurations()
+    pop_conf = PopLaunchConfigurations()
+    set_param = SetParameter(name='my_param', value='my_value')
+
+    push_conf.execute(lc)
+    set_param.execute(lc)
+    assert lc.launch_configurations == {'ros_params': {'my_param': 'my_value'}}
+    pop_conf.execute(lc)
+    assert lc.launch_configurations == {}
 
 
 def test_set_param_with_node():

@@ -35,20 +35,18 @@ if TYPE_CHECKING:
     from .parameters_type import EvaluatedParameterValue  # noqa: F401, false positive.
 
 
-class Parameter:
-    """Describes a ROS Parameter."""
+class ParameterValue:
+    """Describes a ROS parameter value."""
 
     def __init__(
         self,
-        *,
-        name: SomeSubstitutionsType,
         value: 'SomeParameterValue',
+        *,
         value_type: Any = None
     ) -> None:
         """
-        Construct a parameter description.
+        Construct a parameter value description.
 
-        :param name: Name of the parameter.
         :param value: Value of the parameter.
         :param value_type: Used when `value` is a substitution, to coerce the result.
             Can be one of:
@@ -67,25 +65,14 @@ class Parameter:
         from .utilities.type_utils import AllowedTypes
         from .parameters_type import SomeParameterValue_types_tuple
 
-        ensure_argument_type(name, SomeSubstitutionsType_types_tuple, 'name')
         ensure_argument_type(value, SomeParameterValue_types_tuple, 'value')
         assert value_type is None or value_type in AllowedTypes, (
             f"expected `value_type` to be one of '{AllowedTypes + (None,)}, got {value_type}'"
         )
 
-        self.__name = normalize_to_list_of_substitutions(name)
         self.__value = value
         self.__value_type = value_type
-        self.__evaluated_parameter_name: Optional[Text] = None
         self.__evaluated_parameter_value: Optional['EvaluatedParameterValue'] = None
-        self.__evaluated_parameter_rule: Optional[Tuple[Text, 'EvaluatedParameterValue']] = None
-
-    @property
-    def name(self):
-        """Getter for parameter name."""
-        if self.__evaluated_parameter_name is not None:
-            return self.__evaluated_parameter_name
-        return self.__name
 
     @property
     def value(self):
@@ -100,9 +87,12 @@ class Parameter:
         return self.__value_type
 
     def __str__(self):
-        return f'ParameterDescription(name={self.name}, value={self.value})'
+        return (
+            'launch_ros.description.ParameterValue'
+            f'(value={self.value}, value_type={self.value_type})'
+        )
 
-    def evaluate(self, context: LaunchContext) -> Tuple[Text, 'EvaluatedParameterValue']:
+    def evaluate(self, context: LaunchContext) -> 'EvaluatedParameterValue':
         """Evaluate and return parameter rule."""
         # Here to avoid cyclic import
         from .utilities.type_utils import AllowedTypes
@@ -111,13 +101,9 @@ class Parameter:
         from .utilities.type_utils import check_type
         from .utilities.type_utils import extract_type
 
-        if self.__evaluated_parameter_rule is not None:
-            return self.__evaluated_parameter_rule
-
-        name = perform_substitutions(context, self.name)
         value = self.__value
-        # TODO(ivanpauno): Maybe this logic to convert a list should be provided by type_utils too.
 
+        # TODO(ivanpauno): Maybe this logic to convert a list should be provided by type_utils too.
         def is_substitution(x):
             return (
                 isinstance(x, Substitution) or
@@ -157,7 +143,76 @@ class Parameter:
         else:
             value = convert_item(value, self.__value_type)
 
-        self.__evaluated_parameter_name = name
         self.__evaluated_parameter_value = value
+        return value
+
+
+class Parameter:
+    """Describes a ROS parameter."""
+
+    def __init__(
+        self,
+        name: SomeSubstitutionsType,
+        value: 'SomeParameterValue',
+        *,
+        value_type: Any = None
+    ) -> None:
+        """
+        Construct a parameter description.
+
+        :param name: Name of the parameter.
+        :param value: Value of the parameter.
+        :param value_type: Used when `value` is a substitution, to coerce the result.
+            Can be one of:
+                - A scalar type: `int`, `str`, `float`, `bool`.
+                  `bool` are written like in `yaml`.
+                  Both `1` and `1.` are valid floats.
+                - An uniform list: `List[int]`, `List[str]`, `List[float]`, `List[bool]`.
+                  Lists are written like in `yaml`.
+                - `None`, which means that yaml rules will be used.
+                  The result of the convertion must be one of the above types,
+                  if not `ValueError` is raised.
+            If value is not a substitution and this parameter is provided,
+            it will be used to check `value` type.
+        """
+        ensure_argument_type(name, SomeSubstitutionsType_types_tuple, 'name')
+
+        self.__name = normalize_to_list_of_substitutions(name)
+        self.__parameter_value = ParameterValue(value, value_type=value_type)
+        self.__evaluated_parameter_name: Optional[Text] = None
+        self.__evaluated_parameter_rule: Optional[Tuple[Text, 'EvaluatedParameterValue']] = None
+
+    @property
+    def name(self):
+        """Getter for parameter name."""
+        if self.__evaluated_parameter_name is not None:
+            return self.__evaluated_parameter_name
+        return self.__name
+
+    @property
+    def value(self):
+        """Getter for parameter value."""
+        return self.__parameter_value.value
+
+    @property
+    def value_type(self):
+        """Getter for parameter value type."""
+        return self.__parameter_value.value_type
+
+    def __str__(self):
+        return (
+            'launch_ros.description.Parameter'
+            f'(name={self.name}, value={self.value}, value_type={self.value_type})'
+        )
+
+    def evaluate(self, context: LaunchContext) -> Tuple[Text, 'EvaluatedParameterValue']:
+        """Evaluate and return parameter rule."""
+        if self.__evaluated_parameter_rule is not None:
+            return self.__evaluated_parameter_rule
+
+        name = perform_substitutions(context, self.name)
+        value = self.__parameter_value.evaluate(context)
+
+        self.__evaluated_parameter_name = name
         self.__evaluated_parameter_rule = (name, value)
         return (name, value)

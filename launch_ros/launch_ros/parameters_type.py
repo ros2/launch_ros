@@ -26,7 +26,8 @@ from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.some_substitutions_type import SomeSubstitutionsType_types_tuple
 from launch.substitution import Substitution
 
-from .parameter import Parameter as ParameterDescription
+from .parameter_descriptions import Parameter as ParameterDescription
+from .parameter_descriptions import ParameterValue as ParameterValueDescription
 
 
 # Parameter value types used below
@@ -38,6 +39,7 @@ _MultiValueType = Union[
 SomeParameterFile = Union[SomeSubstitutionsType, pathlib.Path]
 SomeParameterName = Sequence[Union[Substitution, str]]
 SomeParameterValue = Union[
+    ParameterValueDescription,
     SomeSubstitutionsType,
     Sequence[SomeSubstitutionsType],
     _SingleValueType,
@@ -63,7 +65,8 @@ ParameterValue = Union[
     Sequence[Substitution],
     Sequence[Sequence[Substitution]],
     _SingleValueType,
-    _MultiValueType]
+    _MultiValueType,
+    ParameterValueDescription]
 
 # Normalized (flattened to avoid having a recursive type) parameter dict
 ParametersDict = Dict[ParameterName, ParameterValue]

@@ -33,6 +33,8 @@ from launch.utilities import normalize_to_list_of_substitutions
 
 import yaml
 
+from ..parameter_descriptions import Parameter as ParameterDescription
+from ..parameter_descriptions import ParameterValue as ParameterValueDescription
 from ..parameters_type import ParameterFile  # noqa: F401
 from ..parameters_type import Parameters
 from ..parameters_type import ParametersDict
@@ -145,6 +147,8 @@ def normalize_parameter_dict(
             # Flatten recursive dictionaries
             sub_dict = normalize_parameter_dict(value, _prefix=name)
             normalized.update(sub_dict)
+        elif isinstance(value, ParameterValueDescription):
+            normalized[tuple(name)] = value
         elif isinstance(value, str):
             normalized[tuple(name)] = tuple(normalize_to_list_of_substitutions(yaml.dump(value)))
         elif isinstance(value, Substitution):
@@ -172,9 +176,6 @@ def normalize_parameters(parameters: SomeParameters) -> Parameters:
     The normalized parameters will have all paths converted to a list of :class:`Substitution`,
     and dictionaries normalized using :meth:`normalize_parameter_dict`.
     """
-    # Here to avoid cyclic import
-    from ..parameter import Parameter as ParameterDescription
-
     if isinstance(parameters, str) or not isinstance(parameters, Sequence):
         raise TypeError('Expecting list of parameters, got {}'.format(parameters))
 

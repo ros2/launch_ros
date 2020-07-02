@@ -53,9 +53,8 @@ def extract_type(data_type: Any) -> Tuple[Any, bool]:
         type_obj is the object representing that type in python. In the case of list
         is the type of the items.
         e.g.:
-            `name = List[int]` -> `(int, True)`
-            `name = bool` -> `(bool, False)`
-            `name = List[Union[bool, str]]` -> `(Union[bool, str], True)`
+            `data_type = List[int]` -> `(int, True)`
+            `data_type = bool` -> `(bool, False)`
     """
     is_list = False
     if check_is_typing_list(data_type):
@@ -73,9 +72,6 @@ def check_type(value: Any, data_type: Any) -> bool:
     The allowed types are:
         - a scalar type i.e. `str`, `int`, `float`, `bool`;
         - a uniform list i.e `List[str]`, `List[int]`, `List[float]`, `List[bool]`;
-
-    `types = None` works in the same way as:
-        `Union[int, float, bool, list, str]`
     """
     def check_scalar_type(value, data_type):
         return isinstance(value, data_type)
@@ -122,8 +118,6 @@ def coerce_to_type(
 
     The coercion order for scalars is always: `int`, `float`, `bool`, `str`.
     """
-    # TODO(ivanpauno): We could probably implement our own parser, instead of restrict yaml
-    # conversions in this way.
     def convert_as_yaml(value, error_msg):
         try:
             output = yaml.safe_load(value)

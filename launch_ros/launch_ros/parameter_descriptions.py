@@ -14,25 +14,27 @@
 
 """Module for a description of a Parameter."""
 
-import collections.abc
-
-from typing import Any
+from typing import List
 from typing import Optional
 from typing import Text
 from typing import Tuple
 from typing import TYPE_CHECKING
+from typing import Union
 
 from launch import LaunchContext
 from launch import SomeSubstitutionsType
 from launch import SomeSubstitutionsType_types_tuple
-from launch import Substitution
+from launch.substitution import Substitution
 from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
+from launch.utilities.type_utils import AllowedTypesType
+from launch.utilities.type_utils import normalize_typed_substitution
+from launch.utilities.type_utils import perform_typed_substitution
+from launch.utilities.type_utils import SomeValueType
 
 if TYPE_CHECKING:
-    from .parameters_type import SomeParameterValue
-    from .parameters_type import EvaluatedParameterValue  # noqa: F401, false positive.
+    from .parameters_type import EvaluatedParameterValue
 
 
 class ParameterValue:
@@ -40,53 +42,37 @@ class ParameterValue:
 
     def __init__(
         self,
-        value: 'SomeParameterValue',
+        value: SomeValueType,
         *,
-        value_type: Any = None
+        value_type: Optional[AllowedTypesType] = None
     ) -> None:
         """
         Construct a parameter value description.
 
-        :param value: Value of the parameter.
+        :param value: Value or substitution that can be resolved to a value.
         :param value_type: Used when `value` is a substitution, to coerce the result.
             Can be one of:
-                - A scalar type: `int`, `str`, `float`, `bool`.
-                  `bool` are written like in `yaml`.
-                  Both `1` and `1.` are valid floats.
-                - An uniform list: `List[int]`, `List[str]`, `List[float]`, `List[bool]`.
-                  Lists are written like in `yaml`.
-                - `None`, which means that yaml rules will be used.
-                  The result of the convertion must be one of the above types,
-                  if not `ValueError` is raised.
-            If value is not a substitution and this parameter is provided,
-            it will be used to check `value` type.
+                - Scalar types: int, bool, float, str
+                - List types: List[int], List[bool], List[float], List[str]
+                - None: Will use yaml rules, and check that the result is one of the above.
         """
-        # Here to avoid cyclic dependency.
-        from .utilities.type_utils import AllowedTypes
-        from .parameters_type import SomeParameterValue_types_tuple
-
-        ensure_argument_type(value, SomeParameterValue_types_tuple, 'value')
-        assert value_type is None or value_type in AllowedTypes, (
-            f"expected `value_type` to be one of '{AllowedTypes + (None,)}, got {value_type}'"
-        )
-
-        self.__value = value
+        self.__value = normalize_typed_substitution(value, value_type)
         self.__value_type = value_type
         self.__evaluated_parameter_value: Optional['EvaluatedParameterValue'] = None
 
     @property
-    def value(self):
+    def value(self) -> SomeValueType:
         """Getter for parameter value."""
         if self.__evaluated_parameter_value is not None:
             return self.__evaluated_parameter_value
         return self.__value
 
     @property
-    def value_type(self):
+    def value_type(self) -> AllowedTypesType:
         """Getter for parameter value type."""
         return self.__value_type
 
-    def __str__(self):
+    def __str__(self) -> Text:
         return (
             'launch_ros.description.ParameterValue'
             f'(value={self.value}, value_type={self.value_type})'
@@ -94,57 +80,9 @@ class ParameterValue:
 
     def evaluate(self, context: LaunchContext) -> 'EvaluatedParameterValue':
         """Evaluate and return parameter rule."""
-        # Here to avoid cyclic import
-        from .utilities.type_utils import AllowedTypes
-        from .utilities.type_utils import coerce_to_type
-        from .utilities.type_utils import check_is_instance_of_valid_type
-        from .utilities.type_utils import check_type
-        from .utilities.type_utils import extract_type
-
-        value = self.__value
-
-        # TODO(ivanpauno): Maybe this logic to convert a list should be provided by type_utils too.
-        def is_substitution(x):
-            return (
-                isinstance(x, Substitution) or
-                (
-                    isinstance(x, collections.abc.Iterable) and
-                    len(x) > 0 and
-                    all(isinstance(item, (Substitution, str)) for item in x) and
-                    any(isinstance(item, Substitution) for item in x)
-                )
-            )
-
-        def convert_item(item, data_type):
-            if is_substitution(item):
-                item = perform_substitutions(
-                    context,
-                    normalize_to_list_of_substitutions(item))
-                item = coerce_to_type(item, data_type)
-            elif data_type is not None and not check_type(item, data_type):
-                raise ValueError(
-                    f"Expected provided 'value' to be of type '{data_type}',"
-                    f' got `{type(item)}`'
-                )
-            elif not check_is_instance_of_valid_type(item):
-                raise ValueError(
-                    f"Expected 'value' to be instance of one of the following types"
-                    f"'{AllowedTypes}', got '{type(item)}'"
-                )
-            return item
-        if isinstance(value, list) and not is_substitution(value):
-            data_type, is_list = extract_type(self.__value_type)
-            if not is_list and self.__value_type is not None:
-                raise ValueError(
-                    f"Cannot convert input '{value}' of type '{type(value)}' to"
-                    f" '{self.__value_type}'"
-                )
-            value = [convert_item(x, data_type) for x in value]
-        else:
-            value = convert_item(value, self.__value_type)
-
-        self.__evaluated_parameter_value = value
-        return value
+        self.__evaluated_parameter_value = perform_typed_substitution(
+            context, self.value, self.value_type)
+        return self.__evaluated_parameter_value
 
 
 class Parameter:
@@ -153,9 +91,9 @@ class Parameter:
     def __init__(
         self,
         name: SomeSubstitutionsType,
-        value: 'SomeParameterValue',
+        value: SomeValueType,
         *,
-        value_type: Any = None
+        value_type: Optional[AllowedTypesType] = None
     ) -> None:
         """
         Construct a parameter description.
@@ -183,23 +121,23 @@ class Parameter:
         self.__evaluated_parameter_rule: Optional[Tuple[Text, 'EvaluatedParameterValue']] = None
 
     @property
-    def name(self):
+    def name(self) -> Union[List[Substitution], Text]:
         """Getter for parameter name."""
         if self.__evaluated_parameter_name is not None:
             return self.__evaluated_parameter_name
         return self.__name
 
     @property
-    def value(self):
+    def value(self) -> SomeValueType:
         """Getter for parameter value."""
         return self.__parameter_value.value
 
     @property
-    def value_type(self):
+    def value_type(self) -> AllowedTypesType:
         """Getter for parameter value type."""
         return self.__parameter_value.value_type
 
-    def __str__(self):
+    def __str__(self) -> Text:
         return (
             'launch_ros.description.Parameter'
             f'(name={self.name}, value={self.value}, value_type={self.value_type})'

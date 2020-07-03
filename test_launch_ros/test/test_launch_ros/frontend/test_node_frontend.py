@@ -53,7 +53,7 @@ def test_launch_remapping_xml():
                     <!-- TODO(hidmic): revisit after https://github.com/ros2/launch_ros/pull/137 gets merged -->
                     <param name="param10" value="&quot;'asd'&quot;, &quot;'bsd'&quot;, &quot;'csd'&quot;" value-sep=", "/>
                     <param name="param11" value="'\asd', '\bsd', '\csd'" value-sep=", "/>
-                    <param name="param12" value=""/>
+                    <param name="param12" value="''"/>
                 </param>
                 <param from="{}"/>
                 <env name="var" value="1"/>
@@ -146,6 +146,7 @@ def check_launch_remapping(file):
         ls.context,
         ld.describe_sub_entities()[2]._Node__parameters
     )
+    assert len(evaluated_parameters) == 3
     assert isinstance(evaluated_parameters[0], dict)
     assert isinstance(evaluated_parameters[1], dict)
     assert isinstance(evaluated_parameters[2], pathlib.Path)

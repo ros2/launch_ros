@@ -58,8 +58,11 @@ def test_value_is_substitution():
     lc = LaunchContext()
 
     param = Parameter(name='my_param', value=TextSubstitution(text='1'))
-    assert isinstance(param.value, TextSubstitution)
+    assert isinstance(param.value, list)
+    assert len(param.value) == 1
+    assert isinstance(param.value[0], TextSubstitution)
     assert param.evaluate(lc) == ('my_param', 1)
+    assert (param.name, param.value) == param.evaluate(lc)
 
     param = Parameter(
         name='my_param',
@@ -78,16 +81,18 @@ def test_value_is_substitution():
         name='my_param',
         value=TextSubstitution(text='[1, 2, 3]')
     )
-    assert isinstance(param.value, TextSubstitution)
+    assert isinstance(param.value, list)
+    assert len(param.value) == 1
+    assert isinstance(param.value[0], TextSubstitution)
     assert param.evaluate(lc) == ('my_param', [1, 2, 3])
+    assert (param.name, param.value) == param.evaluate(lc)
 
 
 def test_evaluate_fails():
     lc = LaunchContext()
 
-    param = Parameter(name='my_param', value='1', value_type=int)
-    with pytest.raises(ValueError):
-        param.evaluate(lc)
+    with pytest.raises(TypeError):
+        param = Parameter(name='my_param', value='1', value_type=int)
 
     param = Parameter(
         name='my_param',

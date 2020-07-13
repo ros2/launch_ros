@@ -33,11 +33,12 @@ from launch.actions import ExecuteProcess
 from launch.frontend import Entity
 from launch.frontend import expose_action
 from launch.frontend import Parser
+from launch.frontend.type_utils import get_data_type_from_identifier
+
 from launch.launch_context import LaunchContext
 import launch.logging
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitutions import LocalSubstitution
-from launch.substitutions import TextSubstitution
 from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
@@ -223,27 +224,28 @@ class Node(ExecuteProcess):
     @staticmethod
     def parse_nested_parameters(params, parser):
         """Normalize parameters as expected by Node constructor argument."""
+        from ..descriptions import ParameterValue
+
         def get_nested_dictionary_from_nested_key_value_pairs(params):
             """Convert nested params in a nested dictionary."""
             param_dict = {}
             for param in params:
                 name = tuple(parser.parse_substitution(param.get_attr('name')))
-                value = param.get_attr('value', data_type=None, optional=True)
+                type_identifier = param.get_attr('type', data_type=None, optional=True)
+                data_type = None
+                if data_type is not None:
+                    data_type = get_data_type_from_identifier(type_identifier)
+                value = param.get_attr('value', data_type=data_type, optional=True)
                 nested_params = param.get_attr('param', data_type=List[Entity], optional=True)
                 if value is not None and nested_params:
-                    raise RuntimeError('param and value attributes are mutually exclusive')
+                    raise RuntimeError(
+                        'nested parameters and value attributes are mutually exclusive')
+                if data_type is not None and nested_params:
+                    raise RuntimeError(
+                        'nested parameters and type attributes are mutually exclusive')
                 elif value is not None:
-                    def normalize_scalar_value(value):
-                        if isinstance(value, str):
-                            value = parser.parse_substitution(value)
-                            if len(value) == 1 and isinstance(value[0], TextSubstitution):
-                                value = value[0].text  # python `str` are not converted like yaml
-                        return value
-                    if isinstance(value, list):
-                        value = [normalize_scalar_value(x) for x in value]
-                    else:
-                        value = normalize_scalar_value(value)
-                    param_dict[name] = value
+                    some_value = parser.parse_if_substitutions(value)
+                    param_dict[name] = ParameterValue(some_value, value_type=data_type)
                 elif nested_params:
                     param_dict.update({
                         name: get_nested_dictionary_from_nested_key_value_pairs(nested_params)

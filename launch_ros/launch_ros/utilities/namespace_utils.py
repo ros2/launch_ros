@@ -52,7 +52,7 @@ def prefix_namespace(
 
     ```python3
     combined_ns = prefix_namespace('my_ns', 'original_ns', return_absolute_ns=True)
-    assert comined_ns == '/my_ns/original_ns'
+    assert combined_ns == '/my_ns/original_ns'
 
     combined_ns = prefix_namespace('my_ns', 'original_ns')
     assert comined_ns == 'my_ns/original_ns'

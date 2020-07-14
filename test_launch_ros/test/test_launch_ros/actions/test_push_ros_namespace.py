@@ -14,12 +14,21 @@
 
 """Tests for the PushRosNamespace Action."""
 
-from launch import LaunchContext
-
 from launch_ros.actions import Node
 from launch_ros.actions import PushRosNamespace
+from launch_ros.actions.load_composable_nodes import get_composable_node_load_request
+from launch_ros.descriptions import ComposableNode
 
 import pytest
+
+
+class MockContext:
+
+    def __init__(self):
+        self.launch_configurations = {}
+
+    def perform_substitution(self, sub):
+        return sub.perform(None)
 
 
 class Config:
@@ -39,51 +48,60 @@ class Config:
         self.expected_ns = expected_ns
         self.second_push_ns = second_push_ns
 
+    def __repr__(self):
+        return (f'TestConfig(node_name={self.node_name}, node_ns={self.node_ns}, '
+            f'push_ns={self.push_ns}, expected_ns={self.expected_ns}, '
+            f'second_push_ns={self.second_push_ns})')
 
-@pytest.mark.parametrize('config', (
-    Config(
-        push_ns='relative_ns',
-        node_ns='node_ns',
-        expected_ns='/relative_ns/node_ns'),
-    Config(
-        push_ns='relative_ns',
-        node_ns='/node_ns',
-        expected_ns='/node_ns'),
-    Config(
-        push_ns='relative_ns',
-        node_ns='/',
-        expected_ns='/'),
-    Config(
-        push_ns='relative_ns',
-        node_ns='',
-        expected_ns='/relative_ns'),
-    Config(
-        push_ns='relative_ns',
-        second_push_ns='another_relative_ns',
-        node_ns='node_ns',
-        expected_ns='/relative_ns/another_relative_ns/node_ns'),
-    Config(
-        push_ns='relative_ns',
-        second_push_ns='/absolute_ns',
-        node_ns='node_ns',
-        expected_ns='/absolute_ns/node_ns'),
-    Config(
-        node_name='my_node',
-        push_ns='relative_ns',
-        second_push_ns='/absolute_ns',
-        node_ns='node_ns',
-        expected_ns='/absolute_ns/node_ns'),
-    Config(
-        node_name='my_node',
-        node_ns='node_ns',
-        expected_ns='/node_ns'),
-    Config(),
-    Config(
-        push_ns='',
-        expected_ns='/'),
-))
+
+def get_test_cases():
+    return (
+        Config(
+            push_ns='relative_ns',
+            node_ns='node_ns',
+            expected_ns='/relative_ns/node_ns'),
+        Config(
+            push_ns='relative_ns',
+            node_ns='/node_ns',
+            expected_ns='/node_ns'),
+        Config(
+            push_ns='relative_ns',
+            node_ns='/',
+            expected_ns='/'),
+        Config(
+            push_ns='relative_ns',
+            node_ns='',
+            expected_ns='/relative_ns'),
+        Config(
+            push_ns='relative_ns',
+            second_push_ns='another_relative_ns',
+            node_ns='node_ns',
+            expected_ns='/relative_ns/another_relative_ns/node_ns'),
+        Config(
+            push_ns='relative_ns',
+            second_push_ns='/absolute_ns',
+            node_ns='node_ns',
+            expected_ns='/absolute_ns/node_ns'),
+        Config(
+            node_name='my_node',
+            push_ns='relative_ns',
+            second_push_ns='/absolute_ns',
+            node_ns='node_ns',
+            expected_ns='/absolute_ns/node_ns'),
+        Config(
+            node_name='my_node',
+            node_ns='node_ns',
+            expected_ns='/node_ns'),
+        Config(),
+        Config(
+            push_ns='',
+            expected_ns='/'),
+    )
+
+
+@pytest.mark.parametrize('config', get_test_cases())
 def test_push_ros_namespace(config):
-    lc = LaunchContext()
+    lc = MockContext()
     if config.push_ns is not None:
         pns1 = PushRosNamespace(config.push_ns)
         pns1.execute(lc)
@@ -106,3 +124,23 @@ def test_push_ros_namespace(config):
     expected_fqn = expected_ns.rstrip('/') + '/' + expected_name
     assert expected_ns == node.expanded_node_namespace
     assert expected_fqn == node.node_name
+
+
+@pytest.mark.parametrize('config', get_test_cases())
+def test_push_ros_namespace_with_composable_node(config):
+    lc = MockContext()
+    if config.push_ns is not None:
+        pns1 = PushRosNamespace(config.push_ns)
+        pns1.execute(lc)
+    if config.second_push_ns is not None:
+        pns2 = PushRosNamespace(config.second_push_ns)
+        pns2.execute(lc)
+    node_description = ComposableNode(
+        package='asd',
+        plugin='my_plugin',
+        namespace=config.node_ns,
+        name=config.node_name,
+    )
+    request = get_composable_node_load_request(node_description, lc)
+    expected_ns = config.expected_ns if config.expected_ns is not None else ''
+    assert expected_ns == request.node_namespace

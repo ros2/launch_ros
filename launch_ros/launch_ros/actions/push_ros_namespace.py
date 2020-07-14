@@ -27,6 +27,8 @@ from launch.substitutions import SubstitutionFailure
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
+from launch_ros.utilities import prefix_namespace
+
 from rclpy.validate_namespace import validate_namespace
 
 
@@ -63,19 +65,15 @@ class PushRosNamespace(Action):
     def execute(self, context: LaunchContext):
         """Execute the action."""
         pushed_namespace = perform_substitutions(context, self.namespace)
-        previous_namespace = context.launch_configurations.get('ros_namespace', '')
-        namespace = pushed_namespace
-        if not pushed_namespace.startswith('/'):
-            namespace = previous_namespace + '/' + pushed_namespace
-        namespace = namespace.rstrip('/')
-        if namespace != '':
-            try:
-                validate_namespace(namespace)
-            except Exception:
-                raise SubstitutionFailure(
-                    'The resulting namespace is invalid:'
-                    " [previous_namespace='{}', pushed_namespace='{}']".format(
-                        previous_namespace, pushed_namespace
-                    )
+        previous_namespace = context.launch_configurations.get('ros_namespace', None)
+        namespace = prefix_namespace(previous_namespace, pushed_namespace)
+        try:
+            validate_namespace(namespace)
+        except Exception:
+            raise SubstitutionFailure(
+                'The resulting namespace is invalid:'
+                " [previous_namespace='{}', pushed_namespace='{}']".format(
+                    previous_namespace, pushed_namespace
                 )
+            )
         context.launch_configurations['ros_namespace'] = namespace

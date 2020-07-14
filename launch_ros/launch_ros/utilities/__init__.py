@@ -19,6 +19,10 @@ Descriptions are not executable and are immutable so they can be reused by launc
 """
 
 from .evaluate_parameters import evaluate_parameters
+from .namespace_utils import is_namespace_absolute
+from .namespace_utils import is_root_namespace
+from .namespace_utils import make_namespace_absolute
+from .namespace_utils import prefix_namespace
 from .normalize_parameters import normalize_parameters
 from .normalize_remap_rule import normalize_remap_rule
 from .normalize_remap_rule import normalize_remap_rules
@@ -31,9 +35,13 @@ __all__ = [
     'evaluate_parameters',
     'evaluate_parameters_dict',
     'get_node_name_count',
+    'is_namespace_absolute',
+    'is_root_namespace',
+    'make_namespace_absolute',
     'normalize_parameters',
     'normalize_parameters_dict',
     'normalize_remap_rule',
     'normalize_remap_rules',
+    'prefix_namespace',
     'to_parameters_list',
 ]

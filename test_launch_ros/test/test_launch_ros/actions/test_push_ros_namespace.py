@@ -49,9 +49,11 @@ class Config:
         self.second_push_ns = second_push_ns
 
     def __repr__(self):
-        return (f'TestConfig(node_name={self.node_name}, node_ns={self.node_ns}, '
+        return (
+            f'TestConfig(node_name={self.node_name}, node_ns={self.node_ns}, '
             f'push_ns={self.push_ns}, expected_ns={self.expected_ns}, '
-            f'second_push_ns={self.second_push_ns})')
+            f'second_push_ns={self.second_push_ns})'
+        )
 
 
 def get_test_cases():

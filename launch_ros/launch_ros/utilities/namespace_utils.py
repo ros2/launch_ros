@@ -36,7 +36,7 @@ def prefix_namespace(
     return_absolute_ns: bool = True,
 ) -> Optional[Text]:
     """
-    Return `ns` prefixed with `base_ns` if `ns` is relative, returns `ns` if not.
+    Return `ns` prefixed with `base_ns` if `ns` is relative, return `ns` if not.
 
     :param `base_ns`: Prefix to be added to `ns`.
     :param `ns`: Namespace to be prefixed.

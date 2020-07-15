@@ -48,6 +48,7 @@ from launch_ros.substitutions import ExecutableInPackage
 from launch_ros.utilities import add_node_name
 from launch_ros.utilities import evaluate_parameters
 from launch_ros.utilities import get_node_name_count
+from launch_ros.utilities import make_namespace_absolute
 from launch_ros.utilities import normalize_parameters
 from launch_ros.utilities import normalize_remap_rules
 from launch_ros.utilities import prefix_namespace
@@ -349,7 +350,8 @@ class Node(ExecuteProcess):
                 expanded_node_namespace = perform_substitutions(
                     context, normalize_to_list_of_substitutions(self.__node_namespace))
             base_ns = context.launch_configurations.get('ros_namespace', None)
-            expanded_node_namespace = prefix_namespace(base_ns, expanded_node_namespace)
+            expanded_node_namespace = make_namespace_absolute(
+                prefix_namespace(base_ns, expanded_node_namespace))
             if expanded_node_namespace is not None:
                 self.__expanded_node_namespace = expanded_node_namespace
                 cmd_extension = ['-r', LocalSubstitution("ros_specific_arguments['ns']")]
@@ -367,7 +369,7 @@ class Node(ExecuteProcess):
             )
             raise
         self.__final_node_name = prefix_namespace(
-            self.__expanded_node_namespace, self.__expanded_node_name, return_absolute_ns=False)
+            self.__expanded_node_namespace, self.__expanded_node_name)
         # expand global parameters first,
         # so they can be overriden with specific parameters of this Node
         global_params = context.launch_configurations.get('ros_params', None)

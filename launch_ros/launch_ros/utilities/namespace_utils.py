@@ -17,6 +17,8 @@
 
 from typing import Optional
 from typing import Text
+from typing import Type
+from typing import TypeVar
 
 
 def is_root_namespace(ns: Text) -> bool:
@@ -32,8 +34,6 @@ def is_namespace_absolute(ns: Text) -> bool:
 def prefix_namespace(
     base_ns: Optional[Text],
     ns: Optional[Text],
-    *,
-    return_absolute_ns: bool = True,
 ) -> Optional[Text]:
     """
     Return `ns` prefixed with `base_ns` if `ns` is relative, return `ns` if not.
@@ -84,13 +84,16 @@ def prefix_namespace(
             )
         if not is_root_namespace(combined_ns):
             combined_ns = combined_ns.rstrip('/')
-        if return_absolute_ns:
-            combined_ns = make_namespace_absolute(combined_ns)
     return combined_ns
 
 
-def make_namespace_absolute(ns: Text) -> Text:
+OptionalText = TypeVar('OptionalText', Text, Type[None])
+
+
+def make_namespace_absolute(ns: OptionalText) -> OptionalText:
     """Make a relative namespace absolute."""
+    if ns is None:
+        return None
     if not is_namespace_absolute(ns):
         return '/' + ns
     return ns

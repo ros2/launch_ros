@@ -27,6 +27,7 @@ from launch.substitutions import SubstitutionFailure
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
+from launch_ros.utilities import make_namespace_absolute
 from launch_ros.utilities import prefix_namespace
 
 from rclpy.validate_namespace import validate_namespace
@@ -66,7 +67,8 @@ class PushRosNamespace(Action):
         """Execute the action."""
         pushed_namespace = perform_substitutions(context, self.namespace)
         previous_namespace = context.launch_configurations.get('ros_namespace', None)
-        namespace = prefix_namespace(previous_namespace, pushed_namespace)
+        namespace = make_namespace_absolute(
+            prefix_namespace(previous_namespace, pushed_namespace))
         try:
             validate_namespace(namespace)
         except Exception:

@@ -40,7 +40,6 @@ def prefix_namespace(
 
     :param `base_ns`: Prefix to be added to `ns`.
     :param `ns`: Namespace to be prefixed.
-    :param `return_absolute_ns`: if `True`, the result will be made absolute.
     :return: `None` if both `base_ns` and `ns` are `None`, or
         `base_ns` if `ns` is `None`, or
         `ns` if `base_ns` is `None`, or
@@ -51,9 +50,6 @@ def prefix_namespace(
     ## Examples:
 
     ```python3
-    combined_ns = prefix_namespace('my_ns', 'original_ns', return_absolute_ns=True)
-    assert combined_ns == '/my_ns/original_ns'
-
     combined_ns = prefix_namespace('my_ns', 'original_ns')
     assert combined_ns == 'my_ns/original_ns'
 

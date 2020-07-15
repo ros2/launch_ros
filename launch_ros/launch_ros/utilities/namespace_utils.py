@@ -55,19 +55,19 @@ def prefix_namespace(
     assert combined_ns == '/my_ns/original_ns'
 
     combined_ns = prefix_namespace('my_ns', 'original_ns')
-    assert comined_ns == 'my_ns/original_ns'
+    assert combined_ns == 'my_ns/original_ns'
 
     combined_ns = prefix_namespace('/my_ns', 'original_ns')
-    assert comined_ns == '/my_ns/original_ns'
+    assert combined_ns == '/my_ns/original_ns'
 
     combined_ns = prefix_namespace('my_ns', '/original_ns')
-    assert comined_ns == '/original_ns'
+    assert combined_ns == '/original_ns'
 
     combined_ns = prefix_namespace(None, 'original_ns')
-    assert comined_ns == 'original_ns'
+    assert combined_ns == 'original_ns'
 
     combined_ns = prefix_namespace('my_ns', None)
-    assert comined_ns == 'my_ns'
+    assert combined_ns == 'my_ns'
     ```
     """
     combined_ns: Optional[Text] = None

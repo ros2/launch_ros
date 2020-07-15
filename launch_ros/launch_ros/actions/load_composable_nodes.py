@@ -38,6 +38,8 @@ from ..ros_adapters import get_ros_node
 from ..utilities import add_node_name
 from ..utilities import evaluate_parameters
 from ..utilities import get_node_name_count
+from ..utilities import make_namespace_absolute
+from ..utilities import prefix_namespace
 from ..utilities import to_parameters_list
 from ..utilities.normalize_parameters import normalize_parameter_dict
 
@@ -190,10 +192,13 @@ def get_composable_node_load_request(
         request.node_name = perform_substitutions(
             context, composable_node_description.node_name
         )
-    if composable_node_description.node_namespace is not None:
-        request.node_namespace = perform_substitutions(
-            context, composable_node_description.node_namespace
-        )
+    expanded_ns = composable_node_description.node_namespace
+    if expanded_ns is not None:
+        expanded_ns = perform_substitutions(context, expanded_ns)
+    base_ns = context.launch_configurations.get('ros_namespace', None)
+    combined_ns = make_namespace_absolute(prefix_namespace(base_ns, expanded_ns))
+    if combined_ns is not None:
+        request.node_namespace = combined_ns
     # request.log_level = perform_substitutions(context, node_description.log_level)
     if composable_node_description.remappings is not None:
         for from_, to in composable_node_description.remappings:

@@ -233,7 +233,7 @@ class Node(ExecuteProcess):
                 name = tuple(parser.parse_substitution(param.get_attr('name')))
                 type_identifier = param.get_attr('type', data_type=None, optional=True)
                 data_type = None
-                if data_type is not None:
+                if type_identifier is not None:
                     data_type = get_data_type_from_identifier(type_identifier)
                 value = param.get_attr('value', data_type=data_type, optional=True)
                 nested_params = param.get_attr('param', data_type=List[Entity], optional=True)

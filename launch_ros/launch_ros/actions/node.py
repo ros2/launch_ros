@@ -396,7 +396,7 @@ class Node(ExecuteProcess):
         if global_remaps or self.__remappings:
             self.__expanded_remappings = []
         if global_remaps:
-            self.__expanded_remappings.extend(global_params)
+            self.__expanded_remappings.extend(global_remaps)
         if self.__remappings:
             self.__expanded_remappings.extend([
                 (perform_substitutions(context, src), perform_substitutions(context, dst))

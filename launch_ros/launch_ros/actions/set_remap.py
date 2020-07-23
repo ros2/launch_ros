@@ -86,5 +86,5 @@ class SetRemap(Action):
         src = perform_substitutions(context, self.__src)
         dst = perform_substitutions(context, self.__dst)
         global_remaps = context.launch_configurations.get('ros_remaps', [])
-        global_remaps.insert(0, (src, dst))
+        global_remaps.append((src, dst))
         context.launch_configurations['ros_remaps'] = global_remaps

@@ -46,7 +46,7 @@ def to_parameters_list(
         if isinstance(params_set_or_path, pathlib.Path):
             with open(str(params_set_or_path), 'r') as f:
                 params_set = evaluate_parameter_dict(
-                    context, normalize_parameter_dict(yaml.load(f))
+                    context, normalize_parameter_dict(yaml.safe_load(f))
                 )
         else:
             params_set = params_set_or_path

@@ -28,6 +28,7 @@ from launch.substitutions import EnvironmentVariable
 
 import launch_ros.actions.node
 from launch_ros.descriptions import Parameter
+from launch_ros.descriptions import ParameterValue
 
 import pytest
 import yaml
@@ -195,6 +196,7 @@ class TestNode(unittest.TestCase):
         """Test launching a node with parameters specified in a dictionary."""
         os.environ['PARAM1_VALUE'] = 'param1_value'
         os.environ['PARAM2'] = 'param2'
+        os.environ['PARAM4_INT'] = '100'
         node_action = self._create_node(
             parameters=[{
                 'param1': EnvironmentVariable(name='PARAM1_VALUE'),
@@ -205,7 +207,8 @@ class TestNode(unittest.TestCase):
                         (EnvironmentVariable('PARAM2'), '_values'): ['param2_value'],
                     }
                 },
-                'param3': ''
+                'param3': '',
+                'param4': ParameterValue(EnvironmentVariable(name='PARAM4_INT'), value_type=int),
             }],
         )
         self._assert_launch_no_errors([node_action])
@@ -223,6 +226,7 @@ class TestNode(unittest.TestCase):
                         'param1': 'param1_value',
                         'param2': 'param2_value',
                         'param3': '',
+                        'param4': 100,
                         'param_group1.list_params': (1.2, 3.4),
                         'param_group1.param_group2.param2_values': ('param2_value',),
                     }

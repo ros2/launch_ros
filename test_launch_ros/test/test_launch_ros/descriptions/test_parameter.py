@@ -14,15 +14,89 @@
 
 """Test type checking/coercion utils."""
 
+from typing import List
+
 from launch import LaunchContext
 from launch.substitutions import TextSubstitution
 
 from launch_ros.descriptions import Parameter
+from launch_ros.descriptions import ParameterValue
 
 import pytest
 
 
-def test_with_scalar():
+class MockContext:
+
+    def __init__(self):
+        self.launch_configurations = {}
+
+    def perform_substitution(self, sub):
+        return sub.perform(None)
+
+
+def test_parameter_value_description():
+    lc = MockContext()
+
+    param = ParameterValue(value='asd')
+    assert param.value == 'asd'
+    assert param.value_type is None
+    assert param.evaluate(lc) == 'asd'
+    # After the first `evaluate` call, the following `.value` and `.evaluate()`
+    # calls are calculated differently. Test them too.
+    assert param.value == 'asd'
+    assert param.evaluate(lc) == 'asd'
+
+    param = ParameterValue(value='asd', value_type=str)
+    assert param.value == 'asd'
+    assert param.value_type is str
+    assert param.evaluate(lc) == 'asd'
+    assert param.value == 'asd'
+    assert param.evaluate(lc) == 'asd'
+
+    param = ParameterValue(value=TextSubstitution(text='1'))
+    assert isinstance(param.value, list)
+    assert len(param.value) == 1
+    assert isinstance(param.value[0], TextSubstitution)
+    assert param.evaluate(lc) == 1
+    assert param.value == 1
+    assert param.evaluate(lc) == 1
+
+    param = ParameterValue(
+        value=[
+            '[',
+            TextSubstitution(text='1, '),
+            TextSubstitution(text='2, '),
+            TextSubstitution(text='3, '),
+            ']',
+        ],
+        value_type=List[int],
+    )
+    assert isinstance(param.value, list)
+    assert param.evaluate(lc) == [1, 2, 3]
+    assert param.value == [1, 2, 3]
+    assert param.evaluate(lc) == [1, 2, 3]
+
+    param = ParameterValue(
+        value=TextSubstitution(text='[1, 2, 3]'),
+    )
+    assert isinstance(param.value, list)
+    assert len(param.value) == 1
+    assert isinstance(param.value[0], TextSubstitution)
+    assert param.evaluate(lc) == [1, 2, 3]
+    assert param.value == [1, 2, 3]
+    assert param.evaluate(lc) == [1, 2, 3]
+
+    with pytest.raises(TypeError):
+        ParameterValue(value='1', value_type=int)
+
+    param = ParameterValue(
+        value=TextSubstitution(text='[1, asd, 3]')
+    )
+    with pytest.raises(ValueError):
+        param.evaluate(lc)
+
+
+def test_parameter_description():
     lc = LaunchContext()
 
     param = Parameter(name='my_param', value='asd')
@@ -47,15 +121,9 @@ def test_with_scalar():
     assert param.value == 'asd'
     assert param.value_type is str
     assert param.evaluate(lc) == ('my_param', 'asd')
-    # After the first `evaluate` call, the followings `.name` `.value` and `.evaluate()`
-    # calls are calculated differently. Test them too.
     assert param.name == 'my_param'
     assert param.value == 'asd'
     assert param.evaluate(lc) == ('my_param', 'asd')
-
-
-def test_value_is_substitution():
-    lc = LaunchContext()
 
     param = Parameter(name='my_param', value=TextSubstitution(text='1'))
     assert isinstance(param.value, list)
@@ -72,14 +140,15 @@ def test_value_is_substitution():
             TextSubstitution(text='2, '),
             TextSubstitution(text='3, '),
             ']',
-        ]
+        ],
+        value_type=List[int],
     )
     assert isinstance(param.value, list)
     assert param.evaluate(lc) == ('my_param', [1, 2, 3])
 
     param = Parameter(
         name='my_param',
-        value=TextSubstitution(text='[1, 2, 3]')
+        value=TextSubstitution(text='[1, 2, 3]'),
     )
     assert isinstance(param.value, list)
     assert len(param.value) == 1
@@ -87,12 +156,8 @@ def test_value_is_substitution():
     assert param.evaluate(lc) == ('my_param', [1, 2, 3])
     assert (param.name, param.value) == param.evaluate(lc)
 
-
-def test_evaluate_fails():
-    lc = LaunchContext()
-
     with pytest.raises(TypeError):
-        param = Parameter(name='my_param', value='1', value_type=int)
+        Parameter(name='my_param', value='1', value_type=int)
 
     param = Parameter(
         name='my_param',

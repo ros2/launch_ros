@@ -195,12 +195,17 @@ def get_composable_node_load_request(
             context, composable_node_description.node_namespace
         )
     # request.log_level = perform_substitutions(context, node_description.log_level)
-    if composable_node_description.remappings is not None:
-        for from_, to in composable_node_description.remappings:
-            request.remap_rules.append('{}:={}'.format(
-                perform_substitutions(context, list(from_)),
-                perform_substitutions(context, list(to)),
-            ))
+    remappings = []
+    global_remaps = context.launch_configurations.get('ros_remaps', None)
+    if global_remaps:
+        remappings.extend([f'{src}:={dst}' for src, dst in global_remaps])
+    if composable_node_description.remappings:
+        remappings.extend([
+            f'{perform_substitutions(context, src)}:={perform_substitutions(context, dst)}'
+            for src, dst in composable_node_description.remappings
+        ])
+    if remappings:
+        request.remap_rules = remappings
     global_params = context.launch_configurations.get('ros_params', None)
     parameters = []
     if global_params is not None:

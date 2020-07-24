@@ -20,6 +20,8 @@ from .load_composable_nodes import LoadComposableNodes
 from .node import Node
 from .push_ros_namespace import PushRosNamespace
 from .set_parameter import SetParameter
+from .set_remap import SetRemap
+
 
 __all__ = [
     'ComposableNodeContainer',
@@ -28,4 +30,5 @@ __all__ = [
     'Node',
     'PushRosNamespace',
     'SetParameter',
+    'SetRemap',
 ]

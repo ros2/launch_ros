@@ -17,7 +17,6 @@
 import os
 import pathlib
 from tempfile import NamedTemporaryFile
-from typing import cast
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -193,14 +192,6 @@ class Node(ExecuteProcess):
             # All elements in the list are paths to files with parameters (or substitutions that
             # evaluate to paths), or dictionaries of parameters (fields can be substitutions).
             normalized_params = normalize_parameters(parameters)
-        if remappings is not None:
-            i = 0
-            for remapping in normalize_remap_rules(remappings):
-                k, v = remapping
-                cmd += ['-r', LocalSubstitution(
-                    "ros_specific_arguments['remaps'][{}]".format(i),
-                    description='remapping {}'.format(i))]
-                i += 1
         # Forward 'exec_name' as to ExecuteProcess constructor
         kwargs['name'] = exec_name
         super().__init__(cmd=cmd, **kwargs)
@@ -209,7 +200,7 @@ class Node(ExecuteProcess):
         self.__node_name = name
         self.__node_namespace = namespace
         self.__parameters = [] if parameters is None else normalized_params
-        self.__remappings = [] if remappings is None else remappings
+        self.__remappings = [] if remappings is None else list(normalize_remap_rules(remappings))
         self.__arguments = arguments
 
         self.__expanded_node_name = self.UNSPECIFIED_NODE_NAME
@@ -410,12 +401,21 @@ class Node(ExecuteProcess):
                 cmd_extension = ['--params-file', f'{param_file_path}']
                 self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
         # expand remappings too
-        if self.__remappings is not None:
+        global_remaps = context.launch_configurations.get('ros_remaps', None)
+        if global_remaps or self.__remappings:
             self.__expanded_remappings = []
-            for k, v in self.__remappings:
-                key = perform_substitutions(context, normalize_to_list_of_substitutions(k))
-                value = perform_substitutions(context, normalize_to_list_of_substitutions(v))
-                self.__expanded_remappings.append((key, value))
+        if global_remaps:
+            self.__expanded_remappings.extend(global_remaps)
+        if self.__remappings:
+            self.__expanded_remappings.extend([
+                (perform_substitutions(context, src), perform_substitutions(context, dst))
+                for src, dst in self.__remappings
+            ])
+        if self.__expanded_remappings:
+            cmd_extension = []
+            for src, dst in self.__expanded_remappings:
+                cmd_extension.extend(['-r', f'{src}:={dst}'])
+            self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
 
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:
         """
@@ -431,13 +431,6 @@ class Node(ExecuteProcess):
             ros_specific_arguments['name'] = '__node:={}'.format(self.__expanded_node_name)
         if self.__expanded_node_namespace != '':
             ros_specific_arguments['ns'] = '__ns:={}'.format(self.__expanded_node_namespace)
-        if self.__expanded_remappings is not None:
-            ros_specific_arguments['remaps'] = []
-            for remapping_from, remapping_to in self.__expanded_remappings:
-                remap_arguments = cast(List[str], ros_specific_arguments['remaps'])
-                remap_arguments.append(
-                    '{}:={}'.format(remapping_from, remapping_to)
-                )
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
         ret = super().execute(context)
 
@@ -457,3 +450,8 @@ class Node(ExecuteProcess):
     def expanded_node_namespace(self):
         """Getter for expanded_node_namespace."""
         return self.__expanded_node_namespace
+
+    @property
+    def expanded_remapping_rules(self):
+        """Getter for expanded_remappings."""
+        return self.__expanded_remappings

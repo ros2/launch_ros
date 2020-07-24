@@ -32,7 +32,8 @@ class SetRemap(Action):
     """
     Action that sets a remapping rule in the current context.
 
-    This remapping rule will be passed to all the nodes launched in the same scope.
+    This remapping rule will be passed to all the nodes launched in the same scope, overriding
+    the ones specified in the `Node` action constructor.
     e.g.:
     ```python3
         LaunchDescription([
@@ -40,7 +41,7 @@ class SetRemap(Action):
             GroupAction(
                 actions = [
                     ...,
-                    SetRemap(from='asd', to='bsd'),
+                    SetRemap(src='asd', dst='bsd'),
                     ...,
                     Node(...),  // the remap rule will be passed to this node
                     ...,

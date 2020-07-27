@@ -22,5 +22,6 @@ from ..parameter_descriptions import ParameterValue
 __all__ = [
     'ComposableNode',
     'Parameter',
+    'ParameterFile',
     'ParameterValue',
 ]

@@ -12,13 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for launch_ros.descriptions.ParameterFile"""
+"""Tests for launch_ros.descriptions.ParameterFile."""
 
-import os
 from contextlib import contextmanager
+import os
 from tempfile import NamedTemporaryFile
 
-from launch_ros.description import ParameterFile
+from launch import Substitution
+from launch.frontend import expose_substitution
+from launch.utilities import perform_substitutions
+
+from launch_ros.descriptions import ParameterFile
+
+import pytest
+
 
 @contextmanager
 def get_parameter_file(contents, mode='w'):
@@ -29,6 +36,12 @@ def get_parameter_file(contents, mode='w'):
         yield f.name
     finally:
         os.unlink(f.name)
+
+
+class MockContext:
+
+    def perform_substitution(self, sub):
+        return sub.perform(None)
 
 
 class CustomSubstitution(Substitution):
@@ -45,9 +58,8 @@ def parse_test_substitution(data):
     if not data or len(data) > 1:
         raise RuntimeError()
     kwargs = {}
-    kwargs['text'] = perform_substitutions_without_context(data[0])
+    kwargs['text'] = perform_substitutions(MockContext(), data[0])
     return CustomSubstitution, kwargs
-
 
 
 def get_test_cases():
@@ -55,17 +67,64 @@ def get_test_cases():
         """\
 /my_ns/my_node:
     ros__parameters:
-        my_int: 1,
-        my_str: '1',
+        my_int: 1
+        my_str: '1'
         my_list_of_strs: ['1', '2', '3']
         """
     )
     parameter_file_with_substitutions = (
         """\
-/$(test my_ns)/$(test my_node):
+'/$(test my_ns)/$(test my_node)':
     ros__parameters:
-        my_int: $(test 1),
-        my_str: '1',
-        my_list_of_strs: ['1', '2', '3']
+        my_int: '$(test 1)'
+        my_str: '"$(test 1)"'
+        my_list_of_strs: ['1', '"$(test 2)"', '3']
         """
     )
+    return [
+        pytest.param(
+            parameter_file_with_substitutions,  # original contents
+            parameter_file_without_substitutions,  # expected contents
+            True,  # substitutions allowed
+            id='Parameter file with substitutions, substitutions allowed',
+        ),
+        pytest.param(
+            parameter_file_with_substitutions,
+            parameter_file_with_substitutions,
+            False,
+            id='Parameter file with substitutions, substitutions not allowed',
+        ),
+        pytest.param(
+            parameter_file_without_substitutions,
+            parameter_file_without_substitutions,
+            True,
+            id='Parameter file without substitutions, substitutions allowed',
+        ),
+        pytest.param(
+            parameter_file_without_substitutions,
+            parameter_file_without_substitutions,
+            False,
+            id='Parameter file without substitutions, substitutions not allowed',
+        ),
+    ]
+
+
+@pytest.mark.parametrize(
+    'original_contents, expected_contents, allow_substs',
+    get_test_cases(),
+)
+def test_parameter_file_description(original_contents, expected_contents, allow_substs):
+    lc = MockContext()
+    with get_parameter_file(original_contents) as file_name:
+        desc = ParameterFile(file_name, allow_substs=allow_substs)
+        if isinstance(desc.param_file, list):
+            assert perform_substitutions(lc, desc.param_file) == file_name
+        else:
+            assert desc.param_file == file_name
+        assert desc.allow_substs == allow_substs
+        evaluated_param_file = desc.evaluate(lc)
+        with open(evaluated_param_file, 'r') as new_f:
+            new_f.read() == expected_contents
+        assert desc.param_file == evaluated_param_file
+        if not allow_substs:
+            assert os.fspath(desc.param_file) == os.fspath(file_name)

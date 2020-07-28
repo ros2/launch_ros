@@ -14,21 +14,27 @@
 
 """Module for a description of a ParameterFile."""
 
-import io
+from contextlib import ExitStack
 import os
 from pathlib import Path
+from tempfile import NamedTemporaryFile
+from typing import List
 from typing import Optional
 from typing import Text
+from typing import Union
 
-from launch import Substitution
-from launch import SomeSubstitutionsType_types_tuple
+from launch import LaunchContext
 from launch import SomeSubstitutionsType
-from launch.frontend import parse_if_substitutions
+from launch import SomeSubstitutionsType_types_tuple
+from launch import Substitution
+from launch.frontend.parse_substitution import parse_if_substitutions
 from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 from launch.utilities import type_utils
 from launch.utilities.typing_file_path import FilePath
+
+import yaml
 
 
 class ParameterFile:
@@ -43,7 +49,7 @@ class ParameterFile:
         """
         Construct a parameter file description.
 
-        :param param_file: Either a path to a parameter file, or the contents of the file.
+        :param param_file: Path to a parameter file.
         :param allow_subst: Allow substitutions in the parameter file.
         """
         ensure_argument_type(
@@ -68,13 +74,13 @@ class ParameterFile:
     @property
     def param_file(self) -> Union[FilePath, SomeSubstitutionsType]:
         """Getter for parameter file."""
-        if self.__evaluated_parameter_file is not None:
-            return self.__evaluated_parameter_file
+        if self.__evaluated_param_file is not None:
+            return self.__evaluated_param_file
         return self.__param_file
 
     @property
     def allow_substs(self) -> bool:
-        """Getter for parameter value type."""
+        """Getter for allow substitutions argument."""
         return self.__allow_substs
 
     def __str__(self) -> Text:
@@ -94,20 +100,21 @@ class ParameterFile:
             param_file = perform_substitutions(context, self.__param_file)
         param_file_path: Path = Path(param_file)
         if self.__allow_substs:
-            with (
-                open(param_file_path, 'r') as f,
-                NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False) as h
-            ):
+            with ExitStack() as stack:
+                f = stack.enter_context(open(param_file_path, 'r'))
+                h = stack.enter_context(
+                    NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False))
                 read = yaml.safe_load(f)
                 new_yaml_dict = {}
-                for node, node_dict in read:
-                    node = __perform_substitutions(context, node)
+                for node, node_dict in read.items():
+                    node = _perform_substitutions(context, node)
                     new_content = {}
-                    for section, param_dict in node_dict:
+                    for section, param_dict in node_dict.items():
                         if section == 'ros__parameters':
                             param_dict = {
-                                __perform_substitutions(context, k): __perform_substitutions(context, v)
-                                for k, v in param_dict
+                                _perform_substitutions(context, k):
+                                _perform_substitutions(context, v)
+                                for k, v in param_dict.items()
                             }
                         new_content[section] = param_dict
                     new_yaml_dict[node] = new_content
@@ -118,11 +125,12 @@ class ParameterFile:
         return param_file_path
 
     def clean_up(self):
+        """Delete created temporary files."""
         if self.__evaluated_param_file is not None and self.__created_tmp_file:
             os.unlink(self.__evaluated_param_file)
 
 
-def __perform_substitutions(context, value):
+def _perform_substitutions(context, value):
     parsed_value = parse_if_substitutions(value)
     normalized_value = type_utils.normalize_typed_substitution(parsed_value, None)
     return type_utils.perform_typed_substitution(context, normalized_value, None)

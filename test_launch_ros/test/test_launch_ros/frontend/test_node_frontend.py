@@ -47,9 +47,11 @@ def test_launch_remapping_xml():
                     <param name="param5" value="$(var a_string)"/>
                     <param name="param6" value="2., 5., 8." value-sep=", "/>
                     <param name="param7" value="'2', '5', '8'" value-sep=", "/>
-                    <param name="param8" value="''2'', ''5'', ''8''" value-sep=", "/>
+                    <!-- TODO(hidmic): revisit after https://github.com/ros2/launch_ros/pull/137 gets merged -->
+                    <param name="param8" value="&quot;'2'&quot;, &quot;'5'&quot;, &quot;'8'&quot;" value-sep=", "/>
                     <param name="param9" value="\'2\', \'5\', \'8\'" value-sep=", "/>
-                    <param name="param10" value="''asd'', ''bsd'', ''csd''" value-sep=", "/>
+                    <!-- TODO(hidmic): revisit after https://github.com/ros2/launch_ros/pull/137 gets merged -->
+                    <param name="param10" value="&quot;'asd'&quot;, &quot;'bsd'&quot;, &quot;'csd'&quot;" value-sep=", "/>
                     <param name="param11" value="'\asd', '\bsd', '\csd'" value-sep=", "/>
                     <param name="param12" value=""/>
                 </param>

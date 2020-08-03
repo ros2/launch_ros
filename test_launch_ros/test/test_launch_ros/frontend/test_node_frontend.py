@@ -48,14 +48,13 @@ def test_launch_frontend_xml():
                     <param name="param5" value="$(var a_string)"/>
                     <param name="param6" value="2., 5., 8." value-sep=", "/>
                     <param name="param7" value="'2', '5', '8'" value-sep=", "/>
-                    <!-- TODO(hidmic): revisit after https://github.com/ros2/launch_ros/pull/137 gets merged -->
                     <param name="param8" value="&quot;'2'&quot;, &quot;'5'&quot;, &quot;'8'&quot;" value-sep=", "/>
                     <param name="param9" value="\'2\', \'5\', \'8\'" value-sep=", "/>
-                    <!-- TODO(hidmic): revisit after https://github.com/ros2/launch_ros/pull/137 gets merged -->
                     <param name="param10" value="&quot;'asd'&quot;, &quot;'bsd'&quot;, &quot;'csd'&quot;" value-sep=", "/>
                     <param name="param11" value="'\asd', '\bsd', '\csd'" value-sep=", "/>
                     <param name="param12" value="''"/>
                     <param name="param13" value="$(var my_value)" type="str"/>
+                    <param name="param14" value="'2', '5', '8'" value-sep=", " type="list_of_str"/>
                 </param>
                 <param from="{}"/>
                 <env name="var" value="1"/>
@@ -123,6 +122,9 @@ def test_launch_frontend_yaml():
                         -   name: param13
                             value: '$(var my_value)'
                             type: str
+                        -   name: param14
+                            value: ["'2'", "'5'", "'8'"]
+                            type: list_of_str
                     -   from: {}
                 env:
                     -   name: var
@@ -175,6 +177,7 @@ def check_launch_node(file):
     assert 'param_group1.param11' in param_dict
     assert 'param_group1.param12' in param_dict
     assert 'param_group1.param13' in param_dict
+    assert 'param_group1.param14' in param_dict
     assert param_dict['param_group1.param_group2.param2'] == 2
     assert param_dict['param_group1.param3'] == [2, 5, 8]
     assert param_dict['param_group1.param4'] == [2, 5, 8]
@@ -187,6 +190,7 @@ def check_launch_node(file):
     assert param_dict['param_group1.param11'] == ['asd', 'bsd', 'csd']
     assert param_dict['param_group1.param12'] == ''
     assert param_dict['param_group1.param13'] == '100'
+    assert param_dict['param_group1.param14'] == ["'2'", "'5'", "'8'"]
 
     # Check remappings exist
     remappings = ld.describe_sub_entities()[3]._Node__remappings

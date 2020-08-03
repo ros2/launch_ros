@@ -54,7 +54,7 @@ class ParameterValue:
             Can be one of:
                 - Scalar types: int, bool, float, str
                 - List types: List[int], List[bool], List[float], List[str]
-                - None: Will use yaml rules, and check that the result is one of the above.
+                - None: will use yaml rules, and check that the result matches one of the above.
         """
         self.__value = normalize_typed_substitution(value, value_type)
         self.__value_type = value_type

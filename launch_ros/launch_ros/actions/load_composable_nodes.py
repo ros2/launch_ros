@@ -82,13 +82,13 @@ class LoadComposableNodes(Action):
 
     def _load_node(
         self,
-        composable_node_description: ComposableNode,
+        request: composition_interfaces.srv.LoadNode.Request,
         context: LaunchContext
     ) -> None:
         """
         Load node synchronously.
 
-        :param composable_node_description: description of composable node to be loaded
+        :param request: service request to load a node
         :param context: current launch context
         """
         while not self.__rclpy_load_node_client.wait_for_service(timeout_sec=1.0):
@@ -99,7 +99,6 @@ class LoadComposableNodes(Action):
                     )
                 )
                 return
-        request = get_composable_node_load_request(composable_node_description, context)
         response = self.__rclpy_load_node_client.call(request)
         node_name = response.full_node_name if response.full_node_name else request.node_name
         if response.success:
@@ -125,7 +124,7 @@ class LoadComposableNodes(Action):
 
     def _load_in_sequence(
         self,
-        composable_node_descriptions: List[ComposableNode],
+        load_node_requests: List[composition_interfaces.srv.LoadNode.Request],
         context: LaunchContext
     ) -> None:
         """
@@ -134,13 +133,13 @@ class LoadComposableNodes(Action):
         :param composable_node_descriptions: descriptions of composable nodes to be loaded
         :param context: current launch context
         """
-        next_composable_node_description = composable_node_descriptions[0]
-        composable_node_descriptions = composable_node_descriptions[1:]
-        self._load_node(next_composable_node_description, context)
-        if len(composable_node_descriptions) > 0:
+        next_load_node_request = load_node_requests[0]
+        load_node_requests = load_node_requests[1:]
+        self._load_node(next_load_node_request, context)
+        if len(load_node_requests) > 0:
             context.add_completion_future(
                 context.asyncio_loop.run_in_executor(
-                    None, self._load_in_sequence, composable_node_descriptions, context
+                    None, self._load_in_sequence, load_node_requests, context
                 )
             )
 
@@ -169,9 +168,16 @@ class LoadComposableNodes(Action):
             )
         )
 
+        # Generate load requests before execute() exits to avoid race with context changing
+        # due to scope change (e.g. if loading nodes from within a GroupAction).
+        load_node_requests = [
+            get_composable_node_load_request(node_description, context)
+            for node_description in self.__composable_node_descriptions
+        ]
+
         context.add_completion_future(
             context.asyncio_loop.run_in_executor(
-                None, self._load_in_sequence, self.__composable_node_descriptions, context
+                None, self._load_in_sequence, load_node_requests, context
             )
         )
 

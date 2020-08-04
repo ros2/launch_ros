@@ -33,6 +33,8 @@ from launch.utilities import normalize_to_list_of_substitutions
 
 import yaml
 
+from ..parameter_descriptions import Parameter as ParameterDescription
+from ..parameter_descriptions import ParameterValue as ParameterValueDescription
 from ..parameters_type import ParameterFile  # noqa: F401
 from ..parameters_type import Parameters
 from ..parameters_type import ParametersDict
@@ -145,6 +147,8 @@ def normalize_parameter_dict(
             # Flatten recursive dictionaries
             sub_dict = normalize_parameter_dict(value, _prefix=name)
             normalized.update(sub_dict)
+        elif isinstance(value, ParameterValueDescription):
+            normalized[tuple(name)] = value
         elif isinstance(value, str):
             normalized[tuple(name)] = tuple(normalize_to_list_of_substitutions(yaml.dump(value)))
         elif isinstance(value, Substitution):
@@ -179,6 +183,8 @@ def normalize_parameters(parameters: SomeParameters) -> Parameters:
     for param in parameters:
         if isinstance(param, Mapping):
             normalized_params.append(normalize_parameter_dict(param))
+        elif isinstance(param, ParameterDescription):
+            normalized_params.append(param)
         else:
             # It's a path, normalize to a list of substitutions
             if isinstance(param, pathlib.Path):

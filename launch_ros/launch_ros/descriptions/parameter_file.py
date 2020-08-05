@@ -72,7 +72,7 @@ class ParameterFile:
         self.__created_tmp_file = False
 
     @property
-    def param_file(self) -> Union[FilePath, SomeSubstitutionsType]:
+    def param_file(self) -> Union[FilePath, List[Substitution]]:
         """Getter for parameter file."""
         if self.__evaluated_param_file is not None:
             return self.__evaluated_param_file
@@ -124,10 +124,14 @@ class ParameterFile:
         self.__evaluated_param_file = param_file_path
         return param_file_path
 
-    def clean_up(self):
+    def cleanup(self):
         """Delete created temporary files."""
         if self.__evaluated_param_file is not None and self.__created_tmp_file:
             os.unlink(self.__evaluated_param_file)
+            self.__evaluated_param_file = None
+
+    def __del__(self):
+        self.cleanup()
 
 
 def _perform_substitutions(context, value):

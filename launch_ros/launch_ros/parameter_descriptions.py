@@ -28,8 +28,9 @@ from typing import Union
 from launch import LaunchContext
 from launch import SomeSubstitutionsType
 from launch import SomeSubstitutionsType_types_tuple
-from launch.frontend.parse_substitution import parse_if_substitutions
+from launch.frontend.parse_substitution import parse_substitution
 from launch.substitution import Substitution
+from launch.substitutions import SubstitutionFailure
 from launch.utilities import ensure_argument_type
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
@@ -231,21 +232,17 @@ class ParameterFile:
                 f = stack.enter_context(open(param_file_path, 'r'))
                 h = stack.enter_context(
                     NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False))
-                read = yaml.safe_load(f)
-                new_yaml_dict = {}
-                for node, node_dict in read.items():
-                    node = _perform_substitutions(context, node)
-                    new_content = {}
-                    for section, param_dict in node_dict.items():
-                        if section == 'ros__parameters':
-                            param_dict = {
-                                _perform_substitutions(context, k):
-                                _perform_substitutions(context, v)
-                                for k, v in param_dict.items()
-                            }
-                        new_content[section] = param_dict
-                    new_yaml_dict[node] = new_content
-                yaml.dump(new_yaml_dict, h, default_flow_style=False)
+                read = f.read()
+                parsed = perform_substitutions(context, parse_substitution(read))
+                yaml_file_is_valid = True
+                try:
+                    yaml.safe_load(parsed)
+                except Exception:
+                    yaml_file_is_valid = False
+                if not yaml_file_is_valid:
+                    raise SubstitutionFailure(
+                        'The substituted parameter file is not a valid yaml file')
+                h.write(parsed)
                 param_file_path = Path(h.name)
                 self.__created_tmp_file = True
         self.__evaluated_param_file = param_file_path
@@ -259,9 +256,3 @@ class ParameterFile:
 
     def __del__(self):
         self.cleanup()
-
-
-def _perform_substitutions(context, value):
-    parsed_value = parse_if_substitutions(value)
-    normalized_value = normalize_typed_substitution(parsed_value, None)
-    return perform_typed_substitution(context, normalized_value, None)

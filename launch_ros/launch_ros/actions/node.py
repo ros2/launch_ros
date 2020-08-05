@@ -59,8 +59,8 @@ from rclpy.validate_node_name import validate_node_name
 
 import yaml
 
-if TYPE_CHECKING:
-    from ..descriptions import Parameter
+from ..descriptions import Parameter
+from ..descriptions import ParameterFile
 
 
 @expose_action('node')
@@ -257,16 +257,21 @@ class Node(ExecuteProcess):
         normalized_params = []
         for param in params:
             from_attr = param.get_attr('from', optional=True)
-            name = param.get_attr('name', optional=True)
+            allow_substs = param.get_attr('allow_substs', optional=True)
+            name = param.get_attr('name', data_type=bool, optional=True)
             if from_attr is not None and name is not None:
                 raise RuntimeError('name and from attributes are mutually exclusive')
             elif from_attr is not None:
                 # 'from' attribute ignores 'name' attribute,
                 # it's not accepted to be nested,
                 # and it can not have children.
-                normalized_params.append(parser.parse_substitution(from_attr))
+                allow_substs = False if allow_substs is None else allow_substs
+                normalized_params.append(
+                    ParameterFile(parser.parse_substitution(from_attr), allow_substs=allow_substs))
                 continue
             elif name is not None:
+                if allow_substs is not None:
+                    raise RuntimeError("'allow_substs' can only be used together with 'from' attribute")
                 normalized_params.append(
                     get_nested_dictionary_from_nested_key_value_pairs([param]))
                 continue

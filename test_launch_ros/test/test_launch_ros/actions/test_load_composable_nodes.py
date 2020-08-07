@@ -59,9 +59,14 @@ def _create_node_container(*, parameters=None, remappings=None, namespace=''):
     )
 
 
-def _load_composable_node(*, parameters=None, remappings=None):
+def _load_composable_node(
+    *,
+    parameters=None,
+    remappings=None,
+    target_container=TEST_CONTAINER_NAME
+):
     return LoadComposableNodes(
-        target_container=TEST_CONTAINER_NAME,
+        target_container=target_container,
         composable_node_descriptions=[
             ComposableNode(
                 package='composition',

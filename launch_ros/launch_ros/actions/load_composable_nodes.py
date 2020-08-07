@@ -79,6 +79,8 @@ class LoadComposableNodes(Action):
         self.__target_container = target_container
         self.__final_target_container_name = None  # type: Optional[Text]
         self.__logger = launch.logging.get_logger(__name__)
+        # Useful for regression testing
+        self.__load_node_requests = None
 
     def _load_node(
         self,
@@ -170,14 +172,14 @@ class LoadComposableNodes(Action):
 
         # Generate load requests before execute() exits to avoid race with context changing
         # due to scope change (e.g. if loading nodes from within a GroupAction).
-        load_node_requests = [
+        self.__load_node_requests = [
             get_composable_node_load_request(node_description, context)
             for node_description in self.__composable_node_descriptions
         ]
 
         context.add_completion_future(
             context.asyncio_loop.run_in_executor(
-                None, self._load_in_sequence, load_node_requests, context
+                None, self._load_in_sequence, self.__load_node_requests, context
             )
         )
 

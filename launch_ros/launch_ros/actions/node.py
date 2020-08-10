@@ -264,7 +264,10 @@ class Node(ExecuteProcess):
                 # 'from' attribute ignores 'name' attribute,
                 # it's not accepted to be nested,
                 # and it can not have children.
-                allow_substs = bool(allow_substs)
+                if isinstance(allow_substs, str):
+                    allow_substs = parser.parse_substitution(allow_substs)
+                else:
+                    allow_substs = bool(allow_substs)
                 normalized_params.append(
                     ParameterFile(parser.parse_substitution(from_attr), allow_substs=allow_substs))
                 continue

@@ -249,12 +249,11 @@ class ParameterFile:
 
     def cleanup(self):
         """Delete created temporary files."""
-        if (
-            self.__created_tmp_file and
-            self.__evaluated_param_file is not None and
-            self.__evaluated_param_file.exists()
-        ):
-            os.unlink(self.__evaluated_param_file)
+        if self.__created_tmp_file and self.__evaluated_param_file is not None:
+            try:
+                os.unlink(self.__evaluated_param_file)
+            except FileNotFoundError:
+                pass
             self.__evaluated_param_file = None
 
     def __del__(self):

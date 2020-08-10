@@ -39,7 +39,7 @@ class PushRosNamespace(Action):
     Action that pushes the ros namespace.
 
     It's automatically popped when used inside a scoped `GroupAction`.
-    There's not other way of popping it.
+    There's no other way of popping it.
     """
 
     def __init__(

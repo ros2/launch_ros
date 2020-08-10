@@ -125,8 +125,6 @@ def test_parameter_file_description(original_contents, expected_contents, allow_
         assert desc.param_file == evaluated_param_file
         if not allow_substs:
             assert os.fspath(desc.param_file) == os.fspath(file_name)
-        else:
-            assert os.fspath(desc.param_file) != os.fspath(file_name)
         param_file = desc.param_file
         desc.cleanup()
         if allow_substs:

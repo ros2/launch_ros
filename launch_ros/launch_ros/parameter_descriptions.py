@@ -232,12 +232,9 @@ class ParameterFile:
             ) as h:
                 read = f.read()
                 parsed = perform_substitutions(context, parse_substitution(read))
-                yaml_file_is_valid = True
                 try:
                     yaml.safe_load(parsed)
                 except Exception:
-                    yaml_file_is_valid = False
-                if not yaml_file_is_valid:
                     raise SubstitutionFailure(
                         'The substituted parameter file is not a valid yaml file')
                 h.write(parsed)

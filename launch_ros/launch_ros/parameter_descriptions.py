@@ -171,7 +171,7 @@ class ParameterFile:
         self,
         param_file: Union[FilePath, SomeSubstitutionsType],
         *,
-        allow_substs: bool = False
+        allow_substs: [bool, SomeSubstitutionsType] = False
     ) -> None:
         """
         Construct a parameter file description.
@@ -194,7 +194,8 @@ class ParameterFile:
         self.__param_file: Union[List[Substitution], FilePath] = param_file
         if isinstance(param_file, SomeSubstitutionsType_types_tuple):
             self.__param_file = normalize_to_list_of_substitutions(param_file)
-        self.__allow_substs = allow_substs
+        self.__allow_substs = normalize_typed_substitution(allow_substs, data_type=bool)
+        self.__evaluated_allow_substs: Optional[bool] = None
         self.__evaluated_param_file: Optional[Path] = None
         self.__created_tmp_file = False
 
@@ -206,8 +207,10 @@ class ParameterFile:
         return self.__param_file
 
     @property
-    def allow_substs(self) -> bool:
+    def allow_substs(self) -> Union[bool, List[Substitution]]:
         """Getter for allow substitutions argument."""
+        if self.__evaluated_allow_substs is not None:
+            return self.__evaluated_allow_substs
         return self.__allow_substs
 
     def __str__(self) -> Text:
@@ -225,8 +228,10 @@ class ParameterFile:
         if isinstance(param_file, list):
             # list of substitutions
             param_file = perform_substitutions(context, self.__param_file)
+
+        allow_substs = perform_typed_substitution(context, self.__allow_substs, data_type=bool)
         param_file_path: Path = Path(param_file)
-        if self.__allow_substs:
+        if allow_substs:
             with open(param_file_path, 'r') as f, NamedTemporaryFile(
                 mode='w', prefix='launch_params_', delete=False
             ) as h:

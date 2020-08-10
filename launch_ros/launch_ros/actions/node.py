@@ -23,7 +23,6 @@ from typing import List
 from typing import Optional
 from typing import Text  # noqa: F401
 from typing import Tuple  # noqa: F401
-from typing import TYPE_CHECKING
 from typing import Union
 
 import warnings
@@ -271,7 +270,8 @@ class Node(ExecuteProcess):
                 continue
             elif name is not None:
                 if allow_substs is not None:
-                    raise RuntimeError("'allow_substs' can only be used together with 'from' attribute")
+                    raise RuntimeError(
+                        "'allow_substs' can only be used together with 'from' attribute")
                 normalized_params.append(
                     get_nested_dictionary_from_nested_key_value_pairs([param]))
                 continue

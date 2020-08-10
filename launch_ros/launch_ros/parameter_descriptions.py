@@ -230,8 +230,7 @@ class ParameterFile:
             with open(param_file_path, 'r') as f, NamedTemporaryFile(
                 mode='w', prefix='launch_params_', delete=False
             ) as h:
-                read = f.read()
-                parsed = perform_substitutions(context, parse_substitution(read))
+                parsed = perform_substitutions(context, parse_substitution(f.read()))
                 try:
                     yaml.safe_load(parsed)
                 except Exception:

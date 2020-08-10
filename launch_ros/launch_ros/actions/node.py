@@ -257,15 +257,15 @@ class Node(ExecuteProcess):
         normalized_params = []
         for param in params:
             from_attr = param.get_attr('from', optional=True)
-            allow_substs = param.get_attr('allow_substs', optional=True)
-            name = param.get_attr('name', data_type=bool, optional=True)
+            allow_substs = param.get_attr('allow_substs', data_type=bool, optional=True)
+            name = param.get_attr('name', optional=True)
             if from_attr is not None and name is not None:
                 raise RuntimeError('name and from attributes are mutually exclusive')
             elif from_attr is not None:
                 # 'from' attribute ignores 'name' attribute,
                 # it's not accepted to be nested,
                 # and it can not have children.
-                allow_substs = False if allow_substs is None else allow_substs
+                allow_substs = bool(allow_substs)
                 normalized_params.append(
                     ParameterFile(parser.parse_substitution(from_attr), allow_substs=allow_substs))
                 continue

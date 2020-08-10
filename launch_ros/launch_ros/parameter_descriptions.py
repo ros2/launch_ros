@@ -14,7 +14,6 @@
 
 """Module for a description of a Parameter."""
 
-from contextlib import ExitStack
 import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -228,10 +227,9 @@ class ParameterFile:
             param_file = perform_substitutions(context, self.__param_file)
         param_file_path: Path = Path(param_file)
         if self.__allow_substs:
-            with ExitStack() as stack:
-                f = stack.enter_context(open(param_file_path, 'r'))
-                h = stack.enter_context(
-                    NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False))
+            with open(param_file_path, 'r') as f, NamedTemporaryFile(
+                mode='w', prefix='launch_params_', delete=False
+            ) as h:
                 read = f.read()
                 parsed = perform_substitutions(context, parse_substitution(read))
                 yaml_file_is_valid = True

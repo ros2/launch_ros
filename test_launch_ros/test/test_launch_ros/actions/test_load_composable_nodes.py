@@ -14,7 +14,6 @@
 
 """Tests for the LoadComposableNodes Action."""
 
-import asyncio
 import threading
 
 from composition_interfaces.srv import LoadNode
@@ -27,8 +26,6 @@ from launch_ros.actions import PushRosNamespace
 from launch_ros.actions import SetRemap
 from launch_ros.descriptions import ComposableNode
 from launch_ros.utilities import get_node_name_count
-
-import osrf_pycommon.process_utils
 
 import pytest
 
@@ -82,18 +79,11 @@ class MockComponentContainer(rclpy.node.Node):
         self._thread.join()
 
 
-def _assert_launch_no_errors(actions, *, timeout_sec=1):
+def _assert_launch_no_errors(actions):
     ld = LaunchDescription(actions)
     ls = LaunchService(debug=True)
     ls.include_launch_description(ld)
-
-    loop = osrf_pycommon.process_utils.get_loop()
-    launch_task = loop.create_task(ls.run_async())
-    loop.run_until_complete(asyncio.sleep(timeout_sec))
-    if not launch_task.done():
-        loop.create_task(ls.shutdown())
-        loop.run_until_complete(launch_task)
-    assert 0 == launch_task.result()
+    assert 0 == ls.run()
     return ls.context
 
 

@@ -27,6 +27,7 @@ from launch.some_substitutions_type import SomeSubstitutionsType_types_tuple
 from launch.substitution import Substitution
 
 from .parameter_descriptions import Parameter as ParameterDescription
+from .parameter_descriptions import ParameterFile
 from .parameter_descriptions import ParameterValue as ParameterValueDescription
 
 
@@ -36,7 +37,7 @@ _SingleValueType = Union[str, int, float, bool]
 _MultiValueType = Union[
     Sequence[str], Sequence[int], Sequence[float], Sequence[bool], bytes]
 
-SomeParameterFile = Union[SomeSubstitutionsType, pathlib.Path]
+SomeParameterFile = Union[SomeSubstitutionsType, pathlib.Path, ParameterFile]
 SomeParameterName = Sequence[Union[Substitution, str]]
 SomeParameterValue = Union[
     ParameterValueDescription,
@@ -59,7 +60,7 @@ SomeParametersDict = Mapping[SomeParameterName, Union[SomeParameterValue, _SomeP
 # parameter names and values
 SomeParameters = Sequence[Union[SomeParameterFile, ParameterDescription, SomeParametersDict]]
 
-ParameterFile = Sequence[Substitution]
+ParameterFile = ParameterFile  # re-export
 ParameterName = Sequence[Substitution]
 ParameterValue = Union[
     Sequence[Substitution],

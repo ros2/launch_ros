@@ -29,10 +29,13 @@ import pytest
 
 @contextmanager
 def get_parameter_file(contents, mode='w'):
-    f = NamedTemporaryFile(mode=mode)
-    with f:
-        f.write(contents)
+    f = NamedTemporaryFile(delete=False, mode=mode)
+    try:
+        with f:
+            f.write(contents)
         yield f.name
+    finally:
+        os.unlink(f.name)
 
 
 class MockContext:

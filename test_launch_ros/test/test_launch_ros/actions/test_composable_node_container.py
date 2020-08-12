@@ -74,7 +74,7 @@ def test_composable_node_container():
 
 def test_composable_node_container_in_group_with_launch_configuration_in_description():
     """
-    Test launch configuration is passed to ComposableNode description inside GroupAction
+    Test launch configuration is passed to ComposableNode description inside GroupAction.
 
     This is a regression test for #114.
     """

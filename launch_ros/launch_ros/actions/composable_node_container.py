@@ -19,8 +19,6 @@ from typing import Optional
 import warnings
 
 from launch.action import Action
-from launch.actions import RegisterEventHandler
-from launch.event_handlers.on_process_start import OnProcessStart
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 

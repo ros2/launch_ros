@@ -146,7 +146,6 @@ def test_load_node(mock_component_container):
     assert len(request.extra_arguments) == 0
 
 
-
 def test_load_node_with_remaps(mock_component_container):
     """Test loading a node with remappings."""
     context = _assert_launch_no_errors([

@@ -75,6 +75,8 @@ class MockComponentContainer(rclpy.node.Node):
         return response
 
     def shutdown(self):
+        self._executor.shutdown()
+        self.destroy_node()
         rclpy.shutdown(context=self._context)
         self._thread.join()
 
@@ -142,6 +144,7 @@ def test_load_node(mock_component_container):
     assert len(request.remap_rules) == 0
     assert len(request.parameters) == 0
     assert len(request.extra_arguments) == 0
+
 
 
 def test_load_node_with_remaps(mock_component_container):

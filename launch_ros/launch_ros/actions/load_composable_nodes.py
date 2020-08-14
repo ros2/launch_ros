@@ -99,7 +99,13 @@ class LoadComposableNodes(Action):
                     )
                 )
                 return
+        self.__logger.debug(
+            "Calling the '{}' service with request '{}'".format(
+                self.__rclpy_load_node_client.srv_name, request
+            )
+        )
         response = self.__rclpy_load_node_client.call(request)
+        self.__logger.debug("Received response '{}'".format(response))
         node_name = response.full_node_name if response.full_node_name else request.node_name
         if response.success:
             if node_name is not None:

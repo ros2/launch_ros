@@ -19,8 +19,6 @@ from typing import Optional
 import warnings
 
 from launch.action import Action
-from launch.actions import RegisterEventHandler
-from launch.event_handlers.on_process_start import OnProcessStart
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 
@@ -100,16 +98,9 @@ class ComposableNodeContainer(Node):
             from .load_composable_nodes import LoadComposableNodes
             # Perform load action once the container has started.
             load_actions = [
-                RegisterEventHandler(
-                    event_handler=OnProcessStart(
-                        target_action=self,
-                        on_start=[
-                            LoadComposableNodes(
-                                composable_node_descriptions=self.__composable_node_descriptions,
-                                target_container=self
-                            )
-                        ]
-                    )
+                LoadComposableNodes(
+                    composable_node_descriptions=self.__composable_node_descriptions,
+                    target_container=self
                 )
             ]
         container_actions = super().execute(context)  # type: Optional[List[Action]]

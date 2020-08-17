@@ -20,7 +20,6 @@ from composition_interfaces.srv import LoadNode
 
 from launch import LaunchDescription
 from launch import LaunchService
-from launch.actions import GroupAction
 from launch_ros.actions import LoadComposableNodes
 from launch_ros.descriptions import ComposableNode
 
@@ -101,9 +100,9 @@ def _load_composable_node(
         composable_node_descriptions=[
             ComposableNode(
                 package=package,
-                plugin=plugin,
-                name=name,
-                namespace=namespace,
+                node_plugin=plugin,
+                node_name=name,
+                node_namespace=namespace,
                 parameters=parameters,
                 remappings=remappings,
             )
@@ -119,7 +118,7 @@ def mock_component_container():
 
 def test_load_node(mock_component_container):
     """Test loading a node."""
-    context = _assert_launch_no_errors([
+    _assert_launch_no_errors([
         _load_composable_node(
             package='foo_package',
             plugin='bar_plugin',
@@ -142,7 +141,7 @@ def test_load_node(mock_component_container):
 
 def test_load_node_with_remaps(mock_component_container):
     """Test loading a node with remappings."""
-    context = _assert_launch_no_errors([
+    _assert_launch_no_errors([
         _load_composable_node(
             package='foo_package',
             plugin='bar_plugin',
@@ -171,7 +170,7 @@ def test_load_node_with_remaps(mock_component_container):
 
 def test_load_node_with_params(mock_component_container):
     """Test loading a node with parameters."""
-    context = _assert_launch_no_errors([
+    _assert_launch_no_errors([
         _load_composable_node(
             package='foo_package',
             plugin='bar_plugin',

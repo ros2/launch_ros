@@ -109,6 +109,12 @@ class LoadComposableNodes(Action):
             nonlocal event
             event.set()
 
+        self.__logger.debug(
+            "Calling the '{}' service with request '{}'".format(
+                self.__rclpy_load_node_client.srv_name, request
+            )
+        )
+
         response_future = self.__rclpy_load_node_client.call_async(request)
         response_future.add_done_callback(unblock)
 

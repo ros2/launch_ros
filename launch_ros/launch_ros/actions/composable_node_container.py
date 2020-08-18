@@ -86,7 +86,10 @@ class ComposableNodeContainer(Node):
         composable nodes load action if it applies.
         """
         load_actions = None  # type: Optional[List[Action]]
-        if self.__composable_node_descriptions is not None:
+        if (
+            self.__composable_node_descriptions is not None and
+            len(self.__composable_node_descriptions) > 0
+        ):
             from .load_composable_nodes import LoadComposableNodes
             # Perform load action once the container has started.
             load_actions = [

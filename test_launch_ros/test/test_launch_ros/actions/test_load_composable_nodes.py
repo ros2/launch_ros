@@ -188,7 +188,7 @@ def test_load_node_with_params(mock_component_container):
             namespace='test_node_namespace',
             parameters=[{
                 'test_param1': 'test_value_param1',
-                'test.param2': '42.0',
+                'test.param2': 42.0,
             }]
         )
     ])
@@ -209,10 +209,8 @@ def test_load_node_with_params(mock_component_container):
     assert request.parameters[0].value.type == ParameterType.PARAMETER_STRING
     assert request.parameters[0].value.string_value == 'test_value_param1'
     assert request.parameters[1].name == 'test.param2'
-    # TODO(jacobperron): I would expect this to be a double value, but we can only pass strings
-    # assert request.parameters[1].value.type == ParameterType.PARAMETER_DOUBLE
-    # assert request.parameters[1].value.double_value == 42.0
-    assert request.parameters[1].value.string_value == '42.0'
+    assert request.parameters[1].value.type == ParameterType.PARAMETER_DOUBLE
+    assert request.parameters[1].value.double_value == 42.0
     assert len(request.extra_arguments) == 0
 
 

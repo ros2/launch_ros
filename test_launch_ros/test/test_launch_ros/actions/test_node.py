@@ -183,7 +183,7 @@ class TestNode(unittest.TestCase):
         for item, is_file in expanded_parameter_arguments:
             assert not is_file
             name, value = item.split(':=')
-            parameters.append((name, yaml.load(value)))
+            parameters.append((name, yaml.safe_load(value)))
         assert parameters == [
             ('param1', 'param1_value'),
             ('param2', ['param2', '_value']),

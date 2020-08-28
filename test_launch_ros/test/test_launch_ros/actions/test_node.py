@@ -219,7 +219,7 @@ class TestNode(unittest.TestCase):
         file_path, is_file = expanded_parameter_arguments[0]
         assert is_file
         with open(file_path, 'r') as h:
-            expanded_parameters_dict = yaml.safe_load(h, Loader=yaml.FullLoader)
+            expanded_parameters_dict = yaml.load(h, Loader=yaml.FullLoader)
             assert expanded_parameters_dict == {
                 '/my_ns/my_node': {
                     'ros__parameters': {

@@ -14,6 +14,8 @@
 
 """Module for the LoadComposableNodes action."""
 
+import threading
+
 from typing import List
 from typing import Optional
 from typing import Text
@@ -99,13 +101,39 @@ class LoadComposableNodes(Action):
                     )
                 )
                 return
+
+        # Asynchronously wait on service call so that we can periodically check for shutdown
+        event = threading.Event()
+
+        def unblock(future):
+            nonlocal event
+            event.set()
+
         self.__logger.debug(
             "Calling the '{}' service with request '{}'".format(
                 self.__rclpy_load_node_client.srv_name, request
             )
         )
-        response = self.__rclpy_load_node_client.call(request)
+
+        response_future = self.__rclpy_load_node_client.call_async(request)
+        response_future.add_done_callback(unblock)
+
+        while not event.wait(1.0):
+            if context.is_shutdown:
+                self.__logger.warning(
+                    "Abandoning wait for the '{}' service response, due to shutdown.".format(
+                        self.__rclpy_load_node_client.srv_name),
+                )
+                response_future.cancel()
+                return
+
+        # Get response
+        if response_future.exception() is not None:
+            raise response_future.exception()
+        response = response_future.result()
+
         self.__logger.debug("Received response '{}'".format(response))
+
         node_name = response.full_node_name if response.full_node_name else request.node_name
         if response.success:
             if node_name is not None:

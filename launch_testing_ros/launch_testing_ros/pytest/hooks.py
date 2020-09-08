@@ -21,19 +21,24 @@ from ..test_runner import LaunchTestRunner
 class LaunchROSTestItem(LaunchTestItem):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs, runner_cls=LaunchTestRunner)
+        super().__init__(*args, **kwargs)
+
+    @classmethod
+    def from_parent(cls, *args, **kwargs):
+        kwargs['runner_cls'] = LaunchTestRunner
+        return super().from_parent(*args, **kwargs)
 
 
 class LaunchROSTestModule(LaunchTestModule):
 
     def makeitem(self, *args, **kwargs):
-        return LaunchROSTestItem(*args, **kwargs)
+        return LaunchROSTestItem.from_parent(*args, **kwargs)
 
 
 def pytest_launch_collect_makemodule(path, parent, entrypoint):
     marks = getattr(entrypoint, 'pytestmark', [])
     if marks and any(m.name == 'rostest' for m in marks):
-        return LaunchROSTestModule(path, parent)
+        return LaunchROSTestModule.from_parent(parent=parent, fspath=path)
 
 
 def pytest_configure(config):

@@ -146,7 +146,7 @@ class TestNode(unittest.TestCase):
             assert expanded_parameter_arguments[i] == (str(parameters_file_path), True)
 
     def test_launch_node_with_parameter_descriptions(self):
-        """Test launching a node with parameters specified in a dictionary."""
+        """Test launching a node with parameters specified in a list."""
         os.environ['PARAM1_VALUE'] = 'param1_value'
         os.environ['PARAM2'] = 'param2'
         node_action = self._create_node(
@@ -209,6 +209,7 @@ class TestNode(unittest.TestCase):
                 },
                 'param3': '',
                 'param4': ParameterValue(EnvironmentVariable(name='PARAM4_INT'), value_type=int),
+                '__param_file_cleanup': False,
             }],
         )
         self._assert_launch_no_errors([node_action])
@@ -229,6 +230,7 @@ class TestNode(unittest.TestCase):
                         'param4': 100,
                         'param_group1.list_params': (1.2, 3.4),
                         'param_group1.param_group2.param2_values': ('param2_value',),
+                        '__param_file_cleanup': False,
                     }
                 }
             }

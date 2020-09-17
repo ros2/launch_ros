@@ -450,7 +450,7 @@ class Node(ExecuteProcess):
 
         Delegated to :meth:`launch.actions.ExecuteProcess.execute`.
         """
-        param_file_path, param_file_cleanup = self._perform_substitutions(context)
+        self.param_file_path, self.param_file_cleanup = self._perform_substitutions(context)
         # Prepare the ros_specific_arguments list and add it to the context so that the
         # LocalSubstitution placeholders added to the the cmd can be expanded using the contents.
         ros_specific_arguments: Dict[str, Union[str, List[str]]] = {}
@@ -471,11 +471,6 @@ class Node(ExecuteProcess):
                     'launch context'.format(node_name_count, self.node_name)
                 )
 
-        # Delete temporary parameter yaml file
-        if param_file_cleanup and param_file_path is not None:
-            if os.path.exists(param_file_path):
-                os.remove(param_file_path)
-
         return ret
 
     @property
@@ -487,3 +482,10 @@ class Node(ExecuteProcess):
     def expanded_remapping_rules(self):
         """Getter for expanded_remappings."""
         return self.__expanded_remappings
+
+    def on_exit(self):
+        """Clean up on process termination."""
+        # Delete temporary parameter yaml file
+        if self.param_file_cleanup and self.param_file_path is not None:
+            if os.path.exists(self.param_file_path):
+                os.remove(self.param_file_path)

@@ -21,13 +21,6 @@ import pytest
 
 
 def test_lifecycle_node_constructor():
-    # Construction without namespace
-    with pytest.raises(TypeError):
-        LifecycleNode(
-            package='asd',
-            executable='bsd',
-            name='my_node',
-        )
     # Construction without name
     # TODO(ivanpauno): This should raise TypeError.
     with pytest.raises(RuntimeError):

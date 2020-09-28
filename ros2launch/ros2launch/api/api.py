@@ -16,7 +16,10 @@
 
 from collections import OrderedDict
 import os
+import pathlib
+from tempfile import TemporaryDirectory
 from typing import List
+from typing import Optional
 from typing import Text
 from typing import Tuple
 
@@ -25,6 +28,7 @@ from ament_index_python.packages import PackageNotFoundError
 import launch
 from launch.frontend import Parser
 from launch.launch_description_sources import get_launch_description_from_any_launch_file
+import sros2.keystore
 
 
 class MultipleLaunchFilesError(Exception):
@@ -34,6 +38,32 @@ class MultipleLaunchFilesError(Exception):
         """Create a MultipleLaunchFilesError."""
         super().__init__(msg)
         self.paths = paths
+
+
+class NoKeystoreProvidedError(Exception):
+    """Exception raised when a keystore is not provided."""
+
+    def __init__(self):
+        super().__init__(('--no-create-keystore was specified and '
+                          'no keystore was provided'))
+
+
+class NonexistantKeystoreError(Exception):
+    """Exception raised when keystore is not on disk."""
+
+    def __init__(self, keystore_path: pathlib.Path):
+        super().__init__(('--no-create-keystore was specified and '
+                          f'the keystore "{keystore_path}" '
+                          'does not exist'))
+
+
+class InvalidKeystoreError(Exception):
+    """Exception raised when provided keystore isn't valid."""
+
+    def __init__(self, keystore_path: pathlib.Path):
+        super().__init__(('--no-create-keystore was specified and '
+                          f'the keystore "{keystore_path}" is not initialized. \n\t'
+                          f'(Try running: ros2 security create_keystore {keystore_path})'))
 
 
 def get_share_file_path_from_package(*, package_name, file_name):
@@ -140,7 +170,9 @@ def parse_launch_arguments(launch_arguments: List[Text]) -> List[Tuple[Text, Tex
     return parsed_launch_arguments.items()
 
 
-def launch_a_launch_file(*, launch_file_path, launch_file_arguments, debug=False):
+def launch_a_launch_file(
+    *, launch_file_path, launch_file_arguments, debug=False, secure=None, create_keystore=True
+):
     """Launch a given launch file (by path) and pass it the given launch file arguments."""
     launch_service = launch.LaunchService(argv=launch_file_arguments, debug=debug)
     parsed_launch_arguments = parse_launch_arguments(launch_file_arguments)
@@ -154,9 +186,80 @@ def launch_a_launch_file(*, launch_file_path, launch_file_arguments, debug=False
             launch_arguments=parsed_launch_arguments,
         ),
     ])
+    if secure is not None:
+        # declare keystore so if it is a TemporaryDirectory, it gets cleaned up when out of scope
+        keystore, launch_description = _setup_security(  # noqa: F841
+            launch_description=launch_description,
+            keystore_dir=secure,
+            create_keystore=create_keystore,
+        )
     launch_service.include_launch_description(launch_description)
     ret = launch_service.run()
     return ret
+
+
+def _setup_security(
+    *, launch_description: launch.LaunchDescription, keystore_dir: str, create_keystore: bool
+) -> Tuple['_Keystore', launch.LaunchDescription]:
+    keystore_path = pathlib.Path(keystore_dir) if keystore_dir != '' else None
+    keystore = _Keystore(keystore_path=keystore_path, create_keystore=create_keystore)
+
+    launch_description = launch.LaunchDescription(
+        [
+            launch.actions.DeclareLaunchArgument(
+                name='__keystore', default_value=str(keystore.path)
+            ),
+            launch.actions.DeclareLaunchArgument(
+                name='__secure', default_value='true'
+            ),
+            launch.actions.SetEnvironmentVariable(
+                name='ROS_SECURITY_KEYSTORE', value=str(keystore.path)
+            ),
+            launch.actions.SetEnvironmentVariable(name='ROS_SECURITY_STRATEGY', value='Enforce'),
+            launch.actions.SetEnvironmentVariable(name='ROS_SECURITY_ENABLE', value='true'),
+        ]
+        + launch_description.entities
+    )
+
+    return keystore, launch_description
+
+
+class _Keystore:
+    """
+    Object that contains a keystore.
+
+    If a transient keystore is created, contains the temporary directory, assuring
+    it is destroyed alongside the _Keystore object.
+    """
+
+    def __init__(self, *, keystore_path: Optional[pathlib.Path], create_keystore: bool):
+        if not create_keystore:
+            if keystore_path is None:
+                raise NoKeystoreProvidedError()
+            if not keystore_path.exists():
+                raise NonexistantKeystoreError(keystore_path)
+            if not sros2.keystore.is_valid_keystore(keystore_path):
+                raise InvalidKeystoreError(keystore_path)
+
+        # If keystore path is blank, create a transient keystore
+        if keystore_path is None:
+            self._temp_keystore = TemporaryDirectory()
+            self._keystore_path = pathlib.Path(self._temp_keystore.name)
+        else:
+            self._keystore_path = keystore_path
+        self._keystore_path = self._keystore_path.resolve()
+        # If keystore is not initialized, create a keystore
+        if not self._keystore_path.is_dir():
+            self._keystore_path.mkdir()
+        if not sros2.keystore.is_valid_keystore(self._keystore_path):
+            sros2.keystore.create_keystore(self._keystore_path)
+
+    @property
+    def path(self) -> pathlib.Path:
+        return self._keystore_path
+
+    def __str__(self) -> str:
+        return str(self._keystore_path)
 
 
 class LaunchFileNameCompleter:

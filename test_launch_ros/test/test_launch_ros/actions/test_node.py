@@ -16,12 +16,15 @@
 
 import os
 import pathlib
+import tempfile
 from typing import List
 import unittest
+from unittest.mock import patch
 
 from launch import LaunchContext
 from launch import LaunchDescription
 from launch import LaunchService
+from launch.actions import DeclareLaunchArgument
 from launch.actions import Shutdown
 from launch.substitutions import EnvironmentVariable
 
@@ -30,6 +33,7 @@ from launch_ros.descriptions import Parameter
 from launch_ros.descriptions import ParameterValue
 
 import pytest
+from sros2.api._keystore import is_valid_keystore
 import yaml
 
 
@@ -307,6 +311,111 @@ class TestNode(unittest.TestCase):
                     },
                 },
             }])
+
+    def _add_secure_flag(self, actions: List) -> List:
+        return [DeclareLaunchArgument('__secure', default_value=['true'])] + actions
+
+    def _add_secure_no_create_flag(self, actions: List) -> List:
+        return [
+            DeclareLaunchArgument('__no_create_keystore', default_value=['true'])
+        ] + self._add_secure_flag(actions)
+
+    def _assert_has_enclave(self, node, node_name):
+        assert any('--enclave' in cmd[0].describe() for cmd in node.cmd)
+        assert node._Node__enclave == node_name
+
+    @patch('launch_ros.actions.node.nodl', autospec=True)
+    def test_launch_node_transient_keystore(self, nodl_mock):
+        nodl_mock.get_node_by_executable.return_value.name = 'foo'
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('launch_ros.actions.node.TemporaryDirectory') as tempdir_mock:
+                tempdir_mock.return_value.name = tmpdir
+                node_fixture = self._create_node()
+                actions = self._add_secure_flag([node_fixture])
+                self._assert_launch_no_errors(actions)
+                self._assert_has_enclave(node_fixture, '/my_ns/my_node')
+
+                assert is_valid_keystore(tmpdir)
+
+    @patch('launch_ros.actions.node.nodl', autospec=True)
+    def test_launch_node_transient_keystore_no_create(self, nodl_mock):
+        nodl_mock.get_node_by_executable.return_value.name = 'foo'
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch('launch_ros.actions.node.TemporaryDirectory') as tempdir_mock:
+                tempdir_mock.return_value.name = tmpdir
+                # Test disabling keystore creation
+                node_fixture = self._create_node()
+                actions = self._add_secure_no_create_flag([node_fixture])
+                self._assert_launch_errors(actions)
+
+    @patch('launch_ros.actions.node.nodl', autospec=True)
+    def test_launch_node_secure_create_keystore(self, nodl_mock):
+        nodl_mock.get_node_by_executable.return_value.name = 'foo'
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.dict(os.environ, {'ROS_SECURITY_KEYSTORE': tmp + '/foo'}):
+                node_fixture = self._create_node()
+                secure_node_action = self._add_secure_flag([node_fixture])
+                self._assert_launch_no_errors(secure_node_action)
+                self._assert_has_enclave(node_fixture, '/my_ns/my_node')
+                assert is_valid_keystore(tmp + '/foo')
+
+    @patch('launch_ros.actions.node.nodl', autospec=True)
+    def test_launch_node_secure_no_create_keystore(self, nodl_mock):
+        nodl_mock.get_node_by_executable.return_value.name = 'foo'
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.dict(os.environ, {'ROS_SECURITY_KEYSTORE': tmp + '/foo'}):
+                node_fixture = self._create_node()
+                secure_node_action = self._add_secure_no_create_flag([node_fixture])
+                self._assert_launch_errors(secure_node_action)
+
+    @patch('launch_ros.actions.node.nodl', autospec=True)
+    def test_launch_node_secure_fully_qualified(self, nodl_mock):
+        nodl_mock.get_node_by_executable.return_value.name = 'foo'
+        # First try with fully qualified node name specified
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.dict(os.environ, {'ROS_SECURITY_KEYSTORE': tmp}):
+                node_fixture = self._create_node()
+                secure_node_action = self._add_secure_flag([node_fixture])
+                self._assert_launch_no_errors(secure_node_action)
+                self._assert_has_enclave(node_fixture, '/my_ns/my_node')
+                assert is_valid_keystore(tmp)
+
+    @patch('launch_ros.actions.node.nodl', autospec=True)
+    def test_launch_node_secure_no_name(self, nodl_mock):
+        # Now try filling in with node name from nodl
+        nodl_mock.get_node_by_executable.return_value.name = 'foo'
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.dict(os.environ, {'ROS_SECURITY_KEYSTORE': tmp}):
+                node_fixture = launch_ros.actions.Node(
+                    package='demo_nodes_py',
+                    executable='talker_qos',
+                    output='screen',
+                    namespace='my_ns',
+                    exec_name='my_node_process',
+                    arguments=['--number_of_cycles', '1'],
+                )
+                secure_node_action = self._add_secure_flag([node_fixture])
+                self._assert_launch_no_errors(secure_node_action)
+                self._assert_has_enclave(node_fixture, '/my_ns/foo')
+                assert is_valid_keystore(tmp)
+
+    @patch('launch_ros.actions.node.nodl', autospec=True)
+    def test_launch_node_secure_no_namespace(self, nodl_mock):
+        # Now try with no namespace
+        nodl_mock.get_node_by_executable.return_value.name = 'foo'
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.dict(os.environ, {'ROS_SECURITY_KEYSTORE': tmp}):
+                node_fixture = launch_ros.actions.Node(
+                    package='demo_nodes_py',
+                    executable='talker_qos',
+                    output='screen',
+                    exec_name='my_node_process',
+                    arguments=['--number_of_cycles', '1'],
+                )
+                secure_node_action = self._add_secure_flag([node_fixture])
+                self._assert_launch_no_errors(secure_node_action)
+                self._assert_has_enclave(node_fixture, '/foo')
+                assert is_valid_keystore(tmp)
 
 
 def get_test_node_name_parameters():

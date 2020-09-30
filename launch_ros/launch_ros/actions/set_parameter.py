@@ -23,6 +23,7 @@ from launch.frontend import expose_action
 from launch.frontend import Parser
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
+from launch.utilities import normalize_to_list_of_substitutions
 
 from launch_ros.parameters_type import SomeParameterValue
 from launch_ros.utilities.evaluate_parameters import evaluate_parameter_dict
@@ -62,7 +63,8 @@ class SetParameter(Action):
     ) -> None:
         """Create a SetParameter action."""
         super().__init__(**kwargs)
-        self.__param_dict = normalize_parameter_dict({name: value})
+        normalized_name = normalize_to_list_of_substitutions(name)
+        self.__param_dict = normalize_parameter_dict({tuple(normalized_name): value})
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):

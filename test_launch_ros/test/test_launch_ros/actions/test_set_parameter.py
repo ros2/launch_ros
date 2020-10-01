@@ -17,11 +17,13 @@
 from launch import LaunchContext
 from launch.actions import PopLaunchConfigurations
 from launch.actions import PushLaunchConfigurations
+from launch.substitutions import TextSubstitution
 
 from launch_ros.actions import Node
 from launch_ros.actions import SetParameter
 from launch_ros.actions.load_composable_nodes import get_composable_node_load_request
 from launch_ros.descriptions import ComposableNode
+from launch_ros.parameter_descriptions import ParameterValue
 
 import pytest
 import yaml
@@ -39,14 +41,34 @@ class MockContext:
 def get_set_parameter_test_parameters():
     return [
         pytest.param(
-            [{'my_param': '2'}],  # to set
+            [('my_param', '2')],  # to set
             {'my_param': '2'},  # expected
             id='One param'
         ),
         pytest.param(
-            [{'my_param': '2', 'another_param': '2'}, {'my_param': '3'}],
+            [('my_param', '2'), ('another_param', '2'), ('my_param', '3')],
             {'my_param': '3', 'another_param': '2'},
             id='Two params, overriding one'
+        ),
+        pytest.param(
+            [(TextSubstitution(text='my_param'), TextSubstitution(text='my_value'))],
+            {'my_param': 'my_value'},
+            id='Substitution types'
+        ),
+        pytest.param(
+            [((TextSubstitution(text='my_param'),), (TextSubstitution(text='my_value'),))],
+            {'my_param': 'my_value'},
+            id='Tuple of substitution types'
+        ),
+        pytest.param(
+            [([TextSubstitution(text='my_param')], [TextSubstitution(text='my_value')])],
+            {'my_param': 'my_value'},
+            id='List of substitution types'
+        ),
+        pytest.param(
+            [('my_param', ParameterValue('my_value'))],
+            {'my_param': 'my_value'},
+            id='ParameterValue type'
         ),
     ]
 
@@ -57,9 +79,8 @@ def get_set_parameter_test_parameters():
 )
 def test_set_param(params_to_set, expected_result):
     set_parameter_actions = []
-    for dicts in params_to_set:
-        for name, value in dicts.items():
-            set_parameter_actions.append(SetParameter(name=name, value=value))
+    for name, value in params_to_set:
+        set_parameter_actions.append(SetParameter(name=name, value=value))
     lc = MockContext()
     for set_param in set_parameter_actions:
         set_param.execute(lc)

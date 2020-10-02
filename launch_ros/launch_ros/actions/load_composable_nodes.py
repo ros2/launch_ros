@@ -112,7 +112,9 @@ class LoadComposableNodes(Action):
                 add_node_name(context, node_name)
                 node_name_count = get_node_name_count(context, node_name)
                 if node_name_count > 1:
-                    container_logger = launch.logging.get_logger(self.__target_container.name)
+                    container_logger = launch.logging.get_logger(
+                        self.__final_target_container_name
+                    )
                     container_logger.warning(
                         'there are now at least {} nodes with the name {} created within this '
                         'launch context'.format(node_name_count, node_name)

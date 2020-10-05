@@ -348,7 +348,7 @@ class Node(ExecuteProcess):
                 validate_node_name(self.__expanded_node_name)
             self.__expanded_node_name.lstrip('/')
             expanded_node_namespace = None
-            if self.__node_namespace is not None and self.__node_namespace != '':
+            if self.__node_namespace:
                 expanded_node_namespace = perform_substitutions(
                     context, normalize_to_list_of_substitutions(self.__node_namespace))
             base_ns = context.launch_configurations.get('ros_namespace', None)

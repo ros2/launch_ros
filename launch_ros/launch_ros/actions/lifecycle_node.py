@@ -19,10 +19,10 @@ import threading
 from typing import cast
 from typing import List
 from typing import Optional
-from typing import Text
 import warnings
 
 import launch
+from launch import SomeSubstitutionsType
 from launch.action import Action
 import launch.logging
 
@@ -42,8 +42,9 @@ class LifecycleNode(Node):
     def __init__(
         self,
         *,
-        name: Optional[Text] = None,
-        node_name: Optional[Text] = None,
+        name: Optional[SomeSubstitutionsType] = None,
+        namespace: Optional[SomeSubstitutionsType] = None,
+        node_name: Optional[SomeSubstitutionsType] = None,
         **kwargs
     ) -> None:
         """
@@ -75,6 +76,8 @@ class LifecycleNode(Node):
         :param name: The name of the lifecycle node.
           Although it defaults to None it is a required parameter and the default will be removed
           in a future release.
+        :param namespace: Namespace of the node.
+          If no namespace if provided, the global namespace is used.
         :param node_name: (DEPRECATED) The name fo the lifecycle node.
         """
         if node_name is not None:
@@ -87,7 +90,9 @@ class LifecycleNode(Node):
         # TODO(jacobperron): Remove default value and this check when deprecated API is removed
         if name is None:
             raise RuntimeError("'name' must not be None.'")
-        super().__init__(name=name, **kwargs)
+        if not namespace:
+            namespace = '/'
+        super().__init__(name=name, namespace=namespace, **kwargs)
         self.__logger = launch.logging.get_logger(__name__)
         self.__rclpy_subscription = None
         self.__current_state = \

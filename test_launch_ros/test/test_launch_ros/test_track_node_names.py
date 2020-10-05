@@ -93,7 +93,7 @@ def test_launch_node_with_name_without_namespace():
     ld = LaunchDescription([node])
     context = _launch(ld)
     assert get_node_name_count(context, f'{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}') == 0
-    assert get_node_name_count(context, f'/{TEST_NODE_NAME}') == 1
+    assert get_node_name_count(context, f'/{TEST_NODE_NAME}') == 0
 
 
 def test_launch_composable_node_with_names(pytestconfig):

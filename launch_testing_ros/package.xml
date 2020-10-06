@@ -6,8 +6,8 @@
   <description>A package providing utilities for writing ROS2 enabled launch tests.</description>
   <maintainer email="jacob@openrobotics.org">Jacob Perron</maintainer>
   <maintainer email="michael.jeronimo@openrobotics.org">Michael Jeronimo</maintainer>
-  <maintainer email="pete.baughman@apex.ai">Pete Baughman</maintainer>
   <license>Apache License 2.0</license>
+  <author email="pete.baughman@apex.ai">Pete Baughman</author>
 
   <exec_depend>launch_testing</exec_depend>
   <exec_depend>launch_ros</exec_depend>

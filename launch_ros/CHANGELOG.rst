@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.3 (2020-10-07)
+-------------------
+* Fix no specified namespace (`#153 <https://github.com/ros2/launch_ros/issues/153>`_, `#157 <https://github.com/ros2/launch_ros/issues/157>`_) (`#179 <https://github.com/ros2/launch_ros/issues/179>`_)
+* Contributors: Ivan Santiago Paunovic, Jacob Perron
+
 0.10.2 (2020-05-26)
 -------------------
 

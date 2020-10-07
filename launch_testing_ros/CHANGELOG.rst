@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.10.3 (2020-10-07)
+-------------------
+
 0.10.2 (2020-05-26)
 -------------------
 * Call LaunchROSTestModule with the new API. (`#150 <https://github.com/ros2/launch_ros/issues/150>`_)

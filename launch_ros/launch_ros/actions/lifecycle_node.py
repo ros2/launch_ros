@@ -19,7 +19,6 @@ import threading
 from typing import cast
 from typing import List
 from typing import Optional
-import warnings
 
 import launch
 from launch import SomeSubstitutionsType
@@ -42,9 +41,8 @@ class LifecycleNode(Node):
     def __init__(
         self,
         *,
-        name: Optional[SomeSubstitutionsType] = None,
+        name: SomeSubstitutionsType,
         namespace: SomeSubstitutionsType,
-        node_name: Optional[SomeSubstitutionsType] = None,
         **kwargs
     ) -> None:
         """
@@ -70,24 +68,10 @@ class LifecycleNode(Node):
             one, or even all lifecycle nodes, and it requests the targeted nodes
             to change state, see its documentation for more details.
 
-        .. deprecated:: Foxy
-           The parameter `node_name` is deprecated, use `name` instead.
-
         :param name: The name of the lifecycle node.
           Although it defaults to None it is a required parameter and the default will be removed
           in a future release.
-        :param node_name: (DEPRECATED) The name fo the lifecycle node.
         """
-        if node_name is not None:
-            warnings.warn("The parameter 'node_name' is deprecated, use 'name' instead")
-            if name is not None:
-                raise RuntimeError(
-                    "Passing both 'node_name' and 'name' parameters. Only use 'name'."
-                )
-            name = node_name
-        # TODO(jacobperron): Remove default value and this check when deprecated API is removed
-        if name is None:
-            raise RuntimeError("'name' must not be None.'")
         super().__init__(name=name, namespace=namespace, **kwargs)
         self.__logger = launch.logging.get_logger(__name__)
         self.__rclpy_subscription = None

@@ -16,7 +16,6 @@
 
 from typing import List
 from typing import Optional
-import warnings
 
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitution import Substitution
@@ -39,9 +38,6 @@ class ComposableNode:
         plugin: Optional[SomeSubstitutionsType] = None,
         name: Optional[SomeSubstitutionsType] = None,
         namespace: Optional[SomeSubstitutionsType] = None,
-        node_plugin: Optional[SomeSubstitutionsType] = None,
-        node_name: Optional[SomeSubstitutionsType] = None,
-        node_namespace: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
         extra_arguments: Optional[SomeParameters] = None,
@@ -49,46 +45,14 @@ class ComposableNode:
         """
         Initialize a ComposableNode description.
 
-        .. deprecated:: Foxy
-           Parameters `node_plugin`, `node_name`, and `node_namespace` are deprecated.
-           Use `plugin`, `name`, and `namespace` instead.
-
         :param package: name of the ROS package the node plugin lives in
         :param plugin: name of the plugin to be loaded
         :param name: name to give to the ROS node
         :param namespace: namespace to give to the ROS node
-        :param node_plugin: (DEPRECATED) name of the plugin to be loaded
-        :param node_name: (DEPRECATED) name the node should have
-        :param node_namespace: (DEPRECATED) namespace the node should create topics/services/etc in
         :param parameters: list of either paths to yaml files or dictionaries of parameters
         :param remappings: list of from/to pairs for remapping names
         :param extra_arguments: container specific arguments to be passed to the loaded node
         """
-        if node_plugin is not None:
-            warnings.warn("The parameter 'node_plugin' is deprecated, use 'plugin' instead")
-            if plugin is not None:
-                raise RuntimeError(
-                    "Passing both 'node_plugin' and 'plugin' parameters. Only use 'plugin'."
-                )
-            plugin = node_plugin
-        if plugin is None:
-            raise RuntimeError("The 'plugin' parameter is required")
-        if node_name is not None:
-            warnings.warn("The parameter 'node_name' is deprecated, use 'name' instead")
-            if name is not None:
-                raise RuntimeError(
-                    "Passing both 'node_name' and 'name' parameters. Only use 'name'."
-                )
-            name = node_name
-        if node_namespace is not None:
-            warnings.warn("The parameter 'node_namespace' is deprecated, use 'namespace' instead")
-            if namespace is not None:
-                raise RuntimeError(
-                    "Passing both 'node_namespace' and 'namespace' parameters. "
-                    "Only use 'namespace'."
-                )
-            namespace = node_namespace
-
         self.__package = normalize_to_list_of_substitutions(package)
         self.__node_plugin = normalize_to_list_of_substitutions(plugin)
 

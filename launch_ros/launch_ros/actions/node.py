@@ -25,8 +25,6 @@ from typing import Text  # noqa: F401
 from typing import Tuple  # noqa: F401
 from typing import Union
 
-import warnings
-
 from launch.action import Action
 from launch.actions import ExecuteProcess
 from launch.frontend import Entity
@@ -72,12 +70,9 @@ class Node(ExecuteProcess):
     def __init__(
         self, *,
         executable: Optional[SomeSubstitutionsType] = None,
-        node_executable: Optional[SomeSubstitutionsType] = None,
         package: Optional[SomeSubstitutionsType] = None,
         name: Optional[SomeSubstitutionsType] = None,
         namespace: Optional[SomeSubstitutionsType] = None,
-        node_name: Optional[SomeSubstitutionsType] = None,
-        node_namespace: SomeSubstitutionsType = None,
         exec_name: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
@@ -131,39 +126,19 @@ class Node(ExecuteProcess):
         passed in in order to the node (where the last definition of a
         parameter takes effect).
 
-        .. deprecated:: Foxy
-           Parameters `node_executable`, `node_name`, and `node_namespace` are deprecated.
-           Use `executable`, `name`, and `namespace` instead.
-
         :param: executable the name of the executable to find if a package
-            is provided or otherwise a path to the executable to run.
-        :param: node_executable (DEPRECATED) the name of the executable to find if a package
             is provided or otherwise a path to the executable to run.
         :param: package the package in which the node executable can be found
         :param: name the name of the node
         :param: namespace the ROS namespace for this Node
         :param: exec_name the label used to represent the process.
             Defaults to the basename of node executable.
-        :param: node_name (DEPRECATED) the name of the node
-        :param: node_namespace (DEPRECATED) the ros namespace for this Node
         :param: parameters list of names of yaml files with parameter rules,
             or dictionaries of parameters.
         :param: remappings ordered list of 'to' and 'from' string pairs to be
             passed to the node as ROS remapping rules
         :param: arguments list of extra arguments for the node
         """
-        if node_executable is not None:
-            warnings.warn(
-                "The parameter 'node_executable' is deprecated, use 'executable' instead",
-                stacklevel=2
-            )
-            if executable is not None:
-                raise RuntimeError(
-                    "Passing both 'node_executable' and 'executable' parameters. "
-                    "Only use 'executable'"
-                )
-            executable = node_executable
-
         if package is not None:
             cmd = [ExecutableInPackage(package=package, executable=executable)]
         else:
@@ -172,28 +147,9 @@ class Node(ExecuteProcess):
         # Reserve space for ros specific arguments.
         # The substitutions will get expanded when the action is executed.
         cmd += ['--ros-args']  # Prepend ros specific arguments with --ros-args flag
-        if node_name is not None:
-            warnings.warn(
-                "The parameter 'node_name' is deprecated, use 'name' instead",
-                stacklevel=2)
-            if name is not None:
-                raise RuntimeError(
-                    "Passing both 'node_name' and 'name' parameters. Only use 'name'."
-                )
-            cmd += ['-r', LocalSubstitution(
-                "ros_specific_arguments['name']", description='node name')]
-            name = node_name
         if name is not None:
             cmd += ['-r', LocalSubstitution(
                 "ros_specific_arguments['name']", description='node name')]
-        if node_namespace:
-            warnings.warn("The parameter 'node_namespace' is deprecated, use 'namespace' instead")
-            if namespace:
-                raise RuntimeError(
-                    "Passing both 'node_namespace' and 'namespace' parameters. "
-                    "Only use 'namespace'."
-                )
-            namespace = node_namespace
         if parameters is not None:
             ensure_argument_type(parameters, (list), 'parameters', 'Node')
             # All elements in the list are paths to files with parameters (or substitutions that

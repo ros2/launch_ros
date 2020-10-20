@@ -26,7 +26,9 @@ from .to_parameters_list import to_parameters_list
 
 __all__ = [
     'evaluate_parameters',
+    'evaluate_parameters_dict',
     'normalize_parameters',
+    'normalize_parameters_dict',
     'normalize_remap_rule',
     'normalize_remap_rules',
     'to_parameters_list',

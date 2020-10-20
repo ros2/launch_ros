@@ -30,6 +30,7 @@ from .composable_node_container import ComposableNodeContainer
 from ..descriptions import ComposableNode
 from ..utilities import evaluate_parameters
 from ..utilities import to_parameters_list
+from ..utilities.normalize_parameters import normalize_parameter_dict
 
 
 class LoadComposableNodes(Action):
@@ -85,44 +86,7 @@ class LoadComposableNodes(Action):
                     )
                 )
                 return
-        request = composition_interfaces.srv.LoadNode.Request()
-        request.package_name = perform_substitutions(
-            context, composable_node_description.package
-        )
-        request.plugin_name = perform_substitutions(
-            context, composable_node_description.node_plugin
-        )
-        if composable_node_description.node_name is not None:
-            request.node_name = perform_substitutions(
-                context, composable_node_description.node_name
-            )
-        if composable_node_description.node_namespace is not None:
-            request.node_namespace = perform_substitutions(
-                context, composable_node_description.node_namespace
-            )
-        # request.log_level = perform_substitutions(context, node_description.log_level)
-        if composable_node_description.remappings is not None:
-            for from_, to in composable_node_description.remappings:
-                request.remap_rules.append('{}:={}'.format(
-                    perform_substitutions(context, list(from_)),
-                    perform_substitutions(context, list(to)),
-                ))
-        if composable_node_description.parameters is not None:
-            request.parameters = [
-                param.to_parameter_msg() for param in to_parameters_list(
-                    context, evaluate_parameters(
-                        context, composable_node_description.parameters
-                    )
-                )
-            ]
-        if composable_node_description.extra_arguments is not None:
-            request.extra_arguments = [
-                param.to_parameter_msg() for param in to_parameters_list(
-                    context, evaluate_parameters(
-                        context, composable_node_description.extra_arguments
-                    )
-                )
-            ]
+        request = get_composable_node_load_request(composable_node_description, context)
         response = self.__rclpy_load_node_client.call(request)
         if not response.success:
             self.__logger.error(
@@ -173,3 +137,55 @@ class LoadComposableNodes(Action):
                 None, self._load_in_sequence, self.__composable_node_descriptions, context
             )
         )
+
+
+def get_composable_node_load_request(
+    composable_node_description: ComposableNode,
+    context: LaunchContext
+):
+    """Get the request that will be send to the composable node container."""
+    request = composition_interfaces.srv.LoadNode.Request()
+    request.package_name = perform_substitutions(
+        context, composable_node_description.package
+    )
+    request.plugin_name = perform_substitutions(
+        context, composable_node_description.node_plugin
+    )
+    if composable_node_description.node_name is not None:
+        request.node_name = perform_substitutions(
+            context, composable_node_description.node_name
+        )
+    if composable_node_description.node_namespace is not None:
+        request.node_namespace = perform_substitutions(
+            context, composable_node_description.node_namespace
+        )
+    # request.log_level = perform_substitutions(context, node_description.log_level)
+    if composable_node_description.remappings is not None:
+        for from_, to in composable_node_description.remappings:
+            request.remap_rules.append('{}:={}'.format(
+                perform_substitutions(context, list(from_)),
+                perform_substitutions(context, list(to)),
+            ))
+    global_params = context.launch_configurations.get('ros_params', None)
+    parameters = []
+    if global_params is not None:
+        parameters.append(normalize_parameter_dict(global_params))
+    if composable_node_description.parameters is not None:
+        parameters.extend(list(composable_node_description.parameters))
+    if parameters:
+        request.parameters = [
+            param.to_parameter_msg() for param in to_parameters_list(
+                context, evaluate_parameters(
+                    context, parameters
+                )
+            )
+        ]
+    if composable_node_description.extra_arguments is not None:
+        request.extra_arguments = [
+            param.to_parameter_msg() for param in to_parameters_list(
+                context, evaluate_parameters(
+                    context, composable_node_description.extra_arguments
+                )
+            )
+        ]
+    return request

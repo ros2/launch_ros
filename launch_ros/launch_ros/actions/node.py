@@ -136,13 +136,6 @@ class Node(ExecuteProcess):
             ensure_argument_type(parameters, (list), 'parameters', 'Node')
             # All elements in the list are paths to files with parameters (or substitutions that
             # evaluate to paths), or dictionaries of parameters (fields can be substitutions).
-            i = 0
-            for param in parameters:
-                i += 1
-                cmd += [LocalSubstitution(
-                    'ros_specific_arguments[{}]'.format(ros_args_index),
-                    description='parameter {}'.format(i))]
-                ros_args_index += 1
             normalized_params = normalize_parameters(parameters)
         if remappings is not None:
             i = 0
@@ -164,8 +157,8 @@ class Node(ExecuteProcess):
 
         self.__expanded_node_name = '<node_name_unspecified>'
         self.__expanded_node_namespace = '/'
-        self.__final_node_name = None  # type: Optional[Text]
         self.__expanded_parameter_files = None  # type: Optional[List[Text]]
+        self.__final_node_name = None  # type: Optional[Text]
         self.__expanded_remappings = None  # type: Optional[List[Tuple[Text, Text]]]
 
         self.__substitutions_performed = False
@@ -219,13 +212,24 @@ class Node(ExecuteProcess):
         if self.__expanded_node_namespace not in ['', '/']:
             self.__final_node_name += self.__expanded_node_namespace
         self.__final_node_name += '/' + self.__expanded_node_name
+        # expand global parameters first,
+        # so they can be overriden with specific parameters of this Node
+        global_params = context.launch_configurations.get('ros_params', None)
+        if global_params is not None or self.__parameters is not None:
+            self.__expanded_parameter_files = []
+        if global_params is not None:
+            param_file_path = self._create_params_file_from_dict(global_params)
+            self.__expanded_parameter_files.append(param_file_path)
+            cmd_extension = ['--params-file', f'{param_file_path}']
+            self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
+            assert os.path.isfile(param_file_path)
         # expand parameters too
         if self.__parameters is not None:
-            self.__expanded_parameter_files = []
             evaluated_parameters = evaluate_parameters(context, self.__parameters)
-            for params in evaluated_parameters:
+            for i, params in enumerate(evaluated_parameters):
                 if isinstance(params, dict):
                     param_file_path = self._create_params_file_from_dict(params)
+                    assert os.path.isfile(param_file_path)
                 elif isinstance(params, pathlib.Path):
                     param_file_path = str(params)
                 else:
@@ -234,9 +238,10 @@ class Node(ExecuteProcess):
                     self.__logger.warning(
                         'Parameter file path is not a file: {}'.format(param_file_path),
                     )
-                    # Don't skip adding the file to the parameter list since space has been
-                    # reserved for it in the ros_specific_arguments.
+                    continue
                 self.__expanded_parameter_files.append(param_file_path)
+                cmd_extension = ['--params-file', f'{param_file_path}']
+                self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
         # expand remappings too
         if self.__remappings is not None:
             self.__expanded_remappings = []
@@ -259,9 +264,6 @@ class Node(ExecuteProcess):
             ros_specific_arguments.append('__node:={}'.format(self.__expanded_node_name))
         if self.__node_namespace is not None:
             ros_specific_arguments.append('__ns:={}'.format(self.__expanded_node_namespace))
-        if self.__expanded_parameter_files is not None:
-            for param_file_path in self.__expanded_parameter_files:
-                ros_specific_arguments.append('__params:={}'.format(param_file_path))
         if self.__expanded_remappings is not None:
             for remapping_from, remapping_to in self.__expanded_remappings:
                 ros_specific_arguments.append('{}:={}'.format(remapping_from, remapping_to))

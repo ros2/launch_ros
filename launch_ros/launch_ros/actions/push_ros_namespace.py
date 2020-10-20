@@ -50,14 +50,14 @@ class PushRosNamespace(Action):
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
-        """Return `SetLaunchConfiguration` action and kwargs for constructing it."""
+        """Return `PushRosNamespace` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         kwargs['namespace'] = parser.parse_substitution(entity.get_attr('namespace'))
         return cls, kwargs
 
     @property
     def namespace(self) -> List[Substitution]:
-        """Getter for self.__name."""
+        """Getter for self.__namespace."""
         return self.__namespace
 
     def execute(self, context: LaunchContext):

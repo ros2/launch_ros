@@ -29,8 +29,10 @@ from .track_node_names import get_node_name_count
 __all__ = [
     'add_node_name',
     'evaluate_parameters',
+    'evaluate_parameters_dict',
     'get_node_name_count',
     'normalize_parameters',
+    'normalize_parameters_dict',
     'normalize_remap_rule',
     'normalize_remap_rules',
     'to_parameters_list',

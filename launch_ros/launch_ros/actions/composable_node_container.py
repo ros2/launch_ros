@@ -77,7 +77,10 @@ class ComposableNodeContainer(Node):
                 )
             namespace = node_namespace
 
-        if not namespace:
+        if namespace is None:
+            raise RuntimeError("'namespace' is a required argument")
+
+        if namespace == '':
             namespace = '/'
         super().__init__(name=name, namespace=namespace, **kwargs)
         self.__composable_node_descriptions = composable_node_descriptions

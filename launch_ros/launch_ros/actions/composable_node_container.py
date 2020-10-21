@@ -77,6 +77,10 @@ class ComposableNodeContainer(Node):
                 )
             namespace = node_namespace
 
+
+        if name is None:
+            raise RuntimeError("'name' is a required argument")
+
         if namespace is None:
             raise RuntimeError("'namespace' is a required argument")
 

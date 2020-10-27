@@ -18,7 +18,6 @@ import os
 import pathlib
 from typing import List
 import unittest
-import warnings
 
 from launch import LaunchContext
 from launch import LaunchDescription
@@ -249,55 +248,6 @@ class TestNode(unittest.TestCase):
             parameters=[{'my_param': 'value'}],
         )
         self._assert_launch_no_errors([node_action])
-
-    def test_deprecated_node_parameters(self):
-        """Test that using deprecated parameters will warn/error."""
-        # Note that the following tests are expected to break when the deprecated
-        # parameters are eventually removed and should be updated accordingly.
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter('always')
-            node_action = launch_ros.actions.Node(
-                package='demo_nodes_py', node_executable='talker_qos', output='screen',
-                node_name='my_node', node_namespace='my_ns'
-            )
-            self._assert_launch_no_errors([node_action])
-            self.assertEqual(len(w), 3)
-            self.assertTrue(issubclass(w[0].category, UserWarning))
-            self.assertTrue(issubclass(w[1].category, UserWarning))
-            self.assertTrue(issubclass(w[2].category, UserWarning))
-
-        # Providing both 'node_executable' and 'executable' should throw
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter('always')
-            with self.assertRaises(RuntimeError):
-                launch_ros.actions.Node(
-                    package='demo_nodes_py', node_executable='talker_qos', executable='talker_qos',
-                    output='screen', name='my_node', namespace='my_ns'
-                )
-            self.assertEqual(len(w), 1)
-            self.assertTrue(issubclass(w[0].category, UserWarning))
-
-        # Providing both 'node_name' and 'name' should throw
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter('always')
-            with self.assertRaises(RuntimeError):
-                launch_ros.actions.Node(
-                    package='demo_nodes_py', executable='talker_qos', output='screen',
-                    node_name='my_node', name='my_node', namespace='my_ns'
-                )
-            self.assertEqual(len(w), 1)
-            self.assertTrue(issubclass(w[0].category, UserWarning))
-
-        # Providing both 'node_namespace' and 'namespace' should throw
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter('always')
-            with self.assertRaises(RuntimeError):
-                launch_ros.actions.Node(
-                    package='demo_nodes_py', executable='talker_qos', output='screen',
-                    name='my_node', node_namespace='my_ns', namespace='my_ns'
-                )
-            self.assertEqual(len(w), 1)
-            self.assertTrue(issubclass(w[0].category, UserWarning))
 
     def test_launch_node_with_invalid_parameter_dicts(self):
         """Test launching a node with invalid parameter dicts."""

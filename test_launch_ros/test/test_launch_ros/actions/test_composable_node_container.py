@@ -33,7 +33,7 @@ TEST_NODE_NAME = 'test_composable_node_name'
 TEST_NODE_NAMESPACE = 'test_composable_node_namespace'
 
 
-def _assert_launch_no_errors(actions, *, timeout_sec=1):
+def _assert_launch_no_errors(actions, *, timeout_sec=5):
     ld = LaunchDescription(actions)
     ls = LaunchService(debug=True)
     ls.include_launch_description(ld)

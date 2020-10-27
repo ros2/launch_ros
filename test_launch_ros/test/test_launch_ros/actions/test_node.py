@@ -18,7 +18,6 @@ import os
 import pathlib
 from typing import List
 import unittest
-import warnings
 
 from launch import LaunchContext
 from launch import LaunchDescription
@@ -249,7 +248,6 @@ class TestNode(unittest.TestCase):
             parameters=[{'my_param': 'value'}],
         )
         self._assert_launch_no_errors([node_action])
-
 
     def test_launch_node_with_invalid_parameter_dicts(self):
         """Test launching a node with invalid parameter dicts."""

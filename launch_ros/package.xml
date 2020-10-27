@@ -6,8 +6,10 @@
   <name>launch_ros</name>
   <version>0.10.3</version>
   <description>ROS specific extensions to the launch tool.</description>
-  <maintainer email="william@osrfoundation.org">William Woodall</maintainer>
+  <maintainer email="jacob@openrobotics.org">Jacob Perron</maintainer>
+  <maintainer email="michael.jeronimo@openrobotics.org">Michael Jeronimo</maintainer>
   <license>Apache License 2.0</license>
+  <author email="william@osrfoundation.org">William Woodall</author>
 
   <depend>ament_index_python</depend>
   <depend>launch</depend>

@@ -2,6 +2,18 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update maintainer list for Foxy (`#194 <https://github.com/ros2/launch_ros/issues/194>`_)
+* Improve error message if ComposableNodeContainer 'name' or 'namespace' arg is None (`#191 <https://github.com/ros2/launch_ros/issues/191>`_)
+* Add a SetParameter action that sets a parameter to all nodes in the same scope (`#158 <https://github.com/ros2/launch_ros/issues/158>`_) (`#187 <https://github.com/ros2/launch_ros/issues/187>`_)
+* Avoid using a wildcard to specify parameters if possible (`#154 <https://github.com/ros2/launch_ros/issues/154>`_) (`#188 <https://github.com/ros2/launch_ros/issues/188>`_)
+* Assume root namespace if not provided in ComposableNodeContainer (`#186 <https://github.com/ros2/launch_ros/issues/186>`_)
+  Fixes a regression introduced in `#179 <https://github.com/ros2/launch_ros/issues/179>`_.
+  Fixes `#185 <https://github.com/ros2/launch_ros/issues/185>`_.
+  We apply the same logic in LifecycleNode to maintain backwards compatibility in Foxy.
+* Contributors: Ivan Santiago Paunovic, Jacob Perron, Michael Jeronimo
+
 0.10.3 (2020-10-07)
 -------------------
 * Fix no specified namespace (`#153 <https://github.com/ros2/launch_ros/issues/153>`_, `#157 <https://github.com/ros2/launch_ros/issues/157>`_) (`#179 <https://github.com/ros2/launch_ros/issues/179>`_)

@@ -2,6 +2,11 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update maintainer list for Foxy (`#194 <https://github.com/ros2/launch_ros/issues/194>`_)
+* Contributors: Michael Jeronimo
+
 0.10.3 (2020-10-07)
 -------------------
 

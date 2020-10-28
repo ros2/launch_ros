@@ -2,8 +2,8 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.11.0 (2020-10-28)
+-------------------
 * Update maintainer list for Foxy (`#194 <https://github.com/ros2/launch_ros/issues/194>`_)
 * Add a SetParameter action that sets a parameter to all nodes in the same scope (`#158 <https://github.com/ros2/launch_ros/issues/158>`_) (`#187 <https://github.com/ros2/launch_ros/issues/187>`_)
 * Avoid using a wildcard to specify parameters if possible (`#154 <https://github.com/ros2/launch_ros/issues/154>`_) (`#188 <https://github.com/ros2/launch_ros/issues/188>`_)

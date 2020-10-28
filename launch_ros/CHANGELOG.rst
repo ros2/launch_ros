@@ -2,8 +2,8 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.11.0 (2020-10-28)
+-------------------
 * Update maintainer list for Foxy (`#194 <https://github.com/ros2/launch_ros/issues/194>`_)
 * Improve error message if ComposableNodeContainer 'name' or 'namespace' arg is None (`#191 <https://github.com/ros2/launch_ros/issues/191>`_)
 * Add a SetParameter action that sets a parameter to all nodes in the same scope (`#158 <https://github.com/ros2/launch_ros/issues/158>`_) (`#187 <https://github.com/ros2/launch_ros/issues/187>`_)

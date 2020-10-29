@@ -35,7 +35,7 @@ class ComposableNode:
     def __init__(
         self, *,
         package: SomeSubstitutionsType,
-        plugin: Optional[SomeSubstitutionsType] = None,
+        plugin: SomeSubstitutionsType,
         name: Optional[SomeSubstitutionsType] = None,
         namespace: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[SomeParameters] = None,

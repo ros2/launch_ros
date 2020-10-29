@@ -69,7 +69,7 @@ class Node(ExecuteProcess):
 
     def __init__(
         self, *,
-        executable: Optional[SomeSubstitutionsType] = None,
+        executable: SomeSubstitutionsType,
         package: Optional[SomeSubstitutionsType] = None,
         name: Optional[SomeSubstitutionsType] = None,
         namespace: Optional[SomeSubstitutionsType] = None,

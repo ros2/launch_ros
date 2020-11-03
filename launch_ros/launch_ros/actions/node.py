@@ -227,7 +227,7 @@ class Node(ExecuteProcess):
                     allow_substs = bool(allow_substs)
                 param.assert_entity_completely_parsed()
                 normalized_params.append(
-                    ParameterFile(parser.parse_substitution(from_attr), allow_substs=allow_substs)
+                    ParameterFile(parser.parse_substitution(from_attr), allow_substs=allow_substs))
                 continue
             elif name is not None:
                 if allow_substs is not None:

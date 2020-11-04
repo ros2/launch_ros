@@ -242,6 +242,7 @@ class Node(ExecuteProcess):
                     data_type = get_data_type_from_identifier(type_identifier)
                 value = param.get_attr('value', data_type=data_type, optional=True)
                 nested_params = param.get_attr('param', data_type=List[Entity], optional=True)
+                param.assert_entity_completely_parsed()
                 if value is not None and nested_params:
                     raise RuntimeError(
                         'nested parameters and value attributes are mutually exclusive')
@@ -269,7 +270,17 @@ class Node(ExecuteProcess):
                 # 'from' attribute ignores 'name' attribute,
                 # it's not accepted to be nested,
                 # and it can not have children.
+<<<<<<< HEAD
                 normalized_params.append(parser.parse_substitution(from_attr))
+=======
+                if isinstance(allow_substs, str):
+                    allow_substs = parser.parse_substitution(allow_substs)
+                else:
+                    allow_substs = bool(allow_substs)
+                param.assert_entity_completely_parsed()
+                normalized_params.append(
+                    ParameterFile(parser.parse_substitution(from_attr), allow_substs=allow_substs))
+>>>>>>> 2d3b021 (Validate complex attributes of 'node' action (#198))
                 continue
             elif name is not None:
                 normalized_params.append(
@@ -310,6 +321,8 @@ class Node(ExecuteProcess):
                     parser.parse_substitution(remap.get_attr('to'))
                 ) for remap in remappings
             ]
+            for remap in remappings:
+                remap.assert_entity_completely_parsed()
         parameters = entity.get_attr('param', data_type=List[Entity], optional=True)
         if parameters is not None:
             kwargs['parameters'] = cls.parse_nested_parameters(parameters, parser)

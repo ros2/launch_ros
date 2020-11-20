@@ -166,7 +166,7 @@ class LoadComposableNodes(Action):
         """
         Load composable nodes sequentially.
 
-        :param composable_node_descriptions: descriptions of composable nodes to be loaded
+        :param load_node_requests: a list of LoadNode service requests to execute
         :param context: current launch context
         """
         next_load_node_request = load_node_requests[0]

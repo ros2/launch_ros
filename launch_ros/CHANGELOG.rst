@@ -2,6 +2,12 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.9 (2020-11-24)
+------------------
+* Resolve libyaml warning when loading parameters from file. (`#161 <https://github.com/ros2/launch_ros/issues/161>`_) (`#204 <https://github.com/ros2/launch_ros/issues/204>`_)
+* Update maintainers for Dashing. (`#192 <https://github.com/ros2/launch_ros/issues/192>`_)
+* Contributors: Dereck Wonnacott, Jacob Perron, Michael Jeronimo
+
 0.8.8 (2020-03-13)
 ------------------
 * Fix LoadComposableNodes action so that loading happens asynchronously. (`#131 <https://github.com/ros2/launch_ros/issues/131>`_)

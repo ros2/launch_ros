@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.9 (2020-11-24)
+------------------
+* Update maintainers for Dashing. (`#192 <https://github.com/ros2/launch_ros/issues/192>`_)
+* Contributors: Michael Jeronimo
+
 0.8.8 (2020-03-13)
 ------------------
 

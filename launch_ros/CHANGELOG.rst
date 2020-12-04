@@ -2,6 +2,12 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.6 (2020-12-04)
+------------------
+* Update maintainer list for Eloquent (`#193 <https://github.com/ros2/launch_ros/issues/193>`_)
+* Fix LoadComposableNodes action so that loading happens asynchronously (`#113 <https://github.com/ros2/launch_ros/issues/113>`_) (`#132 <https://github.com/ros2/launch_ros/issues/132>`_)
+* Contributors: Jacob Perron, Michael Jeronimo
+
 0.9.5 (2020-01-21)
 ------------------
 * Fix remapping rules when using xml/yaml launch files (`#111 <https://github.com/ros2/launch_ros/issues/111>`_)

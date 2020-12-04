@@ -2,6 +2,12 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.6 (2020-12-04)
+------------------
+* Update maintainer list for Eloquent (`#193 <https://github.com/ros2/launch_ros/issues/193>`_)
+* [Eloquent backport] avoid deprecation warning, use from_parent (`#141 <https://github.com/ros2/launch_ros/issues/141>`_) Call LaunchROSTestModule with the new API. (`#150 <https://github.com/ros2/launch_ros/issues/150>`_)  (`#176 <https://github.com/ros2/launch_ros/issues/176>`_)
+* Contributors: Michael Jeronimo, Shane Loretz
+
 0.9.5 (2020-01-21)
 ------------------
 

@@ -2,6 +2,12 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.6 (2020-12-04)
+------------------
+* Update maintainer list for Eloquent (`#193 <https://github.com/ros2/launch_ros/issues/193>`_)
+* Fix linter by removing unused import (`#110 <https://github.com/ros2/launch_ros/issues/110>`_) (`#117 <https://github.com/ros2/launch_ros/issues/117>`_)
+* Contributors: Michael Jeronimo, Zachary Michaels
+
 0.9.5 (2020-01-21)
 ------------------
 * Fix misleading deprecated warnings when using launch arguments (`#106 <https://github.com/ros2/launch_ros/issues/106>`_)

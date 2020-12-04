@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.6 (2020-12-04)
+------------------
+* Update maintainer list for Eloquent (`#193 <https://github.com/ros2/launch_ros/issues/193>`_)
+* Contributors: Michael Jeronimo
+
 0.9.5 (2020-01-21)
 ------------------
 * Fix remapping rules when using xml/yaml launch files (`#111 <https://github.com/ros2/launch_ros/issues/111>`_)

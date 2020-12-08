@@ -2,8 +2,8 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.12.0 (2020-12-08)
+-------------------
 * Fix docblock in LoadComposableNodes (`#207 <https://github.com/ros2/launch_ros/issues/207>`_)
 * Validate complex attributes of 'node' action (`#198 <https://github.com/ros2/launch_ros/issues/198>`_)
 * Node.__init_\_() executable and ComposableNode.__init_\_() plugin arguments aren't optional (`#197 <https://github.com/ros2/launch_ros/issues/197>`_)

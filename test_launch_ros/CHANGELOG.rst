@@ -2,8 +2,8 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.12.0 (2020-12-08)
+-------------------
 * Increase test_composable_node_container timeout (`#195 <https://github.com/ros2/launch_ros/issues/195>`_)
 * Remove constructors arguments deprecated since Foxy (`#190 <https://github.com/ros2/launch_ros/issues/190>`_)
 * Merge pull request `#183 <https://github.com/ros2/launch_ros/issues/183>`_ from ros2/update-maintainers

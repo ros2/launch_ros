@@ -2,8 +2,8 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.12.0 (2020-12-08)
+-------------------
 * Merge pull request `#183 <https://github.com/ros2/launch_ros/issues/183>`_ from ros2/update-maintainers
 * Move Pete to author, per clalancette
 * Update the package.xml files with the latest Open Robotics maintainers

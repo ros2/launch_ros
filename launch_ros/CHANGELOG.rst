@@ -2,6 +2,36 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix docblock in LoadComposableNodes (`#207 <https://github.com/ros2/launch_ros/issues/207>`_)
+* Validate complex attributes of 'node' action (`#198 <https://github.com/ros2/launch_ros/issues/198>`_)
+* Node.__init_\_() executable and ComposableNode.__init_\_() plugin arguments aren't optional (`#197 <https://github.com/ros2/launch_ros/issues/197>`_)
+* Remove constructors arguments deprecated since Foxy (`#190 <https://github.com/ros2/launch_ros/issues/190>`_)
+* Make name and namespace mandatory in ComposableNodeContainer, remove deprecated alternatives (`#189 <https://github.com/ros2/launch_ros/issues/189>`_)
+* Merge pull request `#183 <https://github.com/ros2/launch_ros/issues/183>`_ from ros2/update-maintainers
+  Update the package.xml files with the latest Open Robotics maintainers
+* Move previous maintainer to <author>
+* Update the package.xml files with the latest Open Robotics maintainers
+* Fix AttributeError when accessing component container name (`#177 <https://github.com/ros2/launch_ros/issues/177>`_)
+* Handle any substitution types for SetParameter name argument (`#182 <https://github.com/ros2/launch_ros/issues/182>`_)
+* Asynchronously wait for load node service response (`#174 <https://github.com/ros2/launch_ros/issues/174>`_)
+* Fix case where list of composable nodes is zero (`#173 <https://github.com/ros2/launch_ros/issues/173>`_)
+* Do not use event handler for loading composable nodes (`#170 <https://github.com/ros2/launch_ros/issues/170>`_)
+* Fix race with launch context changes when loading composable nodes (`#166 <https://github.com/ros2/launch_ros/issues/166>`_)
+* Substitutions in parameter files (`#168 <https://github.com/ros2/launch_ros/issues/168>`_)
+* Fix documentation typo (`#167 <https://github.com/ros2/launch_ros/issues/167>`_)
+* Fix problems when parsing a `Command` `Substitution` as a parameter value (`#137 <https://github.com/ros2/launch_ros/issues/137>`_)
+* Add a way to set remapping rules for all nodes in the same scope (`#163 <https://github.com/ros2/launch_ros/issues/163>`_)
+* Resolve libyaml warning when loading parameters from file (`#161 <https://github.com/ros2/launch_ros/issues/161>`_)
+* Fix ComposableNode ignoring PushRosNamespace actions (`#162 <https://github.com/ros2/launch_ros/issues/162>`_)
+* Add a SetParameter action that sets a parameter to all nodes in the same scope (`#158 <https://github.com/ros2/launch_ros/issues/158>`_)
+* Make namespace parameter mandatory in LifecycleNode constructor (`#157 <https://github.com/ros2/launch_ros/issues/157>`_)
+* Avoid using a wildcard to specify parameters if possible (`#154 <https://github.com/ros2/launch_ros/issues/154>`_)
+* Fix no specified namespace (`#153 <https://github.com/ros2/launch_ros/issues/153>`_)
+* Add pytest.ini so local tests don't display warning (`#152 <https://github.com/ros2/launch_ros/issues/152>`_)
+* Contributors: Chris Lalancette, Dereck Wonnacott, Ivan Santiago Paunovic, Jacob Perron, Michael Jeronimo
+
 0.10.2 (2020-05-26)
 -------------------
 

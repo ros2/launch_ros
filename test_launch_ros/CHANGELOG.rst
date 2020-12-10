@@ -2,6 +2,16 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.1 (2020-12-09)
+-------------------
+* Fix case where list of composable nodes is zero (`#173 <https://github.com/ros2/launch_ros/issues/173>`_) (`#209 <https://github.com/ros2/launch_ros/issues/209>`_)
+* Do not use event handler for loading composable nodes (`#170 <https://github.com/ros2/launch_ros/issues/170>`_) (`#208 <https://github.com/ros2/launch_ros/issues/208>`_)
+* Fix race with launch context changes when loading composable nodes (`#166 <https://github.com/ros2/launch_ros/issues/166>`_) (`#206 <https://github.com/ros2/launch_ros/issues/206>`_)
+* Add a way to set remapping rules for all nodes in the same scope (`#163 <https://github.com/ros2/launch_ros/issues/163>`_) (`#203 <https://github.com/ros2/launch_ros/issues/203>`_)
+* Fix ComposableNode ignoring PushRosNamespace actions (`#162 <https://github.com/ros2/launch_ros/issues/162>`_) (`#201 <https://github.com/ros2/launch_ros/issues/201>`_)
+* Remove the loop parameter from async.sleep (`#155 <https://github.com/ros2/launch_ros/issues/155>`_) (`#200 <https://github.com/ros2/launch_ros/issues/200>`_)
+* Contributors: Chris Lalancette, Ivan Santiago Paunovic, Jacob Perron
+
 0.11.0 (2020-10-28)
 -------------------
 * Update maintainer list for Foxy (`#194 <https://github.com/ros2/launch_ros/issues/194>`_)

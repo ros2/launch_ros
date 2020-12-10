@@ -17,7 +17,7 @@ import os
 from ament_index_python.packages import get_package_prefix
 from ament_index_python.packages import PackageNotFoundError
 try:
-    from argcomplete.completers import FilesCompleter
+    from argcomplete.completers import DirectoriesCompleter, FilesCompleter
 except ImportError:
     # argcomplete is optional
     pass
@@ -63,7 +63,6 @@ def package_name_or_launch_file_completer(prefix, parsed_args, **kwargs):
     except NameError:
         # argcomplete is optional
         pass
-
     return completions
 
 
@@ -102,6 +101,26 @@ class LaunchCommand(CommandExtension):
             nargs='*',
             help="Arguments to the launch file; '<name>:=<value>' (for duplicates, last one wins)")
         arg.completer = SuppressCompleterWorkaround()
+
+        sec_args = parser.add_argument_group(title='Security', description='Security related args')
+        arg = sec_args.add_argument(
+            '--secure',
+            metavar='keystore',
+            nargs='?',
+            const='',
+            help=('Launch using ROS 2 security features using specified keystore dir.'
+                  'Will set up ephemeral keystore if one is not specified.'),
+        )
+        try:
+            arg.completer = DirectoriesCompleter()  # argcomplete is optional
+        except NameError:
+            pass
+        sec_args.add_argument(
+            '--no-create-keystore',
+            dest='create_keystore',
+            action='store_false',
+            help='Disable automatic keystore creation and/or initialization'
+        )
 
     def main(self, *, parser, args):
         """Entry point for CLI program."""
@@ -145,6 +164,9 @@ class LaunchCommand(CommandExtension):
         else:
             raise RuntimeError('unexpected mode')
         launch_arguments.extend(args.launch_arguments)
+
+        if args.secure is not None:
+            launch_arguments.append('__secure:=true')
         if args.show_all_subprocesses_output:
             os.environ['OVERRIDE_LAUNCH_PROCESS_OUTPUT'] = 'both'
         if args.print:
@@ -155,5 +177,7 @@ class LaunchCommand(CommandExtension):
             return launch_a_launch_file(
                 launch_file_path=path,
                 launch_file_arguments=launch_arguments,
-                debug=args.debug
+                debug=args.debug,
+                secure=args.secure,
+                create_keystore=args.create_keystore
             )

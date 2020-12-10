@@ -51,8 +51,12 @@ from launch_ros.utilities import normalize_parameters
 from launch_ros.utilities import normalize_remap_rules
 from launch_ros.utilities import prefix_namespace
 
+import nodl
+
 from rclpy.validate_namespace import validate_namespace
 from rclpy.validate_node_name import validate_node_name
+
+import sros2.keystore
 
 import yaml
 
@@ -171,6 +175,7 @@ class Node(ExecuteProcess):
         self.__expanded_parameter_arguments = None  # type: Optional[List[Tuple[Text, bool]]]
         self.__final_node_name = None  # type: Optional[Text]
         self.__expanded_remappings = None  # type: Optional[List[Tuple[Text, Text]]]
+        self.__enclave = None  # type: Optional[Text]
 
         self.__substitutions_performed = False
 
@@ -342,6 +347,9 @@ class Node(ExecuteProcess):
             raise
         self.__final_node_name = prefix_namespace(
             self.__expanded_node_namespace, self.__expanded_node_name)
+        if context.launch_configurations.get('__secure', None) is not None:
+            cmd_extension = ['--enclave', LocalSubstitution("ros_specific_arguments['enclave']")]
+            self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
         # expand global parameters first,
         # so they can be overriden with specific parameters of this Node
         global_params = context.launch_configurations.get('ros_params', None)
@@ -394,6 +402,25 @@ class Node(ExecuteProcess):
                 cmd_extension.extend(['-r', f'{src}:={dst}'])
             self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
 
+    def _setup_security(
+        self, context: LaunchContext, ros_specific_arguments: Dict[str, Union[str, List[str]]]
+    ) -> None:
+        """Enable encryption, creating a key for the node if necessary."""
+        nodl_node = nodl.get_node_by_executable(
+            package_name=self.__package, executable_name=self.__node_executable
+        )
+
+        self.__enclave = self.node_name.replace(
+            Node.UNSPECIFIED_NODE_NAME, nodl_node.name
+        ).replace(Node.UNSPECIFIED_NODE_NAMESPACE, '')
+
+        sros2.keystore.create_enclave(
+            keystore_path=pathlib.Path(context.launch_configurations.get('__keystore')),
+            identity=self.__enclave
+        )
+
+        ros_specific_arguments['enclave'] = self.__enclave
+
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:
         """
         Execute the action.
@@ -408,6 +435,8 @@ class Node(ExecuteProcess):
             ros_specific_arguments['name'] = '__node:={}'.format(self.__expanded_node_name)
         if self.__expanded_node_namespace != '':
             ros_specific_arguments['ns'] = '__ns:={}'.format(self.__expanded_node_namespace)
+        if context.launch_configurations.get('__secure', None):
+            self._setup_security(context, ros_specific_arguments)
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
         ret = super().execute(context)
 

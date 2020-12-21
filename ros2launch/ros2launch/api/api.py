@@ -140,9 +140,18 @@ def parse_launch_arguments(launch_arguments: List[Text]) -> List[Tuple[Text, Tex
     return parsed_launch_arguments.items()
 
 
-def launch_a_launch_file(*, launch_file_path, launch_file_arguments, debug=False):
+def launch_a_launch_file(
+    *,
+    launch_file_path,
+    launch_file_arguments,
+    noninteractive=False,
+    debug=False
+):
     """Launch a given launch file (by path) and pass it the given launch file arguments."""
-    launch_service = launch.LaunchService(argv=launch_file_arguments, debug=debug)
+    launch_service = launch.LaunchService(
+        argv=launch_file_arguments,
+        noninteractive=noninteractive,
+        debug=debug)
     parsed_launch_arguments = parse_launch_arguments(launch_file_arguments)
     # Include the user provided launch file using IncludeLaunchDescription so that the
     # location of the current launch file is set.

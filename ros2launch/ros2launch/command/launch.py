@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 
 from ament_index_python.packages import get_package_prefix
 from ament_index_python.packages import PackageNotFoundError
@@ -72,6 +73,9 @@ class LaunchCommand(CommandExtension):
 
     def add_arguments(self, parser, cli_name):
         """Add arguments to argparse."""
+        parser.add_argument(
+            '-n', '--noninteractive', default=not sys.stdin.isatty(), action='store_true',
+            help='Run the launch system non-interactively, with no terminal associated')
         parser.add_argument(
             '-d', '--debug', default=False, action='store_true',
             help='Put the launch system in debug mode, provides more verbose output.')
@@ -155,5 +159,6 @@ class LaunchCommand(CommandExtension):
             return launch_a_launch_file(
                 launch_file_path=path,
                 launch_file_arguments=launch_arguments,
+                noninteractive=args.noninteractive,
                 debug=args.debug
             )

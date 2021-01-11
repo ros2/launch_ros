@@ -88,7 +88,7 @@ class TestNode(unittest.TestCase):
         self._assert_launch_no_errors([node_action])
 
         # Check the expanded parameters.
-        expanded_remappings = node_action._Node__expanded_remappings
+        expanded_remappings = node_action._Node__node_desc.expanded_remappings
         assert len(expanded_remappings) == 2
         for i in range(2):
             assert expanded_remappings[i] == ('chatter', 'new_chatter')
@@ -147,7 +147,7 @@ class TestNode(unittest.TestCase):
         self._assert_launch_no_errors([node_action])
 
         # Check the expanded parameters.
-        expanded_parameter_arguments = node_action._Node__expanded_parameter_arguments
+        expanded_parameter_arguments = node_action._Node__node_desc.expanded_parameter_arguments
         assert len(expanded_parameter_arguments) == 3
         for i in range(3):
             assert expanded_parameter_arguments[i] == (str(parameters_file_path), True)
@@ -184,7 +184,7 @@ class TestNode(unittest.TestCase):
         )
         self._assert_launch_no_errors([node_action])
 
-        expanded_parameter_arguments = node_action._Node__expanded_parameter_arguments
+        expanded_parameter_arguments = node_action._Node__node_desc.expanded_parameter_arguments
         assert len(expanded_parameter_arguments) == 5
         parameters = []
         for item, is_file in expanded_parameter_arguments:
@@ -221,7 +221,7 @@ class TestNode(unittest.TestCase):
         self._assert_launch_no_errors([node_action])
 
         # Check the expanded parameters (will be written to a file).
-        expanded_parameter_arguments = node_action._Node__expanded_parameter_arguments
+        expanded_parameter_arguments = node_action._Node__node_desc.expanded_parameter_arguments
         assert len(expanded_parameter_arguments) == 1
         file_path, is_file = expanded_parameter_arguments[0]
         assert is_file

@@ -14,10 +14,13 @@
 
 """Tests for the PushROSNamespace Action."""
 
+from _collections import defaultdict
+
 from launch_ros.actions import Node
 from launch_ros.actions import PushROSNamespace
 from launch_ros.actions.load_composable_nodes import get_composable_node_load_request
 from launch_ros.descriptions import ComposableNode
+from launch_ros.descriptions import Node as NodeDescription
 
 import pytest
 
@@ -26,6 +29,14 @@ class MockContext:
 
     def __init__(self):
         self.launch_configurations = {}
+        self.locals = lambda: None
+        self.locals.unique_ros_node_names = defaultdict(int)
+
+    def extend_globals(self, val):
+        pass
+
+    def extend_locals(self, val):
+        pass
 
     def perform_substitution(self, sub):
         return sub.perform(None)
@@ -118,10 +129,11 @@ def test_push_ros_namespace(config):
     )
     node._perform_substitutions(lc)
     expected_ns = (
-        config.expected_ns if config.expected_ns is not None else Node.UNSPECIFIED_NODE_NAMESPACE
+        config.expected_ns if config.expected_ns is not None else
+        NodeDescription.UNSPECIFIED_NODE_NAMESPACE
     )
     expected_name = (
-        config.node_name if config.node_name is not None else Node.UNSPECIFIED_NODE_NAME
+        config.node_name if config.node_name is not None else NodeDescription.UNSPECIFIED_NODE_NAME
     )
     expected_fqn = expected_ns.rstrip('/') + '/' + expected_name
     assert expected_ns == node.expanded_node_namespace

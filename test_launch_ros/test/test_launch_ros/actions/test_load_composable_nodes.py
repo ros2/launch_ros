@@ -76,8 +76,8 @@ class MockComponentContainer(rclpy.node.Node):
 
     def shutdown(self):
         self._executor.shutdown()
-        self.destroy_node()
         rclpy.shutdown(context=self._context)
+        self.destroy_node()
         self._thread.join()
 
 

@@ -179,6 +179,13 @@ class ParameterFile:
         :param param_file: Path to a parameter file.
         :param allow_subst: Allow substitutions in the parameter file.
         """
+        # In Python, __del__ is called even if the constructor throws an
+        # exception.  It is possible for ensure_argument_type() below to
+        # throw an exception and try to access these member variables
+        # during cleanup, so make sure to initialize them here.
+        self.__evaluated_param_file: Optional[Path] = None
+        self.__created_tmp_file = False
+
         ensure_argument_type(
             param_file,
             SomeSubstitutionsType_types_tuple + (os.PathLike, bytes),
@@ -196,8 +203,6 @@ class ParameterFile:
             self.__param_file = normalize_to_list_of_substitutions(param_file)
         self.__allow_substs = normalize_typed_substitution(allow_substs, data_type=bool)
         self.__evaluated_allow_substs: Optional[bool] = None
-        self.__evaluated_param_file: Optional[Path] = None
-        self.__created_tmp_file = False
 
     @property
     def param_file(self) -> Union[FilePath, List[Substitution]]:

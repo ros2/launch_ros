@@ -2,6 +2,11 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Support non-interactive ros2 launch executions (`#210 <https://github.com/ros2/launch_ros/issues/210>`_)
+* Contributors: Michel Hidalgo
+
 0.12.0 (2020-12-08)
 -------------------
 * Merge pull request `#183 <https://github.com/ros2/launch_ros/issues/183>`_ from ros2/update-maintainers

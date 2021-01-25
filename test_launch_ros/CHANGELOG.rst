@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Re-order shutdown vs node destruction (`#213 <https://github.com/ros2/launch_ros/issues/213>`_)
+* Contributors: Scott K Logan
+
 0.12.0 (2020-12-08)
 -------------------
 * Increase test_composable_node_container timeout (`#195 <https://github.com/ros2/launch_ros/issues/195>`_)

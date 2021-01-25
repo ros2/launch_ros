@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Make sure ParameterFile __del_\_ works without exception. (`#212 <https://github.com/ros2/launch_ros/issues/212>`_)
+* Contributors: Chris Lalancette
+
 0.12.0 (2020-12-08)
 -------------------
 * Fix docblock in LoadComposableNodes (`#207 <https://github.com/ros2/launch_ros/issues/207>`_)

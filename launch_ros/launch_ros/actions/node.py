@@ -298,7 +298,12 @@ class Node(ExecuteProcess):
                 {'ros__parameters': params}
             }
             yaml.dump(param_dict, h, default_flow_style=False)
-            return param_file_path
+
+            param_file_cleanup = True
+            if params['__param_file_cleanup'] == 0 or \
+                    params['__param_file_cleanup'].lower() == 'false':
+                param_file_cleanup = False
+            return param_file_path, param_file_cleanup
 
     def _get_parameter_rule(self, param: 'Parameter', context: LaunchContext):
         name, value = param.evaluate(context)
@@ -307,6 +312,8 @@ class Node(ExecuteProcess):
     def _perform_substitutions(self, context: LaunchContext) -> None:
         # Here to avoid cyclic import
         from ..descriptions import Parameter
+        param_file_path = None
+        param_file_cleanup = True
         try:
             if self.__substitutions_performed:
                 # This function may have already been called by a subclass' `execute`, for example.
@@ -348,7 +355,7 @@ class Node(ExecuteProcess):
         if global_params is not None or self.__parameters is not None:
             self.__expanded_parameter_arguments = []
         if global_params is not None:
-            param_file_path = self._create_params_file_from_dict(global_params)
+            param_file_path, param_file_cleanup = self._create_params_file_from_dict(global_params)
             self.__expanded_parameter_arguments.append((param_file_path, True))
             cmd_extension = ['--params-file', f'{param_file_path}']
             self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
@@ -359,7 +366,9 @@ class Node(ExecuteProcess):
             for params in evaluated_parameters:
                 is_file = False
                 if isinstance(params, dict):
-                    param_argument = self._create_params_file_from_dict(params)
+                    param_file_path, param_file_cleanup = \
+                        self._create_params_file_from_dict(params)
+                    param_argument = param_file_path
                     is_file = True
                     assert os.path.isfile(param_argument)
                 elif isinstance(params, pathlib.Path):
@@ -393,6 +402,7 @@ class Node(ExecuteProcess):
             for src, dst in self.__expanded_remappings:
                 cmd_extension.extend(['-r', f'{src}:={dst}'])
             self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
+        return param_file_path, param_file_cleanup
 
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:
         """
@@ -400,7 +410,7 @@ class Node(ExecuteProcess):
 
         Delegated to :meth:`launch.actions.ExecuteProcess.execute`.
         """
-        self._perform_substitutions(context)
+        self.param_file_path, self.param_file_cleanup = self._perform_substitutions(context)
         # Prepare the ros_specific_arguments list and add it to the context so that the
         # LocalSubstitution placeholders added to the the cmd can be expanded using the contents.
         ros_specific_arguments: Dict[str, Union[str, List[str]]] = {}
@@ -432,3 +442,10 @@ class Node(ExecuteProcess):
     def expanded_remapping_rules(self):
         """Getter for expanded_remappings."""
         return self.__expanded_remappings
+
+    def on_exit(self):
+        """Clean up on process termination."""
+        # Delete temporary parameter yaml file
+        if self.param_file_cleanup and self.param_file_path is not None:
+            if os.path.exists(self.param_file_path):
+                os.remove(self.param_file_path)

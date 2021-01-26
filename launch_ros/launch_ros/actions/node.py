@@ -14,8 +14,10 @@
 
 """Module for the Node action."""
 
+import importlib_metadata
 import os
 import pathlib
+from packaging.version import Version
 from tempfile import NamedTemporaryFile
 from typing import Dict
 from typing import Iterable
@@ -58,6 +60,43 @@ import yaml
 
 from ..descriptions import Parameter
 from ..descriptions import ParameterFile
+
+
+class NodeActionExtension:
+    """
+    The extension point for launch_ros node action extensions.
+
+    The following properties must be defined:
+    * `NAME` (will be set to the entry point name)
+
+    The following methods may be defined:
+    * `command_extension` to extend the command used to launch the node's
+      process. This method must return a list of parameters with which to
+      extend the command.
+    * `execute` to perform any actions prior to the node's process being
+      launched. `node_info` is an instance of `NodeInfo`.
+      This method must return `ros_specific_arguments` with any modifications
+      made to it.
+    """
+
+    class NodeInfo:
+        def __init__(self, package, executable, name):
+            self.package = package
+            self.executable = executable
+            self.name = name
+
+    NAME = None
+    EXTENSION_POINT_VERSION = '0.1'
+
+    def __init__(self):
+        super(NodeActionExtension, self).__init__()
+        satisfies_version(self.EXTENSION_POINT_VERSION, '^0.1')
+
+    def command_extension(self, context):
+        return []
+
+    def execute(self, context, ros_specific_arguments, node_info):
+        return ros_specific_arguments
 
 
 @expose_action('node')
@@ -175,6 +214,8 @@ class Node(ExecuteProcess):
         self.__substitutions_performed = False
 
         self.__logger = launch.logging.get_logger(__name__)
+
+        self._get_extensions()
 
     @staticmethod
     def parse_nested_parameters(params, parser):
@@ -342,6 +383,10 @@ class Node(ExecuteProcess):
             raise
         self.__final_node_name = prefix_namespace(
             self.__expanded_node_namespace, self.__expanded_node_name)
+
+        for extension in self.__extensions.values():
+            self.cmd.extend(extension.command_extension(context))
+
         # expand global parameters first,
         # so they can be overriden with specific parameters of this Node
         global_params = context.launch_configurations.get('ros_params', None)
@@ -408,6 +453,10 @@ class Node(ExecuteProcess):
             ros_specific_arguments['name'] = '__node:={}'.format(self.__expanded_node_name)
         if self.__expanded_node_namespace != '':
             ros_specific_arguments['ns'] = '__ns:={}'.format(self.__expanded_node_namespace)
+        node_info = NodeActionExtension.NodeInfo(self.__package, self.__node_executable, self.node_name)
+        for extension in self.__extensions.values():
+            ros_specific_arguments = extension.execute(context, ros_specific_arguments, node_info)
+
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
         ret = super().execute(context)
 
@@ -432,3 +481,86 @@ class Node(ExecuteProcess):
     def expanded_remapping_rules(self):
         """Getter for expanded_remappings."""
         return self.__expanded_remappings
+
+    def _get_extensions(self):
+        group_name = 'launch_ros.node_action'
+        entry_points = {}
+        for entry_point in importlib_metadata.entry_points().get(group_name, []):
+            entry_points[entry_point.name] = entry_point
+        extension_types = {}
+        for entry_point in entry_points:
+            try:
+                extension_type = entry_points[entry_point].load()
+            except Exception as e:  # noqa: F841
+                self.__logger.warning(
+                    f"Failed to load entry point '{entry_point.name}': {e}")
+                continue
+            extension_types[entry_points[entry_point].name] = extension_type
+
+        self.__extensions = {}
+        for extension_name, extension_class in extension_types.items():
+            extension_instance = self._instantiate_extension(
+                group_name, extension_name, extension_class, self.__logger)
+            if extension_instance is None:
+                continue
+            extension_instance.NAME = extension_name
+            self.__extensions[extension_name] = extension_instance
+
+    def _instantiate_extension(
+        self, group_name, extension_name, extension_class, logger, *, unique_instance=False
+    ):
+        if not unique_instance and extension_class in self.__extensions:
+            return self.__extensions[extension_name]
+
+        try:
+            extension_instance = extension_class()
+        except PluginException as e:  # noqa: F841
+            logger.warning(
+                f"Failed to instantiate '{group_name}' extension "
+                f"'{extension_name}': {e}")
+            return None
+        except Exception as e:  # noqa: F841
+            logger.error(
+                f"Failed to instantiate '{group_name}' extension "
+                f"'{extension_name}': {e}")
+            return None
+        if not unique_instance:
+            self.__extensions[extension_name] = extension_instance
+        return extension_instance
+
+
+class PluginException(Exception):
+    """Base class for all exceptions within the plugin system."""
+
+    pass
+
+
+def satisfies_version(version, caret_range):
+    assert caret_range.startswith('^'), 'Only supports caret ranges'
+    extension_point_version = Version(version)
+    extension_version = Version(caret_range[1:])
+    next_extension_version = get_upper_bound_caret_version(
+        extension_version)
+
+    if extension_point_version < extension_version:
+        raise PluginException(
+            'Extension point is too old (%s), the extension requires '
+            "'%s'" % (extension_point_version, extension_version))
+
+    if extension_point_version >= next_extension_version:
+        raise PluginException(
+            'Extension point is newer (%s), than what the extension '
+            "supports '%s'" % (extension_point_version, extension_version))
+
+
+def get_upper_bound_caret_version(version):
+    parts = version.base_version.split('.')
+    if len(parts) < 2:
+        parts += [0] * (2 - len(parts))
+    major, minor = [int(p) for p in parts[:2]]
+    if major > 0:
+        major += 1
+        minor = 0
+    else:
+        minor += 1
+    return Version('%d.%d.0' % (major, minor))

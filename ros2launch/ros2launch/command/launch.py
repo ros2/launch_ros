@@ -35,6 +35,7 @@ from ros2launch.api import LaunchFileNameCompleter
 from ros2launch.api import MultipleLaunchFilesError
 from ros2launch.api import print_a_launch_file
 from ros2launch.api import print_arguments_of_launch_file
+from ros2launch.option import get_option_extensions
 from ros2pkg.api import package_name_completer
 
 
@@ -107,6 +108,10 @@ class LaunchCommand(CommandExtension):
             help="Arguments to the launch file; '<name>:=<value>' (for duplicates, last one wins)")
         arg.completer = SuppressCompleterWorkaround()
 
+        self._option_extensions = get_option_extensions()
+        for name in sorted(self._option_extensions.keys()):
+            self._option_extensions[name].add_arguments(parser, cli_name)
+
     def main(self, *, parser, args):
         """Entry point for CLI program."""
         mode = 'pkg file'
@@ -149,6 +154,7 @@ class LaunchCommand(CommandExtension):
         else:
             raise RuntimeError('unexpected mode')
         launch_arguments.extend(args.launch_arguments)
+
         if args.show_all_subprocesses_output:
             os.environ['OVERRIDE_LAUNCH_PROCESS_OUTPUT'] = 'both'
         if args.print:
@@ -160,5 +166,7 @@ class LaunchCommand(CommandExtension):
                 launch_file_path=path,
                 launch_file_arguments=launch_arguments,
                 noninteractive=args.noninteractive,
+                args=args,
+                option_extensions=self._option_extensions,
                 debug=args.debug
             )

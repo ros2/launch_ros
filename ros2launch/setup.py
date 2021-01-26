@@ -36,5 +36,8 @@ The package provides the launch command for the ROS 2 command line tools.""",
         'ros2cli.command': [
             'launch = ros2launch.command.launch:LaunchCommand',
         ],
+        'ros2launch.option': [
+            'test = ros2launch.option.test_option:TestOption',
+        ],
     }
 )

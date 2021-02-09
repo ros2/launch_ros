@@ -23,7 +23,6 @@ from launch_ros.actions import Node
 from launch_ros.actions import SetParameter
 from launch_ros.actions.load_composable_nodes import get_composable_node_load_request
 from launch_ros.descriptions import ComposableNode
-from launch_ros.parameter_descriptions import ParameterValue
 
 import pytest
 import yaml
@@ -64,11 +63,6 @@ def get_set_parameter_test_parameters():
             [([TextSubstitution(text='my_param')], [TextSubstitution(text='my_value')])],
             {'my_param': 'my_value'},
             id='List of substitution types'
-        ),
-        pytest.param(
-            [('my_param', ParameterValue('my_value'))],
-            {'my_param': 'my_value'},
-            id='ParameterValue type'
         ),
     ]
 

@@ -22,8 +22,13 @@
 
 """Module for a description of a NodeTrait."""
 
+from typing import TYPE_CHECKING
+
 from launch import Action
 from launch import LaunchContext
+
+if TYPE_CHECKING:
+    from . import Node
 
 
 class NodeTrait:
@@ -40,5 +45,5 @@ class NodeTrait:
         """
         pass
 
-    def prepare(self, node, context: LaunchContext, action: Action):
+    def prepare(self, node: 'Node', context: LaunchContext, action: Action):
         """Perform any actions necessary to prepare the node for execution."""

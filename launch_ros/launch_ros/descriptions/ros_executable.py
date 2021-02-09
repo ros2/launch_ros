@@ -25,6 +25,7 @@
 from typing import Iterable
 from typing import Optional
 
+from launch import Action
 from launch import LaunchContext
 from launch import SomeSubstitutionsType
 from launch.descriptions import Executable
@@ -77,7 +78,7 @@ class RosExecutable(Executable):
         """Getter for nodes."""
         return self.__nodes
 
-    def apply_context(self, context: LaunchContext):
+    def prepare(self, context: LaunchContext, action: Action):
         """
         Prepare a ROS executable description for execution in a given environment.
 
@@ -86,6 +87,6 @@ class RosExecutable(Executable):
         - performs substitutions on various properties
         """
         for node in self.__nodes:
-            node.prepare(context, self)
+            node.prepare(context, self, action)
 
-        super().apply_context(context)
+        super().prepare(context, action)

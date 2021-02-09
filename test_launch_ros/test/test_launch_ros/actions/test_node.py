@@ -356,5 +356,5 @@ def get_test_node_name_parameters():
 )
 def test_node_name(node_object, expected_result):
     lc = LaunchContext()
-    node_object._perform_substitutions(lc)
+    node_object._Node__node_desc._perform_substitutions(lc, [])
     assert node_object.is_node_name_fully_specified() is expected_result

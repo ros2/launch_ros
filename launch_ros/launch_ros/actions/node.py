@@ -100,6 +100,7 @@ class Node(ExecuteLocal):
         remappings: Optional[SomeRemapRules] = None,
         ros_arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
+        additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
         **kwargs
     ) -> None:
         """
@@ -170,17 +171,21 @@ class Node(ExecuteLocal):
             passed to the node as ROS remapping rules
         :param: ros_arguments list of ROS arguments for the node
         :param: arguments list of extra arguments for the node
+        :param additional_env: Dictionary of environment variables to be added. If env was
+            None, they are added to the current environment. If not, env is updated with
+            additional_env.
         """
         self.__node_desc = NodeDescription(node_name=name, node_namespace=namespace,
-                                           parameters=parameters, remappings=remappings,
-                                           arguments=arguments)
+                                           parameters=parameters, remappings=remappings)
+        ros_exec_kwargs = {'additional_env': additional_env, 'arguments': arguments}
         self.__ros_exec = RosExecutable(package=package, executable=executable,
                                         nodes=[self.__node_desc])
         self.__extensions = get_extensions(self.__logger)
         super().__init__(process_description=self.__ros_exec, **kwargs)
 
-    def _perform_substitutions(self, lc: LaunchContext):
-        self.__node_desc.prepare(lc, self.__ros_exec)
+    def prepare(self, context: LaunchContext):
+        self.__node_desc.prepare(context, self.__ros_exec, self)
+        super().prepare(context)
 
     def is_node_name_fully_specified(self):
         return self.__node_desc.is_node_name_fully_specified()
@@ -253,6 +258,10 @@ class Node(ExecuteLocal):
     def parse(cls, entity: Entity, parser: Parser):
         """Parse node."""
         # See parse method of `ExecuteProcess`
+        # Note: This class originally was a direct descendant of ExecuteProcess,
+        # but has been refactored to better divide the concept of a node vs an
+        # executable process. This class remains as a compatibility layer, and
+        # must hand off parsing duties to its original ancestor.
         _, kwargs = ExecuteProcess.parse(entity, parser, ignore=['cmd'])
         args = entity.get_attr('args', optional=True)
         if args is not None:

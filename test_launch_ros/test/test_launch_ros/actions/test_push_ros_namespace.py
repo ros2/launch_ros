@@ -127,7 +127,7 @@ def test_push_ros_namespace(config):
         namespace=config.node_ns,
         name=config.node_name
     )
-    node._perform_substitutions(lc)
+    node._Node__node_desc._perform_substitutions(lc, [])
     expected_ns = (
         config.expected_ns if config.expected_ns is not None else
         NodeDescription.UNSPECIFIED_NODE_NAMESPACE

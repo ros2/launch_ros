@@ -35,6 +35,7 @@ from typing import Text
 from typing import Tuple
 from typing import Union
 
+from launch import Action
 from launch import LaunchContext
 from launch import SomeSubstitutionsType
 from launch.descriptions import Executable
@@ -75,7 +76,6 @@ class Node:
         node_namespace: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
-        arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
         traits: Optional[Iterable[NodeTrait]] = None,
         **kwargs
     ) -> None:
@@ -121,7 +121,6 @@ class Node:
             or dictionaries of parameters.
         :param: remappings ordered list of 'to' and 'from' string pairs to be
             passed to the node as ROS remapping rules
-        :param: arguments list of extra arguments for the node
         :param: traits list of special traits of the node
         """
         if parameters is not None:
@@ -134,7 +133,6 @@ class Node:
         self.__node_namespace = node_namespace
         self.__parameters = [] if parameters is None else normalized_params
         self.__remappings = [] if remappings is None else list(normalize_remap_rules(remappings))
-        self.__arguments = arguments
         self.__traits = traits
 
         self.__expanded_node_name = self.UNSPECIFIED_NODE_NAME
@@ -168,11 +166,6 @@ class Node:
     def remappings(self):
         """Getter for remappings."""
         return self.__remappings
-
-    @property
-    def arguments(self):
-        """Getter for arguments."""
-        return self.__arguments
 
     @property
     def traits(self):
@@ -217,14 +210,22 @@ class Node:
         name, value = param.evaluate(context)
         return f'{name}:={yaml.dump(value)}'
 
-    def prepare(self, context: LaunchContext, executable: Executable) -> None:
+    def prepare(self, context: LaunchContext, executable: Executable, action: Action) -> None:
+        self._perform_substitutions(context, executable.cmd)
+        
+        # Prepare any traits which may be defined for this node
+        if self.__traits is not None:
+            for trait in self.__traits:
+                trait.prepare(self, context, action)
+
+    def _perform_substitutions(self, context: LaunchContext, cmd: List) -> None:
         try:
             if self.__substitutions_performed:
                 # This function may have already been called by a subclass' `execute`, for example.
                 return
             self.__substitutions_performed = True
             cmd_ext = ['--ros-args']  # Prepend ros specific arguments with --ros-args flag
-            executable.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
+            cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
             if self.__node_name is not None:
                 self.__expanded_node_name = perform_substitutions(
                     context, normalize_to_list_of_substitutions(self.__node_name))
@@ -240,7 +241,7 @@ class Node:
             if expanded_node_namespace is not None:
                 self.__expanded_node_namespace = expanded_node_namespace
                 cmd_ext = ['-r', LocalSubstitution("ros_specific_arguments['ns']")]
-                executable.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
+                cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
                 validate_namespace(self.__expanded_node_namespace)
         except Exception:
             self.__logger.error(
@@ -262,7 +263,7 @@ class Node:
             param_file_path = self._create_params_file_from_dict(global_params)
             self.__expanded_parameter_arguments.append((param_file_path, True))
             cmd_ext = ['--params-file', f'{param_file_path}']
-            executable.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
+            cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
             assert os.path.isfile(param_file_path)
         # expand parameters too
         if self.__parameters is not None:
@@ -287,7 +288,7 @@ class Node:
                     continue
                 self.__expanded_parameter_arguments.append((param_argument, is_file))
                 cmd_ext = ['--params-file' if is_file else '-p', f'{param_argument}']
-                executable.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
+                cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
         # expand remappings too
         global_remaps = context.launch_configurations.get('ros_remaps', None)
         if global_remaps or self.__remappings:
@@ -303,7 +304,7 @@ class Node:
             cmd_ext = []
             for src, dst in self.__expanded_remappings:
                 cmd_ext.extend(['-r', f'{src}:={dst}'])
-            executable.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
+            cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
         # Prepare the ros_specific_arguments list and add it to the context so that the
         # LocalSubstitution placeholders added to the the cmd can be expanded using the contents.
         ros_specific_arguments: Dict[str, Union[str, List[str]]] = {}

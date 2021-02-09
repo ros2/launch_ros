@@ -93,7 +93,7 @@ def test_set_remap_with_node():
     )
     set_remap = SetRemap('from1', 'to1')
     set_remap.execute(lc)
-    node._perform_substitutions(lc)
+    node._Node__node_desc._perform_substitutions(lc, [])
     assert len(node.expanded_remapping_rules) == 2
     assert node.expanded_remapping_rules == [('from1', 'to1'), ('from2', 'to2')]
 

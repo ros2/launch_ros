@@ -14,10 +14,8 @@
 
 """Module for the Node action."""
 
-import importlib_metadata
 import os
 import pathlib
-from packaging.version import Version
 from tempfile import NamedTemporaryFile
 from typing import Dict
 from typing import Iterable
@@ -56,6 +54,8 @@ from launch_ros.utilities import prefix_namespace
 from rclpy.validate_namespace import validate_namespace
 from rclpy.validate_node_name import validate_node_name
 
+import importlib_metadata
+from packaging.version import Version
 import yaml
 
 from ..descriptions import Parameter

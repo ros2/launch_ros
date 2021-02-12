@@ -167,15 +167,12 @@ def launch_a_launch_file(
             launch_arguments=parsed_launch_arguments,
         ),
     ])
-    tails = {}
     for name in sorted(option_extensions.keys()):
         result = option_extensions[name].prelaunch(
             launch_description,
             args
         )
         launch_description = result[0]
-        if len(result) > 1:
-            tails[name] = result[1:]
     launch_service.include_launch_description(launch_description)
     ret = launch_service.run()
     for name in sorted(option_extensions.keys()):

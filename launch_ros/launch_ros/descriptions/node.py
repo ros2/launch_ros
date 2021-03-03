@@ -229,6 +229,8 @@ class Node:
             if self.__node_name is not None:
                 self.__expanded_node_name = perform_substitutions(
                     context, normalize_to_list_of_substitutions(self.__node_name))
+                cmd_ext = ['-r', LocalSubstitution("ros_specific_arguments['name']")]
+                cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
                 validate_node_name(self.__expanded_node_name)
             self.__expanded_node_name.lstrip('/')
             expanded_node_namespace: Optional[Text] = None

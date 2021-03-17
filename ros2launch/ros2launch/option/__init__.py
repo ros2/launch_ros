@@ -24,19 +24,12 @@ class OptionExtension:
     The following properties must be defined:
     * `NAME` (will be set to the entry point name)
 
-    The following methods may be defined:
-    * `add_arguments` to add arguments to the argparse parser
-    * `prestart` to perform any actions the extension wishes performed prior
-      to the LaunchService being started.
-      This method does not need to return anything.
-    * `prelaunch` to perform any actions the extension wishes performed prior
-      to the launch process running (but after creation and setup).
-      This method must return a tuple where the first element is a
-      LaunchDescription, which will replace the LaunchDescription that was
-      passed in and will be launched by the launch service.
-    * `postlaunch` to perform any cleanup actions the extension wishes
-      performed after the launch process finishes.
-      This method does not need to return anything.
+    The following methods are optional:
+    * `add_arguments`
+    * `prestart`
+    * `prelaunch`
+    * `postlaunch`
+
     """
 
     NAME = None
@@ -44,18 +37,39 @@ class OptionExtension:
 
     def __init__(self):
         super(OptionExtension, self).__init__()
-        satisfies_version(self.EXTENSION_POINT_VERSION , '^0.1')
+        satisfies_version(self.EXTENSION_POINT_VERSION, '^0.1')
 
     def add_arguments(self, parser, cli_name, *, argv=None):
+        """Add arguments to the argparse parser"""
         return
 
     def prestart(self, options, args):
+        """
+        Perform actions the prior to the LaunchService being started.
+
+        This method does not need to return anything.
+        """
         return
 
     def prelaunch(self, launch_description, options, args):
+        """
+        Perform actions prior to the launch process running
+
+        This executes after creation and setup of the launch process, but
+        before it is executed.
+
+        This method must return a tuple where the first element is a
+        LaunchDescription, which will replace the LaunchDescription that was
+        passed in and will be launched by the launch service.
+        """
         return (launch_description,)
 
     def postlaunch(self, launch_return_code, options, args):
+        """
+        Perform cleanup actions after the launch process finishes.
+
+        This method does not need to return anything.
+        """
         return
 
 

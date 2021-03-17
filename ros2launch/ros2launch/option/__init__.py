@@ -43,7 +43,7 @@ class OptionExtension:
         """Add arguments to the argparse parser"""
         return
 
-    def prestart(self, options, args):
+    def prestart(self, args):
         """
         Perform actions the prior to the LaunchService being started.
 
@@ -51,7 +51,7 @@ class OptionExtension:
         """
         return
 
-    def prelaunch(self, launch_description, options, args):
+    def prelaunch(self, launch_description, args):
         """
         Perform actions prior to the launch process running
 
@@ -64,7 +64,7 @@ class OptionExtension:
         """
         return (launch_description,)
 
-    def postlaunch(self, launch_return_code, options, args):
+    def postlaunch(self, launch_return_code, args):
         """
         Perform cleanup actions after the launch process finishes.
 

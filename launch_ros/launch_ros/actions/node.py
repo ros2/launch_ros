@@ -50,12 +50,12 @@ from launch_ros.utilities import make_namespace_absolute
 from launch_ros.utilities import normalize_parameters
 from launch_ros.utilities import normalize_remap_rules
 from launch_ros.utilities import prefix_namespace
+from launch_ros.utilities import plugin_support
 
 from rclpy.validate_namespace import validate_namespace
 from rclpy.validate_node_name import validate_node_name
 
 import importlib_metadata
-from packaging.version import Version
 import yaml
 
 from ..descriptions import Parameter
@@ -70,13 +70,8 @@ class NodeActionExtension:
     * `NAME` (will be set to the entry point name)
 
     The following methods may be defined:
-    * `command_extension` to extend the command used to launch the node's
-      process. This method must return a list of parameters with which to
-      extend the command.
-    * `execute` to perform any actions prior to the node's process being
-      launched. `node_info` is an instance of `NodeInfo`.
-      This method must return `ros_specific_arguments` with any modifications
-      made to it.
+    * `command_extension`
+    * `execute`
     """
 
     class NodeInfo:
@@ -93,9 +88,22 @@ class NodeActionExtension:
         satisfies_version(self.EXTENSION_POINT_VERSION, '^0.1')
 
     def command_extension(self, context):
+        """
+        Extend the command used to launch the node's process.
+
+        This method must return a list of parameters with which to extend the
+        command.
+        """
         return []
 
     def execute(self, context, ros_specific_arguments, node_info):
+        """ Perform any actions prior to the node's process being launched.
+
+        `node_info` is an instance of `NodeInfo`.
+
+        This method must return `ros_specific_arguments` with any modifications
+        made to it.
+        """
         return ros_specific_arguments
 
 
@@ -514,7 +522,7 @@ class Node(ExecuteProcess):
 
         try:
             extension_instance = extension_class()
-        except PluginException as e:  # noqa: F841
+        except plugin_support.PluginException as e:  # noqa: F841
             logger.warning(
                 f"Failed to instantiate '{group_name}' extension "
                 f"'{extension_name}': {e}")
@@ -529,38 +537,3 @@ class Node(ExecuteProcess):
         return extension_instance
 
 
-class PluginException(Exception):
-    """Base class for all exceptions within the plugin system."""
-
-    pass
-
-
-def satisfies_version(version, caret_range):
-    assert caret_range.startswith('^'), 'Only supports caret ranges'
-    extension_point_version = Version(version)
-    extension_version = Version(caret_range[1:])
-    next_extension_version = get_upper_bound_caret_version(
-        extension_version)
-
-    if extension_point_version < extension_version:
-        raise PluginException(
-            'Extension point is too old (%s), the extension requires '
-            "'%s'" % (extension_point_version, extension_version))
-
-    if extension_point_version >= next_extension_version:
-        raise PluginException(
-            'Extension point is newer (%s), than what the extension '
-            "supports '%s'" % (extension_point_version, extension_version))
-
-
-def get_upper_bound_caret_version(version):
-    parts = version.base_version.split('.')
-    if len(parts) < 2:
-        parts += [0] * (2 - len(parts))
-    major, minor = [int(p) for p in parts[:2]]
-    if major > 0:
-        major += 1
-        minor = 0
-    else:
-        minor += 1
-    return Version('%d.%d.0' % (major, minor))

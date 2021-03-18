@@ -85,7 +85,7 @@ class NodeActionExtension:
 
     def __init__(self):
         super(NodeActionExtension, self).__init__()
-        satisfies_version(self.EXTENSION_POINT_VERSION, '^0.1')
+        plugin_support.satisfies_version(self.EXTENSION_POINT_VERSION, '^0.1')
 
     def command_extension(self, context):
         """
@@ -535,5 +535,3 @@ class Node(ExecuteProcess):
         if not unique_instance:
             self.__extensions[extension_name] = extension_instance
         return extension_instance
-
-

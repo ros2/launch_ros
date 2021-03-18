@@ -146,7 +146,7 @@ def launch_a_launch_file(
     launch_file_arguments,
     noninteractive=False,
     args=None,
-    option_extensions={}
+    option_extensions={},
     debug=False
 ):
     """Launch a given launch file (by path) and pass it the given launch file arguments."""

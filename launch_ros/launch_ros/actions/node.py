@@ -461,7 +461,10 @@ class Node(ExecuteProcess):
             ros_specific_arguments['name'] = '__node:={}'.format(self.__expanded_node_name)
         if self.__expanded_node_namespace != '':
             ros_specific_arguments['ns'] = '__ns:={}'.format(self.__expanded_node_namespace)
-        node_info = NodeActionExtension.NodeInfo(self.__package, self.__node_executable, self.node_name)
+        node_info = NodeActionExtension.NodeInfo(
+            self.__package,
+            self.__node_executable,
+            self.node_name)
         for extension in self.__extensions.values():
             ros_specific_arguments = extension.execute(context, ros_specific_arguments, node_info)
 

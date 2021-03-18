@@ -50,4 +50,3 @@ def get_upper_bound_caret_version(version):
     else:
         minor += 1
     return Version('%d.%d.0' % (major, minor))
-

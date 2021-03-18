@@ -43,8 +43,5 @@ setup(
         'launch.frontend.launch_extension': [
             'launch_ros = launch_ros',
         ],
-        'launch_ros.node_action': [
-            'test = launch_ros.actions.test_extension:TestNodeActionExtension'
-        ],
     }
 )

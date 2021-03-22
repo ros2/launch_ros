@@ -51,5 +51,6 @@ def test_node_name():
         namespace='my_ns',
     )
     lc = LaunchContext()
-    node_object._Node__node_desc._perform_substitutions(lc, [])
+    for node in node_object.ros_exec.nodes:
+        node._perform_substitutions(lc, [])
     assert node_object.is_node_name_fully_specified() is True

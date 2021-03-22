@@ -47,3 +47,4 @@ class NodeTrait:
 
     def prepare(self, node: 'Node', context: LaunchContext, action: Action):
         """Perform any actions necessary to prepare the node for execution."""
+        pass

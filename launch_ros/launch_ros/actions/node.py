@@ -183,10 +183,6 @@ class Node(ExecuteLocal):
         self.__extensions = get_extensions(self.__logger)
         super().__init__(process_description=self.__ros_exec, **kwargs)
 
-    def prepare(self, context: LaunchContext):
-        self.__node_desc.prepare(context, self.__ros_exec, self)
-        super().prepare(context)
-
     def is_node_name_fully_specified(self):
         return self.__node_desc.is_node_name_fully_specified()
 
@@ -315,6 +311,11 @@ class Node(ExecuteLocal):
     def node_name(self):
         """Getter for node_name."""
         return self.__node_desc.node_name
+
+    @property
+    def ros_exec(self):
+        """Getter for ros_exec."""
+        return self.__ros_exec
 
     @property
     def expanded_node_namespace(self):

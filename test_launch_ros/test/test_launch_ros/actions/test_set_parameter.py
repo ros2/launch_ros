@@ -119,7 +119,8 @@ def test_set_param_with_node():
     )
     set_param = SetParameter(name='my_param', value='my_value')
     set_param.execute(lc)
-    node._perform_substitutions(lc)
+    for node_instance in node.ros_exec.nodes:
+        node_instance._perform_substitutions(lc, [])
     actual_command = [perform_substitutions(lc, item) for item in
                       node.cmd if type(item[0]) == TextSubstitution]
     assert actual_command.count('--params-file') == 1

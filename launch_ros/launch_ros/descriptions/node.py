@@ -74,17 +74,14 @@ class Node:
         self, *,
         node_name: Optional[SomeSubstitutionsType] = None,
         node_namespace: Optional[SomeSubstitutionsType] = None,
+        original_node_name: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
         traits: Optional[Iterable[NodeTrait]] = None,
         **kwargs
     ) -> None:
         """
-        Construct an Node description.
-
-        Many arguments are passed eventually to
-        :class:`launch.actions.ExecuteProcess`, so see the documentation of
-        that class for additional details.
+        Construct a Node description.
 
         If the node name is not given (or is None) then no name is passed to
         the node on creation and instead the default name specified within the
@@ -117,6 +114,9 @@ class Node:
 
         :param: node_name the name of the node
         :param: node_namespace the ROS namespace for this Node
+        :param: original_node_name the name of the node before remapping; if not specified,
+            remappings/parameters (including node name/namespace changes) may be applied
+            to all nodes which share a command line executable with this one
         :param: parameters list of names of yaml files with parameter rules,
             or dictionaries of parameters.
         :param: remappings ordered list of 'to' and 'from' string pairs to be
@@ -131,12 +131,14 @@ class Node:
 
         self.__node_name = node_name
         self.__node_namespace = node_namespace
+        self.__original_node_name = original_node_name
         self.__parameters = [] if parameters is None else normalized_params
         self.__remappings = [] if remappings is None else list(normalize_remap_rules(remappings))
         self.__traits = traits
 
         self.__expanded_node_name = self.UNSPECIFIED_NODE_NAME
         self.__expanded_node_namespace = self.UNSPECIFIED_NODE_NAMESPACE
+        self.__expanded_original_node_name = self.UNSPECIFIED_NODE_NAME
         self.__expanded_parameter_arguments = None  # type: Optional[List[Tuple[Text, bool]]]
         self.__final_node_name = None  # type: Optional[Text]
         self.__expanded_remappings = None  # type: Optional[List[Tuple[Text, Text]]]
@@ -156,6 +158,11 @@ class Node:
     def node_namespace(self):
         """Getter for node_namespace."""
         return self.__node_namespace
+
+    @property
+    def original_node_name(self):
+        """Getter for original_node_name."""
+        return self.__original_node_name
 
     @property
     def parameters(self):
@@ -245,6 +252,10 @@ class Node:
                 cmd_ext = ['-r', LocalSubstitution("ros_specific_arguments['ns']")]
                 cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
                 validate_namespace(self.__expanded_node_namespace)
+            if self.__original_node_name is not None:
+                self.__expanded_original_node_name = perform_substitutions(
+                    context, normalize_to_list_of_substitutions(self.__original_node_name))
+            self.__expanded_node_name.lstrip('/')
         except Exception:
             self.__logger.error(
                 "Error while expanding or validating node name or namespace for '{}':"
@@ -310,10 +321,17 @@ class Node:
         # Prepare the ros_specific_arguments list and add it to the context so that the
         # LocalSubstitution placeholders added to the the cmd can be expanded using the contents.
         ros_specific_arguments: Dict[str, Union[str, List[str]]] = {}
+        original_name_prefix = ""
+        if self.__expanded_original_node_name is not self.UNSPECIFIED_NODE_NAME:
+            original_name_prefix = '{}:'.format(self.__expanded_original_node_name)
         if self.__node_name is not None:
-            ros_specific_arguments['name'] = '__node:={}'.format(self.__expanded_node_name)
+            ros_specific_arguments['name'] = '{}__node:={}'.format(
+                original_name_prefix, self.__expanded_node_name
+            )
         if self.__expanded_node_namespace != '':
-            ros_specific_arguments['ns'] = '__ns:={}'.format(self.__expanded_node_namespace)
+            ros_specific_arguments['ns'] = '{}__ns:={}'.format(
+                original_name_prefix, self.__expanded_node_namespace
+            )
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
 
         if self.is_node_name_fully_specified():

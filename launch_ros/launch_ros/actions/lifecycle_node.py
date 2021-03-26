@@ -142,7 +142,7 @@ class LifecycleNode(Node):
 
         Delegated to :meth:`launch.actions.ExecuteProcess.execute`.
         """
-        self._perform_substitutions(context)  # ensure self.node_name is expanded
+        self.prepare(context)  # ensure self.node_name is expanded
         if '<node_name_unspecified>' in self.node_name:
             raise RuntimeError('node_name unexpectedly incomplete for lifecycle node')
         node = get_ros_node(context)

@@ -14,6 +14,8 @@
 
 """Tests for the SetParameter Action."""
 
+from _collections import defaultdict
+
 from launch import LaunchContext
 from launch.actions import PopLaunchConfigurations
 from launch.actions import PushLaunchConfigurations
@@ -33,9 +35,17 @@ class MockContext:
 
     def __init__(self):
         self.launch_configurations = {}
+        self.locals = lambda: None
+        self.locals.unique_ros_node_names = defaultdict(int)
+
+    def extend_globals(self, val):
+        pass
+
+    def extend_locals(self, val):
+        pass
 
     def perform_substitution(self, sub):
-        return sub.perform(None)
+        return sub.perform(self)
 
 
 def get_set_parameter_test_parameters():
@@ -111,8 +121,9 @@ def test_set_param_with_node():
     )
     set_param = SetParameter(name='my_param', value='my_value')
     set_param.execute(lc)
-    node._perform_substitutions(lc)
-    expanded_parameter_arguments = node._Node__expanded_parameter_arguments
+    for node_instance in node.ros_exec.nodes:
+        node_instance._perform_substitutions(lc, [])
+        expanded_parameter_arguments = node_instance.expanded_parameter_arguments
     assert len(expanded_parameter_arguments) == 2
     param_file_path, is_file = expanded_parameter_arguments[0]
     assert is_file

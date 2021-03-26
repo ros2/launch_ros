@@ -158,7 +158,7 @@ def check_launch_node(file):
     assert(0 == ls.run())
     evaluated_parameters = evaluate_parameters(
         ls.context,
-        ld.describe_sub_entities()[3]._Node__parameters
+        ld.describe_sub_entities()[3].process_description.nodes[0]._Node__parameters
     )
     assert len(evaluated_parameters) == 3
     assert isinstance(evaluated_parameters[0], dict)
@@ -199,7 +199,7 @@ def check_launch_node(file):
     assert param_dict['param_group1.param15'] == ['2', '5', '8']
 
     # Check remappings exist
-    remappings = ld.describe_sub_entities()[3]._Node__remappings
+    remappings = ld.describe_sub_entities()[3].process_description.nodes[0]._Node__remappings
     assert remappings is not None
     assert len(remappings) == 2
 

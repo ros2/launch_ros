@@ -215,7 +215,7 @@ class Node:
 
     def _get_parameter_rule(self, param: 'Parameter', context: LaunchContext):
         name, value = param.evaluate(context)
-        return f'{name}:={yaml.dump(value)}'
+        return f'{self.__expanded_node_name}:{name}:={yaml.dump(value)}'
 
     def prepare(self, context: LaunchContext, executable: Executable, action: Action) -> None:
         self._perform_substitutions(context, executable.cmd)
@@ -316,7 +316,7 @@ class Node:
         if self.__expanded_remappings:
             cmd_ext = []
             for src, dst in self.__expanded_remappings:
-                cmd_ext.extend(['-r', f'{src}:={dst}'])
+                cmd_ext.extend(['-r', f'{self.__expanded_node_name}:{src}:={dst}'])
             cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
         # Prepare the ros_specific_arguments list and add it to the context so that the
         # LocalSubstitution placeholders added to the the cmd can be expanded using the contents.

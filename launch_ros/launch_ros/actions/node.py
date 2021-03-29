@@ -74,12 +74,6 @@ class NodeActionExtension:
     * `execute`
     """
 
-    class NodeInfo:
-        def __init__(self, package, executable, name):
-            self.package = package
-            self.executable = executable
-            self.name = name
-
     NAME = None
     EXTENSION_POINT_VERSION = '0.1'
 
@@ -96,10 +90,10 @@ class NodeActionExtension:
         """
         return []
 
-    def execute(self, context, ros_specific_arguments, node_info):
+    def execute(self, context, ros_specific_arguments, node_action):
         """ Perform any actions prior to the node's process being launched.
 
-        `node_info` is an instance of `NodeInfo`.
+        `node_action` is the Node action instance that is calling the extension.
 
         This method must return `ros_specific_arguments` with any modifications
         made to it.
@@ -329,6 +323,16 @@ class Node(ExecuteProcess):
         return cls, kwargs
 
     @property
+    def node_package(self):
+        """Getter for node_package."""
+        return self.__package
+
+    @property
+    def node_executable(self):
+        """Getter for node_executable."""
+        return self.__node_executable
+
+    @property
     def node_name(self):
         """Getter for node_name."""
         if self.__final_node_name is None:
@@ -461,12 +465,8 @@ class Node(ExecuteProcess):
             ros_specific_arguments['name'] = '__node:={}'.format(self.__expanded_node_name)
         if self.__expanded_node_namespace != '':
             ros_specific_arguments['ns'] = '__ns:={}'.format(self.__expanded_node_namespace)
-        node_info = NodeActionExtension.NodeInfo(
-            self.__package,
-            self.__node_executable,
-            self.node_name)
         for extension in self.__extensions.values():
-            ros_specific_arguments = extension.execute(context, ros_specific_arguments, node_info)
+            ros_specific_arguments = extension.execute(context, ros_specific_arguments, self)
 
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
         ret = super().execute(context)

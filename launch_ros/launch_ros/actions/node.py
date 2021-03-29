@@ -83,10 +83,10 @@ class NodeActionExtension:
 
     def command_extension(self, context):
         """
-        Extend the command used to launch the node's process.
+        Extend the command line used by the user to call ros2 launch.
 
         This method must return a list of parameters with which to extend the
-        command.
+        command line.
         """
         return []
 

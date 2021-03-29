@@ -218,7 +218,7 @@ class Node(ExecuteProcess):
 
         self.__logger = launch.logging.get_logger(__name__)
 
-        self._get_extensions()
+        get_extensions()
 
     @staticmethod
     def parse_nested_parameters(params, parser):
@@ -494,48 +494,55 @@ class Node(ExecuteProcess):
         """Getter for expanded_remappings."""
         return self.__expanded_remappings
 
-    def _get_extensions(self):
-        group_name = 'launch_ros.node_action'
-        entry_points = {}
-        for entry_point in importlib_metadata.entry_points().get(group_name, []):
-            entry_points[entry_point.name] = entry_point
-        extension_types = {}
-        for entry_point in entry_points:
-            try:
-                extension_type = entry_points[entry_point].load()
-            except Exception as e:  # noqa: F841
-                self.__logger.warning(
-                    f"Failed to load entry point '{entry_point.name}': {e}")
-                continue
-            extension_types[entry_points[entry_point].name] = extension_type
+def instantiate_extension(
+    group_name,
+    extension_name,
+    extension_class,
+    extensions,
+    logger,
+    *,
+    unique_instance=False
+):
+    if not unique_instance and extension_class in extensions:
+        return existing_extensions[extension_name]
 
-        self.__extensions = {}
-        for extension_name, extension_class in extension_types.items():
-            extension_instance = self._instantiate_extension(
-                group_name, extension_name, extension_class, self.__logger)
-            if extension_instance is None:
-                continue
-            extension_instance.NAME = extension_name
-            self.__extensions[extension_name] = extension_instance
+    try:
+        extension_instance = extension_class()
+    except plugin_support.PluginException as e:  # noqa: F841
+        logger.warning(
+            f"Failed to instantiate '{group_name}' extension "
+            f"'{extension_name}': {e}")
+        return None
+    except Exception as e:  # noqa: F841
+        logger.error(
+            f"Failed to instantiate '{group_name}' extension "
+            f"'{extension_name}': {e}")
+        return None
+    if not unique_instance:
+        extensions[extension_name] = extension_instance
+    return extension_instance
 
-    def _instantiate_extension(
-        self, group_name, extension_name, extension_class, logger, *, unique_instance=False
-    ):
-        if not unique_instance and extension_class in self.__extensions:
-            return self.__extensions[extension_name]
 
+def get_extensions(logger):
+    group_name = 'launch_ros.node_action'
+    entry_points = {}
+    for entry_point in importlib_metadata.entry_points().get(group_name, []):
+        entry_points[entry_point.name] = entry_point
+    extension_types = {}
+    for entry_point in entry_points:
         try:
-            extension_instance = extension_class()
-        except plugin_support.PluginException as e:  # noqa: F841
-            logger.warning(
-                f"Failed to instantiate '{group_name}' extension "
-                f"'{extension_name}': {e}")
-            return None
+            extension_type = entry_points[entry_point].load()
         except Exception as e:  # noqa: F841
-            logger.error(
-                f"Failed to instantiate '{group_name}' extension "
-                f"'{extension_name}': {e}")
-            return None
-        if not unique_instance:
-            self.__extensions[extension_name] = extension_instance
-        return extension_instance
+            logger.warning(f"Failed to load entry point '{entry_point.name}': {e}")
+            continue
+        extension_types[entry_points[entry_point].name] = extension_type
+
+    extensions = {}
+    for extension_name, extension_class in extension_types.items():
+        extension_instance = instantiate_extension(
+            group_name, extension_name, extension_class, extensions, logger)
+        if extension_instance is None:
+            continue
+        extension_instance.NAME = extension_name
+        extensions[extension_name] = extension_instance
+    return extensions

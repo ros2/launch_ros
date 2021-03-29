@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from ros2cli.plugin_system import instantiate_extensions
-from ros2cli.plugin_system import PLUGIN_SYSTEM_VERSION
 from ros2cli.plugin_system import satisfies_version
 
 
@@ -40,7 +39,7 @@ class OptionExtension:
         satisfies_version(self.EXTENSION_POINT_VERSION, '^0.1')
 
     def add_arguments(self, parser, cli_name, *, argv=None):
-        """Add arguments to the argparse parser"""
+        """Add arguments to the argparse parser."""
         return
 
     def prestart(self, args):
@@ -53,7 +52,7 @@ class OptionExtension:
 
     def prelaunch(self, launch_description, args):
         """
-        Perform actions prior to the launch process running
+        Perform actions prior to the launch process running.
 
         This executes after creation and setup of the launch process, but
         before it is executed.

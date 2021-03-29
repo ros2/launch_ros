@@ -218,7 +218,7 @@ class Node(ExecuteProcess):
 
         self.__logger = launch.logging.get_logger(__name__)
 
-        get_extensions()
+        self.__extensions = get_extensions(self.__logger)
 
     @staticmethod
     def parse_nested_parameters(params, parser):
@@ -467,7 +467,7 @@ class Node(ExecuteProcess):
         if self.__expanded_node_namespace != '':
             ros_specific_arguments['ns'] = '__ns:={}'.format(self.__expanded_node_namespace)
         for extension in self.__extensions.values():
-            ros_specific_arguments = extension.execute(context, ros_specific_arguments, self)
+            ros_specific_arguments = extension.pre_execute(context, ros_specific_arguments, self)
 
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
         ret = super().execute(context)

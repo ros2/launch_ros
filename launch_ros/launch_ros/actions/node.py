@@ -90,8 +90,9 @@ class NodeActionExtension:
         """
         return []
 
-    def execute(self, context, ros_specific_arguments, node_action):
-        """ Perform any actions prior to the node's process being launched.
+    def pre_execute(self, context, ros_specific_arguments, node_action):
+        """
+        Perform any actions prior to the node's process being launched.
 
         `node_action` is the Node action instance that is calling the extension.
 

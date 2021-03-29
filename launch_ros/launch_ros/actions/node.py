@@ -494,6 +494,7 @@ class Node(ExecuteProcess):
         """Getter for expanded_remappings."""
         return self.__expanded_remappings
 
+
 def instantiate_extension(
     group_name,
     extension_name,
@@ -504,8 +505,7 @@ def instantiate_extension(
     unique_instance=False
 ):
     if not unique_instance and extension_class in extensions:
-        return existing_extensions[extension_name]
-
+        return extensions[extension_name]
     try:
         extension_instance = extension_class()
     except plugin_support.PluginException as e:  # noqa: F841

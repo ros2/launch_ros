@@ -81,25 +81,27 @@ class NodeActionExtension:
         super(NodeActionExtension, self).__init__()
         plugin_support.satisfies_version(self.EXTENSION_POINT_VERSION, '^0.1')
 
-    def command_extension(self, context):
-        """
-        Extend the command line used by the user to call ros2 launch.
-
-        This method must return a list of parameters with which to extend the
-        command line.
-        """
-        return []
-
-    def pre_execute(self, context, ros_specific_arguments, node_action):
+    def prepare_for_execute(self, context, ros_specific_arguments, node_action):
         """
         Perform any actions prior to the node's process being launched.
 
-        `node_action` is the Node action instance that is calling the extension.
+        `context` is the context within which the launch is taking place,
+        containing amongst other things the command line arguments provided by
+        the user.
 
-        This method must return `ros_specific_arguments` with any modifications
-        made to it.
+        `ros_specific_arguments` is a dictionary of command line arguments that
+        will be passed to the executable and are specific to ROS.
+
+        `node_action` is the Node action instance that is calling the
+        extension.
+
+        This method must return a tuple of command line additions as a list of
+        launch.substitutions.TextSubstitution objects, and
+        `ros_specific_arguments` with any modifications made to it. If no
+        modifications are made, it should return
+        `[], ros_specific_arguments`.
         """
-        return ros_specific_arguments
+        return [], ros_specific_arguments
 
 
 @expose_action('node')
@@ -397,9 +399,6 @@ class Node(ExecuteProcess):
         self.__final_node_name = prefix_namespace(
             self.__expanded_node_namespace, self.__expanded_node_name)
 
-        for extension in self.__extensions.values():
-            self.cmd.extend(extension.command_extension(context))
-
         # expand global parameters first,
         # so they can be overriden with specific parameters of this Node
         global_params = context.launch_configurations.get('ros_params', None)
@@ -466,8 +465,15 @@ class Node(ExecuteProcess):
             ros_specific_arguments['name'] = '__node:={}'.format(self.__expanded_node_name)
         if self.__expanded_node_namespace != '':
             ros_specific_arguments['ns'] = '__ns:={}'.format(self.__expanded_node_namespace)
+
+        # Give extensions a chance to prepare for execution
         for extension in self.__extensions.values():
-            ros_specific_arguments = extension.pre_execute(context, ros_specific_arguments, self)
+            cmd_extension, ros_specific_arguments = extension.prepare_for_execute(
+                context,
+                ros_specific_arguments,
+                self
+            )
+            self.cmd.extend(cmd_extension)
 
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
         ret = super().execute(context)

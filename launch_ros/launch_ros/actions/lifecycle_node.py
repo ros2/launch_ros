@@ -91,7 +91,7 @@ class LifecycleNode(Node):
         if name is None:
             raise RuntimeError("'name' must not be None.'")
         if not namespace:
-            namespace = '/'
+            namespace = ''
         super().__init__(name=name, namespace=namespace, **kwargs)
         self.__logger = launch.logging.get_logger(__name__)
         self.__rclpy_subscription = None

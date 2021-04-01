@@ -14,6 +14,7 @@
 
 """Module for the Node action."""
 
+import importlib_metadata
 import os
 import pathlib
 from tempfile import NamedTemporaryFile
@@ -49,13 +50,13 @@ from launch_ros.utilities import get_node_name_count
 from launch_ros.utilities import make_namespace_absolute
 from launch_ros.utilities import normalize_parameters
 from launch_ros.utilities import normalize_remap_rules
-from launch_ros.utilities import prefix_namespace
 from launch_ros.utilities import plugin_support
+from launch_ros.utilities import prefix_namespace
+
 
 from rclpy.validate_namespace import validate_namespace
 from rclpy.validate_node_name import validate_node_name
 
-import importlib_metadata
 import yaml
 
 from ..descriptions import Parameter

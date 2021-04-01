@@ -14,12 +14,15 @@
 
 from launch_ros.actions.node import NodeActionExtension
 
+
 class TestNodeActionExtension(NodeActionExtension):
+
     def command_extension(self, context):
         print(f'command_extension called with arguments:\ncontext:\t{context}')
         return []
 
     def pre_execute(self, context, ros_specific_arguments, node_action):
-        print(f'execute called with arguments:\ncontext:\t{context}\nros_specific_arguments\t{ros_specific_arguments}\nnode_action\t{node_action}')
+        print(f'execute called with arguments:\ncontext:\t{context}\n'
+              'ros_specific_arguments\t{ros_specific_arguments}\nnode_action\t{node_action}')
         ros_specific_arguments['__test_arg'] = 'test_value'
         return ros_specific_arguments

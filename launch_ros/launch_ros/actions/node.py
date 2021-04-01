@@ -14,7 +14,6 @@
 
 """Module for the Node action."""
 
-import importlib_metadata
 import os
 import pathlib
 from tempfile import NamedTemporaryFile
@@ -25,6 +24,8 @@ from typing import Optional
 from typing import Text  # noqa: F401
 from typing import Tuple  # noqa: F401
 from typing import Union
+
+import importlib_metadata
 
 from launch.action import Action
 from launch.actions import ExecuteProcess

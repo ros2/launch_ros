@@ -145,9 +145,13 @@ def launch_a_launch_file(
     launch_file_path,
     launch_file_arguments,
     noninteractive=False,
+    args=None,
+    option_extensions={},
     debug=False
 ):
     """Launch a given launch file (by path) and pass it the given launch file arguments."""
+    for name in sorted(option_extensions.keys()):
+        option_extensions[name].prestart(args)
     launch_service = launch.LaunchService(
         argv=launch_file_arguments,
         noninteractive=noninteractive,
@@ -163,8 +167,16 @@ def launch_a_launch_file(
             launch_arguments=parsed_launch_arguments,
         ),
     ])
+    for name in sorted(option_extensions.keys()):
+        result = option_extensions[name].prelaunch(
+            launch_description,
+            args
+        )
+        launch_description = result[0]
     launch_service.include_launch_description(launch_description)
     ret = launch_service.run()
+    for name in sorted(option_extensions.keys()):
+        option_extensions[name].postlaunch(ret, args)
     return ret
 
 

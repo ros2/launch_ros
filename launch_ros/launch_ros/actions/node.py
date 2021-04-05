@@ -25,6 +25,8 @@ from typing import Text  # noqa: F401
 from typing import Tuple  # noqa: F401
 from typing import Union
 
+import importlib_metadata
+
 from launch.action import Action
 from launch.actions import ExecuteProcess
 from launch.frontend import Entity
@@ -49,7 +51,9 @@ from launch_ros.utilities import get_node_name_count
 from launch_ros.utilities import make_namespace_absolute
 from launch_ros.utilities import normalize_parameters
 from launch_ros.utilities import normalize_remap_rules
+from launch_ros.utilities import plugin_support
 from launch_ros.utilities import prefix_namespace
+
 
 from rclpy.validate_namespace import validate_namespace
 from rclpy.validate_node_name import validate_node_name
@@ -58,6 +62,48 @@ import yaml
 
 from ..descriptions import Parameter
 from ..descriptions import ParameterFile
+
+
+class NodeActionExtension:
+    """
+    The extension point for launch_ros node action extensions.
+
+    The following properties must be defined:
+    * `NAME` (will be set to the entry point name)
+
+    The following methods may be defined:
+    * `command_extension`
+    * `execute`
+    """
+
+    NAME = None
+    EXTENSION_POINT_VERSION = '0.1'
+
+    def __init__(self):
+        super(NodeActionExtension, self).__init__()
+        plugin_support.satisfies_version(self.EXTENSION_POINT_VERSION, '^0.1')
+
+    def prepare_for_execute(self, context, ros_specific_arguments, node_action):
+        """
+        Perform any actions prior to the node's process being launched.
+
+        `context` is the context within which the launch is taking place,
+        containing amongst other things the command line arguments provided by
+        the user.
+
+        `ros_specific_arguments` is a dictionary of command line arguments that
+        will be passed to the executable and are specific to ROS.
+
+        `node_action` is the Node action instance that is calling the
+        extension.
+
+        This method must return a tuple of command line additions as a list of
+        launch.substitutions.TextSubstitution objects, and
+        `ros_specific_arguments` with any modifications made to it. If no
+        modifications are made, it should return
+        `[], ros_specific_arguments`.
+        """
+        return [], ros_specific_arguments
 
 
 @expose_action('node')
@@ -176,6 +222,8 @@ class Node(ExecuteProcess):
 
         self.__logger = launch.logging.get_logger(__name__)
 
+        self.__extensions = get_extensions(self.__logger)
+
     @staticmethod
     def parse_nested_parameters(params, parser):
         """Normalize parameters as expected by Node constructor argument."""
@@ -280,6 +328,16 @@ class Node(ExecuteProcess):
         return cls, kwargs
 
     @property
+    def node_package(self):
+        """Getter for node_package."""
+        return self.__package
+
+    @property
+    def node_executable(self):
+        """Getter for node_executable."""
+        return self.__node_executable
+
+    @property
     def node_name(self):
         """Getter for node_name."""
         if self.__final_node_name is None:
@@ -342,6 +400,7 @@ class Node(ExecuteProcess):
             raise
         self.__final_node_name = prefix_namespace(
             self.__expanded_node_namespace, self.__expanded_node_name)
+
         # expand global parameters first,
         # so they can be overriden with specific parameters of this Node
         global_params = context.launch_configurations.get('ros_params', None)
@@ -408,6 +467,16 @@ class Node(ExecuteProcess):
             ros_specific_arguments['name'] = '__node:={}'.format(self.__expanded_node_name)
         if self.__expanded_node_namespace != '':
             ros_specific_arguments['ns'] = '__ns:={}'.format(self.__expanded_node_namespace)
+
+        # Give extensions a chance to prepare for execution
+        for extension in self.__extensions.values():
+            cmd_extension, ros_specific_arguments = extension.prepare_for_execute(
+                context,
+                ros_specific_arguments,
+                self
+            )
+            self.cmd.extend(cmd_extension)
+
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
         ret = super().execute(context)
 
@@ -432,3 +501,56 @@ class Node(ExecuteProcess):
     def expanded_remapping_rules(self):
         """Getter for expanded_remappings."""
         return self.__expanded_remappings
+
+
+def instantiate_extension(
+    group_name,
+    extension_name,
+    extension_class,
+    extensions,
+    logger,
+    *,
+    unique_instance=False
+):
+    if not unique_instance and extension_class in extensions:
+        return extensions[extension_name]
+    try:
+        extension_instance = extension_class()
+    except plugin_support.PluginException as e:  # noqa: F841
+        logger.warning(
+            f"Failed to instantiate '{group_name}' extension "
+            f"'{extension_name}': {e}")
+        return None
+    except Exception as e:  # noqa: F841
+        logger.error(
+            f"Failed to instantiate '{group_name}' extension "
+            f"'{extension_name}': {e}")
+        return None
+    if not unique_instance:
+        extensions[extension_name] = extension_instance
+    return extension_instance
+
+
+def get_extensions(logger):
+    group_name = 'launch_ros.node_action'
+    entry_points = {}
+    for entry_point in importlib_metadata.entry_points().get(group_name, []):
+        entry_points[entry_point.name] = entry_point
+    extension_types = {}
+    for entry_point in entry_points:
+        try:
+            extension_type = entry_points[entry_point].load()
+        except Exception as e:  # noqa: F841
+            logger.warning(f"Failed to load entry point '{entry_point.name}': {e}")
+            continue
+        extension_types[entry_points[entry_point].name] = extension_type
+
+    extensions = {}
+    for extension_name, extension_class in extension_types.items():
+        extension_instance = instantiate_extension(
+            group_name, extension_name, extension_class, extensions, logger)
+        if extension_instance is None:
+            continue
+        extension_instance.NAME = extension_name
+        extensions[extension_name] = extension_instance
+    return extensions

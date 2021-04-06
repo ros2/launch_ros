@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add options extensions to ros2launch and extensibility to the node action (`#216 <https://github.com/ros2/launch_ros/issues/216>`_)
+* Contributors: Geoffrey Biggs
+
 0.13.0 (2021-01-25)
 -------------------
 * Make sure ParameterFile __del_\_ works without exception. (`#212 <https://github.com/ros2/launch_ros/issues/212>`_)

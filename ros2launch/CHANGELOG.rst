@@ -2,6 +2,11 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add options extensions to ros2launch and extensibility to the node action (`#216 <https://github.com/ros2/launch_ros/issues/216>`_)
+* Contributors: Geoffrey Biggs
+
 0.13.0 (2021-01-25)
 -------------------
 * Support non-interactive ros2 launch executions (`#210 <https://github.com/ros2/launch_ros/issues/210>`_)

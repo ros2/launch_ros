@@ -25,7 +25,10 @@ from typing import Text  # noqa: F401
 from typing import Tuple  # noqa: F401
 from typing import Union
 
-import importlib_metadata
+try:
+    import importlib.metadata as importlib_metadata
+except ModuleNotFoundError:
+    import importlib_metadata
 
 from launch.action import Action
 from launch.actions import ExecuteProcess

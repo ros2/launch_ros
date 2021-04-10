@@ -114,18 +114,11 @@ class LaunchCommand(CommandExtension):
 
     def main(self, *, parser, args):
         """Entry point for CLI program."""
-        mode = 'pkg file'
-        if args.launch_file_name is None:
-            # If only one argument passed, use single file mode.
-            mode = 'single file'
-        else:
-            # Test if first argument is a package, and if not change to single
-            # file mode, but only if the file exists.
-            try:
-                get_package_prefix(args.package_name)
-            except PackageNotFoundError:
-                if os.path.exists(args.package_name):
-                    mode = 'single file'
+        mode = 'single file'
+        # Test if first argument is a file, and if not change to pkg
+        # file mode.
+        if not os.path.isfile(args.package_name):
+            mode = 'pkg file'
 
         path = None
         launch_arguments = []

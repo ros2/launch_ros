@@ -15,7 +15,6 @@
 import os
 import sys
 
-from ament_index_python.packages import get_package_prefix
 from ament_index_python.packages import PackageNotFoundError
 try:
     from argcomplete.completers import FilesCompleter

@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Support Python 3.8 importlib.metadata, declare dependency (`#229 <https://github.com/ros2/launch_ros/issues/229>`_)
+* Contributors: Scott K Logan
+
 0.14.0 (2021-04-06)
 -------------------
 * Add options extensions to ros2launch and extensibility to the node action (`#216 <https://github.com/ros2/launch_ros/issues/216>`_)

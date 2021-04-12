@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add a package marker to test_launch_ros. (`#226 <https://github.com/ros2/launch_ros/issues/226>`_)
+* Contributors: Chris Lalancette
+
 0.14.0 (2021-04-06)
 -------------------
 

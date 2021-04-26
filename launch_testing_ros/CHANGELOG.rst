@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Use underscores in setup.cfg instead of dashes. (`#227 <https://github.com/ros2/launch_ros/issues/227>`_)
+* Contributors: Mike Purvis
+
 0.14.1 (2021-04-12)
 -------------------
 

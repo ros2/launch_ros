@@ -24,6 +24,9 @@ from typing import Union
 import composition_interfaces.srv
 
 from launch.action import Action
+from launch.frontend import Entity
+from launch.frontend import Parser
+from launch.frontend import expose_action
 from launch.launch_context import LaunchContext
 import launch.logging
 from launch.some_substitutions_type import SomeSubstitutionsType
@@ -44,8 +47,10 @@ from ..utilities import make_namespace_absolute
 from ..utilities import prefix_namespace
 from ..utilities import to_parameters_list
 from ..utilities.normalize_parameters import normalize_parameter_dict
+from ..utilities.parse_composable_node import parse_composable_node
 
 
+@expose_action('load_composable_node')
 class LoadComposableNodes(Action):
     """Action that loads composable ROS nodes into a running container."""
 
@@ -81,6 +86,22 @@ class LoadComposableNodes(Action):
         self.__target_container = target_container
         self.__final_target_container_name = None  # type: Optional[Text]
         self.__logger = launch.logging.get_logger(__name__)
+
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser):
+        """Parse load_composable_node."""
+        _, kwargs = super().parse(entity, parser)
+
+        kwargs['target_container'] = entity.get_attr('target', data_type=str)
+
+        composable_nodes = entity.get_attr(
+            'composable_node', data_type=List[Entity], optional=True)
+        if composable_nodes is not None:
+            kwargs['composable_node_descriptions'] = [
+                parse_composable_node(parser, entity) for entity in composable_nodes
+            ]
+
+        return cls, kwargs
 
     def _load_node(
         self,

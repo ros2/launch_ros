@@ -18,14 +18,19 @@ from typing import List
 from typing import Optional
 
 from launch.action import Action
+from launch.frontend import Entity
+from launch.frontend import Parser
+from launch.frontend import expose_action
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 
 from .node import Node
 
 from ..descriptions import ComposableNode
+from ..utilities.parse_composable_node import parse_composable_node
 
 
+@expose_action('node_container')
 class ComposableNodeContainer(Node):
     """Action that executes a container ROS node for composable ROS nodes."""
 
@@ -50,6 +55,25 @@ class ComposableNodeContainer(Node):
         """
         super().__init__(name=name, namespace=namespace, **kwargs)
         self.__composable_node_descriptions = composable_node_descriptions
+
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser):
+        """Parse node_container."""
+        _, kwargs = super().parse(entity, parser)
+
+        kwargs['package'] = entity.get_attr('pkg', data_type=str)
+        kwargs['executable'] = entity.get_attr('exec', data_type=str)
+        kwargs['name'] = entity.get_attr('name', data_type=str)
+        kwargs['namespace'] = entity.get_attr('namespace', data_type=str)
+
+        composable_nodes = entity.get_attr(
+            'composable_node', data_type=List[Entity], optional=True)
+        if composable_nodes is not None:
+            kwargs['composable_node_descriptions'] = [
+                parse_composable_node(parser, entity) for entity in composable_nodes
+            ]
+
+        return cls, kwargs
 
     def execute(self, context: LaunchContext) -> Optional[List[Action]]:
         """

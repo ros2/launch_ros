@@ -171,9 +171,15 @@ class Node(ExecuteProcess):
         A yaml file with the resulting parameters from the dictionary will be
         written to a temporary file, the path to which will be passed to the
         node.
-        Multiple dictionaries/files can be passed: each file path will be
-        passed in in order to the node (where the last definition of a
-        parameter takes effect).
+
+        Multiple parameter dictionaries/files can be passed: each file path
+        will be passed in in order to the node (where the last definition of
+        a parameter takes effect).
+        However, fully qualified node names override wildcards even when
+        specified earlier.
+        If `namespace` is not specified, dictionaries are prefixed by a
+        wildcard namespace (`/**`) and other specific parameter declarations
+        may overwrite it.
 
         :param: executable the name of the executable to find if a package
             is provided or otherwise a path to the executable to run.

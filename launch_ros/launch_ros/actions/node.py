@@ -171,7 +171,6 @@ class Node(ExecuteProcess):
         A yaml file with the resulting parameters from the dictionary will be
         written to a temporary file, the path to which will be passed to the
         node.
-
         Multiple parameter dictionaries/files can be passed: each file path
         will be passed in in order to the node (where the last definition of
         a parameter takes effect).

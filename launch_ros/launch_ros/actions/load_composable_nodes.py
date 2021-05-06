@@ -92,7 +92,7 @@ class LoadComposableNodes(Action):
         """Parse load_composable_node."""
         _, kwargs = super().parse(entity, parser)
 
-        kwargs['target_container'] = entity.get_attr('target', data_type=str)
+        kwargs['target_container'] = parser.parse_substitution(entity.get_attr('target', data_type=str))
 
         composable_nodes = entity.get_attr(
             'composable_node', data_type=List[Entity], optional=True)

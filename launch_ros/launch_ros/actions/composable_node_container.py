@@ -61,10 +61,11 @@ class ComposableNodeContainer(Node):
         """Parse node_container."""
         _, kwargs = super().parse(entity, parser)
 
-        kwargs['package'] = entity.get_attr('pkg', data_type=str)
-        kwargs['executable'] = entity.get_attr('exec', data_type=str)
-        kwargs['name'] = entity.get_attr('name', data_type=str)
-        kwargs['namespace'] = entity.get_attr('namespace', data_type=str)
+        kwargs['package'] = parser.parse_substitution(entity.get_attr('pkg', data_type=str))
+        kwargs['executable'] = parser.parse_substitution(entity.get_attr('exec', data_type=str))
+        kwargs['name'] = parser.parse_substitution(entity.get_attr('name', data_type=str))
+        kwargs['namespace'] = parser.parse_substitution(
+            entity.get_attr('namespace', data_type=str))
 
         composable_nodes = entity.get_attr(
             'composable_node', data_type=List[Entity], optional=True)

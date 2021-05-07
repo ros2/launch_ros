@@ -20,6 +20,9 @@ from typing import Optional
 import launch
 from launch import SomeSubstitutionsType
 from launch.action import Action
+from launch.frontend import Entity
+from launch.frontend import expose_action
+from launch.frontend import Parser
 import launch.logging
 
 import lifecycle_msgs.msg
@@ -31,6 +34,7 @@ from .node import Node
 from ..utilities import LifecycleEventManager
 
 
+@expose_action('lifecycle_node')
 class LifecycleNode(Node):
     """Action that executes a ROS lifecycle node."""
 
@@ -80,6 +84,13 @@ class LifecycleNode(Node):
     def node_autostart(self):
         """Getter for autostart."""
         return self.__autostart
+
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser):
+        """Return `LifecycleNode` action and kwargs for constructing it."""
+        _, kwargs = super().parse(entity, parser)
+
+        return cls, kwargs
 
     @property
     def is_lifecycle_node(self):

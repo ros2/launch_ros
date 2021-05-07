@@ -25,8 +25,8 @@ import composition_interfaces.srv
 
 from launch.action import Action
 from launch.frontend import Entity
-from launch.frontend import Parser
 from launch.frontend import expose_action
+from launch.frontend import Parser
 from launch.launch_context import LaunchContext
 import launch.logging
 from launch.some_substitutions_type import SomeSubstitutionsType
@@ -92,7 +92,8 @@ class LoadComposableNodes(Action):
         """Parse load_composable_node."""
         _, kwargs = super().parse(entity, parser)
 
-        kwargs['target_container'] = parser.parse_substitution(entity.get_attr('target', data_type=str))
+        kwargs['target_container'] = parser.parse_substitution(
+            entity.get_attr('target', data_type=str))
 
         composable_nodes = entity.get_attr(
             'composable_node', data_type=List[Entity], optional=True)

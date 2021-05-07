@@ -23,46 +23,35 @@ from launch_ros.descriptions import ComposableNode
 
 
 def parse_composable_node(parser: Parser, entity: Entity):
-    """Parse composable_node"""
+    """Parse composable_node."""
+    kwargs = {}
 
-    attr_namespace = entity.get_attr('namespace', optional=True)
-    if attr_namespace is not None:
-        namespace = parser.parse_substitution(attr_namespace)
-    else:
-        namespace = None
+    kwargs['package'] = parser.parse_substitution(entity.get_attr('pkg'))
+    kwargs['plugin'] = parser.parse_substitution(entity.get_attr('plugin'))
+    kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
 
-    attr_parameters = entity.get_attr('param', data_type=List[Entity], optional=True)
-    if attr_parameters is not None:
-        parameters = Node.parse_nested_parameters(attr_parameters, parser)
-    else:
-        parameters = None
+    namespace = entity.get_attr('namespace', optional=True)
+    if namespace is not None:
+        kwargs['namespace'] = parser.parse_substitution(namespace)
 
-    attr_remappings = entity.get_attr('remap', data_type=List[Entity], optional=True)
-    if attr_remappings is not None:
-        remappings = [
+    parameters = entity.get_attr('param', data_type=List[Entity], optional=True)
+    if parameters is not None:
+        kwargs['parameters'] = Node.parse_nested_parameters(parameters, parser)
+
+    remappings = entity.get_attr('remap', data_type=List[Entity], optional=True)
+    if remappings is not None:
+        kwargs['remappings'] = [
             (
                 parser.parse_substitution(remap.get_attr('from')),
                 parser.parse_substitution(remap.get_attr('to'))
-            ) for remap in attr_remappings
+            ) for remap in remappings
         ]
 
-        for remap in attr_remappings:
+        for remap in remappings:
             remap.assert_entity_completely_parsed()
-    else:
-        remappings = None
 
-    attr_extra_arguments = entity.get_attr('extra_arg', data_type=List[Entity], optional=True)
-    if attr_extra_arguments is not None:
-        extra_arguments = Node.parse_nested_parameters(attr_extra_arguments, parser)
-    else:
-        extra_arguments = None
+    extra_arguments = entity.get_attr('extra_arg', data_type=List[Entity], optional=True)
+    if extra_arguments is not None:
+        kwargs['extra_arguments'] = Node.parse_nested_parameters(extra_arguments, parser)
 
-    return ComposableNode(
-        package=parser.parse_substitution(entity.get_attr('pkg')),
-        plugin=parser.parse_substitution(entity.get_attr('plugin')),
-        name=parser.parse_substitution(entity.get_attr('name')),
-        namespace=namespace,
-        parameters=parameters,
-        remappings=remappings,
-        extra_arguments=extra_arguments,
-    )
+    return (ComposableNode, kwargs)

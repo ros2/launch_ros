@@ -97,9 +97,8 @@ class LoadComposableNodes(Action):
 
         composable_nodes = entity.get_attr('composable_node', data_type=List[Entity])
         if composable_nodes is not None:
-            kwargs['composable_node_descriptions'] = [
-                parse_composable_node(parser, entity) for entity in composable_nodes
-            ]
+            parsed_tuples = [parse_composable_node(parser, entity) for entity in composable_nodes]
+            kwargs['composable_node_descriptions'] = [t[0](**t[1]) for t in parsed_tuples]
 
         return cls, kwargs
 

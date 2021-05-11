@@ -112,7 +112,7 @@ class ComposableNode:
         if extra_arguments is not None:
             kwargs['extra_arguments'] = Node.parse_nested_parameters(extra_arguments, parser)
 
-        return (ComposableNode, kwargs)
+        return cls, kwargs
 
     @property
     def package(self) -> List[Substitution]:

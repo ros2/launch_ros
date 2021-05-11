@@ -63,8 +63,11 @@ class ComposableNodeContainer(Node):
         composable_nodes = entity.get_attr(
             'composable_node', data_type=List[Entity], optional=True)
         if composable_nodes is not None:
-            parsed_tuples = [ComposableNode.parse(parser, entity) for entity in composable_nodes]
-            kwargs['composable_node_descriptions'] = [t[0](**t[1]) for t in parsed_tuples]
+            kwargs['composable_node_descriptions'] = []
+            for entity in composable_nodes:
+                _, composable_node_kwargs = ComposableNode.parse(parser, entity)
+                kwargs['composable_node_descriptions'].append(
+                    ComposableNode(**composable_node_kwargs))
 
         return cls, kwargs
 

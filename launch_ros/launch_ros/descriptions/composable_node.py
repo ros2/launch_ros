@@ -110,7 +110,17 @@ class ComposableNode:
 
         extra_arguments = entity.get_attr('extra_arg', data_type=List[Entity], optional=True)
         if extra_arguments is not None:
-            kwargs['extra_arguments'] = Node.parse_nested_parameters(extra_arguments, parser)
+            kwargs['extra_arguments'] = [
+                {
+                    tuple(parser.parse_substitution(extra_arg.get_attr('name'))):
+                    parser.parse_substitution(extra_arg.get_attr('value'))
+                } for extra_arg in extra_arguments
+            ]
+
+            for extra_arg in extra_arguments:
+                extra_arg.assert_entity_completely_parsed()
+
+        entity.assert_entity_completely_parsed()
 
         return cls, kwargs
 

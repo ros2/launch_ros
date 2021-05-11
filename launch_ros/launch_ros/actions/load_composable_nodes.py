@@ -100,7 +100,6 @@ class LoadComposableNodes(Action):
             _, composable_node_kwargs = ComposableNode.parse(parser, entity)
             kwargs['composable_node_descriptions'].append(
                 ComposableNode(**composable_node_kwargs))
-            entity.assert_entity_completely_parsed()
 
         return cls, kwargs
 

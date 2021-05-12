@@ -97,9 +97,9 @@ class LoadComposableNodes(Action):
         composable_nodes = entity.get_attr('composable_node', data_type=List[Entity])
         kwargs['composable_node_descriptions'] = []
         for entity in composable_nodes:
-            _, composable_node_kwargs = ComposableNode.parse(parser, entity)
+            composable_node_cls, composable_node_kwargs = ComposableNode.parse(parser, entity)
             kwargs['composable_node_descriptions'].append(
-                ComposableNode(**composable_node_kwargs))
+                composable_node_cls(**composable_node_kwargs))
 
         return cls, kwargs
 

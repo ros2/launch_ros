@@ -65,9 +65,9 @@ class ComposableNodeContainer(Node):
         if composable_nodes is not None:
             kwargs['composable_node_descriptions'] = []
             for entity in composable_nodes:
-                _, composable_node_kwargs = ComposableNode.parse(parser, entity)
+                composable_node_cls, composable_node_kwargs = ComposableNode.parse(parser, entity)
                 kwargs['composable_node_descriptions'].append(
-                    ComposableNode(**composable_node_kwargs))
+                    composable_node_cls(**composable_node_kwargs))
 
         return cls, kwargs
 

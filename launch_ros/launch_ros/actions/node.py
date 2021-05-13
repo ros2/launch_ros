@@ -143,7 +143,7 @@ class Node(ExecuteProcess):
 
         The launch_ros.substitutions.ExecutableInPackage substitution is used
         to find the executable at runtime, so this Action also raise the
-        exceptions that substituion can raise when the package or executable
+        exceptions that substitution can raise when the package or executable
         are not found.
 
         If the name is not given (or is None) then no name is passed to

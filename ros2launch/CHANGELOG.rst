@@ -2,6 +2,9 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.10 (2021-05-21)
+-------------------
+
 0.8.9 (2020-11-24)
 ------------------
 * Update maintainers for Dashing. (`#192 <https://github.com/ros2/launch_ros/issues/192>`_)

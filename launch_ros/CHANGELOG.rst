@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.10 (2021-05-21)
+-------------------
+* Fix race with launch context changes when loading composable nodes (`#238 <https://github.com/ros2/launch_ros/issues/238>`_)
+* Contributors: Chris Lalancette
+
 0.8.9 (2020-11-24)
 ------------------
 * Resolve libyaml warning when loading parameters from file. (`#161 <https://github.com/ros2/launch_ros/issues/161>`_) (`#204 <https://github.com/ros2/launch_ros/issues/204>`_)

@@ -83,35 +83,32 @@ class RosTimerAction(Action):
         self.__completed_future = None  # type: Optional[asyncio.Future]
         self.__canceled = False
         self.__canceled_future = None  # type: Optional[asyncio.Future]
+        self.__timer_done_future = None # type: Optional[asyncio.Future]
         self.__cancel_on_shutdown = type_utils.normalize_typed_substitution(
             cancel_on_shutdown, bool)
         self.__logger = launch.logging.get_logger(__name__)
+        self.__timer = None
 
-    async def emit_timer_event(self, context):
-        if not self.__canceled_future.done():
-            await context.emit_event(TimerEvent(timer_action=self))
-            self.__completed_future.set_result(True)
-        return
-
-    async def timer(self, context):
+    def __start_timer(self, context):
         node = get_ros_node(context)
-        node_clock = node.get_clock()
-
-        callbacks = [await self.emit_timer_event(context), node.destroy_timer]
-
-        if (node.get_parameter("use_sim_time")):
-            timer = node.create_timer(self.__period * 10**9, callbacks, clock=node_clock)
-        else:
-            timer = node.create_timer(self.__period * 10**9, callbacks)
+        callbacks = [
+            self.__timer_done_future.set_result(True),
+        ]
+        self.__timer = node.create_timer(self.__period, callbacks)
 
     async def __wait_to_fire_event(self, context):
+        self.__start_timer(context)
         done, pending = await asyncio.wait(
-            [self.__canceled_future, self.timer(context)],
+            [self.__canceled_future, self.__timer_done_future],
             return_when=asyncio.FIRST_COMPLETED
         )
 
-        while (not (self.__canceled_future.done() or self.__completed_future.done())):
-            pass
+        self.__timer.cancel()
+
+        if not self.__canceled_future.done():
+            await context.emit_event(TimerEvent(timer_action=self))
+        self.__completed_future.set_result(None)
+
 
     @classmethod
     def parse(
@@ -178,6 +175,7 @@ class RosTimerAction(Action):
         """
 
         self.__completed_future = create_future(context.asyncio_loop)
+        self.__timer_done_future = create_future(context.asyncio_loop)
         self.__canceled_future = create_future(context.asyncio_loop)
 
         if self.__canceled:

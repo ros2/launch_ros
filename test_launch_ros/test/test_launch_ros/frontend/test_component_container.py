@@ -17,11 +17,11 @@ import asyncio
 import io
 import textwrap
 
-import osrf_pycommon.process_utils
 from launch import LaunchService
 from launch.frontend import Parser
-from launch_ros.utilities import evaluate_parameters
 from launch.utilities import perform_substitutions
+from launch_ros.utilities import evaluate_parameters
+import osrf_pycommon.process_utils
 
 
 def test_launch_component_container_yaml():
@@ -91,7 +91,7 @@ def test_launch_component_container_xml():
                 </composable_node>
             </load_composable_node>
         </launch>
-        """
+        """  # noqa: E501
     )
     with io.StringIO(xml_file) as f:
         check_launch_namespace(f)

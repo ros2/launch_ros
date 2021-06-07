@@ -68,7 +68,7 @@ def test_launch_component_container_yaml():
         """
     )
     with io.StringIO(yaml_file) as f:
-        check_launch_namespace(f)
+        check_launch_component_container(f)
 
 
 def test_launch_component_container_xml():
@@ -94,10 +94,10 @@ def test_launch_component_container_xml():
         """  # noqa: E501
     )
     with io.StringIO(xml_file) as f:
-        check_launch_namespace(f)
+        check_launch_component_container(f)
 
 
-def check_launch_namespace(file):
+def check_launch_component_container(file):
     root_entity, parser = Parser.load(file)
     ld = parser.parse_description(root_entity)
     ls = LaunchService()

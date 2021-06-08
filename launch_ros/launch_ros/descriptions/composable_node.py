@@ -17,6 +17,8 @@
 from typing import List
 from typing import Optional
 
+from launch.frontend import Entity
+from launch.frontend import Parser
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitution import Substitution
 # from launch.utilities import ensure_argument_type
@@ -75,6 +77,52 @@ class ComposableNode:
         self.__extra_arguments = None  # type: Optional[Parameters]
         if extra_arguments:
             self.__extra_arguments = normalize_parameters(extra_arguments)
+
+    @classmethod
+    def parse(cls, parser: Parser, entity: Entity):
+        """Parse composable_node."""
+        from launch_ros.actions import Node
+        kwargs = {}
+
+        kwargs['package'] = parser.parse_substitution(entity.get_attr('pkg'))
+        kwargs['plugin'] = parser.parse_substitution(entity.get_attr('plugin'))
+        kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
+
+        namespace = entity.get_attr('namespace', optional=True)
+        if namespace is not None:
+            kwargs['namespace'] = parser.parse_substitution(namespace)
+
+        parameters = entity.get_attr('param', data_type=List[Entity], optional=True)
+        if parameters is not None:
+            kwargs['parameters'] = Node.parse_nested_parameters(parameters, parser)
+
+        remappings = entity.get_attr('remap', data_type=List[Entity], optional=True)
+        if remappings is not None:
+            kwargs['remappings'] = [
+                (
+                    parser.parse_substitution(remap.get_attr('from')),
+                    parser.parse_substitution(remap.get_attr('to'))
+                ) for remap in remappings
+            ]
+
+            for remap in remappings:
+                remap.assert_entity_completely_parsed()
+
+        extra_arguments = entity.get_attr('extra_arg', data_type=List[Entity], optional=True)
+        if extra_arguments is not None:
+            kwargs['extra_arguments'] = [
+                {
+                    tuple(parser.parse_substitution(extra_arg.get_attr('name'))):
+                    parser.parse_substitution(extra_arg.get_attr('value'))
+                } for extra_arg in extra_arguments
+            ]
+
+            for extra_arg in extra_arguments:
+                extra_arg.assert_entity_completely_parsed()
+
+        entity.assert_entity_completely_parsed()
+
+        return cls, kwargs
 
     @property
     def package(self) -> List[Substitution]:

@@ -51,6 +51,8 @@ from launch.utilities import ensure_argument_type
 from launch.utilities import is_a_subclass
 from launch.utilities import type_utils
 
+from rclpy.parameter import Parameter
+
 
 @expose_action('ros_timer_action')
 class RosTimerAction(Action):
@@ -64,6 +66,7 @@ class RosTimerAction(Action):
         *,
         period: Union[float, SomeSubstitutionsType],
         actions: Iterable[LaunchDescriptionEntity],
+        use_sim_time: Union[bool, SomeSubstitutionsType] = False,
         **kwargs
     ) -> None:
         """Create a RosTimerAction."""
@@ -85,39 +88,36 @@ class RosTimerAction(Action):
         self.__canceled_future = None  # type: Optional[asyncio.Future]
         self.__timer_future = None  # type: Optional[asyncio.Future]
         self.__logger = launch.logging.get_logger(__name__)
-        self.__timer = None
-        self.__clock = None
+        self.__use_sim_time = type_utils.normalize_typed_substitution(
+            use_sim_time, bool)
 
     def __timer_callback(self):
         if not self.__timer_future.done():
-            print("end time: ", self.__clock.now().nanoseconds *10**-9)
             self.__timer_future.set_result(True)
 
     async def __wait_to_fire_event(self, context):
         node = get_ros_node(context)
-        self.__clock = node.get_clock()
-        print("start time: ", self.__clock.now().nanoseconds *10**-9)
-        self.__timer = node.create_timer(
+
+        if type_utils.perform_typed_substitution(context, self.__use_sim_time, bool):
+            param = Parameter(
+                'use_sim_time',
+                Parameter.Type.BOOL,
+                True
+            )
+            node.set_parameters([param])
+
+        node.create_timer(
             self.__period,
             partial(context.asyncio_loop.call_soon_threadsafe, self.__timer_callback),
         )
-        print("timer created, waiting")
 
         done, pending = await asyncio.wait(
             [self.__canceled_future, self.__timer_future],
             return_when=asyncio.FIRST_COMPLETED
         )
 
-        if self.__canceled_future in done:
-            print("future was canceled")
-
-        if self.__timer_future in done:
-            print("timer future completed")
-
         if not self.__canceled_future.done():
-            print("emitting event")
             await context.emit_event(TimerEvent(timer_action=self))
-        print("finished!")
         self.__completed_future.set_result(None)
 
     @classmethod
@@ -131,6 +131,10 @@ class RosTimerAction(Action):
         kwargs['period'] = parser.parse_if_substitutions(
             entity.get_attr('period', data_type=float, can_be_str=True))
         kwargs['actions'] = [parser.parse_action(child) for child in entity.children]
+        use_sim_time = entity.get_attr(
+            'use_sim_time', optional=True, data_type=bool, can_be_str=True)
+        if use_sim_time is not None:
+            kwargs['use_sim_time'] = parser.parse_if_substitutions(use_sim_time)
         return cls, kwargs
 
     @property

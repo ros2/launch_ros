@@ -15,16 +15,20 @@
 
 """Tests for the RosTimerAction Action."""
 import sys
+import time
+import threading
+from functools import partial
 
 import launch
 import launch.event_handlers
 
-from launch_ros.actions import Node
 from launch_ros.actions import RosTimerAction
-from launch_ros.actions import SetParameter
-from launch_ros.actions import UseSimTimeAction
 
-import time
+import rclpy
+from rclpy.clock import ClockType
+
+import rosgraph_msgs.msg
+import builtin_interfaces.msg
 
 def test_multiple_launch_with_timers():
     def generate_launch_description():
@@ -149,32 +153,37 @@ def test_time_is_passing():
 
 def test_timer_uses_sim_time():
     """Test that timer uses time from /clock topic."""
+
+    # Create clock publisher node
+    rclpy.init()
+    node = rclpy.create_node('clock_publisher_node')
+    publisher = node.create_publisher(rosgraph_msgs.msg.Clock, '/clock', 10)
+
+    # Increment sim time by 100 every second
+    def timer_callback(publisher, time_msg):
+        time_msg.sec += 100
+        publisher.publish(rosgraph_msgs.msg.Clock(clock=time_msg))
+
+    # For every second of system time, publish new sim time value
+    callback_clock = rclpy.clock.Clock(clock_type=ClockType.SYSTEM_TIME)
+    time_msg = builtin_interfaces.msg.Time(sec=0, nanosec=0)
+    node.create_timer(1, partial(timer_callback, publisher, time_msg), clock=callback_clock)
+
+    thread = threading.Thread(target=rclpy.spin, args=(node, ), daemon=True)
+    thread.start()
+    
     ld = launch.LaunchDescription([
 
         launch.actions.ExecuteProcess(
             cmd=[sys.executable, '-c', 'while True: pass'],
         ),
 
-        Node(
-            package='test_launch_ros',
-            executable='clock_publisher',
-            name='clock_node',
-            output='screen',
-            emulate_tty=True,
-            parameters=[{
-                'use_sim_time': False,
-                'rate': 100
-            }]
-        ),
-
-        #SetParameter(name='use_sim_time', value=True),
-        UseSimTimeAction(True),
-
         RosTimerAction(
             period=200.0,
             actions=[
                 launch.actions.Shutdown(reason='timer expired')
-            ]
+            ],
+            use_sim_time = True # must be set to allow timer action to use sim time
         ),
     ])
 
@@ -185,4 +194,4 @@ def test_timer_uses_sim_time():
     assert 0 == ls.run()
 
     # Simulated time is 100x faster, so 200 sec timer should finish in 2 sec
-    assert (time.time() - start_time < 4)
+    assert (time.time() - start_time < 6)

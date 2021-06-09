@@ -64,7 +64,6 @@ class RosTimerAction(Action):
         *,
         period: Union[float, SomeSubstitutionsType],
         actions: Iterable[LaunchDescriptionEntity],
-        cancel_on_shutdown: Union[bool, SomeSubstitutionsType] = True,
         **kwargs
     ) -> None:
         """Create a RosTimerAction."""
@@ -85,20 +84,22 @@ class RosTimerAction(Action):
         self.__canceled = False
         self.__canceled_future = None  # type: Optional[asyncio.Future]
         self.__timer_future = None  # type: Optional[asyncio.Future]
-        self.__cancel_on_shutdown = type_utils.normalize_typed_substitution(
-            cancel_on_shutdown, bool)
         self.__logger = launch.logging.get_logger(__name__)
         self.__timer = None
+        self.__clock = None
 
     def __timer_callback(self):
         if not self.__timer_future.done():
+            print("end time: ", self.__clock.now().nanoseconds *10**-9)
             self.__timer_future.set_result(True)
-        self.__timer.cancel()
 
     async def __wait_to_fire_event(self, context):
         node = get_ros_node(context)
+        self.__clock = node.get_clock()
+        print("start time: ", self.__clock.now().nanoseconds *10**-9)
         self.__timer = node.create_timer(
-            self.__period, partial(context.asyncio_loop.call_soon_threadsafe, self.__timer_callback)
+            self.__period,
+            partial(context.asyncio_loop.call_soon_threadsafe, self.__timer_callback),
         )
         print("timer created, waiting")
 
@@ -114,7 +115,9 @@ class RosTimerAction(Action):
             print("timer future completed")
 
         if not self.__canceled_future.done():
+            print("emitting event")
             await context.emit_event(TimerEvent(timer_action=self))
+        print("finished!")
         self.__completed_future.set_result(None)
 
     @classmethod
@@ -128,10 +131,6 @@ class RosTimerAction(Action):
         kwargs['period'] = parser.parse_if_substitutions(
             entity.get_attr('period', data_type=float, can_be_str=True))
         kwargs['actions'] = [parser.parse_action(child) for child in entity.children]
-        cancel_on_shutdown = entity.get_attr(
-            'cancel_on_shutdown', optional=True, data_type=bool, can_be_str=True)
-        if cancel_on_shutdown is not None:
-            kwargs['cancel_on_shutdown'] = parser.parse_if_substitutions(cancel_on_shutdown)
         return cls, kwargs
 
     @property
@@ -209,15 +208,14 @@ class RosTimerAction(Action):
         self.__context_locals = dict(context.get_locals_as_dict())  # Capture a copy
         context.asyncio_loop.create_task(self.__wait_to_fire_event(context))
 
-        # By default, the 'shutdown' event will cause timers to cancel so they don't hold up the
+        # The 'shutdown' event will cause timers to cancel so they don't hold up the
         # launch process
-        if type_utils.perform_typed_substitution(context, self.__cancel_on_shutdown, bool):
-            context.register_event_handler(
-                EventHandler(
-                    matcher=lambda event: is_a_subclass(event, Shutdown),
-                    entities=OpaqueFunction(function=lambda context: self.cancel())
-                )
+        context.register_event_handler(
+            EventHandler(
+                matcher=lambda event: is_a_subclass(event, Shutdown),
+                entities=OpaqueFunction(function=lambda context: self.cancel())
             )
+        )
 
         return None
 

@@ -1,4 +1,4 @@
-# Copyright 2021 Apex.AI, Inc.
+# Copyright 2021 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,10 +25,11 @@ import launch.event_handlers
 from launch_ros.actions import RosTimerAction
 
 import rclpy
-from rclpy.clock import ClockType
+from rclpy.clock import Clock, ClockType
 
-import rosgraph_msgs.msg
-import builtin_interfaces.msg
+from rosgraph_msgs.msg import Clock as ClockMsg
+from builtin_interfaces.msg import Time
+
 
 def test_multiple_launch_with_timers():
     def generate_launch_description():
@@ -65,8 +66,8 @@ def _shutdown_listener_factory(reasons_arr):
 
 def test_timer_action_sanity_check():
     """Test that timer actions work (sanity check)."""
-    # This test is structured like test_shutdown_preempts_timers and
-    # test_timer_can_block_preemption as a sanity check that the shutdown listener
+    # This test is structured like test_shutdown_preempts_timers
+    # as a sanity check that the shutdown listener
     # and other launch related infrastructure works as expected
     shutdown_reasons = []
 
@@ -125,6 +126,10 @@ def test_shutdown_preempts_timers():
 
 
 def test_time_is_passing():
+    """Test that time is actually passing (sanity check)."""
+    # This test starts a 5 second timer and verifies that
+    # at least 5 seconds have passed between start of test
+    # and shutdown
     shutdown_reasons = []
 
     ld = launch.LaunchDescription([
@@ -142,7 +147,6 @@ def test_time_is_passing():
         _shutdown_listener_factory(shutdown_reasons),
     ])
 
-    # More than 5 seconds should pass between start of test and shutdown
     start_time = time.time()
     ls = launch.LaunchService()
     ls.include_launch_description(ld)
@@ -153,25 +157,24 @@ def test_time_is_passing():
 
 def test_timer_uses_sim_time():
     """Test that timer uses time from /clock topic."""
-
     # Create clock publisher node
     rclpy.init()
     node = rclpy.create_node('clock_publisher_node')
-    publisher = node.create_publisher(rosgraph_msgs.msg.Clock, '/clock', 10)
+    publisher = node.create_publisher(ClockMsg, '/clock', 10)
 
-    # Increment sim time by 100 every second
+    # Increment sim time by 100 every time callback is called
     def timer_callback(publisher, time_msg):
         time_msg.sec += 100
-        publisher.publish(rosgraph_msgs.msg.Clock(clock=time_msg))
+        publisher.publish(ClockMsg(clock=time_msg))
 
     # For every second of system time, publish new sim time value
-    callback_clock = rclpy.clock.Clock(clock_type=ClockType.SYSTEM_TIME)
-    time_msg = builtin_interfaces.msg.Time(sec=0, nanosec=0)
+    callback_clock = Clock(clock_type=ClockType.SYSTEM_TIME)
+    time_msg = Time(sec=0, nanosec=0)
     node.create_timer(1, partial(timer_callback, publisher, time_msg), clock=callback_clock)
 
     thread = threading.Thread(target=rclpy.spin, args=(node, ), daemon=True)
     thread.start()
-    
+
     ld = launch.LaunchDescription([
 
         launch.actions.ExecuteProcess(
@@ -183,7 +186,7 @@ def test_timer_uses_sim_time():
             actions=[
                 launch.actions.Shutdown(reason='timer expired')
             ],
-            use_sim_time = True # must be set to allow timer action to use sim time
+            use_sim_time=True  # Must be set to allow timer action to use sim time
         ),
     ])
 
@@ -194,4 +197,5 @@ def test_timer_uses_sim_time():
     assert 0 == ls.run()
 
     # Simulated time is 100x faster, so 200 sec timer should finish in 2 sec
+    # (Some extra time provided)
     assert (time.time() - start_time < 6)

@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2021 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for the TimerAction action."""
+"""Module for the RosTimerAction action."""
 
 import asyncio
 import collections.abc
@@ -26,14 +26,11 @@ from typing import Optional
 from typing import Text
 from typing import Tuple
 from typing import Union
-import warnings
-
-import launch.logging
-
-from launch.actions.opaque_function import OpaqueFunction
 
 from launch_ros.ros_adapters import get_ros_node
 
+import launch.logging
+from launch.actions.opaque_function import OpaqueFunction
 from launch.action import Action
 from launch.event_handler import EventHandler
 from launch.events import Shutdown
@@ -58,6 +55,7 @@ from rclpy.parameter import Parameter
 class RosTimerAction(Action):
     """
     Action that defers other entities until a period of time has passed, unless canceled.
+
     All timers are "one-shot", in that they only fire one time and never again.
     """
 
@@ -74,12 +72,6 @@ class RosTimerAction(Action):
         period_types = list(SomeSubstitutionsType_types_tuple) + [float]
         ensure_argument_type(period, period_types, 'period', 'RosTimerAction')
         ensure_argument_type(actions, collections.abc.Iterable, 'actions', 'RosTimerAction')
-        if isinstance(period, str):
-            period = float(period)
-            warnings.warn(
-                "The parameter 'period' must be a float or substitution,"
-                'passing a string literal was deprecated',
-                stacklevel=2)
         self.__period = type_utils.normalize_typed_substitution(period, float)
         self.__actions = actions
         self.__context_locals = {}  # type: Dict[Text, Any]
@@ -164,12 +156,12 @@ class RosTimerAction(Action):
     def cancel(self) -> None:
         """
         Cancel this RosTimerAction.
+
         Calling cancel will not fail if the timer has already finished or
         already been canceled or if the timer has not been started yet.
         This function is not thread-safe and should be called only from under
         another coroutine.
         """
-
         self.__canceled = True
         if self.__canceled_future is not None and not self.__canceled_future.done():
             self.__canceled_future.set_result(True)
@@ -178,12 +170,12 @@ class RosTimerAction(Action):
     def execute(self, context: LaunchContext) -> Optional[List['Action']]:
         """
         Execute the action.
+
         This does the following:
         - register a global event handler for RosTimerActions if not already done
         - create a task for the coroutine that waits until canceled or timeout
         - coroutine asynchronously fires event after timeout, if not canceled
         """
-
         self.__completed_future = create_future(context.asyncio_loop)
         self.__timer_future = create_future(context.asyncio_loop)
         self.__canceled_future = create_future(context.asyncio_loop)

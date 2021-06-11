@@ -18,16 +18,13 @@ from functools import partial
 import threading
 import time
 
+from builtin_interfaces.msg import Time
 import launch
 import launch.event_handlers
-
 from launch_ros.actions import RosTimer
 from launch_ros.actions import SetUseSimTime
-
 import rclpy
 from rclpy.clock import Clock, ClockType
-
-from builtin_interfaces.msg import Time
 from rosgraph_msgs.msg import Clock as ClockMsg
 
 

@@ -29,10 +29,6 @@ from typing import Union
 
 from launch.action import Action
 from launch.actions.opaque_function import OpaqueFunction
-
-import launch.logging
-from launch_ros.ros_adapters import get_ros_node
-
 from launch.event_handler import EventHandler
 from launch.events import Shutdown
 from launch.events import TimerEvent
@@ -41,6 +37,7 @@ from launch.frontend import expose_action
 from launch.frontend import Parser
 from launch.launch_context import LaunchContext
 from launch.launch_description_entity import LaunchDescriptionEntity
+import launch.logging
 from launch.some_actions_type import SomeActionsType
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.some_substitutions_type import SomeSubstitutionsType_types_tuple
@@ -48,6 +45,8 @@ from launch.utilities import create_future
 from launch.utilities import ensure_argument_type
 from launch.utilities import is_a_subclass
 from launch.utilities import type_utils
+
+from launch_ros.ros_adapters import get_ros_node
 
 
 @expose_action('ros_timer')

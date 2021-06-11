@@ -22,6 +22,7 @@ import launch
 import launch.event_handlers
 
 from launch_ros.actions import RosTimer
+from launch_ros.actions import SetUseSimTime
 
 import rclpy
 from rclpy.clock import Clock, ClockType
@@ -145,8 +146,9 @@ def test_timer_uses_sim_time():
             actions=[
                 launch.actions.Shutdown(reason='timer expired')
             ],
-            use_sim_time=True  # Must be set to allow timer action to use sim time
         ),
+
+        SetUseSimTime(True)  # Must be set to allow timer action to use sim time
     ])
 
     start_time = time.time()

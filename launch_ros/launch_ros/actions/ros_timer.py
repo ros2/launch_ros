@@ -48,8 +48,6 @@ from launch.utilities import ensure_argument_type
 from launch.utilities import is_a_subclass
 from launch.utilities import type_utils
 
-from rclpy.parameter import Parameter
-
 
 @expose_action('ros_timer')
 class RosTimer(Action):
@@ -66,7 +64,6 @@ class RosTimer(Action):
         *,
         period: Union[float, SomeSubstitutionsType],
         actions: Iterable[LaunchDescriptionEntity],
-        use_sim_time: Union[bool, SomeSubstitutionsType] = False,
         **kwargs
     ) -> None:
         """
@@ -81,14 +78,12 @@ class RosTimer(Action):
         ensure_argument_type(actions, collections.abc.Iterable, 'actions', 'RosTimer')
         self.__period = type_utils.normalize_typed_substitution(period, float)
         self.__actions = actions
-        self.__context_locals = {}  # type: Dict[Text, Any]
-        self.__completed_future = None  # type: Optional[asyncio.Future]
+        self.__context_locals: Dict[Text, Any] = {}
         self.__canceled = False
-        self.__canceled_future = None  # type: Optional[asyncio.Future]
-        self.__timer_future = None  # type: Optional[asyncio.Future]
+        self.__completed_future: Optional[asyncio.Future] = None
+        self.__canceled_future: Optional[asyncio.Future] = None
+        self.__timer_future: Optional[asyncio.Future] = None
         self.__logger = launch.logging.get_logger(__name__)
-        self.__use_sim_time = type_utils.normalize_typed_substitution(
-            use_sim_time, bool)
 
     def __timer_callback(self):
         if not self.__timer_future.done():
@@ -96,15 +91,6 @@ class RosTimer(Action):
 
     async def __wait_to_fire_event(self, context):
         node = get_ros_node(context)
-
-        if type_utils.perform_typed_substitution(context, self.__use_sim_time, bool):
-            param = Parameter(
-                'use_sim_time',
-                Parameter.Type.BOOL,
-                True
-            )
-            node.set_parameters([param])
-
         node.create_timer(
             self.__period,
             partial(context.asyncio_loop.call_soon_threadsafe, self.__timer_callback),
@@ -130,10 +116,6 @@ class RosTimer(Action):
         kwargs['period'] = parser.parse_if_substitutions(
             entity.get_attr('period', data_type=float, can_be_str=True))
         kwargs['actions'] = [parser.parse_action(child) for child in entity.children]
-        use_sim_time = entity.get_attr(
-            'use_sim_time', optional=True, data_type=bool, can_be_str=True)
-        if use_sim_time is not None:
-            kwargs['use_sim_time'] = parser.parse_if_substitutions(use_sim_time)
         return cls, kwargs
 
     @property

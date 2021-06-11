@@ -14,9 +14,9 @@
 
 
 """Tests for the RosTimer Action."""
-import time
-import threading
 from functools import partial
+import threading
+import time
 
 import launch
 import launch.event_handlers
@@ -27,8 +27,8 @@ from launch_ros.actions import SetUseSimTime
 import rclpy
 from rclpy.clock import Clock, ClockType
 
-from rosgraph_msgs.msg import Clock as ClockMsg
 from builtin_interfaces.msg import Time
+from rosgraph_msgs.msg import Clock as ClockMsg
 
 
 start_time = None
@@ -59,9 +59,7 @@ def test_multiple_launch_with_timers():
 
             RosTimer(
                 period=1.,
-                actions=[
-                    launch.actions.Shutdown(reason='Timer expired')
-                ]
+                actions=[]
             ),
         ])
 
@@ -174,7 +172,8 @@ def test_timer_uses_sim_time():
     ls.include_launch_description(ld)
     assert 0 == ls.run()
 
-    # Simulated time is 100x faster, so 200 sec timer should finish in 2 sec
+    # Timer is using sim time which is 100x faster than system time,
+    # so 200 sec timer should finish in 2 sec
     tolerance = 0.1
     assert (end_time - start_time) > 2 - tolerance
     assert (end_time - start_time) < 2 + tolerance

@@ -19,11 +19,12 @@ from launch.frontend import expose_action
 from launch.frontend import Parser
 from launch.launch_context import LaunchContext
 
-from rclpy.parameter import Parameter
 from launch_ros.ros_adapters import get_ros_node
 
+from rclpy.parameter import Parameter
 
-@expose_action('use_sim_time_action')
+
+@expose_action('set_use_sim_tim')
 class SetUseSimTime(Action):
     """Action that sets the 'use_sim_time' parameter in the current context."""
 
@@ -32,13 +33,13 @@ class SetUseSimTime(Action):
         value: bool,
         **kwargs
     ) -> None:
-        """Create a UseSimTimeAction."""
+        """Create a SetUseSimTime action."""
         super().__init__(**kwargs)
         self.__value = value
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
-        """Return `UseSimTime` action and kwargs for constructing it."""
+        """Return `SetUseSimTime` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         kwargs['value'] = parser.parse_substitution(entity.get_attr('value'))
         return cls, kwargs
@@ -57,3 +58,5 @@ class SetUseSimTime(Action):
             self.value
         )
         node.set_parameters([param])
+        if not node.get_parameter('use_sim_time').get_parameter_value().bool_value:
+            raise RuntimeError('Failed to set use_sim_time parameter')

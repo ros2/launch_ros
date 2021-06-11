@@ -27,11 +27,12 @@ from typing import Text
 from typing import Tuple
 from typing import Union
 
-from launch_ros.ros_adapters import get_ros_node
+from launch.action import Action
+from launch.actions.opaque_function import OpaqueFunction
 
 import launch.logging
-from launch.actions.opaque_function import OpaqueFunction
-from launch.action import Action
+from launch_ros.ros_adapters import get_ros_node
+
 from launch.event_handler import EventHandler
 from launch.events import Shutdown
 from launch.events import TimerEvent
@@ -69,8 +70,8 @@ class RosTimer(Action):
         """
         Create a RosTimer.
 
-        `period` is the time (in seconds) to set the timer for.
-        `actions` is an iterable containing actions to be executed upon on timeout.
+        :param period: is the time (in seconds) to set the timer for.
+        :param actions: is an iterable containing actions to be executed upon on timeout.
         """
         super().__init__(**kwargs)
         period_types = list(SomeSubstitutionsType_types_tuple) + [float]

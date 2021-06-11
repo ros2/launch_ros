@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for the RosTimerAction action."""
+"""Module for the RosTimer action."""
 
 import asyncio
 import collections.abc
@@ -51,11 +51,13 @@ from launch.utilities import type_utils
 from rclpy.parameter import Parameter
 
 
-@expose_action('ros_timer_action')
-class RosTimerAction(Action):
+@expose_action('ros_timer')
+class RosTimer(Action):
     """
     Action that defers other entities until a period of time has passed, unless canceled.
 
+    This timer uses ROS time instead of wall clock time.
+    To enable the use of sim time, you must also use the SetUseSimTime action.
     All timers are "one-shot", in that they only fire one time and never again.
     """
 
@@ -67,11 +69,16 @@ class RosTimerAction(Action):
         use_sim_time: Union[bool, SomeSubstitutionsType] = False,
         **kwargs
     ) -> None:
-        """Create a RosTimerAction."""
+        """
+        Create a RosTimer.
+
+        `period` is the time (in seconds) to set the timer for.
+        `actions` is an iterable containing actions to be executed upon on timeout.
+        """
         super().__init__(**kwargs)
         period_types = list(SomeSubstitutionsType_types_tuple) + [float]
-        ensure_argument_type(period, period_types, 'period', 'RosTimerAction')
-        ensure_argument_type(actions, collections.abc.Iterable, 'actions', 'RosTimerAction')
+        ensure_argument_type(period, period_types, 'period', 'RosTimer')
+        ensure_argument_type(actions, collections.abc.Iterable, 'actions', 'RosTimer')
         self.__period = type_utils.normalize_typed_substitution(period, float)
         self.__actions = actions
         self.__context_locals = {}  # type: Dict[Text, Any]
@@ -138,8 +145,8 @@ class RosTimerAction(Action):
         return self.__actions
 
     def describe(self) -> Text:
-        """Return a description of this RosTimerAction."""
-        return 'RosTimerAction(period={}, actions=<actions>)'.format(self.__period)
+        """Return a description of this RosTimer."""
+        return 'RosTimer(period={}, actions=<actions>)'.format(self.__period)
 
     def describe_conditional_sub_entities(self) -> List[Tuple[
         Text,
@@ -155,7 +162,7 @@ class RosTimerAction(Action):
 
     def cancel(self) -> None:
         """
-        Cancel this RosTimerAction.
+        Cancel this RosTimer.
 
         Calling cancel will not fail if the timer has already finished or
         already been canceled or if the timer has not been started yet.
@@ -172,7 +179,7 @@ class RosTimerAction(Action):
         Execute the action.
 
         This does the following:
-        - register a global event handler for RosTimerActions if not already done
+        - register a global event handler for RosTimers if not already done
         - create a task for the coroutine that waits until canceled or timeout
         - coroutine asynchronously fires event after timeout, if not canceled
         """
@@ -189,7 +196,7 @@ class RosTimerAction(Action):
             return None
 
         # Once per context, install the general purpose OnTimerEvent event handler.
-        if not hasattr(context, '_RosTimerAction__event_handler_has_been_installed'):
+        if not hasattr(context, '_TimerAction__event_handler_has_been_installed'):
             context.register_event_handler(EventHandler(
                 matcher=lambda event: is_a_subclass(event, TimerEvent),
                 entities=OpaqueFunction(
@@ -198,7 +205,9 @@ class RosTimerAction(Action):
                     )
                 ),
             ))
-            setattr(context, '_RosTimerAction__event_handler_has_been_installed', True)
+            # This attribute must match the attribute set in the launch TimerAction
+            # to ensure only one event handler is created when there are multiple timers.
+            setattr(context, '_TimerAction__event_handler_has_been_installed', True)
 
         # Capture the current context locals so the yielded actions can make use of them too.
         self.__context_locals = dict(context.get_locals_as_dict())  # Capture a copy

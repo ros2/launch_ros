@@ -13,8 +13,7 @@
 # limitations under the License.
 
 
-"""Tests for the RosTimerAction Action."""
-import sys
+"""Tests for the RosTimer Action."""
 import time
 import threading
 from functools import partial
@@ -22,7 +21,7 @@ from functools import partial
 import launch
 import launch.event_handlers
 
-from launch_ros.actions import RosTimerAction
+from launch_ros.actions import RosTimer
 
 import rclpy
 from rclpy.clock import Clock, ClockType
@@ -35,11 +34,7 @@ def test_multiple_launch_with_timers():
     def generate_launch_description():
         return launch.LaunchDescription([
 
-            launch.actions.ExecuteProcess(
-                cmd=[sys.executable, '-c', 'while True: pass'],
-            ),
-
-            RosTimerAction(
+            RosTimer(
                 period=1.,
                 actions=[
                     launch.actions.Shutdown(reason='Timer expired')
@@ -72,11 +67,8 @@ def test_timer_action_sanity_check():
     shutdown_reasons = []
 
     ld = launch.LaunchDescription([
-        launch.actions.ExecuteProcess(
-            cmd=[sys.executable, '-c', 'while True: pass'],
-        ),
 
-        RosTimerAction(
+        RosTimer(
             period=1.,
             actions=[
                 launch.actions.Shutdown(reason='One second timeout')
@@ -86,9 +78,14 @@ def test_timer_action_sanity_check():
         _shutdown_listener_factory(shutdown_reasons),
     ])
 
+    start_time = time.time()
     ls = launch.LaunchService()
     ls.include_launch_description(ld)
     assert 0 == ls.run()
+
+    # Verify that ~1 sec has passed between start of test and shutdown
+    assert (time.time() - start_time) > 1
+
     assert shutdown_reasons[0].reason == 'One second timeout'
 
 
@@ -97,18 +94,14 @@ def test_shutdown_preempts_timers():
 
     ld = launch.LaunchDescription([
 
-        launch.actions.ExecuteProcess(
-            cmd=[sys.executable, '-c', 'while True: pass'],
-        ),
-
-        RosTimerAction(
+        RosTimer(
             period=1.,
             actions=[
                 launch.actions.Shutdown(reason='fast shutdown')
             ]
         ),
 
-        RosTimerAction(
+        RosTimer(
             period=2.,
             actions=[
                 launch.actions.Shutdown(reason='slow shutdown')
@@ -125,41 +118,11 @@ def test_shutdown_preempts_timers():
     assert shutdown_reasons[0].reason == 'fast shutdown'
 
 
-def test_time_is_passing():
-    """Test that time is actually passing (sanity check)."""
-    # This test starts a 5 second timer and verifies that
-    # at least 5 seconds have passed between start of test
-    # and shutdown
-    shutdown_reasons = []
-
-    ld = launch.LaunchDescription([
-        launch.actions.ExecuteProcess(
-            cmd=[sys.executable, '-c', 'while True: pass'],
-        ),
-
-        RosTimerAction(
-            period=5.,
-            actions=[
-                launch.actions.Shutdown(reason='Five second timeout')
-            ]
-        ),
-
-        _shutdown_listener_factory(shutdown_reasons),
-    ])
-
-    start_time = time.time()
-    ls = launch.LaunchService()
-    ls.include_launch_description(ld)
-    assert 0 == ls.run()
-    assert abs(time.time() - start_time) > 5
-    assert shutdown_reasons[0].reason == 'Five second timeout'
-
-
 def test_timer_uses_sim_time():
     """Test that timer uses time from /clock topic."""
     # Create clock publisher node
     rclpy.init()
-    node = rclpy.create_node('clock_publisher_node')
+    node = rclpy.create_node('test_ros_timer_action_node')
     publisher = node.create_publisher(ClockMsg, '/clock', 10)
 
     # Increment sim time by 100 every time callback is called
@@ -177,12 +140,8 @@ def test_timer_uses_sim_time():
 
     ld = launch.LaunchDescription([
 
-        launch.actions.ExecuteProcess(
-            cmd=[sys.executable, '-c', 'while True: pass'],
-        ),
-
-        RosTimerAction(
-            period=200.0,
+        RosTimer(
+            period=200.,
             actions=[
                 launch.actions.Shutdown(reason='timer expired')
             ],

@@ -24,7 +24,7 @@ from launch_ros.ros_adapters import get_ros_node
 from rclpy.parameter import Parameter
 
 
-@expose_action('set_use_sim_tim')
+@expose_action('set_use_sim_time')
 class SetUseSimTime(Action):
     """Action that sets the 'use_sim_time' parameter in the current context."""
 

@@ -72,7 +72,7 @@ class RosTimer(TimerAction):
         if not self.__timer_future.done():
             self.__timer_future.set_result(True)
 
-    async def wait_to_fire_event(self, context):
+    async def _wait_to_fire_event(self, context):
         node = get_ros_node(context)
         node.create_timer(
             self.__period,
@@ -80,13 +80,13 @@ class RosTimer(TimerAction):
         )
 
         done, pending = await asyncio.wait(
-            [self.canceled_future, self.__timer_future],
+            [self._canceled_future, self.__timer_future],
             return_when=asyncio.FIRST_COMPLETED
         )
 
-        if not self.canceled_future.done():
+        if not self._canceled_future.done():
             await context.emit_event(TimerEvent(timer_action=self))
-        self.completed_future.set_result(None)
+        self._completed_future.set_result(None)
 
     @classmethod
     def parse(
@@ -107,5 +107,4 @@ class RosTimer(TimerAction):
 
     def execute(self, context: LaunchContext):
         self.__timer_future = create_future(context.asyncio_loop)
-        super().execute(context)
-        return None
+        return super().execute(context)

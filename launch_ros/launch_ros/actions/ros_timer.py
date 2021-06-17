@@ -18,7 +18,6 @@ import asyncio
 import collections.abc
 from functools import partial
 from typing import Iterable
-from typing import List
 from typing import Optional
 from typing import Text
 from typing import Union

@@ -23,7 +23,6 @@ from typing import Optional
 from typing import Text
 from typing import Union
 
-from launch.action import Action
 from launch.actions import TimerAction
 from launch.events import TimerEvent
 from launch.frontend import Entity
@@ -107,7 +106,7 @@ class RosTimer(TimerAction):
         """Return a description of this RosTimer."""
         return 'RosTimer(period={}, actions=<actions>)'.format(self.__period)
 
-    def execute(self, context: LaunchContext) -> Optional[List['Action']]:
+    def execute(self, context: LaunchContext):
         self.__timer_future = create_future(context.asyncio_loop)
         super().execute(context)
         return None

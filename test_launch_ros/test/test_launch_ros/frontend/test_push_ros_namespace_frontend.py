@@ -31,6 +31,16 @@ def test_launch_namespace_yaml():
     with io.StringIO(yaml_file) as f:
         check_launch_namespace(f)
 
+    yaml_file_alias = textwrap.dedent(
+        r"""
+        launch:
+           - push_ros_namespace:
+               namespace: 'asd'
+        """
+    )
+    with io.StringIO(yaml_file_alias) as f:
+        check_launch_namespace(f)
+
 
 def test_launch_namespace_xml():
     xml_file = textwrap.dedent(
@@ -41,6 +51,16 @@ def test_launch_namespace_xml():
         """
     )
     with io.StringIO(xml_file) as f:
+        check_launch_namespace(f)
+
+    xml_file_alias = textwrap.dedent(
+        r"""
+        <launch>
+            <push_ros_namespace namespace="asd"/>
+        </launch>
+        """
+    )
+    with io.StringIO(xml_file_alias) as f:
         check_launch_namespace(f)
 
 

@@ -85,6 +85,7 @@ is_launch_file.extensions = [
     'launch.' + extension for extension in Parser.get_available_extensions()
 ]
 is_launch_file.extensions.append('launch.py')
+is_launch_file.extensions.append('.launch')
 is_launch_file.extensions = tuple(is_launch_file.extensions)
 
 

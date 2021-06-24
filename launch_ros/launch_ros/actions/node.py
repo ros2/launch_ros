@@ -125,6 +125,7 @@ class Node(ExecuteProcess):
         exec_name: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
+        ros_arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
         **kwargs
     ) -> None:
@@ -180,6 +181,9 @@ class Node(ExecuteProcess):
         wildcard namespace (`/**`) and other specific parameter declarations
         may overwrite it.
 
+        Using `ros_arguments` is equivalent to using `arguments` with a
+        prepended '--ros-args' item.
+
         :param: executable the name of the executable to find if a package
             is provided or otherwise a path to the executable to run.
         :param: package the package in which the node executable can be found
@@ -191,6 +195,7 @@ class Node(ExecuteProcess):
             or dictionaries of parameters.
         :param: remappings ordered list of 'to' and 'from' string pairs to be
             passed to the node as ROS remapping rules
+        :param: ros_arguments list of ROS arguments for the node
         :param: arguments list of extra arguments for the node
         """
         if package is not None:
@@ -198,6 +203,7 @@ class Node(ExecuteProcess):
         else:
             cmd = [executable]
         cmd += [] if arguments is None else arguments
+        cmd += [] if ros_arguments is None else ['--ros-args'] + ros_arguments
         # Reserve space for ros specific arguments.
         # The substitutions will get expanded when the action is executed.
         cmd += ['--ros-args']  # Prepend ros specific arguments with --ros-args flag
@@ -218,6 +224,7 @@ class Node(ExecuteProcess):
         self.__node_namespace = namespace
         self.__parameters = [] if parameters is None else normalized_params
         self.__remappings = [] if remappings is None else list(normalize_remap_rules(remappings))
+        self.__ros_arguments = ros_arguments
         self.__arguments = arguments
 
         self.__expanded_node_name = self.UNSPECIFIED_NODE_NAME

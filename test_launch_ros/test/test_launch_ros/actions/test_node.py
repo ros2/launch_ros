@@ -47,11 +47,12 @@ class TestNode(unittest.TestCase):
         ls.include_launch_description(ld)
         assert 0 == ls.run()
 
-    def _create_node(self, *, parameters=None, remappings=None):
+    def _create_node(self, *, parameters=None, remappings=None, ros_arguments=None):
         return launch_ros.actions.Node(
             package='demo_nodes_py', executable='talker_qos', output='screen',
             name='my_node', namespace='my_ns',
             exec_name='my_node_process',
+            ros_arguments=ros_arguments,
             arguments=['--number_of_cycles', '1'],
             parameters=parameters,
             remappings=remappings,
@@ -91,6 +92,13 @@ class TestNode(unittest.TestCase):
         assert len(expanded_remappings) == 2
         for i in range(2):
             assert expanded_remappings[i] == ('chatter', 'new_chatter')
+
+    def test_launch_node_with_ros_arguments(self):
+        node_action = self._create_node(ros_arguments=['--log-level', 'debug'])
+        self._assert_launch_no_errors([node_action])
+
+        cmd_string = ' '.join(node_action.process_details['cmd'])
+        assert '--ros-args --log-level debug' in cmd_string
 
     def test_launch_required_node(self):
         # This node will never exit on its own, it'll keep publishing forever.

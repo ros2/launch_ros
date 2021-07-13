@@ -92,6 +92,12 @@ class LaunchCommand(CommandExtension):
             help=("Show all launched subprocesses' output by overriding their output"
                   ' configuration using the OVERRIDE_LAUNCH_PROCESS_OUTPUT envvar.')
         )
+        parser.add_argument(
+            '--launch-prefix',
+            help='Prefix command, which should go before all executables. '
+                 'Command must be wrapped in quotes if it contains spaces '
+                 "(e.g. --launch-prefix 'xterm -e gdb -ex run --args')."
+        )
         arg = parser.add_argument(
             'package_name',
             help='Name of the ROS package which contains the launch file')

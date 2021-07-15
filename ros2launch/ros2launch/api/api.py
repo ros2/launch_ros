@@ -25,6 +25,7 @@ from ament_index_python.packages import PackageNotFoundError
 import launch
 from launch.frontend import Parser
 from launch.launch_description_sources import get_launch_description_from_any_launch_file
+from launch.substitutions import TextSubstitution
 
 
 class MultipleLaunchFilesError(Exception):
@@ -153,15 +154,16 @@ def launch_a_launch_file(
     for name in sorted(option_extensions.keys()):
         option_extensions[name].prestart(args)
 
-    # If 'launch-prefix' launch file argument is also provided in the user input,
-    # the 'launch-prefix' option is applied since the last duplicate argument is used
-    if args is not None and args.launch_prefix is not None and len(args.launch_prefix) > 0:
-        launch_file_arguments.append(f'launch-prefix:={args.launch_prefix}')
+    prefix_sub = None
+    if args.launch_prefix is not None:
+        prefix_sub = TextSubstitution(text=args.launch_prefix)
 
     launch_service = launch.LaunchService(
         argv=launch_file_arguments,
         noninteractive=noninteractive,
-        debug=debug)
+        debug=debug,
+        launch_prefix=prefix_sub
+    )
 
     parsed_launch_arguments = parse_launch_arguments(launch_file_arguments)
     # Include the user provided launch file using IncludeLaunchDescription so that the

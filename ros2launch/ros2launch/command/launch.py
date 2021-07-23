@@ -97,6 +97,13 @@ class LaunchCommand(CommandExtension):
                  'Command must be wrapped in quotes if it contains spaces '
                  "(e.g. --launch-prefix 'xterm -e gdb -ex run --args')."
         )
+        parser.add_argument(
+            '--launch-prefix-filter',
+            nargs='+',
+            default=[],
+            help=('Filter which executables the --launch-prefix is applied '
+                  'to by their executable name.')
+        )
         arg = parser.add_argument(
             'package_name',
             help='Name of the ROS package which contains the launch file')

@@ -156,6 +156,15 @@ def launch_a_launch_file(
     if args is not None and args.launch_prefix is not None and len(args.launch_prefix) > 0:
         launch_file_arguments.append(f'launch-prefix:={args.launch_prefix}')
 
+    # Pass launch prefix filter as a forward-slash separated list
+    if args is not None and args.launch_prefix_filter is not None:
+        filter_str = ''
+        for exec_str in args.launch_prefix_filter:
+            filter_str += f'{exec_str}/'
+        filter_str = filter_str.strip('/')
+        if len(filter_str):
+            launch_file_arguments.append(f'launch-prefix-filter:={filter_str}')
+
     launch_service = launch.LaunchService(
         argv=launch_file_arguments,
         noninteractive=noninteractive,

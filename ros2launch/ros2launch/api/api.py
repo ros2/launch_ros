@@ -81,10 +81,8 @@ def is_launch_file(path):
     return path.endswith(is_launch_file.extensions) and os.path.isfile(path)
 
 
-is_launch_file.extensions = [
-    'launch.' + extension for extension in Parser.get_available_extensions()
-]
-is_launch_file.extensions.append('launch.py')
+is_launch_file.extensions = Parser.get_file_extensions_from_parsers()
+is_launch_file.extensions.add('launch.py')
 is_launch_file.extensions = tuple(is_launch_file.extensions)
 
 

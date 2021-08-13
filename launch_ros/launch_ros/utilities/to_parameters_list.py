@@ -30,6 +30,8 @@ from ..parameters_type import EvaluatedParameters
 
 def to_parameters_list(
     context: LaunchContext,
+    node_name: str,
+    namespace: str,
     evaluated_parameters: EvaluatedParameters
 ) -> List[rclpy.parameter.Parameter]:
     """
@@ -37,6 +39,8 @@ def to_parameters_list(
 
     :param context: to carry out substitutions during normalization of parameter files.
         See `normalize_parameters()` documentation for further reference.
+    :param node_name: node name
+    :param namespace: node namespace
     :param parameters: parameters as either paths to parameter files or name/value pairs.
         See `evaluate_parameters()` documentation for further reference.
     :returns: a list of parameters
@@ -45,8 +49,19 @@ def to_parameters_list(
     for params_set_or_path in evaluated_parameters:
         if isinstance(params_set_or_path, pathlib.Path):
             with open(str(params_set_or_path), 'r') as f:
+                if namespace is not None:
+                    node_name = f"{namespace}/{node_name}"
+                node_name_with_slash = f"/{node_name}"
+                param_dict = yaml.safe_load(f)
+                try:
+                    param_dict = param_dict[node_name]["ros__parameters"]
+                except KeyError:
+                    try:
+                        param_dict = param_dict[node_name_with_slash]["ros__parameters"]
+                    except KeyError:
+                        pass
                 params_set = evaluate_parameter_dict(
-                    context, normalize_parameter_dict(yaml.safe_load(f))
+                    context, normalize_parameter_dict(param_dict)
                 )
         else:
             params_set = params_set_or_path

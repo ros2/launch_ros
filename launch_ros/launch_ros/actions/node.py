@@ -419,6 +419,23 @@ class Node(ExecuteProcess):
         self.__final_node_name = prefix_namespace(
             self.__expanded_node_namespace, self.__expanded_node_name)
 
+        # Check to see if a global parameter file was provided
+        params_from_file = context.launch_configurations.get('global_params_from_file', None)
+        node_params_from_file = None
+        # Check if ROS parameters were provided in the file for this node
+        if params_from_file is not None:
+            if self.__node_name in params_from_file:
+                if 'ros__parameters' in params_from_file[self.__node_name]:
+                    node_params_from_file = params_from_file[self.__node_name]['ros__parameters']
+
+        if node_params_from_file is not None or self.__parameters is not None:
+            self.__expanded_parameter_arguments = []
+        if node_params_from_file is not None:
+            param_file_path = self._create_params_file_from_dict(node_params_from_file)
+            self.__expanded_parameter_arguments.append((param_file_path, True))
+            cmd_extension = ['--params-file', f'{param_file_path}']
+            self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
+            assert os.path.isfile(param_file_path)
         # expand global parameters first,
         # so they can be overriden with specific parameters of this Node
         global_params = context.launch_configurations.get('ros_params', None)

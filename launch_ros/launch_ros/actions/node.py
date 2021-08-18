@@ -420,13 +420,20 @@ class Node(ExecuteProcess):
             self.__expanded_node_namespace, self.__expanded_node_name)
 
         # Check to see if a global parameter file was provided
+        # First extract the raw name of the node
+        node_name_as_text = None
+        if type(self.__node_name) == list:
+            node_name_as_text = list(self.__node_name[0].__dict__.values())[0]
+        elif type(self.__node_name) == str:
+            node_name_as_text = self.__node_name
+
         params_from_file = context.launch_configurations.get('global_params_from_file', None)
         node_params_from_file = None
         # Check if ROS parameters were provided in the file for this node
-        if params_from_file is not None:
-            if self.__node_name in params_from_file:
-                if 'ros__parameters' in params_from_file[self.__node_name]:
-                    node_params_from_file = params_from_file[self.__node_name]['ros__parameters']
+        if params_from_file is not None and node_name_as_text is not None:
+            if node_name_as_text in params_from_file:
+                if 'ros__parameters' in params_from_file[node_name_as_text]:
+                    node_params_from_file = params_from_file[node_name_as_text]['ros__parameters']
 
         if node_params_from_file is not None or self.__parameters is not None:
             self.__expanded_parameter_arguments = []

@@ -14,39 +14,70 @@
 
 """Module for the `SetParametersFromFile` action."""
 
+import os.path
+
 from launch import Action
 from launch.frontend import Entity
 from launch.frontend import expose_action
 from launch.frontend import Parser
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
-from launch.utilities import normalize_to_list_of_substitutions
 
 import yaml
-import os.path
+
 
 @expose_action('set_parameters_from_file')
 class SetParametersFromFile(Action):
     """
-    # TODO -- add description, short example
+    Action that sets parameters for all nodes in scope based on a given yaml file.
 
+    e.g.
+    ```python3
+        LaunchDescription([
+            ...,
+            GroupAction(
+                actions = [
+                    ...,
+                    SetParametersFromFile('path/to/file.yaml'),
+                    ...,
+                    Node(...),  // the params will be passed to this node
+                    ...,
+                ]
+            ),
+            Node(...),  // here it won't be passed, as it's not in the same scope
+            ...
+        ])
+    ```
+    ```xml
+    <launch>
+        <group>
+            <set_parameters_from_file filename='/path/to/file.yaml'/>
+            node<.../>    // Node in scope, params will be passed
+        </group>
+        <node .../>  // Node not in scope, params won't be passed
+    </launch>
+
+    ```
     """
 
     def __init__(
         self,
-        filename,
+        filename: SomeSubstitutionsType,
         **kwargs
     ) -> None:
         """Create a SetParameterFromFile action."""
         super().__init__(**kwargs)
-        if type(filename) == str:
-            input_file = filename
-        else:
-            input_file = None
+        input_file = self.extract_raw_text(filename)
 
         assert os.path.isfile(input_file)
         with open(input_file, 'r') as stream:
             self.__global_params = yaml.safe_load(stream)
+
+    def extract_raw_text(self, substitution_object: SomeSubstitutionsType):
+        if type(substitution_object) == list:
+            return list(substitution_object[0].__dict__.values())[0]
+        else:
+            return substitution_object
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):

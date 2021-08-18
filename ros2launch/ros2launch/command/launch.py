@@ -161,7 +161,7 @@ class LaunchCommand(CommandExtension):
 
         if args.launch_prefix is None and args.launch_prefix_filter is not None:
             raise RuntimeError(
-                "--launch-prefix must specified if --launch-prefix-filter is provided")
+                "--launch-prefix must be specified if --launch-prefix-filter is provided")
 
         if args.show_all_subprocesses_output:
             os.environ['OVERRIDE_LAUNCH_PROCESS_OUTPUT'] = 'both'

@@ -34,7 +34,7 @@ __all__ = [
     'PushRosNamespace',
     'RosTimer',
     'SetParameter',
+    'SetParametersFromFile',
     'SetRemap',
-    'SetUseSimTime',
-    'SetParametersFromFile'
+    'SetUseSimTime'
 ]

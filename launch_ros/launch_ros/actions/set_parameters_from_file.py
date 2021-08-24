@@ -22,8 +22,8 @@ from launch.frontend import expose_action
 from launch.frontend import Parser
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
-
-import yaml
+from launch.utilities import normalize_to_list_of_substitutions
+from launch.utilities import perform_substitutions
 
 
 @expose_action('set_parameters_from_file')
@@ -67,16 +67,7 @@ class SetParametersFromFile(Action):
     ) -> None:
         """Create a SetParameterFromFile action."""
         super().__init__(**kwargs)
-        input_file = self.extract_raw_text(filename)
-
-        assert os.path.isfile(input_file)
-        self._input_file = input_file
-
-    def extract_raw_text(self, substitution_object: SomeSubstitutionsType):
-        if type(substitution_object) == list:
-            return list(substitution_object[0].__dict__.values())[0]
-        else:
-            return substitution_object
+        self._input_file = normalize_to_list_of_substitutions(filename)
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
@@ -87,4 +78,6 @@ class SetParametersFromFile(Action):
 
     def execute(self, context: LaunchContext):
         """Execute the action."""
-        context.launch_configurations['global_params_file'] = self._input_file
+        filename = perform_substitutions(context, self._input_file)
+        context.launch_configurations['global_params_file'] = filename
+

@@ -14,6 +14,7 @@
 
 """Tests for the LoadComposableNodes Action."""
 
+import pathlib
 import threading
 
 from composition_interfaces.srv import LoadNode
@@ -212,6 +213,116 @@ def test_load_node_with_params(mock_component_container):
     assert request.parameters[1].value.type == ParameterType.PARAMETER_DOUBLE
     assert request.parameters[1].value.double_value == 42.0
     assert len(request.extra_arguments) == 0
+
+
+def test_load_node_with_param_file(mock_component_container):
+    """Test loading a node with with parameters specified in yaml files."""
+    parameters_file_dir = pathlib.Path(__file__).resolve().parent
+
+    # Case 1: no node name in yaml file
+    context = _assert_launch_no_errors([
+        _load_composable_node(
+            package='foo_package',
+            plugin='bar_plugin',
+            name='test_node_name',
+            namespace='test_node_namespace',
+            parameters=[
+                parameters_file_dir / 'example_parameters_no_name.yaml'
+            ],
+        )
+    ])
+    request = mock_component_container.requests[0]
+    assert get_node_name_count(context, '/test_node_namespace/test_node_name') == 1
+    assert request.node_name == 'test_node_name'
+    assert request.node_namespace == '/test_node_namespace'
+    assert len(request.parameters) == 2
+    assert request.parameters[0].name == 'some_int'
+    assert request.parameters[0].value.integer_value == 42
+    assert request.parameters[1].name == 'a_string'
+    assert request.parameters[1].value.string_value == 'Hello world'
+
+    # Case 2: node name with namespace
+    context = _assert_launch_no_errors([
+        _load_composable_node(
+            package='foo_package',
+            plugin='bar_plugin',
+            name='test_node_name',
+            namespace='ns',
+            parameters=[
+                parameters_file_dir / 'example_parameters_namespace.yaml'
+            ],
+        )
+    ])
+    request = mock_component_container.requests[1]
+    assert get_node_name_count(context, '/ns/test_node_name') == 1
+    assert request.node_name == 'test_node_name'
+    assert request.node_namespace == '/ns'
+    assert len(request.parameters) == 1
+    assert request.parameters[0].name == 'param'
+    assert request.parameters[0].value.integer_value == 1
+
+    # Case 3: nested node name with namespace
+    context = _assert_launch_no_errors([
+        _load_composable_node(
+            package='foo_package',
+            plugin='bar_plugin',
+            name='my_node',
+            namespace='my_ns',
+            parameters=[
+                parameters_file_dir / 'example_parameters.yaml'
+            ],
+        )
+    ])
+    request = mock_component_container.requests[2]
+    assert get_node_name_count(context, '/my_ns/my_node') == 1
+    assert request.node_name == 'my_node'
+    assert request.node_namespace == '/my_ns'
+    assert len(request.parameters) == 5
+    assert request.parameters[0].name == 'some_int'
+    assert request.parameters[0].value.integer_value == 42
+    assert request.parameters[1].name == 'a_string'
+    assert request.parameters[1].value.string_value == 'Hello world'
+    assert request.parameters[2].value.string_value == ''
+
+    # Case 4: node name without namespace
+    context = _assert_launch_no_errors([
+        _load_composable_node(
+            package='foo_package',
+            plugin='bar_plugin',
+            name='test_node_name',
+            namespace='',
+            parameters=[
+                parameters_file_dir / 'example_parameters_no_namespace.yaml'
+            ],
+        )
+    ])
+    request = mock_component_container.requests[3]
+    assert get_node_name_count(context, '//test_node_name') == 1
+    assert request.node_name == 'test_node_name'
+    assert request.node_namespace == '/'
+    assert len(request.parameters) == 1
+    assert request.parameters[0].name == 'param'
+    assert request.parameters[0].value.integer_value == 2
+
+    # Case 5: wildcard
+    context = _assert_launch_no_errors([
+        _load_composable_node(
+            package='foo_package',
+            plugin='bar_plugin',
+            name='my_node',
+            namespace='wildcard_ns',
+            parameters=[
+                parameters_file_dir / 'example_parameters_wildcard.yaml'
+            ],
+        )
+    ])
+    request = mock_component_container.requests[4]
+    assert get_node_name_count(context, '/wildcard_ns/my_node') == 1
+    assert request.node_name == 'my_node'
+    assert request.node_namespace == '/wildcard_ns'
+    assert len(request.parameters) == 1
+    assert request.parameters[0].name == 'param'
+    assert request.parameters[0].value.string_value == 'wildcard'
 
 
 def test_load_node_with_global_remaps_in_group(mock_component_container):

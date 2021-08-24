@@ -28,6 +28,18 @@ from .normalize_parameters import normalize_parameter_dict
 from ..parameters_type import EvaluatedParameters
 
 
+def search_for_key(keys, dictionary):
+    """Search for the nested "ros__parameters" key and return the keys above it."""
+    for key, value in dictionary.items():
+        if key == "ros__parameters":
+            return (keys, value)
+        elif type(value) is dict:
+            keys.append(key)
+            return search_for_key(keys, value)
+        else:
+            return (None, None)
+
+
 def to_parameters_list(
     context: LaunchContext,
     node_name: str,
@@ -49,17 +61,24 @@ def to_parameters_list(
     for params_set_or_path in evaluated_parameters:
         if isinstance(params_set_or_path, pathlib.Path):
             with open(str(params_set_or_path), 'r') as f:
-                if namespace is not None:
+                node_name.lstrip('/')
+                if namespace:
+                    namespace.lstrip('/')
                     node_name = f"{namespace}/{node_name}"
-                node_name_with_slash = f"/{node_name}"
                 param_dict = yaml.safe_load(f)
-                try:
-                    param_dict = param_dict[node_name]["ros__parameters"]
-                except KeyError:
-                    try:
-                        param_dict = param_dict[node_name_with_slash]["ros__parameters"]
-                    except KeyError:
-                        pass
+
+                # Get all keys that come before "ros__parameters"
+                keys = []
+                inner_dict = {}
+                (keys, inner_dict) = search_for_key(keys, param_dict)
+
+                # If we found any, combine them to form the full name
+                if keys:
+                    keys = [key.lstrip('/') for key in keys]
+                    yaml_name = '/'.join(keys)
+                    if (yaml_name == node_name or yaml_name == "**"):
+                        param_dict = inner_dict
+
                 params_set = evaluate_parameter_dict(
                     context, normalize_parameter_dict(param_dict)
                 )

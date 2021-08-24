@@ -243,7 +243,7 @@ def get_composable_node_load_request(
     composable_node_description: ComposableNode,
     context: LaunchContext
 ):
-    """Get the request that will be send to the composable node container."""
+    """Get the request that will be sent to the composable node container."""
     request = composition_interfaces.srv.LoadNode.Request()
     request.package_name = perform_substitutions(
         context, composable_node_description.package

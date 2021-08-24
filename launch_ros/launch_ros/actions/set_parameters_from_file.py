@@ -14,8 +14,6 @@
 
 """Module for the `SetParametersFromFile` action."""
 
-import os.path
-
 from launch import Action
 from launch.frontend import Entity
 from launch.frontend import expose_action

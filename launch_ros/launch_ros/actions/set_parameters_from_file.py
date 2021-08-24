@@ -78,4 +78,3 @@ class SetParametersFromFile(Action):
         """Execute the action."""
         filename = perform_substitutions(context, self._input_file)
         context.launch_configurations['global_params_file'] = filename
-

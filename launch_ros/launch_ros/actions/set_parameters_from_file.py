@@ -70,8 +70,7 @@ class SetParametersFromFile(Action):
         input_file = self.extract_raw_text(filename)
 
         assert os.path.isfile(input_file)
-        with open(input_file, 'r') as stream:
-            self.__global_params = yaml.safe_load(stream)
+        self._input_file = input_file
 
     def extract_raw_text(self, substitution_object: SomeSubstitutionsType):
         if type(substitution_object) == list:
@@ -88,4 +87,4 @@ class SetParametersFromFile(Action):
 
     def execute(self, context: LaunchContext):
         """Execute the action."""
-        context.launch_configurations['global_params_from_file'] = self.__global_params
+        context.launch_configurations['global_params_file'] = self._input_file

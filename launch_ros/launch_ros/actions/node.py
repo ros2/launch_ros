@@ -419,24 +419,22 @@ class Node(ExecuteProcess):
         self.__final_node_name = prefix_namespace(
             self.__expanded_node_namespace, self.__expanded_node_name)
 
-        # Check to see if a global parameter file was provided
+        # Check to see if a global parameter file was provided,
+        # expand global parameters as well, so they may be overridden with specific parameters
+        # of this node. params_file has higher preference over global_params
         params_file = context.launch_configurations.get('global_params_file', None)
+        global_params = context.launch_configurations.get('ros_params', None)
 
-        if params_file is not None or self.__parameters is not None:
+        if any(x is not None for x in (params_file, global_params, self.__parameters)):
             self.__expanded_parameter_arguments = []
         if params_file is not None:
             param_file_path = os.path.abspath(params_file)
-            self.__expanded_parameter_arguments.append((param_file_path, True))
-            cmd_extension = ['--params-file', f'{param_file_path}']
-            self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
-            assert os.path.isfile(param_file_path)
-        # expand global parameters first,
-        # so they can be overriden with specific parameters of this Node
-        global_params = context.launch_configurations.get('ros_params', None)
-        if global_params is not None or self.__parameters is not None:
-            self.__expanded_parameter_arguments = []
-        if global_params is not None:
+        elif global_params is not None:
             param_file_path = self._create_params_file_from_dict(global_params)
+        else:
+            param_file_path = None
+
+        if param_file_path is not None:
             self.__expanded_parameter_arguments.append((param_file_path, True))
             cmd_extension = ['--params-file', f'{param_file_path}']
             self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])

@@ -39,7 +39,6 @@ import rclpy.node
 
 TEST_CONTAINER_NAME = 'mock_component_container'
 TEST_NODE_NAME = 'test_load_composable_nodes_node'
-parameters_file_dir = pathlib.Path(__file__).resolve().parent
 
 
 class MockComponentContainer(rclpy.node.Node):

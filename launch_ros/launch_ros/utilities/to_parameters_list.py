@@ -28,16 +28,22 @@ from .normalize_parameters import normalize_parameter_dict
 from ..parameters_type import EvaluatedParameters
 
 
-def search_for_key(keys, dictionary):
-    """Search for the nested "ros__parameters" key and return the keys above it."""
+def __format_dict(dictionary, keys, formatted_dict):
+    """
+    Combine namespaces and their node names into one key and remove the "ros__parameters" key.
+
+    Return an empty dict if the "ros__parameters" key is not found.
+    """
     for key, value in dictionary.items():
-        if key == "ros__parameters":
-            return (keys, value)
+        if key == 'ros__parameters':
+            node_name = '/'.join(keys)
+            formatted_dict[node_name] = value
+            return formatted_dict
         elif type(value) is dict:
-            keys.append(key)
-            return search_for_key(keys, value)
-        else:
-            return (None, None)
+            keys.append(key.lstrip('/'))
+            formatted_dict = __format_dict(value, keys, formatted_dict)
+            keys = []
+    return formatted_dict
 
 
 def to_parameters_list(
@@ -58,26 +64,26 @@ def to_parameters_list(
     :returns: a list of parameters
     """
     parameters = []  # type: List[rclpy.parameter.Parameter]
+    if not node_name:
+        print('Warning: no node name was provided. Parameter file entries that contain a '
+              'node name will not be applied')
+    if namespace:
+        namespace = namespace.lstrip('/')
+        node_name = f'{namespace}/{node_name}'
+
     for params_set_or_path in evaluated_parameters:
         if isinstance(params_set_or_path, pathlib.Path):
             with open(str(params_set_or_path), 'r') as f:
-                node_name.lstrip('/')
-                if namespace:
-                    namespace.lstrip('/')
-                    node_name = f"{namespace}/{node_name}"
                 param_dict = yaml.safe_load(f)
+                formatted_dict = __format_dict(param_dict, keys=[], formatted_dict={})
 
-                # Get all keys that come before "ros__parameters"
-                keys = []
-                inner_dict = {}
-                (keys, inner_dict) = search_for_key(keys, param_dict)
-
-                # If we found any, combine them to form the full name
-                if keys:
-                    keys = [key.lstrip('/') for key in keys]
-                    yaml_name = '/'.join(keys)
-                    if (yaml_name == node_name or yaml_name == "**"):
-                        param_dict = inner_dict
+                if formatted_dict:
+                    param_dict.clear()
+                    if '**' in formatted_dict:
+                        param_dict = formatted_dict['**']
+                    if node_name in formatted_dict:
+                        for param, value in formatted_dict[node_name].items():
+                            param_dict[param] = value
 
                 params_set = evaluate_parameter_dict(
                     context, normalize_parameter_dict(param_dict)

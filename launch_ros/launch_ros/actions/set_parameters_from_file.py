@@ -50,7 +50,7 @@ class SetParametersFromFile(Action):
     <launch>
         <group>
             <set_parameters_from_file filename='/path/to/file.yaml'/>
-            node<.../>    // Node in scope, params will be passed
+            <node .../>    // Node in scope, params will be passed
         </group>
         <node .../>  // Node not in scope, params won't be passed
     </launch>
@@ -77,4 +77,8 @@ class SetParametersFromFile(Action):
     def execute(self, context: LaunchContext):
         """Execute the action."""
         filename = perform_substitutions(context, self._input_file)
-        context.launch_configurations['global_params_file'] = filename
+        global_param_file_list = context.launch_configurations.get('global_params', None)
+        if global_param_file_list:
+            context.launch_configurations['global_params'].append(filename)
+        else:
+            context.launch_configurations['global_params'] = [filename]

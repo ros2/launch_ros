@@ -64,6 +64,7 @@ def to_parameters_list(
     :returns: a list of parameters
     """
     parameters = []  # type: List[rclpy.parameter.Parameter]
+    node_name = node_name.lstrip('/')
     if not node_name:
         print('Warning: no node name was provided. Parameter file entries that contain a '
               'node name will not be applied')

@@ -419,15 +419,16 @@ class Node(ExecuteProcess):
         self.__final_node_name = prefix_namespace(
             self.__expanded_node_namespace, self.__expanded_node_name)
 
-        # Check to see if a global parameter file was provided,
-        # expand global parameters as well, so they may be overridden with specific parameters
-        # of this node.
-        params_file_list = context.launch_configurations.get('global_params', None)
+        # Expand global parameters first,
+        # so they can be overridden with specific parameters of this Node
+        # The params_container list is expected to contain name-value pairs (tuples)
+        # and/or strings representing paths to parameter files.
+        params_container = context.launch_configurations.get('global_params', None)
 
-        if any(x is not None for x in (params_file_list, self.__parameters)):
+        if any(x is not None for x in (params_container, self.__parameters)):
             self.__expanded_parameter_arguments = []
-        if params_file_list is not None:
-            for param in params_file_list:
+        if params_container is not None:
+            for param in params_container:
                 if isinstance(param, tuple):
                     name, value = param
                     cmd_extension = ['-p', f'{name}:={value}']

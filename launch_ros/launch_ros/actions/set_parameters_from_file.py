@@ -77,8 +77,6 @@ class SetParametersFromFile(Action):
     def execute(self, context: LaunchContext):
         """Execute the action."""
         filename = perform_substitutions(context, self._input_file)
-        global_param_file_list = context.launch_configurations.get('global_params', None)
-        if global_param_file_list:
-            context.launch_configurations['global_params'].append(filename)
-        else:
-            context.launch_configurations['global_params'] = [filename]
+        global_param_list = context.launch_configurations.get('global_params', [])
+        global_param_list.append(filename)
+        context.launch_configurations['global_params'] = global_param_list

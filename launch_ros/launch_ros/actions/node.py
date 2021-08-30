@@ -437,7 +437,6 @@ class Node(ExecuteProcess):
                     param_file_path = os.path.abspath(param)
                     self.__expanded_parameter_arguments.append((param_file_path, True))
                     cmd_extension = ['--params-file', f'{param_file_path}']
-                    print(param_file_path)
                     assert os.path.isfile(param_file_path)
                     self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
 

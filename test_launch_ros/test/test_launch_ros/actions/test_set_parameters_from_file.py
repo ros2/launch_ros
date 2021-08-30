@@ -14,7 +14,7 @@
 
 """Tests for the SetParameter Action."""
 
-import os.path
+import os
 
 from launch import LaunchContext
 from launch.actions import PopLaunchConfigurations
@@ -67,7 +67,8 @@ def test_set_param_with_node():
         namespace='my_ns',
         parameters=[{'asd': 'bsd2'}]
     )
-    set_param_file = SetParametersFromFile('./example_parameters_1.yaml')
+    param_file_path = os.path.dirname(os.path.abspath(__file__)) + '/example_parameters_1.yaml'
+    set_param_file = SetParametersFromFile(param_file_path)
     set_param_single = SetParameter(name='my_param', value='my_value')
     set_param_file.execute(lc)
     set_param_single.execute(lc)

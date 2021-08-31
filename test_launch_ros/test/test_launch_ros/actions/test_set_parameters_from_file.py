@@ -41,11 +41,11 @@ def test_set_param_is_scoped():
     lc = LaunchContext()
     push_conf = PushLaunchConfigurations()
     pop_conf = PopLaunchConfigurations()
-    set_param = SetParametersFromFile('./example_parameters.yaml')
+    set_param = SetParametersFromFile('./example_parameters_0.yaml')
 
     push_conf.execute(lc)
     set_param.execute(lc)
-    assert lc.launch_configurations == {'global_params': ['./example_parameters.yaml']}
+    assert lc.launch_configurations == {'global_params': ['./example_parameters_0.yaml']}
     pop_conf.execute(lc)
     assert lc.launch_configurations == {}
 

@@ -2,6 +2,9 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.3 (2021-08-31)
+-------------------
+
 0.11.2 (2021-04-14)
 -------------------
 * Handle any substitution types for SetParameter name argument (`#182 <https://github.com/ros2/launch_ros/issues/182>`_) (`#218 <https://github.com/ros2/launch_ros/issues/218>`_)

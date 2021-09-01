@@ -2,6 +2,13 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.3 (2021-08-31)
+-------------------
+* Better document parameter handling in Node (`#234 <https://github.com/ros2/launch_ros/issues/234>`_) (`#242 <https://github.com/ros2/launch_ros/issues/242>`_)
+* Fix AttributeError when accessing component container name (`#177 <https://github.com/ros2/launch_ros/issues/177>`_) (`#241 <https://github.com/ros2/launch_ros/issues/241>`_)
+* Asynchronously wait for load node service response (`#174 <https://github.com/ros2/launch_ros/issues/174>`_) (`#240 <https://github.com/ros2/launch_ros/issues/240>`_)
+* Contributors: Felix Divo, Jacob Perron
+
 0.11.2 (2021-04-14)
 -------------------
 * Fix namespace with LifecycleNode (`#222 <https://github.com/ros2/launch_ros/issues/222>`_)

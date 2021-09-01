@@ -2,6 +2,9 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.3 (2021-08-31)
+-------------------
+
 0.11.2 (2021-04-14)
 -------------------
 * Support non-interactive ros2 launch executions (`#210 <https://github.com/ros2/launch_ros/issues/210>`_) (`#225 <https://github.com/ros2/launch_ros/issues/225>`_)

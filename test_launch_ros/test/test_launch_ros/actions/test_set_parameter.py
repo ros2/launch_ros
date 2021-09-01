@@ -14,10 +14,13 @@
 
 """Tests for the SetParameter Action."""
 
+import os.path
+
 from launch import LaunchContext
 from launch.actions import PopLaunchConfigurations
 from launch.actions import PushLaunchConfigurations
 from launch.substitutions import TextSubstitution
+from launch.utilities import perform_substitutions
 
 from launch_ros.actions import Node
 from launch_ros.actions import SetParameter
@@ -42,32 +45,27 @@ def get_set_parameter_test_parameters():
     return [
         pytest.param(
             [('my_param', '2')],  # to set
-            {'my_param': '2'},  # expected
+            [('my_param', '2')],  # expected
             id='One param'
         ),
         pytest.param(
-            [('my_param', '2'), ('another_param', '2'), ('my_param', '3')],
-            {'my_param': '3', 'another_param': '2'},
-            id='Two params, overriding one'
-        ),
-        pytest.param(
             [(TextSubstitution(text='my_param'), TextSubstitution(text='my_value'))],
-            {'my_param': 'my_value'},
+            [('my_param', 'my_value')],
             id='Substitution types'
         ),
         pytest.param(
             [((TextSubstitution(text='my_param'),), (TextSubstitution(text='my_value'),))],
-            {'my_param': 'my_value'},
+            [('my_param', 'my_value')],
             id='Tuple of substitution types'
         ),
         pytest.param(
             [([TextSubstitution(text='my_param')], [TextSubstitution(text='my_value')])],
-            {'my_param': 'my_value'},
+            [('my_param', 'my_value')],
             id='List of substitution types'
         ),
         pytest.param(
             [('my_param', ParameterValue('my_value'))],
-            {'my_param': 'my_value'},
+            [('my_param', 'my_value')],
             id='ParameterValue type'
         ),
     ]
@@ -84,7 +82,7 @@ def test_set_param(params_to_set, expected_result):
     lc = MockContext()
     for set_param in set_parameter_actions:
         set_param.execute(lc)
-    assert lc.launch_configurations == {'ros_params': expected_result}
+    assert lc.launch_configurations['global_params'] == expected_result
 
 
 def test_set_param_is_scoped():
@@ -95,7 +93,7 @@ def test_set_param_is_scoped():
 
     push_conf.execute(lc)
     set_param.execute(lc)
-    assert lc.launch_configurations == {'ros_params': {'my_param': 'my_value'}}
+    assert lc.launch_configurations['global_params'] == [('my_param', 'my_value')]
     pop_conf.execute(lc)
     assert lc.launch_configurations == {}
 
@@ -112,19 +110,18 @@ def test_set_param_with_node():
     set_param = SetParameter(name='my_param', value='my_value')
     set_param.execute(lc)
     node._perform_substitutions(lc)
-    expanded_parameter_arguments = node._Node__expanded_parameter_arguments
-    assert len(expanded_parameter_arguments) == 2
-    param_file_path, is_file = expanded_parameter_arguments[0]
-    assert is_file
-    with open(param_file_path, 'r') as h:
-        expanded_parameters_dict = yaml.load(h, Loader=yaml.FullLoader)
-        assert expanded_parameters_dict == {
-            '/my_ns/my_node': {
-                'ros__parameters': {'my_param': 'my_value'}
-            }
-        }
-    param_file_path, is_file = expanded_parameter_arguments[1]
-    assert is_file
+    actual_command = [perform_substitutions(lc, item) for item in
+                      node.cmd if type(item[0]) == TextSubstitution]
+    assert actual_command.count('--params-file') == 1
+    assert actual_command.count('-p') == 1
+
+    param_cmdline_index = actual_command.index('-p') + 1
+    param_cmdline = actual_command[param_cmdline_index]
+    assert param_cmdline == 'my_param:=my_value'
+
+    param_file_index = actual_command.index('--params-file') + 1
+    param_file_path = actual_command[param_file_index]
+    assert os.path.isfile(param_file_path)
     with open(param_file_path, 'r') as h:
         expanded_parameters_dict = yaml.load(h, Loader=yaml.FullLoader)
         assert expanded_parameters_dict == {

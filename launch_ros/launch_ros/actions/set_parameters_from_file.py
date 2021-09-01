@@ -1,4 +1,4 @@
-# Copyright 2020 Open Source Robotics Foundation, Inc.
+# Copyright 2021 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for the `SetParameter` action."""
+"""Module for the `SetParametersFromFile` action."""
 
 from launch import Action
 from launch.frontend import Entity
@@ -21,30 +21,24 @@ from launch.frontend import Parser
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.utilities import normalize_to_list_of_substitutions
-
-from launch_ros.parameters_type import ParameterName
-from launch_ros.parameters_type import ParameterValue
-from launch_ros.parameters_type import SomeParameterValue
-from launch_ros.utilities.evaluate_parameters import evaluate_parameter_dict
-from launch_ros.utilities.normalize_parameters import normalize_parameter_dict
+from launch.utilities import perform_substitutions
 
 
-@expose_action('set_parameter')
-class SetParameter(Action):
+@expose_action('set_parameters_from_file')
+class SetParametersFromFile(Action):
     """
-    Action that sets a parameter in the current context.
+    Action that sets parameters for all nodes in scope based on a given yaml file.
 
-    This parameter will be set in all the nodes launched in the same scope.
-    e.g.:
+    e.g.
     ```python3
         LaunchDescription([
             ...,
             GroupAction(
                 actions = [
                     ...,
-                    SetParameter(name='my_param', value='2'),
+                    SetParametersFromFile('path/to/file.yaml'),
                     ...,
-                    Node(...),  // the param will be passed to this node
+                    Node(...),  // the params will be passed to this node
                     ...,
                 ]
             ),
@@ -52,40 +46,37 @@ class SetParameter(Action):
             ...
         ])
     ```
+    ```xml
+    <launch>
+        <group>
+            <set_parameters_from_file filename='/path/to/file.yaml'/>
+            <node .../>    // Node in scope, params will be passed
+        </group>
+        <node .../>  // Node not in scope, params won't be passed
+    </launch>
+
+    ```
     """
 
     def __init__(
         self,
-        name: SomeSubstitutionsType,
-        value: SomeParameterValue,
+        filename: SomeSubstitutionsType,
         **kwargs
     ) -> None:
-        """Create a SetParameter action."""
+        """Create a SetParameterFromFile action."""
         super().__init__(**kwargs)
-        normalized_name = normalize_to_list_of_substitutions(name)
-        self.__param_dict = normalize_parameter_dict({tuple(normalized_name): value})
+        self._input_file = normalize_to_list_of_substitutions(filename)
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
-        """Return `SetParameter` action and kwargs for constructing it."""
+        """Return `SetParameterFromFile` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
-        kwargs['value'] = parser.parse_substitution(entity.get_attr('value'))
+        kwargs['filename'] = parser.parse_substitution(entity.get_attr('filename'))
         return cls, kwargs
-
-    @property
-    def name(self) -> ParameterName:
-        """Getter for name."""
-        return self.__param_dict.keys()[0]
-
-    @property
-    def value(self) -> ParameterValue:
-        """Getter for value."""
-        return self.__param_dict.values()[0]
 
     def execute(self, context: LaunchContext):
         """Execute the action."""
-        eval_param_dict = evaluate_parameter_dict(context, self.__param_dict)
+        filename = perform_substitutions(context, self._input_file)
         global_param_list = context.launch_configurations.get('global_params', [])
-        global_param_list.extend(eval_param_dict.items())
+        global_param_list.append(filename)
         context.launch_configurations['global_params'] = global_param_list

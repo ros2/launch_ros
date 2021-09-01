@@ -21,6 +21,7 @@ from .node import Node
 from .push_ros_namespace import PushRosNamespace
 from .ros_timer import RosTimer
 from .set_parameter import SetParameter
+from .set_parameters_from_file import SetParametersFromFile
 from .set_remap import SetRemap
 from .set_use_sim_time import SetUseSimTime
 
@@ -33,6 +34,7 @@ __all__ = [
     'PushRosNamespace',
     'RosTimer',
     'SetParameter',
+    'SetParametersFromFile',
     'SetRemap',
     'SetUseSimTime'
 ]

@@ -274,10 +274,13 @@ def get_composable_node_load_request(
         ])
     if remappings:
         request.remap_rules = remappings
-    global_params = context.launch_configurations.get('ros_params', None)
+    params_container = context.launch_configurations.get('global_params', None)
     parameters = []
-    if global_params is not None:
-        parameters.append(normalize_parameter_dict(global_params))
+    if params_container is not None:
+        for param in params_container:
+            if isinstance(param, tuple):
+                subs = normalize_parameter_dict({param[0]: param[1]})
+                parameters.append(subs)
     if composable_node_description.parameters is not None:
         parameters.extend(list(composable_node_description.parameters))
     if parameters:

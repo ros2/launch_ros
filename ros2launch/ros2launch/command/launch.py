@@ -99,7 +99,6 @@ class LaunchCommand(CommandExtension):
         )
         parser.add_argument(
             '--launch-prefix-filter',
-            type=str,
             help=('Regex pattern for filtering which executables the --launch-prefix is applied '
                   'to by matching the executable name.')
         )

@@ -153,8 +153,11 @@ def launch_a_launch_file(
 
     # If 'launch-prefix' launch file argument is also provided in the user input,
     # the 'launch-prefix' option is applied since the last duplicate argument is used
-    if args is not None and args.launch_prefix is not None and len(args.launch_prefix) > 0:
+    if args and args.launch_prefix:
         launch_file_arguments.append(f'launch-prefix:={args.launch_prefix}')
+
+    if args and args.launch_prefix_filter:
+        launch_file_arguments.append(f'launch-prefix-filter:={args.launch_prefix_filter}')
 
     launch_service = launch.LaunchService(
         argv=launch_file_arguments,

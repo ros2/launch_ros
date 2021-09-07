@@ -75,7 +75,7 @@ class RosTimer(TimerAction):
     async def _wait_to_fire_event(self, context):
         node = get_ros_node(context)
         node.create_timer(
-            self.__period,
+            type_utils.perform_typed_substitution(context, self.__period, float),
             partial(context.asyncio_loop.call_soon_threadsafe, self.__timer_callback),
         )
 

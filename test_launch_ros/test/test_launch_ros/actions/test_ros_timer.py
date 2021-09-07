@@ -20,6 +20,8 @@ import time
 
 from builtin_interfaces.msg import Time
 import launch
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
 import launch.event_handlers
 from launch_ros.actions import RosTimer
 from launch_ros.actions import SetUseSimTime
@@ -63,6 +65,21 @@ def test_multiple_launch_with_timers():
     ls = launch.LaunchService()
     ls.include_launch_description(generate_launch_description())
     assert 0 == ls.run()
+
+    ls = launch.LaunchService()
+    ls.include_launch_description(generate_launch_description())
+    assert 0 == ls.run()
+
+
+def test_timer_with_launch_configuration():
+    def generate_launch_description():
+        return launch.LaunchDescription([
+            DeclareLaunchArgument('my_period', default_value='0.1'),
+            RosTimer(
+                period=LaunchConfiguration('my_period'),
+                actions=[]
+            ),
+        ])
 
     ls = launch.LaunchService()
     ls.include_launch_description(generate_launch_description())

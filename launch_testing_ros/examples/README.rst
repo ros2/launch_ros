@@ -47,11 +47,4 @@ Similarly, the other tests can be run after making sure the corresponding depend
 Generic examples
 ----------------
 
-More ``launch_testing`` examples which are not ROS specific are available `here <https://github.com/ros2/launch/tree/master/launch_testing/test/launch_testing/examples>`_.
-
-* ``good_proc_launch_test.py`` : TODO : Add description
-* ``parameters_launch_test.py`` : TODO : Add desscription
-* ``ready_action_test.py``: TODO : Add description
-* ``terminating_proc_launch_test.py``: TODO : Add description
-* ``args_launch_test.py``: TODO : Add description
-* ``context_launch_test.py``: TODO : Add description
+More ``launch_testing`` examples which are not ROS specific are available `here <https://github.com/ros2/launch/tree/master/launch_testing/test/launch_testing/examples>`__ with their explanation available `here <https://github.com/ros2/launch/tree/master/launch_testing#examples>`__

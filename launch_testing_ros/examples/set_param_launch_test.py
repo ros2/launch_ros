@@ -19,7 +19,6 @@ import launch.actions
 import launch_ros.actions
 import launch_testing.actions
 import pytest
-from rcl_interfaces.msg import Parameter, ParameterType
 from rcl_interfaces.srv import SetParameters
 import rclpy
 from rclpy.node import Node
@@ -53,11 +52,7 @@ class MakeTestNode(Node):
         super().__init__(name)
 
     def set_parameter(self, state=True, timeout=5.0):
-        parameter = Parameter()
-        parameter.name = 'demo_parameter_1'
-        parameter.value.bool_value = state
-        parameter.value.type = ParameterType.PARAMETER_BOOL
-        parameters = [parameter]
+        parameters = [rclpy.Parameter('demo_parameter_1', value=state).to_parameter_msg()]
 
         client = self.create_client(SetParameters, 'demo_node_1/set_parameters')
         ready = client.wait_for_service(timeout_sec=5.0)

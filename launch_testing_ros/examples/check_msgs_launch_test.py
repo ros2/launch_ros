@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from threading import Event, Thread
+from threading import Event
+from threading import Thread
 import unittest
 
 import launch

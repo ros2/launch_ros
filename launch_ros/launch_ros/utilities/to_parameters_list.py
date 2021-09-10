@@ -66,15 +66,11 @@ def to_parameters_list(
     """
     parameters = []  # type: List[rclpy.parameter.Parameter]
     node_name = node_name.lstrip('/')
-    if not node_name:
-        warnings.warn(
-            'node name not provided to launch; parameter file entries will not be applied',
-            UserWarning
-        )
     if namespace:
         namespace = namespace.lstrip('/')
         node_name = f'{namespace}/{node_name}'
 
+    warned_once = False
     for params_set_or_path in evaluated_parameters:
         if isinstance(params_set_or_path, pathlib.Path):
             with open(str(params_set_or_path), 'r') as f:
@@ -87,6 +83,12 @@ def to_parameters_list(
                         param_dict = formatted_dict['**']
                     if node_name in formatted_dict:
                         param_dict.update(formatted_dict[node_name])
+                    if not warned_once and not node_name:
+                        warnings.warn(
+                            'node name not provided to launch; parameter files will not apply',
+                            UserWarning
+                        )
+                        warned_once = True
 
                 params_set = evaluate_parameter_dict(
                     context, normalize_parameter_dict(param_dict)

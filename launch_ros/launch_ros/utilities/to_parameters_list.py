@@ -16,6 +16,7 @@
 
 import pathlib
 from typing import List
+import warnings
 
 from launch.launch_context import LaunchContext
 import rclpy.parameter
@@ -66,8 +67,10 @@ def to_parameters_list(
     parameters = []  # type: List[rclpy.parameter.Parameter]
     node_name = node_name.lstrip('/')
     if not node_name:
-        print('Warning: no node name was provided. Parameter file entries that contain a '
-              'node name will not be applied')
+        warnings.warn(
+            'node name not provided to launch; parameter file entries will not be applied',
+            UserWarning
+        )
     if namespace:
         namespace = namespace.lstrip('/')
         node_name = f'{namespace}/{node_name}'
@@ -83,8 +86,7 @@ def to_parameters_list(
                     if '**' in formatted_dict:
                         param_dict = formatted_dict['**']
                     if node_name in formatted_dict:
-                        for param, value in formatted_dict[node_name].items():
-                            param_dict[param] = value
+                        param_dict.update(formatted_dict[node_name])
 
                 params_set = evaluate_parameter_dict(
                     context, normalize_parameter_dict(param_dict)

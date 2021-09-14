@@ -19,12 +19,14 @@ import launch
 import launch.actions
 import launch_ros.actions
 import launch_testing.actions
+import launch_testing.markers
 import pytest
 import rclpy
 from rclpy.node import Node
 
 
 @pytest.mark.launch_test
+@launch_testing.markers.keep_alive
 def generate_test_description():
     return launch.LaunchDescription([
         launch.actions.TimerAction(

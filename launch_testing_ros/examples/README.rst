@@ -18,28 +18,30 @@ Running the tests
 -----------------
 Make sure you have your ROS workspace sourced and then run:
 
-``launch_test hello_world_launch_test.py``
+``launch_test check_msgs_launch_test.py``
 
 The output should be similar to:
 ::
-  [INFO] [launch]: All log files can be found below /home/aditya/.ros/log/2021-08-23-09-47-06-613035-aditya-desktop-1376669
-  [INFO] [launch]: Default logging verbosity is set to INFO
-  test_read_stdout (hello_world.TestHelloWorldProcess) ... [INFO] [echo-1]: process started with pid [1376672]
-  ok
-  
-  [INFO] [echo-1]: process has finished cleanly [pid 1376672]
-  ----------------------------------------------------------------------
-  Ran 1 test in 0.008s
-  
-  OK
-  test_exit_codes (hello_world.TestHelloWorldShutdown) ... ok
-  
-  ----------------------------------------------------------------------
-  Ran 1 test in 0.000s
-  
-  OK
-
-Similarly, the other tests can be run after making sure the corresponding dependencies are installed.
+   [INFO] [launch]: All log files can be found below /home/aditya/.ros/log/2021-09-14-11-12-10-734588-aditya-desktop-2020689
+   [INFO] [launch]: Default logging verbosity is set to INFO
+   test_check_if_msgs_published (check_msgs_launch_test.TestFixture) ... 1631643130.800377 [0] launch_tes: using network interface enp0s25 (udp/172.23.2.248) selected arbitrarily from: enp0s25, virbr0
+   [INFO] [talker-1]: process started with pid [2020700]
+   [talker-1] 1631643130.834719 [0]     talker: using network interface enp0s25 (udp/172.23.2.248) selected arbitrarily from: enp0s25, virbr0
+   [talker-1] [INFO] [1631643131.848249515] [demo_node_1]: Publishing: 'Hello World: 1'
+   ok
+   
+   ----------------------------------------------------------------------
+   Ran 1 test in 1.062s
+   
+   OK
+   [INFO] [talker-1]: sending signal 'SIGINT' to process[talker-1]
+   [talker-1] [INFO] [1631643131.855748369] [rclcpp]: signal_handler(signal_value=2)
+   [INFO] [talker-1]: process has finished cleanly [pid 2020700]
+   
+   ----------------------------------------------------------------------
+   Ran 0 tests in 0.000s
+   
+   OK
 
 Generic examples
 ----------------

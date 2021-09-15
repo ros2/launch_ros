@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import sys
 import unittest
 
 import launch
@@ -28,10 +30,13 @@ from rclpy.node import Node
 @pytest.mark.launch_test
 @launch_testing.markers.keep_alive
 def generate_test_description():
+    path_to_test = os.path.dirname(__file__)
+
     return launch.LaunchDescription([
         launch_ros.actions.Node(
-            package='demo_nodes_cpp',
-            executable='parameter_blackboard',
+            executable=sys.executable,
+            arguments=[os.path.join(path_to_test, 'parameter_blackboard.py')],
+            additional_env={'PYTHONUNBUFFERED': '1'},
             name='demo_node_1',
         ),
         launch_testing.actions.ReadyToTest()

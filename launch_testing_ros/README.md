@@ -35,7 +35,7 @@ launch_test test/examples/check_msgs_launch_test.py
 ```
 
 Consider a problem statement where you need to launch a node and check if messages are published on a particular topic.
-This example demonstrates how to do that, using the talker node from ``demo_nodes_cpp`` package.
+This example demonstrates how to do that, using a talker node.
 It uses the ``Event`` object to end the test as soon as the first message is received on the chatter topic, with a timeout of 5 seconds.
 
 ### `set_param_launch_test.py`

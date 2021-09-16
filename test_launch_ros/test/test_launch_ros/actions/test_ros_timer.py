@@ -25,6 +25,7 @@ import launch.event_handlers
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import RosTimer
 from launch_ros.actions import SetUseSimTime
+import pytest
 import rclpy
 from rclpy.clock import Clock, ClockType
 from rosgraph_msgs.msg import Clock as ClockMsg
@@ -148,12 +149,18 @@ def test_shutdown_preempts_timers():
     assert shutdown_reasons[0].reason == 'fast shutdown'
 
 
-def test_timer_uses_sim_time():
-    """Test that timer uses time from /clock topic."""
-    # Create clock publisher node
+@pytest.fixture
+def rclpy_node():
     rclpy.init()
     node = rclpy.create_node('test_ros_timer_action_node')
-    publisher = node.create_publisher(ClockMsg, '/clock', 10)
+    yield node
+    rclpy.shutdown()
+
+
+def test_timer_uses_sim_time(rclpy_node):
+    """Test that timer uses time from /clock topic."""
+    # Create clock publisher node
+    publisher = rclpy_node.create_publisher(ClockMsg, '/clock', 10)
 
     # Increment sim time by 100 every time callback is called
     def timer_callback(publisher, time_msg):
@@ -163,9 +170,9 @@ def test_timer_uses_sim_time():
     # For every second of system time, publish new sim time value
     callback_clock = Clock(clock_type=ClockType.SYSTEM_TIME)
     time_msg = Time(sec=0, nanosec=0)
-    node.create_timer(1, partial(timer_callback, publisher, time_msg), clock=callback_clock)
+    rclpy_node.create_timer(1, partial(timer_callback, publisher, time_msg), clock=callback_clock)
 
-    thread = threading.Thread(target=rclpy.spin, args=(node, ), daemon=True)
+    thread = threading.Thread(target=rclpy.spin, args=(rclpy_node, ), daemon=True)
     thread.start()
 
     ld = launch.LaunchDescription([

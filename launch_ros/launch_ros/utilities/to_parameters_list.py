@@ -29,22 +29,30 @@ from .normalize_parameters import normalize_parameter_dict
 from ..parameters_type import EvaluatedParameters
 
 
-def __format_dict(dictionary, keys, formatted_dict):
+def __normalize_parameters_dict(dictionary):
     """
     Combine namespaces and their node names into one key and remove the "ros__parameters" key.
 
     Return an empty dict if the "ros__parameters" key is not found.
     """
-    for key, value in dictionary.items():
-        if key == 'ros__parameters':
-            node_name = '/'.join(keys)
-            formatted_dict[node_name] = value
-            return formatted_dict
-        elif type(value) is dict:
-            keys.append(key.lstrip('/'))
-            formatted_dict = __format_dict(value, keys, formatted_dict)
-            keys = []
-    return formatted_dict
+    # Recursive function
+    def normalize_parameters_dict(dictionary, keys, result_dict):
+        for key, value in dictionary.items():
+            # Base case: found 'ros__parameters' key
+            # Return
+            if key == 'ros__parameters':
+                node_name = '/'.join(keys)
+                result_dict[node_name] = value
+                return result_dict
+
+            if isinstance(value, dict):
+                keys.append(key.lstrip('/'))
+                result_dict = normalize_parameters_dict(value, keys, result_dict)
+                keys = []
+
+        return result_dict
+
+    return normalize_parameters_dict(dictionary, [], {})
 
 
 def to_parameters_list(
@@ -67,22 +75,23 @@ def to_parameters_list(
     parameters = []  # type: List[rclpy.parameter.Parameter]
     node_name = node_name.lstrip('/')
     if namespace:
-        namespace = namespace.lstrip('/')
+        namespace = namespace.strip('/')
         node_name = f'{namespace}/{node_name}'
 
+    params_set = {}
     warned_once = False
     for params_set_or_path in evaluated_parameters:
         if isinstance(params_set_or_path, pathlib.Path):
             with open(str(params_set_or_path), 'r') as f:
                 param_dict = yaml.safe_load(f)
-                formatted_dict = __format_dict(param_dict, keys=[], formatted_dict={})
+                normalized_param_dict = __normalize_parameters_dict(param_dict)
 
-                if formatted_dict:
+                if normalized_param_dict:
                     param_dict.clear()
-                    if '**' in formatted_dict:
-                        param_dict = formatted_dict['**']
-                    if node_name in formatted_dict:
-                        param_dict.update(formatted_dict[node_name])
+                    if '**' in normalized_param_dict:
+                        param_dict = normalized_param_dict['**']
+                    if node_name in normalized_param_dict:
+                        param_dict.update(normalized_param_dict[node_name])
                     if not warned_once and not node_name:
                         warnings.warn(
                             'node name not provided to launch; parameter files will not apply',
@@ -90,9 +99,10 @@ def to_parameters_list(
                         )
                         warned_once = True
 
-                params_set = evaluate_parameter_dict(
-                    context, normalize_parameter_dict(param_dict)
-                )
+                if param_dict:
+                    params_set = evaluate_parameter_dict(
+                        context, normalize_parameter_dict(param_dict)
+                    )
         else:
             params_set = params_set_or_path
         if not isinstance(params_set, dict):

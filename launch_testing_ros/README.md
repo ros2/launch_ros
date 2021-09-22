@@ -32,7 +32,7 @@ We delay the launch by 5 seconds, and wait for the node to start with a timeout 
 launch_test test/examples/check_multiple_node_launch_test.py number_of_nodes:=10
 ```
 
-This test launches multiple nodes, specified by the ``number_pf_nodes`` commandline parameter.
+This test launches multiple nodes, specified by the ``number_of_nodes`` commandline parameter.
 It then records them to a ``rosbag2`` file, and checks if the nodes were launched correctly, and tha tht e bag file recorded some messages.
 
 ### `check_msgs_launch_test.py`

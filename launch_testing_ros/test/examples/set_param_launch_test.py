@@ -69,7 +69,7 @@ class MakeTestNode(Node):
         request = SetParameters.Request()
         request.parameters = parameters
         future = client.call_async(request)
-        rclpy.spin_until_future_complete(self, future)
+        rclpy.spin_until_future_complete(self, future, timeout_sec=5.0)
 
         response = future.result()
         if response is None:

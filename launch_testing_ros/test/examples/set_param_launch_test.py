@@ -62,14 +62,14 @@ class MakeTestNode(Node):
         parameters = [rclpy.Parameter('demo_parameter_1', value=state).to_parameter_msg()]
 
         client = self.create_client(SetParameters, 'demo_node_1/set_parameters')
-        ready = client.wait_for_service(timeout_sec=5.0)
+        ready = client.wait_for_service(timeout_sec=timeout)
         if not ready:
             raise RuntimeError('Wait for service timed out')
 
         request = SetParameters.Request()
         request.parameters = parameters
         future = client.call_async(request)
-        rclpy.spin_until_future_complete(self, future, timeout_sec=5.0)
+        rclpy.spin_until_future_complete(self, future, timeout_sec=timeout)
 
         response = future.result()
         if response is None:

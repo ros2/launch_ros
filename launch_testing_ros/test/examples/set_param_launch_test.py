@@ -72,8 +72,4 @@ class MakeTestNode(Node):
         rclpy.spin_until_future_complete(self, future)
 
         response = future.result()
-        if response is None:
-            e = future.exception()
-            raise RuntimeError(
-                f"Exception while calling service of node 'demo_node_1': {e}")
         return response.results[0]

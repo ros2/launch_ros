@@ -14,10 +14,11 @@
 
 """Tests for the normalizing parameters utility."""
 
+import os
 import pathlib
 
 from launch import LaunchContext
-from launch.substitutions import TextSubstitution
+from launch.substitutions import Command, TextSubstitution
 
 from launch_ros.utilities import evaluate_parameters
 from launch_ros.utilities import normalize_parameters
@@ -302,14 +303,25 @@ def test_mixed_path_dicts():
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
 
-def test_unallowed_yaml_types_in_substitutions():
-    with pytest.raises(TypeError) as exc:
-        orig = [{'foo': 1, 'fiz': TextSubstitution(text="{'asd': 3}")}]
-        norm = normalize_parameters(orig)
-        evaluate_parameters(LaunchContext(), norm)
-    assert 'Allowed value types' in str(exc.value)
-    assert 'dict' in str(exc.value)
+def test_yaml_with_invalid_type_as_string():
+    # This substition evaluates to a dictionary, which is an invalid parameter type,
+    # so instead it is returned as a string
+    orig = [{'foo': 1, 'fiz': TextSubstitution(text="{'asd': 3}")}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': "{'asd': 3}"},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
 
+
+def test_invalid_yaml_as_string():
+    # This substition evaluates to a string which is invalid yaml,
+    # so instead it is returned as a string
+    orig = [{'foo': 1, 'fiz': TextSubstitution(text="{'asd':: 3}")}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': "{'asd':: 3}"},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+
+def test_unallowed_yaml_types_in_substitutions():
     with pytest.raises(TypeError) as exc:
         orig = [{'foo': 1, 'fiz': TextSubstitution(text='[1, 2.0, 3]')}]
         norm = normalize_parameters(orig)
@@ -339,3 +351,43 @@ def test_unallowed_yaml_types_in_substitutions():
         norm = normalize_parameters(orig)
         evaluate_parameters(LaunchContext(), norm)
     assert 'Expected a non-empty sequence' in str(exc.value)
+
+
+@pytest.fixture
+def commands():
+    this_dir = pathlib.Path(__file__).parent
+
+    commands = {
+        'normal': str(this_dir / 'test_command' / 'normal_command.bash'),
+        'with_colon': str(this_dir / 'test_command' / 'command_with_colon_output.bash'),
+        'with_two_colons': str(this_dir / 'test_command' / 'command_with_two_colons.bash'),
+    }
+
+    if os.name == 'nt':
+        for key, value in commands.items():
+            commands[key] = value.replace('bash', 'bat')
+    return commands
+
+
+def test_command(commands):
+    """Test a simple command."""
+    orig = [{'foo': Command(commands['normal'])}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 'asd bsd csd'},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+
+def test_command_with_colon_output(commands):
+    """Test a simple command."""
+    orig = [{'foo': Command(commands['with_colon'])}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': '<robot><!-- colon: in a comment --></robot>\n'},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+
+def test_command_with_two_colons(commands):
+    """Test a simple command."""
+    orig = [{'foo': Command(commands['with_two_colons'])}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': '<robot><!-- two: colons: (with spaces)--></robot>\n'},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected

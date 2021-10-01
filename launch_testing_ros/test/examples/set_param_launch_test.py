@@ -71,5 +71,7 @@ class MakeTestNode(Node):
         future = client.call_async(request)
         rclpy.spin_until_future_complete(self, future, timeout_sec=timeout)
 
+        assert future.done(), 'Client request timed out'
+
         response = future.result()
         return response.results[0]

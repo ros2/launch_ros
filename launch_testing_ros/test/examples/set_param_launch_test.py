@@ -47,10 +47,12 @@ class TestFixture(unittest.TestCase):
 
     def test_set_parameter(self, proc_output):
         rclpy.init()
-        node = MakeTestNode('test_node')
-        response = node.set_parameter(state=True)
-        assert response.successful, 'Could not set parameter!'
-        rclpy.shutdown()
+        try:
+            node = MakeTestNode('test_node')
+            response = node.set_parameter(state=True)
+            assert response.successful, 'Could not set parameter!'
+        finally:
+            rclpy.shutdown()
 
 
 class MakeTestNode(Node):

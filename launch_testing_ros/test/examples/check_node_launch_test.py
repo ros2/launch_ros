@@ -51,9 +51,11 @@ class TestFixture(unittest.TestCase):
 
     def test_node_start(self, proc_output):
         rclpy.init()
-        node = MakeTestNode('test_node')
-        assert node.wait_for_node('demo_node_1', 8.0), 'Node not found !'
-        rclpy.shutdown()
+        try:
+            node = MakeTestNode('test_node')
+            assert node.wait_for_node('demo_node_1', 8.0), 'Node not found !'
+        finally:
+            rclpy.shutdown()
 
 
 class MakeTestNode(Node):

@@ -24,11 +24,12 @@ from rclpy.node import Node
 class WaitForTopics:
     """Wait to receive messages on supplied nodes."""
 
-    def __init__(self, topic_tuples):
+    def __init__(self, topic_tuples, timeout=5.0):
         self.__ros_context = None
         self.__ros_node = None
         self.__ros_executor = None
         self.topic_tuples = topic_tuples
+        self.timeout = timeout
         self.start()
 
     def start(self):
@@ -47,15 +48,24 @@ class WaitForTopics:
         while self.__running:
             self.__ros_executor.spin_once(1.0)
 
-    def wait(self, timeout=5.0):
+    def wait(self):
         self.__ros_node.start_subscribers(self.topic_tuples)
-        return self.__ros_node.msg_event_object.wait(timeout)
+        return self.__ros_node.msg_event_object.wait(self.timeout)
 
     def shutdown(self):
         self.__running = False
         self.__ros_spin_thread.join()
         self.__ros_node.destroy_node()
         rclpy.shutdown(context=self.__ros_context)
+
+    def __enter__(self):
+        self.wait()
+        return self
+
+    def __exit__(self, exep_type, exep_value, trace):
+        if exep_type is not None:
+            raise Exception('Exception occured, value: ', exep_value)
+        self.shutdown()
 
 
 class MakeTestNode(Node):

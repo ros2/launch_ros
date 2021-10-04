@@ -17,6 +17,7 @@ from threading import Lock
 from threading import Thread
 
 import rclpy
+from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 
 
@@ -26,27 +27,42 @@ class WaitForTopics:
     def __init__(self, topic_tuples):
         self.__ros_context = None
         self.__ros_node = None
+        self.__ros_executor = None
         self.topic_tuples = topic_tuples
         self.start()
 
     def start(self):
         self.__ros_context = rclpy.Context()
-        rclpy.init()
-        self.__ros_node = MakeTestNode(name='test_node')
+        rclpy.init(context=self.__ros_context)
+        self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)
+        self.__ros_node = MakeTestNode(name='test_node', node_context=self.__ros_context)
+        self.__ros_executor.add_node(self.__ros_node)
+
+        # Start spinning
+        self.__running = True
+        self.__ros_spin_thread = Thread(target=self.spin_function)
+        self.__ros_spin_thread.start()
+
+    def spin_function(self):
+        while self.__running:
+            self.__ros_executor.spin_once(1.0)
 
     def wait(self, timeout=5.0):
         self.__ros_node.start_subscribers(self.topic_tuples)
         return self.__ros_node.msg_event_object.wait(timeout)
 
     def shutdown(self):
-        rclpy.shutdown()
+        self.__running = False
+        self.__ros_spin_thread.join()
+        self.__ros_node.destroy_node()
+        rclpy.shutdown(context=self.__ros_context)
 
 
 class MakeTestNode(Node):
     """Mock node to be used for listening on topics."""
 
-    def __init__(self, name='test_node'):
-        super().__init__(node_name=name)
+    def __init__(self, name='test_node', node_context=None):
+        super().__init__(node_name=name, context=node_context)
         self.msg_event_object = Event()
         self.logger = rclpy.logging.get_logger('wait_for_topics')
 
@@ -67,10 +83,6 @@ class MakeTestNode(Node):
                     10
                 )
             )
-
-        # Add a spin thread
-        self.ros_spin_thread = Thread(target=lambda node: rclpy.spin(node), args=(self,))
-        self.ros_spin_thread.start()
 
     def callback_template(self, topic_name):
 

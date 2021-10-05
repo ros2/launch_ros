@@ -44,6 +44,7 @@ class WaitForTopics:
         wait_for_topics = WaitForTopics(topic_list, timeout=5.0)
         assert wait_for_topics.wait()
         print('Given topics are receiving messages !')
+        print(wait_for_topics.topics_not_received()) # Should be an empty set
         wait_for_topics.shutdown()
     """
 
@@ -53,17 +54,21 @@ class WaitForTopics:
         self.__ros_context = rclpy.Context()
         rclpy.init(context=self.__ros_context)
         self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)
+
+        self._prepare_ros_node()
+
+        # Start spinning
+        self.__running = True
+        self.__ros_spin_thread = Thread(target=self._spin_function)
+        self.__ros_spin_thread.start()
+
+    def _prepare_ros_node(self):
         node_name = '_test_node_' +\
             ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
         self.__ros_node = _WaitForTopicsNode(name=node_name, node_context=self.__ros_context)
         self.__ros_executor.add_node(self.__ros_node)
 
-        # Start spinning
-        self.__running = True
-        self.__ros_spin_thread = Thread(target=self.spin_function)
-        self.__ros_spin_thread.start()
-
-    def spin_function(self):
+    def _spin_function(self):
         while self.__running:
             self.__ros_executor.spin_once(1.0)
 
@@ -77,8 +82,18 @@ class WaitForTopics:
         self.__ros_node.destroy_node()
         rclpy.shutdown(context=self.__ros_context)
 
+    def topics_received(self):
+        """Topics that received at least one message."""
+        return self.__ros_node.received_topics
+
+    def topics_not_received(self):
+        """Topics that did not receive any messages."""
+        return self.__ros_node.expected_topics - self.__ros_node.received_topics
+
     def __enter__(self):
-        assert self.wait()
+        if not self.wait():
+            raise RuntimeError('Did not receive messages on these topics: ',
+                               self.topics_not_received())
         return self
 
     def __exit__(self, exep_type, exep_value, trace):

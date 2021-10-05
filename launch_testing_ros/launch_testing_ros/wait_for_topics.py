@@ -45,6 +45,7 @@ class WaitForTopics:
         assert wait_for_topics.wait()
         print('Given topics are receiving messages !')
         print(wait_for_topics.topics_not_received()) # Should be an empty set
+        print(wait_for_topics.topics_received()) # Should be {'topic_1', 'topic_2'}
         wait_for_topics.shutdown()
     """
 

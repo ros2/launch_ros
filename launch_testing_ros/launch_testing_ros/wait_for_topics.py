@@ -104,7 +104,7 @@ class WaitForTopics:
 
 
 class _WaitForTopicsNode(Node):
-    """Internal dummy node to be used for listening on topics."""
+    """Internal node used for subscribing to a set of topics."""
 
     def __init__(self, name='test_node', node_context=None):
         super().__init__(node_name=name, context=node_context)

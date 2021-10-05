@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import random
+import string
 from threading import Event
 from threading import Lock
 from threading import Thread
@@ -22,21 +24,39 @@ from rclpy.node import Node
 
 
 class WaitForTopics:
-    """Wait to receive messages on supplied nodes."""
+    """
+    Wait to receive messages on supplied topics.
+
+    Example usage:
+    --------------
+
+    from std_msgs.msg import String
+
+    # Method 1, using the 'with' keyword
+    def method_1():
+        topic_list = [('topic_1', String), ('topic_2', String)]
+        with WaitForTopics(topic_list, timeout=5.0):
+            # 'topic_1' and 'topic_2' received at least one message each
+            print('Given topics are receiving messages !')
+
+    # Method 2, calling wait() and shutdown() manually
+    def method_2():
+        topic_list = [('topic_1', String), ('topic_2', String)]
+        wait_for_topics = WaitForTopics(topic_list, timeout=5.0)
+        assert wait_for_topics.wait()
+        print('Given topics are receiving messages !')
+        wait_for_topics.shutdown()
+    """
 
     def __init__(self, topic_tuples, timeout=5.0):
-        self.__ros_context = None
-        self.__ros_node = None
-        self.__ros_executor = None
         self.topic_tuples = topic_tuples
         self.timeout = timeout
-        self.start()
-
-    def start(self):
         self.__ros_context = rclpy.Context()
         rclpy.init(context=self.__ros_context)
         self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)
-        self.__ros_node = MakeTestNode(name='test_node', node_context=self.__ros_context)
+        node_name = '_test_node_' +\
+            ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        self.__ros_node = _WaitForTopicsNode(name=node_name, node_context=self.__ros_context)
         self.__ros_executor.add_node(self.__ros_node)
 
         # Start spinning
@@ -59,7 +79,7 @@ class WaitForTopics:
         rclpy.shutdown(context=self.__ros_context)
 
     def __enter__(self):
-        self.wait()
+        assert self.wait()
         return self
 
     def __exit__(self, exep_type, exep_value, trace):
@@ -68,19 +88,17 @@ class WaitForTopics:
         self.shutdown()
 
 
-class MakeTestNode(Node):
-    """Mock node to be used for listening on topics."""
+class _WaitForTopicsNode(Node):
+    """Internal dummy node to be used for listening on topics."""
 
     def __init__(self, name='test_node', node_context=None):
         super().__init__(node_name=name, context=node_context)
         self.msg_event_object = Event()
-        self.logger = rclpy.logging.get_logger('wait_for_topics')
 
     def start_subscribers(self, topic_tuples):
         self.subscriber_list = []
-        self.expected_topics = [name for name, _ in topic_tuples]
-        self.expected_topics.sort()
-        self.received_topics = []
+        self.expected_topics = {name for name, _ in topic_tuples}
+        self.received_topics = set()
         self.topic_mutex = Lock()
 
         for topic_name, topic_type in topic_tuples:
@@ -99,9 +117,8 @@ class MakeTestNode(Node):
         def topic_callback(data):
             self.topic_mutex.acquire()
             if topic_name not in self.received_topics:
-                self.logger.info('Message received for ' + topic_name)
-                self.received_topics.append(topic_name)
-                self.received_topics.sort()
+                self.get_logger().debug('Message received for ' + topic_name)
+                self.received_topics.add(topic_name)
             if self.received_topics == self.expected_topics:
                 self.msg_event_object.set()
 

@@ -350,19 +350,22 @@ def test_unallowed_yaml_types_in_substitutions():
 
 
 def test_unallowed_yaml_types_as_strings():
-    # All the tests from test_unallowed_yaml_types_in_substitutions but coerced to the proper type with ParameterValue
+    # All the tests from test_unallowed_yaml_types_in_substitutions
+    # but coerced to the proper type with ParameterValue
     orig = [{'foo': 1, 'fiz': ParameterValue(TextSubstitution(text="{'asd': 3}"), value_type=str)}]
     norm = normalize_parameters(orig)
     expected = ({'foo': 1, 'fiz': "{'asd': 3}"},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
-    orig = [{'foo': 1, 'fiz': ParameterValue(TextSubstitution(text='[1, 2.0, 3]'), value_type=str)}]
+    orig = [{'foo': 1, 'fiz': ParameterValue(TextSubstitution(text='[1, 2.0, 3]'),
+                                             value_type=str)}]
     norm = normalize_parameters(orig)
     evaluate_parameters(LaunchContext(), norm)
     expected = ({'foo': 1, 'fiz': '[1, 2.0, 3]'},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
-    orig = [{'foo': 1, 'fiz': ParameterValue(TextSubstitution(text='[[2, 3], [2, 3], [2, 3]]'), value_type=str)}]
+    orig = [{'foo': 1, 'fiz': ParameterValue(TextSubstitution(text='[[2, 3], [2, 3], [2, 3]]'),
+                                             value_type=str)}]
     norm = normalize_parameters(orig)
     evaluate_parameters(LaunchContext(), norm)
     expected = ({'foo': 1, 'fiz': '[[2, 3], [2, 3], [2, 3]]'},)
@@ -386,8 +389,9 @@ def test_unallowed_yaml_types_as_strings():
     expected = ({'foo': 1, 'fiz': ["['asd', 'bsd']", "['asd', 'csd']"]},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
-    orig = [{'foo': 1, 'fiz': ParameterValue(TextSubstitution(text='Text That : Cannot Be Parsed As : Yaml'),
-                                             value_type=str)}]
+    orig = [{'foo': 1,
+             'fiz': ParameterValue(TextSubstitution(text='Text That : Cannot Be Parsed As : Yaml'),
+                                   value_type=str)}]
     norm = normalize_parameters(orig)
     evaluate_parameters(LaunchContext(), norm)
     expected = ({'foo': 1, 'fiz': 'Text That : Cannot Be Parsed As : Yaml'},)

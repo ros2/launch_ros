@@ -55,8 +55,7 @@ class TestFixture(unittest.TestCase):
         expected_topics = {'chatter_' + str(i) for i in range(count)}
 
         # Method 1 : Using the magic methods and 'with' keyword
-        wait_for_node_object_1 = WaitForTopics(topic_list, timeout=2.0)
-        with wait_for_node_object_1:
+        with WaitForTopics(topic_list, timeout=2.0) as wait_for_node_object_1:
             assert wait_for_node_object_1.topics_received() == expected_topics
             assert wait_for_node_object_1.topics_not_received() == set()
 
@@ -77,15 +76,13 @@ class TestFixture(unittest.TestCase):
         expected_topics = {'chatter_' + str(i) for i in range(count)}
 
         # Method 1
-        wait_for_node_object_1 = WaitForTopics(topic_list, timeout=2.0)
         with pytest.raises(RuntimeError):
-            with wait_for_node_object_1:
-                assert wait_for_node_object_1.topics_received() == expected_topics
-                assert wait_for_node_object_1.topics_not_received() == {'invalid_topic'}
+            with WaitForTopics(topic_list, timeout=2.0):
+                pass
 
         # Method 2
-        wait_for_node_object_2 = WaitForTopics(topic_list, timeout=2.0)
-        assert not wait_for_node_object_2.wait()
-        assert wait_for_node_object_2.topics_received() == expected_topics
-        assert wait_for_node_object_2.topics_not_received() == {'invalid_topic'}
-        wait_for_node_object_2.shutdown()
+        wait_for_node_object = WaitForTopics(topic_list, timeout=2.0)
+        assert not wait_for_node_object.wait()
+        assert wait_for_node_object.topics_received() == expected_topics
+        assert wait_for_node_object.topics_not_received() == {'invalid_topic'}
+        wait_for_node_object.shutdown()

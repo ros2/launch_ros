@@ -2,6 +2,9 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.4 (2021-10-05)
+-------------------
+
 0.11.3 (2021-08-31)
 -------------------
 * Better document parameter handling in Node (`#234 <https://github.com/ros2/launch_ros/issues/234>`_) (`#242 <https://github.com/ros2/launch_ros/issues/242>`_)

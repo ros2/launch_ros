@@ -15,7 +15,6 @@
 import random
 import string
 from threading import Event
-from threading import Lock
 from threading import Thread
 
 import rclpy
@@ -99,7 +98,6 @@ class _WaitForTopicsNode(Node):
         self.subscriber_list = []
         self.expected_topics = {name for name, _ in topic_tuples}
         self.received_topics = set()
-        self.topic_mutex = Lock()
 
         for topic_name, topic_type in topic_tuples:
             # Create a subscriber
@@ -115,13 +113,10 @@ class _WaitForTopicsNode(Node):
     def callback_template(self, topic_name):
 
         def topic_callback(data):
-            self.topic_mutex.acquire()
             if topic_name not in self.received_topics:
                 self.get_logger().debug('Message received for ' + topic_name)
                 self.received_topics.add(topic_name)
             if self.received_topics == self.expected_topics:
                 self.msg_event_object.set()
-
-            self.topic_mutex.release()
 
         return topic_callback

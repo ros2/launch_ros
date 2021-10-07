@@ -2,6 +2,14 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.15.0 (2021-10-07)
+-------------------
+* Add WaitForTopics utility for waiting on publishers (`#274 <https://github.com/ros2/launch_ros/issues/274>`_)
+* Remove unused code, Future.result() already raises (`#270 <https://github.com/ros2/launch_ros/issues/270>`_)
+* Add timeout to wait for service response in example (`#271 <https://github.com/ros2/launch_ros/issues/271>`_)
+* Add examples (`#263 <https://github.com/ros2/launch_ros/issues/263>`_)
+* Contributors: Aditya Pande, Shane Loretz
+
 0.14.2 (2021-04-26)
 -------------------
 * Use underscores in setup.cfg instead of dashes. (`#227 <https://github.com/ros2/launch_ros/issues/227>`_)

@@ -2,6 +2,20 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.15.0 (2021-10-07)
+-------------------
+* Handle substitutions in RosTimer (`#264 <https://github.com/ros2/launch_ros/issues/264>`_)
+* Add SetParametersFromFile action (`#260 <https://github.com/ros2/launch_ros/issues/260>`_)
+* Properly support ros_args attribute through launch frontends (`#253 <https://github.com/ros2/launch_ros/issues/253>`_)
+* Add 'push_ros_namespace' alias to 'push-ros-namespace' (`#250 <https://github.com/ros2/launch_ros/issues/250>`_)
+* Add ros_arguments option to Node action (`#249 <https://github.com/ros2/launch_ros/issues/249>`_)
+* Refactor RosTimer to extend TimerAction (`#248 <https://github.com/ros2/launch_ros/issues/248>`_)
+* ROS Timer Action (`#244 <https://github.com/ros2/launch_ros/issues/244>`_)
+* Support container in frontend (`#235 <https://github.com/ros2/launch_ros/issues/235>`_)
+* Fix a small typo in a comment (`#237 <https://github.com/ros2/launch_ros/issues/237>`_)
+* Better document parameter handling in Node (`#234 <https://github.com/ros2/launch_ros/issues/234>`_)
+* Contributors: Aditya Pande, Chris Lalancette, Christophe Bedard, Felix Divo, Jacob Perron, Kenji Miyake, Rebecca Butler
+
 0.14.2 (2021-04-26)
 -------------------
 

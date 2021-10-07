@@ -2,6 +2,14 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.15.0 (2021-10-07)
+-------------------
+* Add regex filter for selective launch-prefix application (`#261 <https://github.com/ros2/launch_ros/issues/261>`_)
+* Resolves `#37 <https://github.com/ros2/launch_ros/issues/37>`_ - Added --launch-prefix argument for 'ros2 launch' command (`#254 <https://github.com/ros2/launch_ros/issues/254>`_)
+* Use sets of file extensions provided by parser extensions (`#252 <https://github.com/ros2/launch_ros/issues/252>`_)
+* Simplify logic to fix absolute paths (`#230 <https://github.com/ros2/launch_ros/issues/230>`_)
+* Contributors: Cameron Miller, Christophe Bedard, rob-clarke
+
 0.14.2 (2021-04-26)
 -------------------
 

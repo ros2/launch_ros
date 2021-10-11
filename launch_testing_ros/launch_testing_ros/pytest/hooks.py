@@ -33,16 +33,3 @@ class LaunchROSTestModule(LaunchTestModule):
 
     def makeitem(self, *args, **kwargs):
         return LaunchROSTestItem.from_parent(*args, **kwargs)
-
-
-def pytest_launch_collect_makemodule(path, parent, entrypoint):
-    marks = getattr(entrypoint, 'pytestmark', [])
-    if marks and any(m.name == 'rostest' for m in marks):
-        return LaunchROSTestModule.from_parent(parent=parent, fspath=path)
-
-
-def pytest_configure(config):
-    config.addinivalue_line(
-        'markers',
-        'rostest: mark a generate_test_description function as a ROS launch test entrypoint'
-    )

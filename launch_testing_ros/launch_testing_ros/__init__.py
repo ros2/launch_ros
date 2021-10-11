@@ -17,12 +17,10 @@ from . import tools
 from .data_republisher import DataRepublisher
 from .message_pump import MessagePump
 from .test_runner import LaunchTestRunner
-from . wait_for_topics import WaitForTopics
 
 __all__ = [
     'DataRepublisher',
     'LaunchTestRunner',
     'MessagePump',
     'tools',
-    'WaitForTopics',
 ]

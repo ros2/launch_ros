@@ -47,10 +47,12 @@ class TestFixture(unittest.TestCase):
 
     def test_set_parameter(self, proc_output):
         rclpy.init()
-        node = MakeTestNode('test_node')
-        response = node.set_parameter(state=True)
-        assert response.successful, 'Could not set parameter!'
-        rclpy.shutdown()
+        try:
+            node = MakeTestNode('test_node')
+            response = node.set_parameter(state=True)
+            assert response.successful, 'Could not set parameter!'
+        finally:
+            rclpy.shutdown()
 
 
 class MakeTestNode(Node):
@@ -70,6 +72,8 @@ class MakeTestNode(Node):
         request.parameters = parameters
         future = client.call_async(request)
         rclpy.spin_until_future_complete(self, future, timeout_sec=timeout)
+
+        assert future.done(), 'Client request timed out'
 
         response = future.result()
         return response.results[0]

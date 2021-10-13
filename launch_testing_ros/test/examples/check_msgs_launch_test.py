@@ -51,11 +51,13 @@ class TestFixture(unittest.TestCase):
 
     def test_check_if_msgs_published(self, proc_output):
         rclpy.init()
-        node = MakeTestNode('test_node')
-        node.start_subscriber()
-        msgs_received_flag = node.msg_event_object.wait(timeout=5.0)
-        assert msgs_received_flag, 'Did not receive msgs !'
-        rclpy.shutdown()
+        try:
+            node = MakeTestNode('test_node')
+            node.start_subscriber()
+            msgs_received_flag = node.msg_event_object.wait(timeout=5.0)
+            assert msgs_received_flag, 'Did not receive msgs !'
+        finally:
+            rclpy.shutdown()
 
 
 class MakeTestNode(Node):

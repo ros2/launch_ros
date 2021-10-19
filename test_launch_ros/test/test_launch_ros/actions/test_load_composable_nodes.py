@@ -269,7 +269,7 @@ def test_load_node_with_param_file(mock_component_container):
             name='my_node',
             namespace='my_ns',
             parameters=[
-                parameters_file_dir / 'example_parameters.yaml'
+                parameters_file_dir / 'example_parameters_nested_namespace.yaml'
             ],
         )
     ])

@@ -48,6 +48,8 @@ def __normalize_parameters_dict(dictionary):
             if isinstance(value, dict):
                 keys.append(key.lstrip('/'))
                 result_dict = normalize_parameters_dict(value, keys, result_dict)
+                # Reset keys in case there are multiple ros__parameter entries
+                keys = []
 
         return result_dict
 

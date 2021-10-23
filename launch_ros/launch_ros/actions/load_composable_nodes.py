@@ -243,7 +243,7 @@ def get_composable_node_load_request(
     composable_node_description: ComposableNode,
     context: LaunchContext
 ):
-    """Get the request that will be send to the composable node container."""
+    """Get the request that will be sent to the composable node container."""
     request = composition_interfaces.srv.LoadNode.Request()
     request.package_name = perform_substitutions(
         context, composable_node_description.package
@@ -286,7 +286,8 @@ def get_composable_node_load_request(
     if parameters:
         request.parameters = [
             param.to_parameter_msg() for param in to_parameters_list(
-                context, evaluate_parameters(
+                context, request.node_name, expanded_ns,
+                evaluate_parameters(
                     context, parameters
                 )
             )
@@ -294,7 +295,8 @@ def get_composable_node_load_request(
     if composable_node_description.extra_arguments is not None:
         request.extra_arguments = [
             param.to_parameter_msg() for param in to_parameters_list(
-                context, evaluate_parameters(
+                context, request.node_name, expanded_ns,
+                evaluate_parameters(
                     context, composable_node_description.extra_arguments
                 )
             )

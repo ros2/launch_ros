@@ -16,6 +16,9 @@
 
 from typing import Callable
 from typing import Text
+import warnings
+
+from ..matchers import matches_node_name as _matches_node_name
 
 if False:
     # imports here would cause loops, but are only used as forward-references for type-checking
@@ -24,6 +27,8 @@ if False:
 
 def matches_node_name(node_name: Text) -> Callable[['LifecycleNode'], bool]:
     """Return a matcher which matches based on the name of the node itself."""
-    if not node_name.startswith('/'):
-        node_name = f'/{node_name}'
-    return lambda action: action.node_name == node_name
+    warnings.warn(
+        "'matches_node_name' has been moved into the 'launch.events' module and will be removed "
+        "from the 'lifecycle' module in the future"
+    )
+    return _matches_node_name(node_name)

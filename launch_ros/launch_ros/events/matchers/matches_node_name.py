@@ -12,12 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""events Module."""
+"""Matchers for node names."""
 
-from . import lifecycle
-from .matchers import matches_node_name
+from typing import Callable
+from typing import Text
 
-__all__ = [
-    'lifecycle',
-    'matches_node_name',
-]
+if False:
+    # imports here would cause loops, but are only used as forward-references for type-checking
+    from ..actions import Node  # noqa: F401
+
+
+def matches_node_name(node_name: Text) -> Callable[['Node'], bool]:
+    """Return a matcher which matches based on the name of the node itself."""
+    if not node_name.startswith('/'):
+        node_name = f'/{node_name}'
+    return lambda action: action.node_name == node_name

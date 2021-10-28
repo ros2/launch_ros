@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2021 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""events Module."""
+"""events.matchers module."""
 
-from . import lifecycle
-from .matchers import matches_node_name
+from .matches_node_name import matches_node_name
 
 __all__ = [
-    'lifecycle',
     'matches_node_name',
 ]

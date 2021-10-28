@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for launch_ros matchers that are used with launch_ros events."""
+"""Matchers for node names."""
 
 from typing import Callable
 from typing import Text

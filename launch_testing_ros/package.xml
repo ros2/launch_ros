@@ -4,8 +4,9 @@
   <name>launch_testing_ros</name>
   <version>0.15.0</version>
   <description>A package providing utilities for writing ROS2 enabled launch tests.</description>
+  <maintainer email="aditya.pande@osrfoundation.org">Aditya Pande</maintainer>
   <maintainer email="jacob@openrobotics.org">Jacob Perron</maintainer>
-  <maintainer email="michael.jeronimo@openrobotics.org">Michael Jeronimo</maintainer>
+  <maintainer email="michel@ekumenlabs.com">Michel Hidalgo</maintainer>
   <license>Apache License 2.0</license>
   <author email="pete.baughman@apex.ai">Pete Baughman</author>
 

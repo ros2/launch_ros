@@ -157,3 +157,22 @@ def test_set_param_with_composable_node():
     assert parameters[1].value.integer_value == 20
     assert parameters[2].name == 'asd'
     assert parameters[2].value.string_value == 'bsd'
+
+    lc = MockContext()
+    node_description = ComposableNode(
+        package='asd',
+        plugin='my_plugin',
+        name='my_node_2',
+        namespace='my_ns',
+        parameters=[{'asd': 'bsd'}]
+    )
+    param_file_path = os.path.dirname(os.path.abspath(__file__)) + '/example_parameters_1.yaml'
+    set_param_1 = SetParametersFromFile(param_file_path)
+    set_param_1.execute(lc)
+    request = get_composable_node_load_request(node_description, lc)
+    parameters = request.parameters
+    assert len(parameters) == 2
+    assert parameters[0].name == 'param_1_name'
+    assert parameters[0].value.integer_value == 10
+    assert parameters[1].name == 'asd'
+    assert parameters[1].value.string_value == 'bsd'

@@ -11,6 +11,7 @@
   <maintainer email="michel@ekumenlabs.com">Michel Hidalgo</maintainer>
   <license>Apache License 2.0</license>
   <author email="william@osrfoundation.org">William Woodall</author>
+  <author email="michael.jeronimo@openrobotics.org">Michael Jeronimo</author>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

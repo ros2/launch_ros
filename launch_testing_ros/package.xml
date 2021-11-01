@@ -9,6 +9,7 @@
   <maintainer email="michel@ekumenlabs.com">Michel Hidalgo</maintainer>
   <license>Apache License 2.0</license>
   <author email="pete.baughman@apex.ai">Pete Baughman</author>
+  <author email="michael.jeronimo@openrobotics.org">Michael Jeronimo</author>
 
   <exec_depend>launch_testing</exec_depend>
   <exec_depend>launch_ros</exec_depend>

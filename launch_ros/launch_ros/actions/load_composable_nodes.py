@@ -14,6 +14,7 @@
 
 """Module for the LoadComposableNodes action."""
 
+from pathlib import Path
 import threading
 
 from typing import List
@@ -35,6 +36,7 @@ from launch.utilities import ensure_argument_type
 from launch.utilities import is_a_subclass
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
+from launch_ros.parameter_descriptions import ParameterFile
 
 from .composable_node_container import ComposableNodeContainer
 
@@ -280,6 +282,11 @@ def get_composable_node_load_request(
         for param in params_container:
             if isinstance(param, tuple):
                 subs = normalize_parameter_dict({param[0]: param[1]})
+                parameters.append(subs)
+            else:
+                param_file_path = Path(param).resolve()
+                assert param_file_path.is_file()
+                subs = ParameterFile(param_file_path)
                 parameters.append(subs)
     if composable_node_description.parameters is not None:
         parameters.extend(list(composable_node_description.parameters))

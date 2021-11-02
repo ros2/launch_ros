@@ -14,7 +14,7 @@
 
 """Module for the LoadComposableNodes action."""
 
-import os
+from pathlib import Path
 import threading
 
 from typing import List
@@ -284,8 +284,8 @@ def get_composable_node_load_request(
                 subs = normalize_parameter_dict({param[0]: param[1]})
                 parameters.append(subs)
             else:
-                param_file_path = os.path.abspath(param)
-                assert os.path.isfile(param_file_path)
+                param_file_path = Path(param).resolve()
+                assert param_file_path.is_file()
                 subs = ParameterFile(param_file_path)
                 parameters.append(subs)
     if composable_node_description.parameters is not None:

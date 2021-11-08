@@ -21,11 +21,6 @@ from typing import Optional
 from typing import Text  # noqa: F401
 from typing import Tuple  # noqa: F401
 
-try:
-    import importlib.metadata as importlib_metadata
-except ModuleNotFoundError:
-    import importlib_metadata
-
 from launch.actions import ExecuteLocal
 from launch.actions import ExecuteProcess
 from launch.frontend import Entity
@@ -41,48 +36,6 @@ from launch_ros.descriptions import ParameterFile
 from launch_ros.descriptions import RosExecutable
 from launch_ros.parameters_type import SomeParameters
 from launch_ros.remap_rule_type import SomeRemapRules
-
-
-class NodeActionExtension:
-    """
-    The extension point for launch_ros node action extensions.
-
-    The following properties must be defined:
-    * `NAME` (will be set to the entry point name)
-
-    The following methods may be defined:
-    * `command_extension`
-    * `execute`
-    """
-
-    NAME = None
-    EXTENSION_POINT_VERSION = '0.1'
-
-    def __init__(self):
-        super(NodeActionExtension, self).__init__()
-        plugin_support.satisfies_version(self.EXTENSION_POINT_VERSION, '^0.1')
-
-    def prepare_for_execute(self, context, ros_specific_arguments, node_action):
-        """
-        Perform any actions prior to the node's process being launched.
-
-        `context` is the context within which the launch is taking place,
-        containing amongst other things the command line arguments provided by
-        the user.
-
-        `ros_specific_arguments` is a dictionary of command line arguments that
-        will be passed to the executable and are specific to ROS.
-
-        `node_action` is the Node action instance that is calling the
-        extension.
-
-        This method must return a tuple of command line additions as a list of
-        launch.substitutions.TextSubstitution objects, and
-        `ros_specific_arguments` with any modifications made to it. If no
-        modifications are made, it should return
-        `[], ros_specific_arguments`.
-        """
-        return [], ros_specific_arguments
 
 
 @expose_action('node')
@@ -180,7 +133,6 @@ class Node(ExecuteLocal):
         ros_exec_kwargs = {'additional_env': additional_env, 'arguments': arguments}
         self.__ros_exec = RosExecutable(package=package, executable=executable,
                                         nodes=[self.__node_desc])
-        self.__extensions = get_extensions(self.__logger)
         super().__init__(process_description=self.__ros_exec, **kwargs)
 
     def is_node_name_fully_specified(self):
@@ -300,12 +252,12 @@ class Node(ExecuteLocal):
     @property
     def node_package(self):
         """Getter for node_package."""
-        return self.__node_exec.package
+        return self.__ros_exec.package
 
     @property
     def node_executable(self):
         """Getter for node_executable."""
-        return self.__node_exec.executable
+        return self.__ros_exec.executable
 
     @property
     def node_name(self):
@@ -326,67 +278,3 @@ class Node(ExecuteLocal):
     def expanded_remapping_rules(self):
         """Getter for expanded_remappings."""
         return self.__node_desc.expanded_remappings
-
-
-def instantiate_extension(
-    group_name,
-    extension_name,
-    extension_class,
-    extensions,
-    logger,
-    *,
-    unique_instance=False
-):
-    if not unique_instance and extension_class in extensions:
-        return extensions[extension_name]
-    try:
-        extension_instance = extension_class()
-    except plugin_support.PluginException as e:  # noqa: F841
-        logger.warning(
-            f"Failed to instantiate '{group_name}' extension "
-            f"'{extension_name}': {e}")
-        return None
-    except Exception as e:  # noqa: F841
-        logger.error(
-            f"Failed to instantiate '{group_name}' extension "
-            f"'{extension_name}': {e}")
-        return None
-    if not unique_instance:
-        extensions[extension_name] = extension_instance
-    return extension_instance
-
-
-g_entry_points_impl = None
-
-
-def get_extensions(logger):
-    global g_entry_points_impl
-    group_name = 'launch_ros.node_action'
-    if g_entry_points_impl is None:
-        g_entry_points_impl = importlib_metadata.entry_points()
-    entry_points_impl = g_entry_points_impl
-    if hasattr(entry_points_impl, 'select'):
-        groups = entry_points_impl.select(group=group_name)
-    else:
-        groups = entry_points_impl.get(group_name, [])
-    entry_points = {}
-    for entry_point in groups:
-        entry_points[entry_point.name] = entry_point
-    extension_types = {}
-    for entry_point in entry_points:
-        try:
-            extension_type = entry_points[entry_point].load()
-        except Exception as e:  # noqa: F841
-            logger.warning(f"Failed to load entry point '{entry_points[entry_point].name}': {e}")
-            continue
-        extension_types[entry_points[entry_point].name] = extension_type
-
-    extensions = {}
-    for extension_name, extension_class in extension_types.items():
-        extension_instance = instantiate_extension(
-            group_name, extension_name, extension_class, extensions, logger)
-        if extension_instance is None:
-            continue
-        extension_instance.NAME = extension_name
-        extensions[extension_name] = extension_instance
-    return extensions

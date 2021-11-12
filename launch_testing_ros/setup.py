@@ -7,13 +7,14 @@ setup(
     name='launch_testing_ros',
     version='0.15.0',
     packages=find_packages(exclude=['test']),
+    py_modules=['launch_testing_ros_pytest_entrypoint'],
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/launch_testing_ros']),
         ('share/launch_testing_ros', ['package.xml']),
         ('share/launch_testing_ros/examples', glob.glob('test/examples/[!_]*.*')),
     ],
     entry_points={
-        'pytest11': ['launch_ros = launch_testing_ros.pytest.hooks'],
+        'pytest11': ['launch_ros = launch_testing_ros_pytest_entrypoint'],
     },
     install_requires=['setuptools'],
     zip_safe=True,

@@ -2,6 +2,9 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.5 (2021-11-16)
+-------------------
+
 0.11.4 (2021-10-05)
 -------------------
 * Simplify logic for mode switch (`#245 <https://github.com/ros2/launch_ros/issues/245>`_)

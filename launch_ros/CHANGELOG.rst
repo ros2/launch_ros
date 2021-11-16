@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.5 (2021-11-16)
+-------------------
+* Fix problems when parsing a ``Command`` ``Substitution`` as a parameter value (`#137 <https://github.com/ros2/launch_ros/issues/137>`_)
+* Contributors: Ivan Santiago Paunovic
+
 0.11.4 (2021-10-05)
 -------------------
 

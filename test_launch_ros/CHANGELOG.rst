@@ -2,6 +2,15 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.5 (2021-11-16)
+-------------------
+* Address security bug in yaml loading (`#175 <https://github.com/ros2/launch_ros/issues/175>`_)
+* Fix problems when parsing a ``Command`` ``Substitution`` as a parameter value (`#137 <https://github.com/ros2/launch_ros/issues/137>`_)
+* Drop double single-quoted params (`#164 <https://github.com/ros2/launch_ros/issues/164>`_)
+* Fix test_node_frontend (`#146 <https://github.com/ros2/launch_ros/issues/146>`_)
+* Re-order shutdown vs node destruction (`#213 <https://github.com/ros2/launch_ros/issues/213>`_) (`#279 <https://github.com/ros2/launch_ros/issues/279>`_)
+* Contributors: Dan Rose, Ivan Santiago Paunovic, Michel Hidalgo, Víctor Mayoral Vilches
+
 0.11.4 (2021-10-05)
 -------------------
 

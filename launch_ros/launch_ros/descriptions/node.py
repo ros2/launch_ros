@@ -267,14 +267,15 @@ class Node:
         return f'{self.__expanded_node_name}:{name}:={yaml.dump(value)}'
 
     def prepare(self, context: LaunchContext, executable: Executable, action: Action) -> None:
-        self._perform_substitutions(context, executable.cmd, action)
+        self._perform_substitutions(context, executable)
         
         # Prepare any traits which may be defined for this node
         if self.__traits is not None:
             for trait in self.__traits:
                 trait.prepare(self, context, action)
 
-    def _perform_substitutions(self, context: LaunchContext, cmd: List, action: Action) -> None:
+    def _perform_substitutions(self, context: LaunchContext, executable: Executable) -> None:
+        cmd = executable.cmd
         try:
             if self.__substitutions_performed:
                 # This function may have already been called by a subclass' `execute`, for example.
@@ -386,7 +387,8 @@ class Node:
             cmd_extension, ros_specific_arguments = extension.prepare_for_execute(
                 context,
                 ros_specific_arguments,
-                action
+                executable,
+                self
             )
         cmd.extend(cmd_extension)
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})

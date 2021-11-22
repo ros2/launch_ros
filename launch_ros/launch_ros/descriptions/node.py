@@ -89,7 +89,7 @@ class NodeActionExtension:
         super(NodeActionExtension, self).__init__()
         plugin_support.satisfies_version(self.EXTENSION_POINT_VERSION, '^0.1')
 
-    def prepare_for_execute(self, context, ros_specific_arguments, node_action):
+    def prepare_for_execute(self, context, ros_specific_arguments, ros_executable, node_description):
         """
         Perform any actions prior to the node's process being launched.
 
@@ -100,7 +100,10 @@ class NodeActionExtension:
         `ros_specific_arguments` is a dictionary of command line arguments that
         will be passed to the executable and are specific to ROS.
 
-        `node_action` is the Node action instance that is calling the
+        `ros_executable` is the RosExecutable description instance that the node
+        is a part of.
+
+        `node_description` is the Node description instance that is calling the
         extension.
 
         This method must return a tuple of command line additions as a list of

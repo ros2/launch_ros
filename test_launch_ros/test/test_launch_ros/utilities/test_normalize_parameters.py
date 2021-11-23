@@ -15,10 +15,12 @@
 """Tests for the normalizing parameters utility."""
 
 import pathlib
+from typing import List
 
 from launch import LaunchContext
 from launch.substitutions import TextSubstitution
 
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.utilities import evaluate_parameters
 from launch_ros.utilities import normalize_parameters
 
@@ -339,3 +341,58 @@ def test_unallowed_yaml_types_in_substitutions():
         norm = normalize_parameters(orig)
         evaluate_parameters(LaunchContext(), norm)
     assert 'Expected a non-empty sequence' in str(exc.value)
+
+    with pytest.raises(TypeError) as exc:
+        orig = [{'foo': 1, 'fiz': TextSubstitution(text='Text That : Cannot Be Parsed As : Yaml')}]
+        norm = normalize_parameters(orig)
+        evaluate_parameters(LaunchContext(), norm)
+    assert 'Unable to parse' in str(exc.value)
+
+
+def test_unallowed_yaml_types_as_strings():
+    # All the tests from test_unallowed_yaml_types_in_substitutions
+    # but coerced to the proper type with ParameterValue
+    orig = [{'foo': 1, 'fiz': ParameterValue(TextSubstitution(text="{'asd': 3}"), value_type=str)}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': 1, 'fiz': "{'asd': 3}"},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': 1, 'fiz': ParameterValue(TextSubstitution(text='[1, 2.0, 3]'),
+                                             value_type=str)}]
+    norm = normalize_parameters(orig)
+    evaluate_parameters(LaunchContext(), norm)
+    expected = ({'foo': 1, 'fiz': '[1, 2.0, 3]'},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': 1, 'fiz': ParameterValue(TextSubstitution(text='[[2, 3], [2, 3], [2, 3]]'),
+                                             value_type=str)}]
+    norm = normalize_parameters(orig)
+    evaluate_parameters(LaunchContext(), norm)
+    expected = ({'foo': 1, 'fiz': '[[2, 3], [2, 3], [2, 3]]'},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': 1, 'fiz': ParameterValue(TextSubstitution(text='[]'), value_type=str)}]
+    norm = normalize_parameters(orig)
+    evaluate_parameters(LaunchContext(), norm)
+    expected = ({'foo': 1, 'fiz': '[]'},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{
+        'foo': 1,
+        'fiz': ParameterValue([
+            [TextSubstitution(text="['asd', 'bsd']")],
+            [TextSubstitution(text="['asd', 'csd']")]
+        ], value_type=List[str])
+    }]
+    norm = normalize_parameters(orig)
+    evaluate_parameters(LaunchContext(), norm)
+    expected = ({'foo': 1, 'fiz': ["['asd', 'bsd']", "['asd', 'csd']"]},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected
+
+    orig = [{'foo': 1,
+             'fiz': ParameterValue(TextSubstitution(text='Text That : Cannot Be Parsed As : Yaml'),
+                                   value_type=str)}]
+    norm = normalize_parameters(orig)
+    evaluate_parameters(LaunchContext(), norm)
+    expected = ({'foo': 1, 'fiz': 'Text That : Cannot Be Parsed As : Yaml'},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected

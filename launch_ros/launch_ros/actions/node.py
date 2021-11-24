@@ -569,7 +569,7 @@ def get_extensions(logger):
         try:
             extension_type = entry_points[entry_point].load()
         except Exception as e:  # noqa: F841
-            logger.warning(f"Failed to load entry point '{entry_point.name}': {e}")
+            logger.warning(f"Failed to load entry point '{entry_points[entry_point].name}': {e}")
             continue
         extension_types[entry_points[entry_point].name] = extension_type
 

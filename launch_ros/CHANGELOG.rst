@@ -2,8 +2,8 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.16.0 (2021-11-29)
+-------------------
 * fix bug in warning when an entry point fails to load (`#243 <https://github.com/ros2/launch_ros/issues/243>`_)
 * More Helpful Error Messages (`#275 <https://github.com/ros2/launch_ros/issues/275>`_)
 * Update maintainers in setup.py (`#287 <https://github.com/ros2/launch_ros/issues/287>`_)

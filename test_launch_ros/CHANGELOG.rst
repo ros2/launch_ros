@@ -2,8 +2,8 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.16.0 (2021-11-29)
+-------------------
 * More Helpful Error Messages (`#275 <https://github.com/ros2/launch_ros/issues/275>`_)
 * Update maintainers in setup.py (`#287 <https://github.com/ros2/launch_ros/issues/287>`_)
 * Set parameters from file for composable nodes (`#281 <https://github.com/ros2/launch_ros/issues/281>`_)

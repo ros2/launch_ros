@@ -2,8 +2,8 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.16.0 (2021-11-29)
+-------------------
 * Update maintainers in setup.py (`#287 <https://github.com/ros2/launch_ros/issues/287>`_)
 * Move pytest entrypoints to own module (`#278 <https://github.com/ros2/launch_ros/issues/278>`_)
 * Update package maintainers (`#284 <https://github.com/ros2/launch_ros/issues/284>`_)

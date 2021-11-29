@@ -2,8 +2,8 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.16.0 (2021-11-29)
+-------------------
 * Update maintainers in setup.py (`#287 <https://github.com/ros2/launch_ros/issues/287>`_)
 * Use frontend group dependency & explicit dependencies in ros2launch (`#256 <https://github.com/ros2/launch_ros/issues/256>`_)
 * Update package maintainers (`#284 <https://github.com/ros2/launch_ros/issues/284>`_)

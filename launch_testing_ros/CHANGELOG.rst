@@ -2,6 +2,15 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update maintainers in setup.py (`#287 <https://github.com/ros2/launch_ros/issues/287>`_)
+* Move pytest entrypoints to own module (`#278 <https://github.com/ros2/launch_ros/issues/278>`_)
+* Update package maintainers (`#284 <https://github.com/ros2/launch_ros/issues/284>`_)
+* Check that future is done, and always call rclpy.shutdown (`#273 <https://github.com/ros2/launch_ros/issues/273>`_)
+* Revert "launch testing : Wait for topics to publish (`#274 <https://github.com/ros2/launch_ros/issues/274>`_)" (`#276 <https://github.com/ros2/launch_ros/issues/276>`_)
+* Contributors: Audrow Nash, Jorge Perez, Michel Hidalgo, Shane Loretz
+
 0.15.0 (2021-10-07)
 -------------------
 * Add WaitForTopics utility for waiting on publishers (`#274 <https://github.com/ros2/launch_ros/issues/274>`_)

@@ -2,6 +2,16 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* More Helpful Error Messages (`#275 <https://github.com/ros2/launch_ros/issues/275>`_)
+* Update maintainers in setup.py (`#287 <https://github.com/ros2/launch_ros/issues/287>`_)
+* Set parameters from file for composable nodes (`#281 <https://github.com/ros2/launch_ros/issues/281>`_)
+* Update package maintainers (`#284 <https://github.com/ros2/launch_ros/issues/284>`_)
+* Update node name matcher (`#282 <https://github.com/ros2/launch_ros/issues/282>`_)
+* Support both parameter file configurations for composable nodes (`#259 <https://github.com/ros2/launch_ros/issues/259>`_)
+* Contributors: Aditya Pande, Audrow Nash, David V. Lu!!, Jacob Perron, Michel Hidalgo, Rebecca Butler
+
 0.15.0 (2021-10-07)
 -------------------
 * Shutdown context after test (`#267 <https://github.com/ros2/launch_ros/issues/267>`_)

@@ -69,9 +69,17 @@ def evaluate_parameter_dict(
             if isinstance(value[0], Substitution):
                 # Value is a list of substitutions, so perform them to make a string
                 evaluated_value = perform_substitutions(context, list(value))
-                yaml_evaluated_value = yaml.safe_load(evaluated_value)
-                if yaml_evaluated_value is None:
-                    yaml_evaluated_value = ''
+
+                try:
+                    yaml_evaluated_value = yaml.safe_load(evaluated_value)
+                except yaml.YAMLError:
+                    raise TypeError(
+                        'Unable to parse the value of parameter {} as yaml. '
+                        'If the parameter is meant to be a string, try wrapping it in '
+                        'launch_ros.parameter_descriptions.ParameterValue'
+                        '(value, value_type=str)'.format(evaluated_name)
+                    )
+
                 if type(yaml_evaluated_value) in (bool, int, float, str, bytes):
                     evaluated_value = yaml_evaluated_value
                 elif isinstance(yaml_evaluated_value, Sequence):
@@ -86,9 +94,10 @@ def evaluate_parameter_dict(
                 else:
                     raise TypeError(
                         'Allowed value types are bytes, bool, int, float, str, Sequence[bool]'
-                        ', Sequence[int], Sequence[float], Sequence[str]. Got {}.'.format(
-                            type(yaml_evaluated_value)
-                        )
+                        ', Sequence[int], Sequence[float], Sequence[str]. Got {}.'
+                        'If the parameter is meant to be a string, try wrapping it in '
+                        'launch_ros.parameter_descriptions.ParameterValue'
+                        '(value, value_type=str)'.format(type(yaml_evaluated_value))
                     )
             elif isinstance(value[0], Sequence):
                 # Value is an array of a list of substitutions

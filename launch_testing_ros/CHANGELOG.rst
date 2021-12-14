@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Revert WaitForTopics (`#288 <https://github.com/ros2/launch_ros/issues/288>`_)
+* Contributors: Jacob Perron
+
 0.16.0 (2021-11-29)
 -------------------
 * Update maintainers in setup.py (`#287 <https://github.com/ros2/launch_ros/issues/287>`_)

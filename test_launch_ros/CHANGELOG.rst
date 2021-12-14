@@ -2,6 +2,9 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.16.0 (2021-11-29)
 -------------------
 * More Helpful Error Messages (`#275 <https://github.com/ros2/launch_ros/issues/275>`_)

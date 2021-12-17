@@ -121,14 +121,14 @@ def test_push_ros_namespace(config):
     if config.second_push_ns is not None:
         pns2 = PushROSNamespace(config.second_push_ns)
         pns2.execute(lc)
-    node = Node(
+    node_object = Node(
         package='dont_care',
         executable='whatever',
         namespace=config.node_ns,
         name=config.node_name
     )
     for node in node_object.ros_exec.nodes:
-        node._perform_substitutions(lc, [])
+        node._perform_substitutions(lc, node_object.ros_exec)
     expected_ns = (
         config.expected_ns if config.expected_ns is not None else
         NodeDescription.UNSPECIFIED_NODE_NAMESPACE

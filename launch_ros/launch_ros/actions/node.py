@@ -28,7 +28,6 @@ from launch.frontend import expose_action
 from launch.frontend import Parser
 from launch.frontend.type_utils import get_data_type_from_identifier
 
-from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 
 from launch_ros.descriptions import Node as NodeDescription
@@ -130,14 +129,14 @@ class Node(ExecuteLocal):
         """
         self.__node_desc = NodeDescription(node_name=name, node_namespace=namespace,
                                            parameters=parameters, remappings=remappings)
-        ros_exec_kwargs = {'additional_env': additional_env, 'arguments': arguments}
+        ros_exec_kwargs = {'additional_env': additional_env}
         self.__ros_exec = RosExecutable(package=package, executable=executable,
-                                        nodes=[self.__node_desc])
+                                        arguments=arguments, ros_arguments=ros_arguments,
+                                        nodes=[self.__node_desc], **ros_exec_kwargs)
         super().__init__(process_description=self.__ros_exec, **kwargs)
 
     def is_node_name_fully_specified(self):
         return self.__node_desc.is_node_name_fully_specified()
-
 
     @staticmethod
     def parse_nested_parameters(params, parser):

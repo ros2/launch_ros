@@ -56,8 +56,8 @@ from launch_ros.utilities import get_node_name_count
 from launch_ros.utilities import make_namespace_absolute
 from launch_ros.utilities import normalize_parameters
 from launch_ros.utilities import normalize_remap_rules
-from launch_ros.utilities import prefix_namespace
 from launch_ros.utilities import plugin_support
+from launch_ros.utilities import prefix_namespace
 
 from rclpy.validate_namespace import validate_namespace
 from rclpy.validate_node_name import validate_node_name
@@ -89,7 +89,13 @@ class NodeActionExtension:
         super(NodeActionExtension, self).__init__()
         plugin_support.satisfies_version(self.EXTENSION_POINT_VERSION, '^0.1')
 
-    def prepare_for_execute(self, context, ros_specific_arguments, ros_executable, node_description):
+    def prepare_for_execute(
+        self,
+        context,
+        ros_specific_arguments,
+        ros_executable,
+        node_description
+    ):
         """
         Perform any actions prior to the node's process being launched.
 
@@ -271,7 +277,7 @@ class Node:
 
     def prepare(self, context: LaunchContext, executable: Executable, action: Action) -> None:
         self._perform_substitutions(context, executable)
-        
+
         # Prepare any traits which may be defined for this node
         if self.__traits is not None:
             for trait in self.__traits:
@@ -374,7 +380,7 @@ class Node:
         # Prepare the ros_specific_arguments list and add it to the context so that the
         # LocalSubstitution placeholders added to the the cmd can be expanded using the contents.
         ros_specific_arguments: Dict[str, Union[str, List[str]]] = {}
-        original_name_prefix = ""
+        original_name_prefix = ''
         if self.__expanded_original_node_name is not self.UNSPECIFIED_NODE_NAME:
             original_name_prefix = '{}:'.format(self.__expanded_original_node_name)
         if self.__node_name is not None:
@@ -386,6 +392,7 @@ class Node:
                 original_name_prefix, self.__expanded_node_namespace
             )
         # Give extensions a chance to prepare for execution
+        cmd_extension = []
         for extension in self.__extensions.values():
             cmd_extension, ros_specific_arguments = extension.prepare_for_execute(
                 context,

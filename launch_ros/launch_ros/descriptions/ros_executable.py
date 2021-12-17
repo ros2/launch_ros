@@ -43,6 +43,8 @@ class RosExecutable(Executable):
             executable: Optional[SomeSubstitutionsType] = None,
             package: Optional[SomeSubstitutionsType] = None,
             nodes: Iterable[Node] = None,
+            ros_arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
+            arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
             **kwargs
     ) -> None:
         """
@@ -58,10 +60,13 @@ class RosExecutable(Executable):
         else:
             cmd = [executable]
 
+        if ros_arguments is not None:
+            arguments += ['--ros-args'] + ros_arguments
+
         self.__package = package
         self.__executable = executable
         self.__nodes = nodes
-        super().__init__(cmd=cmd, **kwargs)
+        super().__init__(cmd=cmd, arguments=arguments, **kwargs)
 
     @property
     def package(self):

@@ -328,7 +328,7 @@ class Node:
             self.__expanded_node_namespace, self.__expanded_node_name)
         # expand global parameters first,
         # so they can be overriden with specific parameters of this Node
-        global_params = context.launch_configurations.get('ros_params', None)
+        global_params = context.launch_configurations.get('global_params', None)
         if global_params is not None or self.__parameters is not None:
             self.__expanded_parameter_arguments = []
         if global_params is not None:

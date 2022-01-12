@@ -326,17 +326,27 @@ class Node:
             raise
         self.__final_node_name = prefix_namespace(
             self.__expanded_node_namespace, self.__expanded_node_name)
-        # expand global parameters first,
-        # so they can be overriden with specific parameters of this Node
-        global_params = context.launch_configurations.get('global_params', None)
-        if global_params is not None or self.__parameters is not None:
+
+        # Expand global parameters first,
+        # so they can be overridden with specific parameters of this Node
+        # The params_container list is expected to contain name-value pairs (tuples)
+        # and/or strings representing paths to parameter files.
+        params_container = context.launch_configurations.get('global_params', None)
+
+        if any(x is not None for x in (params_container, self.__parameters)):
             self.__expanded_parameter_arguments = []
-        if global_params is not None:
-            param_file_path = self._create_params_file_from_dict(global_params)
-            self.__expanded_parameter_arguments.append((param_file_path, True))
-            cmd_ext = ['--params-file', f'{param_file_path}']
-            cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
-            assert os.path.isfile(param_file_path)
+        if params_container is not None:
+            for param in params_container:
+                if isinstance(param, tuple):
+                    name, value = param
+                    cmd_extension = ['-p', f'{name}:={value}']
+                    cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
+                else:
+                    param_file_path = os.path.abspath(param)
+                    self.__expanded_parameter_arguments.append((param_file_path, True))
+                    cmd_extension = ['--params-file', f'{param_file_path}']
+                    assert os.path.isfile(param_file_path)
+                    cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
         # expand parameters too
         if self.__parameters is not None:
             evaluated_parameters = evaluate_parameters(context, self.__parameters)
@@ -407,7 +417,7 @@ class Node:
             add_node_name(context, self.node_name)
             node_name_count = get_node_name_count(context, self.node_name)
             if node_name_count > 1:
-                execute_process_logger = launch.logging.get_logger(self.name)
+                execute_process_logger = launch.logging.get_logger(self.node_name)
                 execute_process_logger.warning(
                     'there are now at least {} nodes with the name {} created within this '
                     'launch context'.format(node_name_count, self.node_name)

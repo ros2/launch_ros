@@ -212,10 +212,10 @@ class Node(ExecuteLocal):
         _, kwargs = ExecuteProcess.parse(entity, parser, ignore=['cmd'])
         args = entity.get_attr('args', optional=True)
         if args is not None:
-            kwargs['arguments'] = super()._parse_cmdline(args, parser)
+            kwargs['arguments'] = ExecuteProcess._parse_cmdline(args, parser)
         ros_args = entity.get_attr('ros_args', optional=True)
         if ros_args is not None:
-            kwargs['ros_arguments'] = super()._parse_cmdline(ros_args, parser)
+            kwargs['ros_arguments'] = ExecuteProcess._parse_cmdline(ros_args, parser)
         node_name = entity.get_attr('node-name', optional=True)
         if node_name is not None:
             kwargs['node_name'] = parser.parse_substitution(node_name)

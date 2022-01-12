@@ -114,11 +114,11 @@ def check_launch_component_container(file):
         return perform_substitutions(ls.context, substitution)
 
     # Check container params
-    assert perform(node_container._Node__package) == 'rclcpp_components'
-    assert perform(node_container._Node__node_executable) == 'component_container'
-    assert perform(node_container._Node__node_name) == 'my_container'
-    assert perform(node_container._Node__node_namespace) == ''
-    assert perform(node_container._Node__arguments[0]) == 'test_args'
+    assert perform(node_container.node_package) == 'rclcpp_components'
+    assert perform(node_container.node_executable) == 'component_container'
+    assert perform(node_container._Node__node_desc._Node__node_name) == 'my_container'
+    assert perform(node_container._Node__node_desc._Node__node_namespace) == ''
+    assert perform(node_container._Node__ros_exec._Executable__arguments[0]) == 'test_args'
 
     assert perform(load_composable_node._LoadComposableNodes__target_container) == 'my_container'
 

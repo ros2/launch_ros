@@ -195,11 +195,11 @@ class TestNode(unittest.TestCase):
             name, value = item.split(':=')
             parameters.append((name, yaml.safe_load(value)))
         assert parameters == [
-            ('my_node:param1', 'param1_value'),
-            ('my_node:param2', ['param2', '_value']),
-            ('my_node:param_group1.list_params', [1.2, 3.4]),
-            ('my_node:param_group1.param_group2.param2_values', ['param2_value']),
-            ('my_node:param3', ''),
+            ('param1', 'param1_value'),
+            ('param2', ['param2', '_value']),
+            ('param_group1.list_params', [1.2, 3.4]),
+            ('param_group1.param_group2.param2_values', ['param2_value']),
+            ('param3', ''),
         ]
 
     def test_launch_node_with_parameter_dict(self):

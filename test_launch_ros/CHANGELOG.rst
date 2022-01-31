@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.6 (2022-01-31)
+-------------------
+* More Helpful Error Messages (`#275 <https://github.com/ros2/launch_ros/issues/275>`_) (`#289 <https://github.com/ros2/launch_ros/issues/289>`_)
+* Contributors: David V. Lu!!
+
 0.11.5 (2021-11-16)
 -------------------
 * Address security bug in yaml loading (`#175 <https://github.com/ros2/launch_ros/issues/175>`_)

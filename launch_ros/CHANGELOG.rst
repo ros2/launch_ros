@@ -2,6 +2,12 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.6 (2022-01-31)
+-------------------
+* Validate complex attributes of 'node' action (backport `#198 <https://github.com/ros2/launch_ros/issues/198>`_) (`#293 <https://github.com/ros2/launch_ros/issues/293>`_)
+* More Helpful Error Messages (`#275 <https://github.com/ros2/launch_ros/issues/275>`_) (`#289 <https://github.com/ros2/launch_ros/issues/289>`_)
+* Contributors: Aditya Pande, David V. Lu!!, Ivan Santiago Paunovic
+
 0.11.5 (2021-11-16)
 -------------------
 * Fix problems when parsing a ``Command`` ``Substitution`` as a parameter value (`#137 <https://github.com/ros2/launch_ros/issues/137>`_)

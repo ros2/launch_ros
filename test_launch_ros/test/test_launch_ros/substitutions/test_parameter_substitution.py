@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2022 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,19 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""substitutions Module."""
+"""Test for the Parameter substitutions."""
 
-from .executable_in_package import ExecutableInPackage
-from .find_package import FindPackage
-from .find_package import FindPackagePrefix
-from .find_package import FindPackageShare
-from .parameter import Parameter
+from launch import LaunchContext
+
+from launch_ros.actions import SetParameter
+from launch_ros.substitutions import Parameter
 
 
-__all__ = [
-    'ExecutableInPackage',
-    'FindPackage',
-    'FindPackagePrefix',
-    'FindPackageShare',
-    'Parameter',
-]
+def test_parameter_substitution():
+    context = LaunchContext()
+    SetParameter('name', 'value').execute(context)
+    assert Parameter('name').perform(context) == 'value'

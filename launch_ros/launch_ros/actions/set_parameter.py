@@ -76,12 +76,12 @@ class SetParameter(Action):
     @property
     def name(self) -> ParameterName:
         """Getter for name."""
-        return self.__param_dict.keys()[0]
+        return list(self.__param_dict.keys())[0]
 
     @property
     def value(self) -> ParameterValue:
         """Getter for value."""
-        return self.__param_dict.values()[0]
+        return list(self.__param_dict.values())[0]
 
     def execute(self, context: LaunchContext):
         """Execute the action."""

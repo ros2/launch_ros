@@ -16,11 +16,17 @@
 
 from launch import LaunchContext
 
+from launch.substitutions.substitution_failure import SubstitutionFailure
+
 from launch_ros.actions import SetParameter
 from launch_ros.substitutions import Parameter
+
+import pytest
 
 
 def test_parameter_substitution():
     context = LaunchContext()
     SetParameter('name', 'value').execute(context)
     assert Parameter('name').perform(context) == 'value'
+    with pytest.raises(SubstitutionFailure):
+        Parameter('name-invalid').perform(context)

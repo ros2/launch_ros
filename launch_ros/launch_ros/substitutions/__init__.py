@@ -18,6 +18,7 @@ from .executable_in_package import ExecutableInPackage
 from .find_package import FindPackage
 from .find_package import FindPackagePrefix
 from .find_package import FindPackageShare
+from .parameter import Parameter
 
 
 __all__ = [
@@ -25,4 +26,5 @@ __all__ = [
     'FindPackage',
     'FindPackagePrefix',
     'FindPackageShare',
+    'Parameter',
 ]

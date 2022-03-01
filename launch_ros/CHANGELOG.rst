@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add parameter substitution (`#297 <https://github.com/ros2/launch_ros/issues/297>`_)
+* Contributors: Kenji Miyake
+
 0.17.0 (2021-12-14)
 -------------------
 

@@ -70,6 +70,10 @@ def evaluate_parameter_dict(
                 # Value is a list of substitutions, so perform them to make a string
                 evaluated_value = perform_substitutions(context, list(value))
 
+                # Handle special case where yaml.safe_load will return None given an empty string
+                if len(evaluated_value) == 0:
+                    evaluated_value = "''"
+
                 try:
                     yaml_evaluated_value = yaml.safe_load(evaluated_value)
                 except yaml.YAMLError:

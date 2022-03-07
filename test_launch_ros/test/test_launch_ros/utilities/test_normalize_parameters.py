@@ -396,3 +396,11 @@ def test_unallowed_yaml_types_as_strings():
     evaluate_parameters(LaunchContext(), norm)
     expected = ({'foo': 1, 'fiz': 'Text That : Cannot Be Parsed As : Yaml'},)
     assert evaluate_parameters(LaunchContext(), norm) == expected
+
+
+def test_empty_string_evalutates_to_empty_string():
+    # Regression test for https://github.com/ros2/launch_ros/pull/289#discussion_r818070166
+    orig = [{'foo': TextSubstitution(text='')}]
+    norm = normalize_parameters(orig)
+    expected = ({'foo': ''},)
+    assert evaluate_parameters(LaunchContext(), norm) == expected

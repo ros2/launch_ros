@@ -14,6 +14,8 @@
 
 """Module for the Node action."""
 
+import inspect
+
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -23,6 +25,7 @@ from typing import Tuple  # noqa: F401
 
 from launch.actions import ExecuteLocal
 from launch.actions import ExecuteProcess
+from launch.descriptions import Executable
 from launch.frontend import Entity
 from launch.frontend import expose_action
 from launch.frontend import Parser
@@ -123,13 +126,11 @@ class Node(ExecuteLocal):
             passed to the node as ROS remapping rules
         :param: ros_arguments list of ROS arguments for the node
         :param: arguments list of extra arguments for the node
-        :param additional_env: Dictionary of environment variables to be added. If env was
-            None, they are added to the current environment. If not, env is updated with
-            additional_env.
         """
         self.__node_desc = NodeDescription(node_name=name, node_namespace=namespace,
                                            parameters=parameters, remappings=remappings)
-        ros_exec_kwargs = {'additional_env': additional_env}
+        executable_keywords = inspect.signature(Executable).parameters.keys()
+        ros_exec_kwargs = {key: val for key, val in kwargs.items() if key in executable_keywords}
         self.__ros_exec = RosExecutable(package=package, executable=executable,
                                         arguments=arguments, ros_arguments=ros_arguments,
                                         nodes=[self.__node_desc], **ros_exec_kwargs)

@@ -123,7 +123,7 @@ class LifecycleNode(Node):
             self.__logger.error(
                 "Failed to make transition '{}' for LifecycleNode '{}'".format(
                     ChangeState.valid_transitions[request.transition.id],
-                    self.node_name,
+                    self.name,
                 )
             )
 
@@ -142,20 +142,20 @@ class LifecycleNode(Node):
 
         Delegated to :meth:`launch.actions.ExecuteProcess.execute`.
         """
-        self.prepare(context)  # ensure self.node_name is expanded
-        if '<node_name_unspecified>' in self.node_name:
-            raise RuntimeError('node_name unexpectedly incomplete for lifecycle node')
+        self.prepare(context)  # ensure self.name is expanded
+        if '<node_name_unspecified>' in self.name:
+            raise RuntimeError('name unexpectedly incomplete for lifecycle node')
         node = get_ros_node(context)
         # Create a subscription to monitor the state changes of the subprocess.
         self.__rclpy_subscription = node.create_subscription(
             lifecycle_msgs.msg.TransitionEvent,
-            '{}/transition_event'.format(self.node_name),
+            '{}/transition_event'.format(self.name),
             functools.partial(self._on_transition_event, context),
             10)
         # Create a service client to change state on demand.
         self.__rclpy_change_state_client = node.create_client(
             lifecycle_msgs.srv.ChangeState,
-            '{}/change_state'.format(self.node_name))
+            '{}/change_state'.format(self.name))
         # Register an event handler to change states on a ChangeState lifecycle event.
         context.register_event_handler(launch.EventHandler(
             matcher=lambda event: isinstance(event, ChangeState),

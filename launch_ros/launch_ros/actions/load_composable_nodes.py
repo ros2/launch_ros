@@ -210,7 +210,7 @@ class LoadComposableNodes(Action):
         # resolve target container node name
 
         if is_a_subclass(self.__target_container, ComposableNodeContainer):
-            self.__final_target_container_name = self.__target_container.node_name
+            self.__final_target_container_name = self.__target_container.name
         elif isinstance(self.__target_container, SomeSubstitutionsType_types_tuple):
             subs = normalize_to_list_of_substitutions(self.__target_container)
             self.__final_target_container_name = perform_substitutions(
@@ -261,11 +261,11 @@ def get_composable_node_load_request(
     request.plugin_name = perform_substitutions(
         context, composable_node_description.node_plugin
     )
-    if composable_node_description.node_name is not None:
+    if composable_node_description.name is not None:
         request.node_name = perform_substitutions(
-            context, composable_node_description.node_name
+            context, composable_node_description.name
         )
-    expanded_ns = composable_node_description.node_namespace
+    expanded_ns = composable_node_description.namespace
     if expanded_ns is not None:
         expanded_ns = perform_substitutions(context, expanded_ns)
     base_ns = context.launch_configurations.get('ros_namespace', None)

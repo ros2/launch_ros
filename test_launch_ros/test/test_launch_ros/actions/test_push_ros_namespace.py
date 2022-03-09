@@ -137,8 +137,8 @@ def test_push_ros_namespace(config):
         config.node_name if config.node_name is not None else NodeDescription.UNSPECIFIED_NODE_NAME
     )
     expected_fqn = expected_ns.rstrip('/') + '/' + expected_name
-    assert expected_ns == node.expanded_node_namespace
-    assert expected_fqn == node.node_name
+    assert expected_ns == node.expanded_namespace
+    assert expected_fqn == node.name
 
 
 @pytest.mark.parametrize('config', get_test_cases())

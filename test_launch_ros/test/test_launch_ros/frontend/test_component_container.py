@@ -114,10 +114,10 @@ def check_launch_component_container(file):
         return perform_substitutions(ls.context, substitution)
 
     # Check container params
-    assert perform(node_container.node_package) == 'rclcpp_components'
-    assert perform(node_container.node_executable) == 'component_container'
-    assert perform(node_container._Node__node_desc._Node__node_name) == 'my_container'
-    assert perform(node_container._Node__node_desc._Node__node_namespace) == ''
+    assert perform(node_container.package) == 'rclcpp_components'
+    assert perform(node_container.executable) == 'component_container'
+    assert perform(node_container._Node__node_desc._Node__name) == 'my_container'
+    assert perform(node_container._Node__node_desc._Node__namespace) == ''
     assert perform(node_container._Node__ros_exec._Executable__arguments[0]) == 'test_args'
 
     assert perform(load_composable_node._LoadComposableNodes__target_container) == 'my_container'
@@ -135,16 +135,16 @@ def check_launch_component_container(file):
 
     assert perform(talker._ComposableNode__package) == 'composition'
     assert perform(talker._ComposableNode__node_plugin) == 'composition::Talker'
-    assert perform(talker._ComposableNode__node_name) == 'talker'
-    assert perform(talker._ComposableNode__node_namespace) == 'test_namespace'
+    assert perform(talker._ComposableNode__name) == 'talker'
+    assert perform(talker._ComposableNode__namespace) == 'test_namespace'
     assert (perform(talker_remappings[0][0]),
             perform(talker_remappings[0][1])) == ('chatter', '/remap/chatter')
     assert talker_params[0]['use_sim_time'] is True
 
     assert perform(listener._ComposableNode__package) == 'composition'
     assert perform(listener._ComposableNode__node_plugin) == 'composition::Listener'
-    assert perform(listener._ComposableNode__node_name) == 'listener'
-    assert perform(listener._ComposableNode__node_namespace) == 'test_namespace'
+    assert perform(listener._ComposableNode__name) == 'listener'
+    assert perform(listener._ComposableNode__namespace) == 'test_namespace'
     assert (perform(listener_remappings[0][0]),
             perform(listener_remappings[0][1])) == ('chatter', '/remap/chatter')
     assert listener_params[0]['use_sim_time'] is True

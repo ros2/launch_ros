@@ -127,7 +127,7 @@ class Node(ExecuteLocal):
         :param: ros_arguments list of ROS arguments for the node
         :param: arguments list of extra arguments for the node
         """
-        self.__node_desc = NodeDescription(node_name=name, node_namespace=namespace,
+        self.__node_desc = NodeDescription(name=name, namespace=namespace,
                                            parameters=parameters, remappings=remappings)
         executable_keywords = inspect.signature(Executable).parameters.keys()
         ros_exec_kwargs = {key: val for key, val in kwargs.items() if key in executable_keywords}
@@ -136,8 +136,8 @@ class Node(ExecuteLocal):
                                         nodes=[self.__node_desc], **ros_exec_kwargs)
         super().__init__(process_description=self.__ros_exec, **kwargs)
 
-    def is_node_name_fully_specified(self):
-        return self.__node_desc.is_node_name_fully_specified()
+    def is_name_fully_specified(self):
+        return self.__node_desc.is_name_fully_specified()
 
     @staticmethod
     def parse_nested_parameters(params, parser):
@@ -217,12 +217,12 @@ class Node(ExecuteLocal):
         ros_args = entity.get_attr('ros_args', optional=True)
         if ros_args is not None:
             kwargs['ros_arguments'] = ExecuteProcess._parse_cmdline(ros_args, parser)
-        node_name = entity.get_attr('node-name', optional=True)
-        if node_name is not None:
-            kwargs['node_name'] = parser.parse_substitution(node_name)
-        node_name = entity.get_attr('name', optional=True)
-        if node_name is not None:
-            kwargs['name'] = parser.parse_substitution(node_name)
+        name = entity.get_attr('node-name', optional=True)
+        if name is not None:
+            kwargs['name'] = parser.parse_substitution(name)
+        name = entity.get_attr('name', optional=True)
+        if name is not None:
+            kwargs['name'] = parser.parse_substitution(name)
         exec_name = entity.get_attr('exec_name', optional=True)
         if exec_name is not None:
             kwargs['exec_name'] = parser.parse_substitution(exec_name)
@@ -250,19 +250,19 @@ class Node(ExecuteLocal):
         return cls, kwargs
 
     @property
-    def node_package(self):
-        """Getter for node_package."""
+    def package(self):
+        """Getter for package."""
         return self.__ros_exec.package
 
     @property
-    def node_executable(self):
-        """Getter for node_executable."""
+    def executable(self):
+        """Getter for executable."""
         return self.__ros_exec.executable
 
     @property
-    def node_name(self):
-        """Getter for node_name."""
-        return self.__node_desc.node_name
+    def name(self):
+        """Getter for name."""
+        return self.__node_desc.name
 
     @property
     def ros_exec(self):
@@ -270,9 +270,9 @@ class Node(ExecuteLocal):
         return self.__ros_exec
 
     @property
-    def expanded_node_namespace(self):
-        """Getter for expanded_node_namespace."""
-        return self.__node_desc.expanded_node_namespace
+    def expanded_namespace(self):
+        """Getter for expanded_namespace."""
+        return self.__node_desc.expanded_namespace
 
     @property
     def expanded_remapping_rules(self):

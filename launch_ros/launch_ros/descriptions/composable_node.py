@@ -62,13 +62,13 @@ class ComposableNode:
         self.__package = normalize_to_list_of_substitutions(package)
         self.__node_plugin = normalize_to_list_of_substitutions(plugin)
 
-        self.__node_name = None  # type: Optional[List[Substitution]]
+        self.__name = None  # type: Optional[List[Substitution]]
         if name is not None:
-            self.__node_name = normalize_to_list_of_substitutions(name)
+            self.__name = normalize_to_list_of_substitutions(name)
 
-        self.__node_namespace = None  # type: Optional[List[Substitution]]
+        self.__namespace = None  # type: Optional[List[Substitution]]
         if namespace is not None:
-            self.__node_namespace = normalize_to_list_of_substitutions(namespace)
+            self.__namespace = normalize_to_list_of_substitutions(namespace)
 
         self.__parameters = None  # type: Optional[Parameters]
         if parameters is not None:
@@ -154,14 +154,14 @@ class ComposableNode:
         return self.__node_plugin
 
     @property
-    def node_name(self) -> Optional[List[Substitution]]:
+    def name(self) -> Optional[List[Substitution]]:
         """Get node name as a sequence of substitutions to be performed."""
-        return self.__node_name
+        return self.__name
 
     @property
-    def node_namespace(self) -> Optional[List[Substitution]]:
+    def namespace(self) -> Optional[List[Substitution]]:
         """Get node namespace as a sequence of substitutions to be performed."""
-        return self.__node_namespace
+        return self.__namespace
 
     @property
     def parameters(self) -> Optional[Parameters]:

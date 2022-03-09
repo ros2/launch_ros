@@ -121,9 +121,9 @@ class Node:
 
     def __init__(
         self, *,
-        node_name: Optional[SomeSubstitutionsType] = None,
-        node_namespace: Optional[SomeSubstitutionsType] = None,
-        original_node_name: Optional[SomeSubstitutionsType] = None,
+        name: Optional[SomeSubstitutionsType] = None,
+        namespace: Optional[SomeSubstitutionsType] = None,
+        original_name: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
         traits: Optional[Iterable[NodeTrait]] = None,
@@ -161,9 +161,9 @@ class Node:
         passed in in order to the node (where the last definition of a
         parameter takes effect).
 
-        :param: node_name the name of the node
-        :param: node_namespace the ROS namespace for this Node
-        :param: original_node_name the name of the node before remapping; if not specified,
+        :param: name the name of the node
+        :param: namespace the ROS namespace for this Node
+        :param: original_name the name of the node before remapping; if not specified,
             remappings/parameters (including node name/namespace changes) may be applied
             to all nodes which share a command line executable with this one
         :param: parameters list of names of yaml files with parameter rules,
@@ -178,18 +178,18 @@ class Node:
             # evaluate to paths), or dictionaries of parameters (fields can be substitutions).
             normalized_params = normalize_parameters(parameters)
 
-        self.__node_name = node_name
-        self.__node_namespace = node_namespace
-        self.__original_node_name = original_node_name
+        self.__name = name
+        self.__namespace = namespace
+        self.__original_name = original_name
         self.__parameters = [] if parameters is None else normalized_params
         self.__remappings = [] if remappings is None else list(normalize_remap_rules(remappings))
         self.__traits = traits
 
-        self.__expanded_node_name = self.UNSPECIFIED_NODE_NAME
-        self.__expanded_node_namespace = self.UNSPECIFIED_NODE_NAMESPACE
-        self.__expanded_original_node_name = self.UNSPECIFIED_NODE_NAME
+        self.__expanded_name = self.UNSPECIFIED_NODE_NAME
+        self.__expanded_namespace = self.UNSPECIFIED_NODE_NAMESPACE
+        self.__expanded_original_name = self.UNSPECIFIED_NODE_NAME
         self.__expanded_parameter_arguments = None  # type: Optional[List[Tuple[Text, bool]]]
-        self.__final_node_name = None  # type: Optional[Text]
+        self.__final_name = None  # type: Optional[Text]
         self.__expanded_remappings = None  # type: Optional[List[Tuple[Text, Text]]]
 
         self.__substitutions_performed = False
@@ -198,21 +198,21 @@ class Node:
         self.__extensions = get_extensions(self.__logger)
 
     @property
-    def node_name(self):
-        """Getter for node_name."""
-        if self.__final_node_name is None:
-            raise RuntimeError("cannot access 'node_name' before executing action")
-        return self.__final_node_name
+    def name(self):
+        """Getter for name."""
+        if self.__final_name is None:
+            raise RuntimeError("cannot access 'name' before executing action")
+        return self.__final_name
 
     @property
-    def node_namespace(self):
-        """Getter for node_namespace."""
-        return self.__node_namespace
+    def namespace(self):
+        """Getter for namespace."""
+        return self.__namespace
 
     @property
-    def original_node_name(self):
-        """Getter for original_node_name."""
-        return self.__original_node_name
+    def original_name(self):
+        """Getter for original_name."""
+        return self.__original_name
 
     @property
     def parameters(self):
@@ -230,14 +230,14 @@ class Node:
         return self.__traits
 
     @property
-    def expanded_node_name(self):
-        """Getter for expanded_node_name."""
-        return self.__expanded_node_name
+    def expanded_name(self):
+        """Getter for expanded_name."""
+        return self.__expanded_name
 
     @property
-    def expanded_node_namespace(self):
-        """Getter for expanded_node_namespace."""
-        return self.__expanded_node_namespace
+    def expanded_namespace(self):
+        """Getter for expanded_namespace."""
+        return self.__expanded_namespace
 
     @property
     def expanded_parameter_arguments(self):
@@ -249,15 +249,15 @@ class Node:
         """Getter for expanded_remappings."""
         return self.__expanded_remappings
 
-    def is_node_name_fully_specified(self):
+    def is_name_fully_specified(self):
         keywords = (self.UNSPECIFIED_NODE_NAME, self.UNSPECIFIED_NODE_NAMESPACE)
-        return all(x not in self.node_name for x in keywords)
+        return all(x not in self.name for x in keywords)
 
     def _create_params_file_from_dict(self, params):
         with NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False) as h:
             param_file_path = h.name
             param_dict = {
-                self.node_name if self.is_node_name_fully_specified() else '/**':
+                self.name if self.is_name_fully_specified() else '/**':
                 {'ros__parameters': params}
             }
             yaml.dump(param_dict, h, default_flow_style=False)
@@ -284,40 +284,40 @@ class Node:
             self.__substitutions_performed = True
             cmd_ext = ['--ros-args']  # Prepend ros specific arguments with --ros-args flag
             cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
-            if self.__node_name is not None:
-                self.__expanded_node_name = perform_substitutions(
-                    context, normalize_to_list_of_substitutions(self.__node_name))
+            if self.__name is not None:
+                self.__expanded_name = perform_substitutions(
+                    context, normalize_to_list_of_substitutions(self.__name))
                 cmd_ext = ['-r', LocalSubstitution("ros_specific_arguments['name']")]
                 cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
-                validate_node_name(self.__expanded_node_name)
-            self.__expanded_node_name.lstrip('/')
-            expanded_node_namespace: Optional[Text] = None
-            if self.__node_namespace is not None:
-                expanded_node_namespace = perform_substitutions(
-                    context, normalize_to_list_of_substitutions(self.__node_namespace))
+                validate_node_name(self.__expanded_name)
+            self.__expanded_name.lstrip('/')
+            expanded_namespace: Optional[Text] = None
+            if self.__namespace is not None:
+                expanded_namespace = perform_substitutions(
+                    context, normalize_to_list_of_substitutions(self.__namespace))
             base_ns = context.launch_configurations.get('ros_namespace', None)
-            expanded_node_namespace = make_namespace_absolute(
-                prefix_namespace(base_ns, expanded_node_namespace))
-            if expanded_node_namespace is not None:
-                self.__expanded_node_namespace = expanded_node_namespace
+            expanded_namespace = make_namespace_absolute(
+                prefix_namespace(base_ns, expanded_namespace))
+            if expanded_namespace is not None:
+                self.__expanded_namespace = expanded_namespace
                 cmd_ext = ['-r', LocalSubstitution("ros_specific_arguments['ns']")]
                 cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_ext])
-                validate_namespace(self.__expanded_node_namespace)
-            if self.__original_node_name is not None:
-                self.__expanded_original_node_name = perform_substitutions(
-                    context, normalize_to_list_of_substitutions(self.__original_node_name))
-            self.__expanded_node_name.lstrip('/')
+                validate_namespace(self.__expanded_namespace)
+            if self.__original_name is not None:
+                self.__expanded_original_name = perform_substitutions(
+                    context, normalize_to_list_of_substitutions(self.__original_name))
+            self.__expanded_name.lstrip('/')
         except Exception:
             self.__logger.error(
                 "Error while expanding or validating node name or namespace for '{}':"
                 .format('name={}, namespace={}'.format(
-                    self.__node_name,
-                    self.__node_namespace,
+                    self.__name,
+                    self.__namespace,
                 ))
             )
             raise
-        self.__final_node_name = prefix_namespace(
-            self.__expanded_node_namespace, self.__expanded_node_name)
+        self.__final_name = prefix_namespace(
+            self.__expanded_namespace, self.__expanded_name)
 
         # Expand global parameters first,
         # so they can be overridden with specific parameters of this Node
@@ -383,15 +383,15 @@ class Node:
         # LocalSubstitution placeholders added to the the cmd can be expanded using the contents.
         ros_specific_arguments: Dict[str, Union[str, List[str]]] = {}
         original_name_prefix = ''
-        if self.__expanded_original_node_name is not self.UNSPECIFIED_NODE_NAME:
-            original_name_prefix = '{}:'.format(self.__expanded_original_node_name)
-        if self.__node_name is not None:
+        if self.__expanded_original_name is not self.UNSPECIFIED_NODE_NAME:
+            original_name_prefix = '{}:'.format(self.__expanded_original_name)
+        if self.__name is not None:
             ros_specific_arguments['name'] = '{}__node:={}'.format(
-                original_name_prefix, self.__expanded_node_name
+                original_name_prefix, self.__expanded_name
             )
-        if self.__expanded_node_namespace != '':
+        if self.__expanded_namespace != '':
             ros_specific_arguments['ns'] = '{}__ns:={}'.format(
-                original_name_prefix, self.__expanded_node_namespace
+                original_name_prefix, self.__expanded_namespace
             )
         # Give extensions a chance to prepare for execution
         cmd_extension = []
@@ -405,14 +405,14 @@ class Node:
         cmd.extend(cmd_extension)
         context.extend_locals({'ros_specific_arguments': ros_specific_arguments})
 
-        if self.is_node_name_fully_specified():
-            add_node_name(context, self.node_name)
-            node_name_count = get_node_name_count(context, self.node_name)
+        if self.is_name_fully_specified():
+            add_node_name(context, self.name)
+            node_name_count = get_node_name_count(context, self.name)
             if node_name_count > 1:
-                execute_process_logger = launch.logging.get_logger(self.node_name)
+                execute_process_logger = launch.logging.get_logger(self.name)
                 execute_process_logger.warning(
                     'there are now at least {} nodes with the name {} created within this '
-                    'launch context'.format(node_name_count, self.node_name)
+                    'launch context'.format(node_name_count, self.name)
                 )
 
 

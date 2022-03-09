@@ -186,8 +186,9 @@ class TestNode(unittest.TestCase):
         )
         self._assert_launch_no_errors([node_action])
 
+        expanded_parameter_arguments = []
         for node in node_action.ros_exec.nodes:
-            expanded_parameter_arguments = node.expanded_parameter_arguments
+            expanded_parameter_arguments.extend(node.expanded_parameter_arguments)
         assert len(expanded_parameter_arguments) == 5
         parameters = []
         for item, is_file in expanded_parameter_arguments:
@@ -224,8 +225,9 @@ class TestNode(unittest.TestCase):
         self._assert_launch_no_errors([node_action])
 
         # Check the expanded parameters (will be written to a file).
+        expanded_parameter_arguments = []
         for node in node_action.ros_exec.nodes:
-            expanded_parameter_arguments = node.expanded_parameter_arguments
+            expanded_parameter_arguments.extend(node.expanded_parameter_arguments)
         assert len(expanded_parameter_arguments) == 1
         file_path, is_file = expanded_parameter_arguments[0]
         assert is_file

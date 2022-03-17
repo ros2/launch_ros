@@ -71,7 +71,10 @@ class MockComponentContainer(rclpy.node.Node):
     def load_node_callback(self, request, response):
         self.requests.append(request)
         response.success = True
-        response.full_node_name = f'{request.node_namespace}/{request.node_name}'
+        if request.node_namespace == '/':
+            response.full_node_name = f'/{request.node_name}'
+        else:
+            response.full_node_name = f'{request.node_namespace}/{request.node_name}'
         response.unique_id = len(self.requests)
         return response
 
@@ -231,7 +234,7 @@ def test_load_node_with_param_file(mock_component_container):
             ],
         )
     ])
-    request = mock_component_container.requests[0]
+    request = mock_component_container.requests[-1]
     assert get_node_name_count(context, '/test_node_namespace/test_node_name') == 1
     assert request.node_name == 'test_node_name'
     assert request.node_namespace == '/test_node_namespace'
@@ -253,7 +256,7 @@ def test_load_node_with_param_file(mock_component_container):
             ],
         )
     ])
-    request = mock_component_container.requests[1]
+    request = mock_component_container.requests[-1]
     assert get_node_name_count(context, '/ns/test_node_name') == 1
     assert request.node_name == 'test_node_name'
     assert request.node_namespace == '/ns'
@@ -273,7 +276,7 @@ def test_load_node_with_param_file(mock_component_container):
             ],
         )
     ])
-    request = mock_component_container.requests[2]
+    request = mock_component_container.requests[-1]
     assert get_node_name_count(context, '/my_ns/my_node') == 1
     assert request.node_name == 'my_node'
     assert request.node_namespace == '/my_ns'
@@ -296,8 +299,8 @@ def test_load_node_with_param_file(mock_component_container):
             ],
         )
     ])
-    request = mock_component_container.requests[3]
-    assert get_node_name_count(context, '//test_node_name') == 1
+    request = mock_component_container.requests[-1]
+    assert get_node_name_count(context, '/test_node_name') == 1
     assert request.node_name == 'test_node_name'
     assert request.node_namespace == '/'
     assert len(request.parameters) == 1
@@ -316,7 +319,7 @@ def test_load_node_with_param_file(mock_component_container):
             ],
         )
     ])
-    request = mock_component_container.requests[4]
+    request = mock_component_container.requests[-1]
     assert get_node_name_count(context, '/wildcard_ns/my_node') == 1
     assert request.node_name == 'my_node'
     assert request.node_namespace == '/wildcard_ns'
@@ -345,7 +348,7 @@ def test_load_node_with_param_file(mock_component_container):
             ],
         )
     ])
-    request = mock_component_container.requests[5]
+    request = mock_component_container.requests[-2]
     assert get_node_name_count(context, '/ns_1/node_1') == 1
     assert request.node_name == 'node_1'
     assert request.node_namespace == '/ns_1'
@@ -357,7 +360,7 @@ def test_load_node_with_param_file(mock_component_container):
     assert request.parameters[2].name == 'param_1'
     assert request.parameters[2].value.integer_value == 1
 
-    request = mock_component_container.requests[6]
+    request = mock_component_container.requests[-1]
     assert get_node_name_count(context, '/ns_2/node_2') == 1
     assert request.node_name == 'node_2'
     assert request.node_namespace == '/ns_2'
@@ -379,11 +382,69 @@ def test_load_node_with_param_file(mock_component_container):
             ],
         )
     ])
-    request = mock_component_container.requests[7]
+    request = mock_component_container.requests[-1]
     assert get_node_name_count(context, '/ns/wrong_node_name') == 1
     assert request.node_name == 'wrong_node_name'
     assert request.node_namespace == '/ns'
     assert len(request.parameters) == 0
+
+    # Namespace not found
+    context = _assert_launch_no_errors([
+        _load_composable_node(
+            package='foo_package',
+            plugin='bar_plugin',
+            name='test_node_name',
+            namespace='foo',
+            parameters=[
+                parameters_file_dir / 'example_parameters_namespace.yaml'
+            ],
+        )
+    ])
+    request = mock_component_container.requests[-1]
+    assert get_node_name_count(context, '/foo/test_node_name') == 1
+    assert request.node_name == 'test_node_name'
+    assert request.node_namespace == '/foo'
+    assert len(request.parameters) == 0
+
+    # Node name with namespace from launch
+    # Params file has no namespace
+    context = _assert_launch_no_errors([
+        PushRosNamespace('ns'),
+        _load_composable_node(
+            package='foo_package',
+            plugin='bar_plugin',
+            name='test_node_name',
+            parameters=[
+                parameters_file_dir / 'example_parameters_no_namespace.yaml'
+            ],
+        )
+    ])
+    request = mock_component_container.requests[-1]
+    assert get_node_name_count(context, '/ns/test_node_name') == 1
+    assert request.node_name == 'test_node_name'
+    assert request.node_namespace == '/ns'
+    assert len(request.parameters) == 0
+
+    # Node name with namespace from launch
+    # Params file has expected namespace
+    context = _assert_launch_no_errors([
+        PushRosNamespace('ns'),
+        _load_composable_node(
+            package='foo_package',
+            plugin='bar_plugin',
+            name='test_node_name',
+            parameters=[
+                parameters_file_dir / 'example_parameters_namespace.yaml'
+            ],
+        )
+    ])
+    request = mock_component_container.requests[-1]
+    assert get_node_name_count(context, '/ns/test_node_name') == 1
+    assert request.node_name == 'test_node_name'
+    assert request.node_namespace == '/ns'
+    assert len(request.parameters) == 1
+    assert request.parameters[0].name == 'param'
+    assert request.parameters[0].value.integer_value == 1
 
 
 def test_load_node_with_global_remaps_in_group(mock_component_container):

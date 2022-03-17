@@ -75,7 +75,7 @@ def to_parameters_list(
     """
     parameters = []  # type: List[rclpy.parameter.Parameter]
     node_name = node_name.lstrip('/')
-    if namespace:
+    if namespace and namespace != '/':
         namespace = namespace.strip('/')
         node_name = f'{namespace}/{node_name}'
 

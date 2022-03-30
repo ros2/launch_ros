@@ -115,7 +115,7 @@ def test_timer_action_sanity_check():
     assert shutdown_reasons[0].reason == 'One second timeout'
 
     # Verify that at least 1 sec has passed between start of test and timeout
-    tolerance = 0.25
+    tolerance = 1.0
     assert (end_time - start_time) > 1
     assert (end_time - start_time) < 1 + tolerance
 

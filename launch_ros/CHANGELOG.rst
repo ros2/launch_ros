@@ -2,6 +2,9 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.19.1 (2022-04-05)
+-------------------
+
 0.19.0 (2022-03-24)
 -------------------
 * Use correct namespace when evaluating parameter files for composable nodes (`#303 <https://github.com/ros2/launch_ros/issues/303>`_)

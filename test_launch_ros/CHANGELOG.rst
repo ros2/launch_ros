@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.19.1 (2022-04-05)
+-------------------
+* Increase test time tolerance (`#305 <https://github.com/ros2/launch_ros/issues/305>`_)
+* Contributors: Jorge Perez
+
 0.19.0 (2022-03-24)
 -------------------
 * Use correct namespace when evaluating parameter files for composable nodes (`#303 <https://github.com/ros2/launch_ros/issues/303>`_)

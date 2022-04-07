@@ -23,8 +23,9 @@ class Talker(Node):
     def __init__(self):
         super().__init__('talker')
         self.count = 0
+        hz_param = self.declare_parameter('hz', 1.0)
         self.publisher = self.create_publisher(String, 'chatter', 10)
-        self.timer = self.create_timer(1.0, self.callback)
+        self.timer = self.create_timer(1.0 / hz_param.value, self.callback)
 
     def callback(self):
         data = 'Hello World: {0}'.format(self.count)

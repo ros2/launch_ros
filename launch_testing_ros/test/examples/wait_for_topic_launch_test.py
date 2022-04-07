@@ -34,6 +34,7 @@ def generate_node(i):
         arguments=[os.path.join(path_to_test, 'talker.py')],
         name='demo_node_' + str(i),
         additional_env={'PYTHONUNBUFFERED': '1'},
+        parameters=[{'hz': 10.0}],
         remappings=[('chatter', 'chatter_' + str(i))]
     )
 

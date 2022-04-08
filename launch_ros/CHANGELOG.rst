@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix importlib_metadata warning on Python 3.10. (`#307 <https://github.com/ros2/launch_ros/issues/307>`_)
+* Contributors: Chris Lalancette
+
 0.19.1 (2022-04-05)
 -------------------
 
@@ -179,12 +184,12 @@ Changelog for package launch_ros
 
 0.8.0 (2019-04-14)
 ------------------
-* Make 'ros2 launch' work again. (`#201 <https://github.com/ros2/launch_ros/issues/201>`_)
-* Added LaunchLogger class (`#145 <https://github.com/ros2/launch/issues/145>`_)
-* Changed logger.warn (deprecated) to logger.warning. (`#199 <https://github.com/ros2/launch/issues/199>`_)
-* Added Plumb rclpy.init context to get_default_launch_description. (`#193 <https://github.com/ros2/launch/issues/193>`_)
-* Added normalize_parameters and evaluate_paramters. (`#192 <https://github.com/ros2/launch/issues/192>`_)
-* Added normalize_remap_rule and types. (`#173 <https://github.com/ros2/launch/issues/173>`_)
+* Make 'ros2 launch' work again. (`launch #201 <https://github.com/ros2/launch_ros/issues/201>`_)
+* Added LaunchLogger class (`launch #145 <https://github.com/ros2/launch/issues/145>`_)
+* Changed logger.warn (deprecated) to logger.warning. (`launch #199 <https://github.com/ros2/launch/issues/199>`_)
+* Added Plumb rclpy.init context to get_default_launch_description. (`launch #193 <https://github.com/ros2/launch/issues/193>`_)
+* Added normalize_parameters and evaluate_paramters. (`launch #192 <https://github.com/ros2/launch/issues/192>`_)
+* Added normalize_remap_rule and types. (`launch #173 <https://github.com/ros2/launch/issues/173>`_)
 * Contributors: Chris Lalancette, Dirk Thomas, Jacob Perron, Peter Baughman, Shane Loretz
 
 0.7.3 (2018-12-13)
@@ -200,13 +205,13 @@ Changelog for package launch_ros
 
 0.7.0 (2018-11-16)
 ------------------
-* Renamed transitions to match changes in ``lifecycle_msgs`` (`#153 <https://github.com/ros2/launch/issues/153>`_)
+* Renamed transitions to match changes in ``lifecycle_msgs`` (`launch #153 <https://github.com/ros2/launch/issues/153>`_)
   * TRANSITION_SHUTDOWN was deleted in ``lifecycle_msgs/msg/Transition.msg``
   * Align with the code changes from https://github.com/ros2/rcl_interfaces/commit/852a37ba3ae0f7e58f4314fa432a8ea7f0cbf639
   * Signed-off-by: Chris Ye <chris.ye@intel.com>
 * Added 'handle_once' property for unregistering an EventHandler after one event (`#141 <https://github.com/ros2/launch/issues/141>`_)
-* Added support for passing parameters as a dictionary to a Node (`#138 <https://github.com/ros2/launch/issues/138>`_)
-* Made various fixes and added tests for remappings passed to Node actions (`#137 <https://github.com/ros2/launch/issues/137>`_)
+* Added support for passing parameters as a dictionary to a Node (`launch #138 <https://github.com/ros2/launch/issues/138>`_)
+* Made various fixes and added tests for remappings passed to Node actions (`launch #137 <https://github.com/ros2/launch/issues/137>`_)
 * Added ability to pass parameter files to Node actions (`#135 <https://github.com/ros2/launch/issues/135>`_)
 * Added ability to define and pass launch arguments to launch files (`#123 <https://github.com/ros2/launch/issues/123>`_)
   * See changelog in ``launch`` for details.

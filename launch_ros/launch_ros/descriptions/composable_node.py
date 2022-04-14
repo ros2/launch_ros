@@ -17,6 +17,7 @@
 from typing import List
 from typing import Optional
 
+from launch.condition import Condition
 from launch.frontend import Entity
 from launch.frontend import Parser
 from launch.some_substitutions_type import SomeSubstitutionsType
@@ -43,6 +44,7 @@ class ComposableNode:
         parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
         extra_arguments: Optional[SomeParameters] = None,
+        condition: Optional[Condition] = None,
     ) -> None:
         """
         Initialize a ComposableNode description.
@@ -54,6 +56,7 @@ class ComposableNode:
         :param parameters: list of either paths to yaml files or dictionaries of parameters
         :param remappings: list of from/to pairs for remapping names
         :param extra_arguments: container specific arguments to be passed to the loaded node
+        :param condition: action will be executed if the condition evaluates to true
         """
         self.__package = normalize_to_list_of_substitutions(package)
         self.__node_plugin = normalize_to_list_of_substitutions(plugin)
@@ -77,6 +80,8 @@ class ComposableNode:
         self.__extra_arguments = None  # type: Optional[Parameters]
         if extra_arguments:
             self.__extra_arguments = normalize_parameters(extra_arguments)
+
+        self.__condition = condition
 
     @classmethod
     def parse(cls, parser: Parser, entity: Entity):
@@ -158,3 +163,7 @@ class ComposableNode:
     def extra_arguments(self) -> Optional[Parameters]:
         """Get container extra arguments YAML files or dicts with substitutions to be performed."""
         return self.__extra_arguments
+
+    def condition(self) -> Optional[Condition]:
+        """Getter for condition."""
+        return self.__condition

@@ -85,9 +85,15 @@ class ComposableNodeContainer(Node):
         ):
             from .load_composable_nodes import LoadComposableNodes
             # Perform load action once the container has started.
+            valid_composable_nodes = []
+            for node_object in self.__composable_node_descriptions:
+                if node_object.condition() is None:
+                    valid_composable_nodes.append(node_object)
+                elif node_object.condition().evaluate(context):
+                    valid_composable_nodes.append(node_object)
             load_actions = [
                 LoadComposableNodes(
-                    composable_node_descriptions=self.__composable_node_descriptions,
+                    composable_node_descriptions=valid_composable_nodes,
                     target_container=self
                 )
             ]

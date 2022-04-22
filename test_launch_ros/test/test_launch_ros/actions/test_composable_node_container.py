@@ -19,7 +19,8 @@ import asyncio
 from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import DeclareLaunchArgument
-from launch.actions import GroupAction
+from launch.actions import GroupAction, DeclareLaunchArgument
+from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
@@ -119,3 +120,65 @@ def test_composable_node_container_in_group_with_launch_configuration_in_descrip
     context = _assert_launch_no_errors(actions)
     assert get_node_name_count(context, f'/{TEST_CONTAINER_NAMESPACE}/{TEST_CONTAINER_NAME}') == 1
     assert get_node_name_count(context, f'/{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}') == 1
+
+
+def test_composable_node_container_if_condition():
+    """Nominal test for launching a ComposableNodeContainer."""
+    TEST_NODE_NAME_1 = 'test_component_container_node_name_1'
+    TEST_NODE_NAME_2 = 'test_component_container_node_name_2'
+    actions = [
+        DeclareLaunchArgument(name='flag', default_value='False'),
+        ComposableNodeContainer(
+            package='rclcpp_components',
+            executable='component_container',
+            name=TEST_CONTAINER_NAME,
+            namespace=TEST_CONTAINER_NAMESPACE,
+            composable_node_descriptions=[
+                ComposableNode(
+                    package='composition',
+                    plugin='composition::Listener',
+                    name=TEST_NODE_NAME,
+                    namespace=TEST_NODE_NAMESPACE,
+                    condition=IfCondition(LaunchConfiguration('flag'))
+                )
+            ],
+        ),
+    ]
+
+    context = _assert_launch_no_errors(actions)
+
+    assert get_node_name_count(context, f'/{TEST_CONTAINER_NAMESPACE}/{TEST_CONTAINER_NAME}') == 1
+    assert get_node_name_count(context, f'/{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}') == 0
+
+    actions = [
+        DeclareLaunchArgument(name='flag', default_value='False'),
+        ComposableNodeContainer(
+            package='rclcpp_components',
+            executable='component_container',
+            name=TEST_CONTAINER_NAME,
+            namespace=TEST_CONTAINER_NAMESPACE,
+            composable_node_descriptions=[
+                ComposableNode(
+                    package='composition',
+                    plugin='composition::Listener',
+                    name=TEST_NODE_NAME_1,
+                    namespace=TEST_NODE_NAMESPACE,
+                    condition=UnlessCondition(LaunchConfiguration('flag'))
+                ),
+                ComposableNode(
+                    package='composition',
+                    plugin='composition::Listener',
+                    name=TEST_NODE_NAME_2,
+                    namespace=TEST_NODE_NAMESPACE,
+                    condition=IfCondition(LaunchConfiguration('flag'))
+                )
+
+            ],
+        ),
+    ]
+
+    context = _assert_launch_no_errors(actions)
+
+    assert get_node_name_count(context, f'/{TEST_CONTAINER_NAMESPACE}/{TEST_CONTAINER_NAME}') == 1
+    assert get_node_name_count(context, f'/{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME_1}') == 1
+    assert get_node_name_count(context, f'/{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME_2}') == 0

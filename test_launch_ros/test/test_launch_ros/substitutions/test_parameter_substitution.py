@@ -28,5 +28,6 @@ def test_parameter_substitution():
     context = LaunchContext()
     SetParameter('name', 'value').execute(context)
     assert Parameter('name').perform(context) == 'value'
+    assert Parameter('name-invalid', default='default_value').perform(context) == 'default_value'
     with pytest.raises(SubstitutionFailure):
         Parameter('name-invalid').perform(context)

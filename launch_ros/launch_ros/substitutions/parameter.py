@@ -14,9 +14,13 @@
 
 """Module for the Parameter substitution."""
 
+import collections.abc
+from typing import Any
 from typing import Iterable
 from typing import List
+from typing import Optional
 from typing import Text
+from typing import Union
 
 from launch.frontend import expose_substitution
 from launch.launch_context import LaunchContext
@@ -38,17 +42,41 @@ class Parameter(Substitution):
     def __init__(
         self,
         name: SomeSubstitutionsType,
+        *,
+        default: Optional[Union[Any, Iterable[Any]]] = None
     ) -> None:
         """Create a Parameter substitution."""
         super().__init__()
         self.__name = normalize_to_list_of_substitutions(name)
+        if default is None:
+            self.__default = default
+        else:
+            # convert any items in default that are not a Substitution or str to a str
+            str_normalized_default = []  # type: List[Union[Text, Substitution]]
+            definitely_iterable_default = ((),)  # type: Iterable[Any]
+            if isinstance(default, collections.abc.Iterable):
+                definitely_iterable_default = default
+            else:
+                definitely_iterable_default = (default,)
+            for item in definitely_iterable_default:
+                if isinstance(item, (str, Substitution)):
+                    str_normalized_default.append(item)
+                else:
+                    str_normalized_default.append(str(item))
+            # use normalize_to_list_of_substitutions to convert str to TextSubstitution's too
+            self.__default = \
+                normalize_to_list_of_substitutions(
+                    str_normalized_default)  # type: List[Substitution]
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):
         """Parse a Parameter substitution."""
-        if not data or len(data) != 1:
-            raise AttributeError('param substitutions expect 1 argument')
-        kwargs = {'name': data[0]}
+        if len(data) < 1 or len(data) > 2:
+            raise TypeError('param substitution expects 1 or 2 arguments')
+        kwargs = {}
+        kwargs['name'] = data[0]
+        if len(data) == 2:
+            kwargs['default'] = data[1]
         return cls, kwargs
 
     @property
@@ -69,4 +97,8 @@ class Parameter(Substitution):
             if isinstance(param, tuple):
                 if param[0] == name:
                     return param[1]
-        raise SubstitutionFailure("parameter '{}' not found".format(name))
+
+        if self.__default is None:
+            raise SubstitutionFailure("parameter '{}' not found".format(name))
+        else:
+            return perform_substitutions(context, self.__default)

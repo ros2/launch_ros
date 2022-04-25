@@ -329,25 +329,31 @@ def test_load_node_with_param_file(mock_component_container):
 
     # Case 6: multiple entries (params with node name should take precedence over wildcard params)
     context = _assert_launch_no_errors([
-        _load_composable_node(
-            package='foo_package',
-            plugin='bar_plugin',
-            name='node_1',
-            namespace='ns_1',
-            parameters=[
-                parameters_file_dir / 'example_parameters_multiple_entries.yaml'
-            ],
-        ),
-        _load_composable_node(
-            package='foo_package',
-            plugin='bar_plugin',
-            name='node_2',
-            namespace='ns_2',
-            parameters=[
-                parameters_file_dir / 'example_parameters_multiple_entries.yaml'
-            ],
+        LoadComposableNodes(  # Load in same action so it happens sequentially
+            target_container=f'/{TEST_CONTAINER_NAME}',
+            composable_node_descriptions=[
+                ComposableNode(
+                    package='foo_package',
+                    plugin='bar_plugin',
+                    name='node_1',
+                    namespace='ns_1',
+                    parameters=[
+                        parameters_file_dir / 'example_parameters_multiple_entries.yaml'
+                    ]
+                ),
+                ComposableNode(
+                    package='foo_package',
+                    plugin='bar_plugin',
+                    name='node_2',
+                    namespace='ns_2',
+                    parameters=[
+                        parameters_file_dir / 'example_parameters_multiple_entries.yaml'
+                    ]
+                )
+            ]
         )
     ])
+
     request = mock_component_container.requests[-2]
     assert get_node_name_count(context, '/ns_1/node_1') == 1
     assert request.node_name == 'node_1'

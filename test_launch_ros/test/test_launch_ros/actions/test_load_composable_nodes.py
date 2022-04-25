@@ -353,7 +353,6 @@ def test_load_node_with_param_file(mock_component_container):
             ]
         )
     ])
-
     request = mock_component_container.requests[-2]
     assert get_node_name_count(context, '/ns_1/node_1') == 1
     assert request.node_name == 'node_1'

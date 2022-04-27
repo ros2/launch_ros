@@ -59,8 +59,7 @@ class WaitForTopics:
         self._prepare_ros_node()
 
         # Start spinning
-        self.__running = True
-        self.__ros_spin_thread = Thread(target=self._spin_function)
+        self.__ros_spin_thread = Thread(target=self.__ros_executor.spin)
         self.__ros_spin_thread.start()
 
     def _prepare_ros_node(self):
@@ -69,19 +68,15 @@ class WaitForTopics:
         self.__ros_node = _WaitForTopicsNode(name=node_name, node_context=self.__ros_context)
         self.__ros_executor.add_node(self.__ros_node)
 
-    def _spin_function(self):
-        while self.__running:
-            self.__ros_executor.spin_once(1.0)
-
     def wait(self):
         self.__ros_node.start_subscribers(self.topic_tuples)
         return self.__ros_node.msg_event_object.wait(self.timeout)
 
     def shutdown(self):
-        self.__running = False
+        # Shutdown context before joining thread
+        self.__ros_context.try_shutdown()
         self.__ros_spin_thread.join()
         self.__ros_node.destroy_node()
-        rclpy.shutdown(context=self.__ros_context)
 
     def topics_received(self):
         """Topics that received at least one message."""

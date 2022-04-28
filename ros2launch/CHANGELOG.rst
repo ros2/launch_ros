@@ -2,6 +2,11 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Simplify logic to fix absolute paths (`#230 <https://github.com/ros2/launch_ros/issues/230>`_) (`#296 <https://github.com/ros2/launch_ros/issues/296>`_)
+* Contributors: Jacob Perron
+
 0.14.2 (2021-04-26)
 -------------------
 

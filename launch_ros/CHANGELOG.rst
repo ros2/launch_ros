@@ -2,6 +2,13 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Handle empty strings when evaluating parameters (`#300 <https://github.com/ros2/launch_ros/issues/300>`_) (`#301 <https://github.com/ros2/launch_ros/issues/301>`_)
+* Fix TypeError accessing name and value of SetParameter (`#299 <https://github.com/ros2/launch_ros/issues/299>`_)
+* More Helpful Error Messages (`#275 <https://github.com/ros2/launch_ros/issues/275>`_) (`#290 <https://github.com/ros2/launch_ros/issues/290>`_)
+* Contributors: Jacob Perron, mergify[bot]
+
 0.14.2 (2021-04-26)
 -------------------
 

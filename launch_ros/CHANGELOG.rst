@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.20.0 (2022-04-29)
+-------------------
+* Run condition for composable nodes (`#311 <https://github.com/ros2/launch_ros/issues/311>`_)
+* Contributors: Aditya Pande
+
 0.19.2 (2022-04-08)
 -------------------
 * Fix importlib_metadata warning on Python 3.10. (`#307 <https://github.com/ros2/launch_ros/issues/307>`_)

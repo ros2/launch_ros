@@ -34,19 +34,19 @@ class LifecycleTransition(Action):
     """An action that simplifies execution of lifecyle transitions
     """
     transition_targets = OrderedDict([
-        (Transition.TRANSITION_CONFIGURE, 'inactive'),
-        (Transition.TRANSITION_CLEANUP, 'unconfigured'),
-        (Transition.TRANSITION_ACTIVATE, 'active'),
-        (Transition.TRANSITION_DEACTIVATE, 'inactive'),
+        (Transition.TRANSITION_CONFIGURE, {'start_state': 'configuring', 'goal_state':'inactive'}),
+        (Transition.TRANSITION_CLEANUP, {'start_state': 'cleaningup', 'goal_state':'unconfigured'}),
+        (Transition.TRANSITION_ACTIVATE, {'start_state': 'activating', 'goal_state':'active'}),
+        (Transition.TRANSITION_DEACTIVATE, {'start_state': 'deactivating', 'goal_state':'inactive'}),
         (
             Transition.TRANSITION_UNCONFIGURED_SHUTDOWN,
-            'finalized',
+            {'start_state': 'shuttingdown', 'goal_state':'finalized'},
         ),
         (
             Transition.TRANSITION_INACTIVE_SHUTDOWN,
-            'finalized',
+            {'start_state': 'shuttingdown', 'goal_state':'finalized'},
         ),
-        (Transition.TRANSITION_ACTIVE_SHUTDOWN, 'finalized'),
+        (Transition.TRANSITION_ACTIVE_SHUTDOWN, {'start_state': 'shuttingdown', 'goal_state':'finalized'}),
     ]) 
     def __init__(
         self,
@@ -116,12 +116,12 @@ class LifecycleTransition(Action):
             # Create Transition handler for all indicated nodes
             for node_name in self.__lifecycle_node_names:
 
-                goal = self.transition_targets[id]
+                states = self.transition_targets[id]
                 event_handler = None
                 # For all transitions except the last, emit next ChangeState Event   
                 if i < len(self.__transition_ids):
                     event_handler = OnStateTransition(
-                        matcher=match_node_name_goal(node_name, goal),
+                        matcher=match_node_name_goal(node_name, states["start_state"], states["goal_state"]),
                         entities=[
                             emit_actions[node_name][i]],
                         handle_once=True
@@ -129,8 +129,8 @@ class LifecycleTransition(Action):
                 # For last transition emit Log message
                 else:
                     event_handler = OnStateTransition(
-                        matcher=match_node_name_goal(node_name, goal),
-                        entities=[LogInfo(msg="Tranistioning done, reached {} for node {}".format(goal, node_name))],
+                        matcher=match_node_name_goal(node_name, states["start_state"], states["goal_state"]),
+                        entities=[LogInfo(msg="Tranistioning done, reached {} for node {}".format(states["goal_state"], node_name))],
                         handle_once=True
                     )
                 # Create register event handler action
@@ -146,8 +146,8 @@ class LifecycleTransition(Action):
 
         return actions
 
-def match_node_name_goal(node_name: str, goal_state: str):
+def match_node_name_goal(node_name: str, start_state: str, goal_state: str):
     if not node_name.startswith('/'):
         node_name = f'/{node_name}'
-    return lambda event: isinstance(event, StateTransition) and (event.action.node_name == node_name) and (event.goal_state == goal_state)
+    return lambda event: isinstance(event, StateTransition) and (event.action.node_name == node_name) and (event.goal_state == goal_state) and (event.start_state==start_state)
         

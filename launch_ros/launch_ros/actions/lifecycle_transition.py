@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Callable, Text
+
+from typing import Text
 from typing import Optional
 from typing import List
 from collections import OrderedDict
@@ -21,7 +22,7 @@ from launch.frontend import Entity
 from launch.frontend import expose_action
 from launch.frontend import Parser
 from launch.action import Action
-from launch.actions import EmitEvent, RegisterEventHandler, LogInfo
+from launch.actions import EmitEvent, RegisterEventHandler, LogInfo, UnregisterEventHandler
 from launch.logging import get_logger
 
 from launch_ros.event_handlers import OnStateTransition
@@ -95,6 +96,7 @@ class LifecycleTransition(Action):
         """
 
         emit_actions = OrderedDict()
+        event_handlers = {}
         actions : List[Action] = []
 
         # Create EmitEvents for ChangeStates and store
@@ -109,6 +111,7 @@ class LifecycleTransition(Action):
                 )
                 own_emit_actions.append(emit_action)
             emit_actions[name] = own_emit_actions
+            event_handlers[name] = []
             
         # Create Transition EventHandlers and Registration actions
         i = 1
@@ -133,12 +136,25 @@ class LifecycleTransition(Action):
                         entities=[LogInfo(msg="Tranistioning done, reached {} for node {}".format(states["goal_state"], node_name))],
                         handle_once=True
                     )
+                event_handlers[node_name].append(event_handler)
                 # Create register event handler action
                 register_action = RegisterEventHandler(event_handler=event_handler)
                 # Append to actions
                 actions.append(register_action)
             #increment next ChangeState action by one
             i += 1
+
+        # Remove consequent transitions if error occurs
+        for node_name in self.__lifecycle_node_names:
+            unregister_actions = []
+            for event_handler in event_handlers[node_name]:
+                unregister_actions.append(UnregisterEventHandler(event_handler))
+            unregister_actions.append(LogInfo(msg="Transition for {} failed. Unregistering all event based transitions for this node.".format(node_name)))
+            event_handler = OnStateTransition(
+                matcher=match_node_name_goal(node_name, 'errorprocessing', 'unconfigured'),
+                entities=unregister_actions,
+                handle_once=True)
+
 
         # Add first Emit actions to actions
         for node_name in self.__lifecycle_node_names:

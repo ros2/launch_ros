@@ -16,6 +16,7 @@
 
 from .composable_node_container import ComposableNodeContainer
 from .lifecycle_node import LifecycleNode
+from .lifecycle_transition import LifecycleTransition
 from .load_composable_nodes import LoadComposableNodes
 from .node import Node
 from .push_ros_namespace import PushRosNamespace
@@ -29,6 +30,7 @@ from .set_use_sim_time import SetUseSimTime
 __all__ = [
     'ComposableNodeContainer',
     'LifecycleNode',
+    'LifecycleTransition',
     'LoadComposableNodes',
     'Node',
     'PushRosNamespace',

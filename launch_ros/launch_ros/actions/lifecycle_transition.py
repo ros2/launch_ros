@@ -17,15 +17,16 @@ from typing import Iterable
 from typing import Union
 from typing import List
 from collections import OrderedDict
+import functools
 import launch
-from launch import SomeSubstitutionsType
+from launch import LaunchContext, SomeSubstitutionsType
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 from launch.frontend import Entity
 from launch.frontend import expose_action
 from launch.frontend import Parser
 from launch.action import Action
-from launch.actions import EmitEvent, RegisterEventHandler, LogInfo, UnregisterEventHandler
+from launch.actions import EmitEvent, RegisterEventHandler
 
 from launch_ros.event_handlers import OnStateTransition
 from launch_ros.events.lifecycle import ChangeState, StateTransition
@@ -91,6 +92,9 @@ class LifecycleTransition(Action):
             normalize_to_list_of_substitutions(id)
             for id in temp_transitions_ids]
 
+        self.__event_handlers = {}
+        self.__logger = launch.logging.get_logger(__name__)
+
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
         """Parse load_composable_node."""
@@ -103,6 +107,28 @@ class LifecycleTransition(Action):
         kwargs['transitions_ids'] = entity.get_attr(
             'transitions_ids', data_type=List[int])
         return cls, kwargs
+
+    def _remove_event_handlers(
+            self,
+            context: LaunchContext,
+            node_name: str = None,
+            reason: str = None):
+        """Remove all consequent transitions if error occurs."""
+        if node_name is not None:
+            if reason is not None:
+                self.__logger.info("Stopping transitions for {} because {}.".format(
+                    node_name,
+                    reason
+                ))
+            for event_handler in self.__event_handlers[node_name]:
+                # Unregister event handlers and ignore failures, as these are
+                # already unregistered event handlers.
+                try:
+                    context.unregister_event_handler(event_handler=event_handler)
+                except ValueError:
+                    pass
+                finally:
+                    pass
 
     def execute(
         self,
@@ -126,7 +152,6 @@ class LifecycleTransition(Action):
             transition_ids.append(int(id))
 
         emit_actions = OrderedDict()
-        event_handlers = {}
         actions: List[Action] = []
 
         # Create EmitEvents for ChangeStates and store
@@ -141,7 +166,7 @@ class LifecycleTransition(Action):
                 )
                 own_emit_actions.append(emit_action)
             emit_actions[name] = own_emit_actions
-            event_handlers[name] = []
+            self.__event_handlers[name] = []
         # Create Transition EventHandlers and Registration actions
         i = 1
         for id in transition_ids:
@@ -153,7 +178,7 @@ class LifecycleTransition(Action):
                 # For all transitions except the last, emit next ChangeState Event
                 if i < len(transition_ids):
                     event_handler = OnStateTransition(
-                        matcher=match_node_name_goal(
+                        matcher=match_node_name_start_goal(
                             node_name,
                             states["start_state"],
                             states["goal_state"]),
@@ -164,25 +189,45 @@ class LifecycleTransition(Action):
                 # For last transition emit Log message
                 else:
                     event_handler = OnStateTransition(
-                        matcher=match_node_name_goal(
+                        matcher=match_node_name_start_goal(
                             node_name,
                             states["start_state"],
                             states["goal_state"]),
                         entities=[
-                            LogInfo(
-                                msg="Tranistioning done, reached {} for node {}".format(
-                                    states["goal_state"], node_name)
-                            )
+                            launch.actions.OpaqueFunction(
+                                function=functools.partial(
+                                    self._remove_event_handlers,
+                                    node_name=node_name
+                                )
+                            ),
                         ],
                         handle_once=True
                     )
-                event_handlers[node_name].append(event_handler)
+                self.__event_handlers[node_name].append(event_handler)
                 # Create register event handler action
                 register_action = RegisterEventHandler(event_handler=event_handler)
                 # Append to actions
                 actions.append(register_action)
             # increment next ChangeState action by one
             i += 1
+        # Create Error processing event handlers.
+        for node_name in lifecycle_node_names:
+            event_handler = \
+                launch.EventHandler(
+                    matcher=match_node_name_goal(node_name, "errorprocessing"),
+                    entities=[
+                        launch.actions.OpaqueFunction(
+                            function=functools.partial(
+                                self._remove_event_handlers,
+                                node_name=node_name,
+                                reason="error occured during transitions"
+                            )
+                        )
+                    ],
+                    handle_once=True,
+                )
+            self.__event_handlers[node_name].append(event_handler)
+            context.register_event_handler(event_handler=event_handler)
 
         # Add first Emit actions to actions
         for node_name in lifecycle_node_names:
@@ -191,7 +236,7 @@ class LifecycleTransition(Action):
         return actions
 
 
-def match_node_name_goal(node_name: str, start_state: str, goal_state: str):
+def match_node_name_start_goal(node_name: str, start_state: str, goal_state: str):
     if not node_name.startswith('/'):
         node_name = f'/{node_name}'
     return lambda event: (
@@ -199,4 +244,14 @@ def match_node_name_goal(node_name: str, start_state: str, goal_state: str):
         (event.action.node_name == node_name) and
         (event.goal_state == goal_state) and
         (event.start_state == start_state)
+        )
+
+
+def match_node_name_goal(node_name: str, goal_state: str):
+    if not node_name.startswith('/'):
+        node_name = f'/{node_name}'
+    return lambda event: (
+        isinstance(event, StateTransition) and
+        (event.action.node_name == node_name) and
+        (event.goal_state == goal_state)
         )

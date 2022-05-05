@@ -44,6 +44,7 @@ def test_lifecycle_transition_constructor():
         transitions_ids=['1']
     )
 
+
 def test_lifecycle_transition_execute():
     lc = LaunchContext()
     lt = LifecycleTransition(
@@ -56,4 +57,3 @@ def test_lifecycle_transition_execute():
     assert isinstance(actions[0], RegisterEventHandler)
     # Second action should be EmitEvent for first Transition
     assert isinstance(actions[1], EmitEvent)
-

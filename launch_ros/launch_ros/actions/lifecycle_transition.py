@@ -12,11 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Text
 from typing import Optional
+from typing import Iterable
+from typing import Union
 from typing import List
 from collections import OrderedDict
 import launch
+from launch import SomeSubstitutionsType
+from launch.utilities import normalize_to_list_of_substitutions
+from launch.utilities import perform_substitutions
 from launch.frontend import Entity
 from launch.frontend import expose_action
 from launch.frontend import Parser
@@ -33,42 +37,28 @@ from launch_ros.events.matchers import matches_node_name
 class LifecycleTransition(Action):
     """An action that simplifies execution of lifecyle transitions."""
 
-    transition_targets = OrderedDict([
-        (
-            Transition.TRANSITION_CONFIGURE,
+    transition_targets = {
+        Transition.TRANSITION_CONFIGURE:
             {'start_state': 'configuring', 'goal_state': 'inactive'},
-        ),
-        (
-            Transition.TRANSITION_CLEANUP,
+        Transition.TRANSITION_CLEANUP:
             {'start_state': 'cleaningup', 'goal_state': 'unconfigured'},
-        ),
-        (
-            Transition.TRANSITION_ACTIVATE,
+        Transition.TRANSITION_ACTIVATE:
             {'start_state': 'activating', 'goal_state': 'active'},
-        ),
-        (
-            Transition.TRANSITION_DEACTIVATE,
+        Transition.TRANSITION_DEACTIVATE:
             {'start_state': 'deactivating', 'goal_state': 'inactive'},
-        ),
-        (
-            Transition.TRANSITION_UNCONFIGURED_SHUTDOWN,
+        Transition.TRANSITION_UNCONFIGURED_SHUTDOWN:
             {'start_state': 'shuttingdown', 'goal_state': 'finalized'},
-        ),
-        (
-            Transition.TRANSITION_INACTIVE_SHUTDOWN,
+        Transition.TRANSITION_INACTIVE_SHUTDOWN:
             {'start_state': 'shuttingdown', 'goal_state': 'finalized'},
-        ),
-        (
-            Transition.TRANSITION_ACTIVE_SHUTDOWN,
+        Transition.TRANSITION_ACTIVE_SHUTDOWN:
             {'start_state': 'shuttingdown', 'goal_state': 'finalized'},
-        ),
-    ])
+    }
 
     def __init__(
             self,
             *,
-            lifecycle_node_names: Iterable[SomeSubstitutionType],
-            transitions_ids: Iterable[Union[int, SomeSubstitutionType]],
+            lifecycle_node_names: Iterable[SomeSubstitutionsType],
+            transitions_ids: Iterable[Union[int, SomeSubstitutionsType]],
             **kwargs, ) -> None:
         """
         Construct a LifecycleTransition action.
@@ -85,8 +75,21 @@ class LifecycleTransition(Action):
         :param transitions_ids: The transitions to be executed.
         """
         super().__init__(**kwargs)
-        self.__lifecycle_node_names = [normalize_to_list_of_substitutions(name) for name in lifecycle_node_names]
-        self.__transition_ids = [normalize_to_list_of_substitutions(id) for id in transitions_ids]
+        self.__lifecycle_node_names = [
+            normalize_to_list_of_substitutions(name)
+            for name in lifecycle_node_names]
+        temp_transitions_ids = []
+        for id in transitions_ids:
+            temp_id = None
+            if isinstance(id, int):
+                temp_id = str(id)
+            else:
+                temp_id = id
+            temp_transitions_ids.append(temp_id)
+
+        self.__transition_ids = [
+            normalize_to_list_of_substitutions(id)
+            for id in temp_transitions_ids]
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
@@ -112,14 +115,24 @@ class LifecycleTransition(Action):
           These are EventHandlers and EventEmitters for ChangeState and
           StateTransition events of the nodes indicated.
         """
+        lifecycle_node_names = [
+            perform_substitutions(context, name)
+            for name in self.__lifecycle_node_names]
+        subs_transition_ids = [
+            perform_substitutions(context, id)
+            for id in self.__transition_ids]
+        transition_ids = []
+        for id in subs_transition_ids:
+            transition_ids.append(int(id))
+
         emit_actions = OrderedDict()
         event_handlers = {}
         actions: List[Action] = []
 
         # Create EmitEvents for ChangeStates and store
-        for name in self.__lifecycle_node_names:
+        for name in lifecycle_node_names:
             own_emit_actions = []
-            for id in self.__transition_ids:
+            for id in transition_ids:
                 change_event = ChangeState(
                     lifecycle_node_matcher=matches_node_name(name),
                     transition_id=id)
@@ -131,14 +144,14 @@ class LifecycleTransition(Action):
             event_handlers[name] = []
         # Create Transition EventHandlers and Registration actions
         i = 1
-        for id in self.__transition_ids:
+        for id in transition_ids:
             # Create Transition handler for all indicated nodes
-            for node_name in self.__lifecycle_node_names:
+            for node_name in lifecycle_node_names:
 
                 states = self.transition_targets[id]
                 event_handler = None
                 # For all transitions except the last, emit next ChangeState Event
-                if i < len(self.__transition_ids):
+                if i < len(transition_ids):
                     event_handler = OnStateTransition(
                         matcher=match_node_name_goal(
                             node_name,
@@ -172,7 +185,7 @@ class LifecycleTransition(Action):
             i += 1
 
         # Remove consequent transitions if error occurs
-        for node_name in self.__lifecycle_node_names:
+        for node_name in lifecycle_node_names:
             unregister_actions = []
             for event_handler in event_handlers[node_name]:
                 unregister_actions.append(UnregisterEventHandler(event_handler))
@@ -183,9 +196,10 @@ class LifecycleTransition(Action):
                 matcher=match_node_name_goal(node_name, 'errorprocessing', 'unconfigured'),
                 entities=unregister_actions,
                 handle_once=True)
+            actions.append(RegisterEventHandler(event_handler=event_handler))
 
         # Add first Emit actions to actions
-        for node_name in self.__lifecycle_node_names:
+        for node_name in lifecycle_node_names:
             actions.append(emit_actions[node_name][0])
 
         return actions

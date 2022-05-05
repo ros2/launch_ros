@@ -184,20 +184,6 @@ class LifecycleTransition(Action):
             # increment next ChangeState action by one
             i += 1
 
-        # Remove consequent transitions if error occurs
-        for node_name in lifecycle_node_names:
-            unregister_actions = []
-            for event_handler in event_handlers[node_name]:
-                unregister_actions.append(UnregisterEventHandler(event_handler))
-            unregister_actions.append(
-                LogInfo(msg="Transition for {} failed. Unregistering all event based \
-                transitions for this node.".format(node_name)))
-            event_handler = OnStateTransition(
-                matcher=match_node_name_goal(node_name, 'errorprocessing', 'unconfigured'),
-                entities=unregister_actions,
-                handle_once=True)
-            actions.append(RegisterEventHandler(event_handler=event_handler))
-
         # Add first Emit actions to actions
         for node_name in lifecycle_node_names:
             actions.append(emit_actions[node_name][0])

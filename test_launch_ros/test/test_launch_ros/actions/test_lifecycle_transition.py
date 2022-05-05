@@ -54,8 +54,6 @@ def test_lifecycle_transition_execute():
     # Check that actions are correctly generated
     # First action should be RegisterEventHandler for first Transtion
     assert isinstance(actions[0], RegisterEventHandler)
-    # Second action should be RegisterEventHandler for Error
-    assert isinstance(actions[1], RegisterEventHandler)
-    # Third action should be EmitEvent for first Transition
-    assert isinstance(actions[2], EmitEvent)
+    # Second action should be EmitEvent for first Transition
+    assert isinstance(actions[1], EmitEvent)
 

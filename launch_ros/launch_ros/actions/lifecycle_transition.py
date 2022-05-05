@@ -67,8 +67,8 @@ class LifecycleTransition(Action):
     def __init__(
             self,
             *,
-            lifecycle_node_names: List[Text],
-            transitions_ids: List[int],
+            lifecycle_node_names: Iterable[SomeSubstitutionType],
+            transitions_ids: Iterable[Union[int, SomeSubstitutionType]],
             **kwargs, ) -> None:
         """
         Construct a LifecycleTransition action.
@@ -85,16 +85,17 @@ class LifecycleTransition(Action):
         :param transitions_ids: The transitions to be executed.
         """
         super().__init__(**kwargs)
-        self.__lifecycle_node_names = lifecycle_node_names
-        self.__transition_ids = transitions_ids
+        self.__lifecycle_node_names = [normalize_to_list_of_substitutions(name) for name in lifecycle_node_names]
+        self.__transition_ids = [normalize_to_list_of_substitutions(id) for id in transitions_ids]
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
         """Parse load_composable_node."""
         _, kwargs = super().parse(entity, parser)
 
-        kwargs['lifecycle_node_names'] = entity.get_attr(
-            'lifecycle_node_names', data_type=List[str])
+        kwargs['lifecycle_node_names'] = parser.parser_substitution(
+            entity.get_attr('lifecycle_node_names', data_type=List[str])
+        )
         # Probably need to make this parsable through a dict for convenience
         kwargs['transitions_ids'] = entity.get_attr(
             'transitions_ids', data_type=List[int])

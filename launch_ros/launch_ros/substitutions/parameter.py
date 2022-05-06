@@ -65,8 +65,7 @@ class Parameter(Substitution):
                     str_normalized_default.append(str(item))
             # use normalize_to_list_of_substitutions to convert str to TextSubstitution's too
             self.__default = \
-                normalize_to_list_of_substitutions(
-                    str_normalized_default)  # type: List[Substitution]
+                normalize_to_list_of_substitutions(str_normalized_default)
 
     @classmethod
     def parse(cls, data: Iterable[SomeSubstitutionsType]):

@@ -24,6 +24,10 @@ def test_parameter_substitution_yaml():
     yaml_file = textwrap.dedent(
         r"""
         launch:
+            - let:
+                name: result_default
+                value: $(param name-invalid default_value)
+
             - set_parameter:
                 name: name
                 value: value
@@ -35,10 +39,6 @@ def test_parameter_substitution_yaml():
             - let:
                 name: result
                 value: $(param name default_value)
-
-            - let:
-                name: result_default
-                value: $(param name-invalid default_value)
         """
     )
     with io.StringIO(yaml_file) as f:
@@ -49,10 +49,10 @@ def test_parameter_substitution_xml():
     xml_file = textwrap.dedent(
         r"""
         <launch>
+            <let name="result_default" value="$(param name-invalid default_value)" />
             <set_parameter name="name" value="value" />
             <let name="result" value="$(param name)" />
             <let name="result" value="$(param name default_value)" />
-            <let name="result_default" value="$(param name-invalid default_value)" />
         </launch>
         """
     )
@@ -70,12 +70,13 @@ def check_parameter_substitution(file):
     def perform(substitution):
         return perform_substitutions(ls.context, substitution)
 
-    set_parameter, let, let_valid_default, let_invalid_default = ld.describe_sub_entities()
+    # Test invalid names before declaring a parameter to check None
+    let_invalid_default, set_parameter, let, let_valid_default= ld.describe_sub_entities()
+    assert perform(let_invalid_default.name) == 'result_default'
+    assert perform(let_invalid_default.value) == 'default_value'
     assert perform(set_parameter.name) == 'name'
     assert perform(set_parameter.value) == 'value'
     assert perform(let.name) == 'result'
     assert perform(let.value) == 'value'
     assert perform(let_valid_default.name) == 'result'
     assert perform(let_valid_default.value) == 'value'
-    assert perform(let_invalid_default.name) == 'result_default'
-    assert perform(let_invalid_default.value) == 'default_value'

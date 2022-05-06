@@ -91,7 +91,7 @@ class Parameter(Substitution):
     def perform(self, context: LaunchContext) -> Text:
         """Perform the substitution."""
         name = perform_substitutions(context, self.name)
-        params_container = context.launch_configurations.get('global_params', None)
+        params_container = context.launch_configurations.get('global_params', [])
         for param in params_container:
             if isinstance(param, tuple):
                 if param[0] == name:

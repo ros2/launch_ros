@@ -71,7 +71,7 @@ def check_parameter_substitution(file):
         return perform_substitutions(ls.context, substitution)
 
     # Test invalid names before declaring a parameter to check None
-    let_invalid_default, set_parameter, let, let_valid_default= ld.describe_sub_entities()
+    let_invalid_default, set_parameter, let, let_valid_default = ld.describe_sub_entities()
     assert perform(let_invalid_default.name) == 'result_default'
     assert perform(let_invalid_default.value) == 'default_value'
     assert perform(set_parameter.name) == 'name'

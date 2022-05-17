@@ -2,6 +2,9 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.19.2 (2022-04-08)
 -------------------
 * Fix importlib_metadata warning on Python 3.10. (`#307 <https://github.com/ros2/launch_ros/issues/307>`_)

@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Load composable nodes in sequence (`#315 <https://github.com/ros2/launch_ros/issues/315>`_) (`#316 <https://github.com/ros2/launch_ros/issues/316>`_)
+* Contributors: mergify[bot]
+
 0.19.2 (2022-04-08)
 -------------------
 

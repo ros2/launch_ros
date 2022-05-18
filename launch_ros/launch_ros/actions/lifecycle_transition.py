@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from argparse import ArgumentError
+from hmac import trans_36
 from typing import Optional
 from typing import Iterable
 from typing import Union
@@ -22,9 +24,6 @@ import launch
 from launch import LaunchContext, SomeSubstitutionsType
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
-from launch.frontend import Entity
-from launch.frontend import expose_action
-from launch.frontend import Parser
 from launch.action import Action
 from launch.actions import EmitEvent, RegisterEventHandler
 
@@ -34,7 +33,7 @@ from lifecycle_msgs.msg import Transition
 from launch_ros.events.matchers import matches_node_name
 
 
-@expose_action('lifecycle_transition')
+
 class LifecycleTransition(Action):
     """An action that simplifies execution of lifecyle transitions."""
 
@@ -77,6 +76,12 @@ class LifecycleTransition(Action):
         :param transitions_ids: The transitions to be executed.
         """
         super().__init__(**kwargs)
+        if len(transition_ids) == 0:
+            raise ValueError("No transition_ids provided.")
+
+        if len(lifecycle_node_names) == 0:
+            raise ValueError("No lifecycle_node_names provided.")
+
         self.__lifecycle_node_names = [
             normalize_to_list_of_substitutions(name)
             for name in lifecycle_node_names]
@@ -88,18 +93,6 @@ class LifecycleTransition(Action):
         self.__event_handlers = {}
         self.__logger = launch.logging.get_logger(__name__)
 
-    @classmethod
-    def parse(cls, entity: Entity, parser: Parser):
-        """Parse load_composable_node."""
-        _, kwargs = super().parse(entity, parser)
-
-        kwargs['lifecycle_node_names'] = parser.parser_substitution(
-            entity.get_attr('lifecycle_node_names', data_type=List[str])
-        )
-        # Probably need to make this parsable through a dict for convenience
-        kwargs['transitions_ids'] = entity.get_attr(
-            'transitions_ids', data_type=List[int])
-        return cls, kwargs
 
     def _remove_event_handlers(
             self,
@@ -179,7 +172,7 @@ class LifecycleTransition(Action):
                             emit_actions[node_name][i]],
                         handle_once=True
                     )
-                # For last transition emit Log message
+                # For last transition emit Log message and remove untriggered error handlers
                 else:
                     event_handler = OnStateTransition(
                         matcher=match_node_name_start_goal(

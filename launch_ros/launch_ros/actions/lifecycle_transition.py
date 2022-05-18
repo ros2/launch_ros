@@ -12,13 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from argparse import ArgumentError
-from hmac import trans_36
 from typing import Optional
 from typing import Iterable
 from typing import Union
 from typing import List
-from collections import OrderedDict
 import functools
 import launch
 from launch import LaunchContext, SomeSubstitutionsType
@@ -31,7 +28,6 @@ from launch_ros.event_handlers import OnStateTransition
 from launch_ros.events.lifecycle import ChangeState, StateTransition
 from lifecycle_msgs.msg import Transition
 from launch_ros.events.matchers import matches_node_name
-
 
 
 class LifecycleTransition(Action):
@@ -92,7 +88,6 @@ class LifecycleTransition(Action):
 
         self.__event_handlers = {}
         self.__logger = launch.logging.get_logger(__name__)
-
 
     def _remove_event_handlers(
             self,

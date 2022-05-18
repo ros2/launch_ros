@@ -25,25 +25,25 @@ import pytest
 def test_lifecycle_transition_constructor():
     LifecycleTransition(
         lifecycle_node_names=['talker'],
-        transitions_ids=[Transition.TRANSITION_ACTIVATE]
+        transition_ids=[Transition.TRANSITION_ACTIVATE]
     )
     LifecycleTransition(
         lifecycle_node_names=['talker'],
-        transitions_ids=[1]
+        transition_ids=[1]
     )
     LifecycleTransition(
         lifecycle_node_names=['talker'],
-        transitions_ids=['1']
+        transition_ids=['1']
     )
     with pytest.raises(ValueError):
         LifecycleTransition(
             lifecycle_node_names=['talker'],
-            transitions_ids=[]
+            transition_ids=[]
         )
     with pytest.raises(ValueError):
         LifecycleTransition(
             lifecycle_node_names=[],
-            transitions_ids=[Transition.TRANSITION_ACTIVATE]
+            transition_ids=[Transition.TRANSITION_ACTIVATE]
         )
 
 
@@ -51,7 +51,7 @@ def test_lifecycle_transition_execute():
     lc = LaunchContext()
     lt = LifecycleTransition(
         lifecycle_node_names=['talker'],
-        transitions_ids=['1']
+        transition_ids=['1']
     )
     actions = lt.execute(lc)
     # Check that actions are correctly generated

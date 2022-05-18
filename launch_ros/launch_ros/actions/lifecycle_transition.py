@@ -56,11 +56,12 @@ class LifecycleTransition(Action):
     }
 
     def __init__(
-            self,
-            *,
-            lifecycle_node_names: Iterable[SomeSubstitutionsType],
-            transitions_ids: Iterable[Union[int, SomeSubstitutionsType]],
-            **kwargs, ) -> None:
+        self,
+        *,
+        lifecycle_node_names: Iterable[SomeSubstitutionsType],
+        transitions_ids: Iterable[Union[int, SomeSubstitutionsType]],
+        **kwargs
+    ) -> None:
         """
         Construct a LifecycleTransition action.
 
@@ -79,18 +80,8 @@ class LifecycleTransition(Action):
         self.__lifecycle_node_names = [
             normalize_to_list_of_substitutions(name)
             for name in lifecycle_node_names]
-        temp_transitions_ids = []
-        for id in transitions_ids:
-            temp_id = None
-            if isinstance(id, int):
-                temp_id = str(id)
-            else:
-                temp_id = id
-            temp_transitions_ids.append(temp_id)
-
-        self.__transition_ids = [
-            normalize_to_list_of_substitutions(id)
-            for id in temp_transitions_ids]
+        transition_ids = [str(id) if isinstance(id, int) else id for id in transition_ids]
+        self.__transition_ids = [normalize_to_list_of_substitutions(id) for id in transitions_ids]
 
         self.__event_handlers = {}
         self.__logger = launch.logging.get_logger(__name__)
@@ -111,31 +102,26 @@ class LifecycleTransition(Action):
     def _remove_event_handlers(
             self,
             context: LaunchContext,
-            node_name: str = None,
+            node_name: str
             reason: str = None):
         """Remove all consequent transitions if error occurs."""
-        if node_name is not None:
-            if reason is not None:
-                self.__logger.info("Stopping transitions for {} because {}.".format(
-                    node_name,
-                    reason
-                ))
-            for event_handler in self.__event_handlers[node_name]:
-                # Unregister event handlers and ignore failures, as these are
-                # already unregistered event handlers.
-                try:
-                    context.unregister_event_handler(event_handler=event_handler)
-                except ValueError:
-                    pass
-                finally:
-                    pass
+        if reason is not None:
+            self.__logger.info(f"Stopping transitions for {node_name} because '{reason}'")
+            
+        for event_handler in self.__event_handlers[node_name]:
+            # Unregister event handlers and ignore failures, as these are
+            # already unregistered event handlers.
+            try:
+                context.unregister_event_handler(event_handler=event_handler)
+            except ValueError:
+                pass
 
     def execute(
         self,
         context: launch.LaunchContext
     ) -> Optional[List[Action]]:
         """
-        Execute the Lifecycle Transition action.
+        Execute the LifecycleTransition action.
 
         :return Returns a list of actions to be executed to achieve specified transitions.
           These are EventHandlers and EventEmitters for ChangeState and
@@ -149,9 +135,12 @@ class LifecycleTransition(Action):
             for id in self.__transition_ids]
         transition_ids = []
         for id in subs_transition_ids:
-            transition_ids.append(int(id))
+            try:
+                transition_ids.append(int(id))
+            except ValueError:
+                raise ValueError(f'expected integer for lifecycle transition, got {id}')
 
-        emit_actions = OrderedDict()
+        emit_actions = {}
         actions: List[Action] = []
 
         # Create EmitEvents for ChangeStates and store

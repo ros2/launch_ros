@@ -23,14 +23,6 @@ import pytest
 
 
 def test_lifecycle_transition_constructor():
-    with pytest.raises(TypeError):
-        LifecycleTransition(
-            lifecycle_node_names=['talker']
-        )
-    with pytest.raises(TypeError):
-        LifecycleTransition(
-            transitions_ids=[Transition.TRANSITION_ACTIVATE]
-        )
     LifecycleTransition(
         lifecycle_node_names=['talker'],
         transitions_ids=[Transition.TRANSITION_ACTIVATE]

@@ -59,7 +59,7 @@ class LifecycleTransition(Action):
         self,
         *,
         lifecycle_node_names: Iterable[SomeSubstitutionsType],
-        transitions_ids: Iterable[Union[int, SomeSubstitutionsType]],
+        transition_ids: Iterable[Union[int, SomeSubstitutionsType]],
         **kwargs
     ) -> None:
         """
@@ -80,8 +80,10 @@ class LifecycleTransition(Action):
         self.__lifecycle_node_names = [
             normalize_to_list_of_substitutions(name)
             for name in lifecycle_node_names]
-        transition_ids = [str(id) if isinstance(id, int) else id for id in transition_ids]
-        self.__transition_ids = [normalize_to_list_of_substitutions(id) for id in transitions_ids]
+        transition_ids = [str(id) if isinstance(
+            id, int) else id for id in transition_ids]
+        self.__transition_ids = [
+            normalize_to_list_of_substitutions(id) for id in transition_ids]
 
         self.__event_handlers = {}
         self.__logger = launch.logging.get_logger(__name__)
@@ -102,12 +104,13 @@ class LifecycleTransition(Action):
     def _remove_event_handlers(
             self,
             context: LaunchContext,
-            node_name: str
+            node_name: str,
             reason: str = None):
         """Remove all consequent transitions if error occurs."""
         if reason is not None:
-            self.__logger.info(f"Stopping transitions for {node_name} because '{reason}'")
-            
+            self.__logger.info(
+                f"Stopping transitions for {node_name} because '{reason}'")
+
         for event_handler in self.__event_handlers[node_name]:
             # Unregister event handlers and ignore failures, as these are
             # already unregistered event handlers.
@@ -138,7 +141,8 @@ class LifecycleTransition(Action):
             try:
                 transition_ids.append(int(id))
             except ValueError:
-                raise ValueError(f'expected integer for lifecycle transition, got {id}')
+                raise ValueError(
+                    f'expected integer for lifecycle transition, got {id}')
 
         emit_actions = {}
         actions: List[Action] = []
@@ -194,7 +198,8 @@ class LifecycleTransition(Action):
                     )
                 self.__event_handlers[node_name].append(event_handler)
                 # Create register event handler action
-                register_action = RegisterEventHandler(event_handler=event_handler)
+                register_action = RegisterEventHandler(
+                    event_handler=event_handler)
                 # Append to actions
                 actions.append(register_action)
             # increment next ChangeState action by one
@@ -233,7 +238,7 @@ def match_node_name_start_goal(node_name: str, start_state: str, goal_state: str
         (event.action.node_name == node_name) and
         (event.goal_state == goal_state) and
         (event.start_state == start_state)
-        )
+    )
 
 
 def match_node_name_goal(node_name: str, goal_state: str):
@@ -243,4 +248,4 @@ def match_node_name_goal(node_name: str, goal_state: str):
         isinstance(event, StateTransition) and
         (event.action.node_name == node_name) and
         (event.goal_state == goal_state)
-        )
+    )

@@ -2,6 +2,19 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.20.0 (2022-04-29)
+-------------------
+* Fix long wait during shutdown in WaitForTopics (`#314 <https://github.com/ros2/launch_ros/issues/314>`_)
+* Contributors: Keng12
+
+0.19.2 (2022-04-08)
+-------------------
+* Add `hz` param to `talker.py` to fix wait_for_topic_launch_test (`#309 <https://github.com/ros2/launch_ros/issues/309>`_)
+* Contributors: Shane Loretz
+
+0.19.1 (2022-04-05)
+-------------------
+
 0.19.0 (2022-03-24)
 -------------------
 

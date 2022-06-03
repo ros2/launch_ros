@@ -561,8 +561,13 @@ def instantiate_extension(
 
 def get_extensions(logger):
     group_name = 'launch_ros.node_action'
+    entry_points_impl = importlib_metadata.entry_points()
+    if hasattr(entry_points_impl, 'select'):
+        groups = entry_points_impl.select(group=group_name)
+    else:
+        groups = entry_points_impl.get(group_name, [])
     entry_points = {}
-    for entry_point in importlib_metadata.entry_points().get(group_name, []):
+    for entry_point in groups:
         entry_points[entry_point.name] = entry_point
     extension_types = {}
     for entry_point in entry_points:

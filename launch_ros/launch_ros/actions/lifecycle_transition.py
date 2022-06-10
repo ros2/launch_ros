@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
-from typing import Iterable
-from typing import Union
-from typing import List
 import functools
+
+from typing import Iterable
+from typing import List
+from typing import Optional
+from typing import Union
+
+
 import launch
 from launch import LaunchContext, SomeSubstitutionsType
 from launch.utilities import normalize_to_list_of_substitutions
@@ -73,10 +76,10 @@ class LifecycleTransition(Action):
         """
         super().__init__(**kwargs)
         if len(transition_ids) == 0:
-            raise ValueError("No transition_ids provided.")
+            raise ValueError('No transition_ids provided.')
 
         if len(lifecycle_node_names) == 0:
-            raise ValueError("No lifecycle_node_names provided.")
+            raise ValueError('No lifecycle_node_names provided.')
 
         self.__lifecycle_node_names = [
             normalize_to_list_of_substitutions(name)
@@ -122,15 +125,15 @@ class LifecycleTransition(Action):
             perform_substitutions(context, name)
             for name in self.__lifecycle_node_names]
         subs_transition_ids = [
-            perform_substitutions(context, id)
-            for id in self.__transition_ids]
+            perform_substitutions(context, id_)
+            for id_ in self.__transition_ids]
         transition_ids = []
-        for id in subs_transition_ids:
+        for tid in subs_transition_ids:
             try:
-                transition_ids.append(int(id))
+                transition_ids.append(int(tid))
             except ValueError:
                 raise ValueError(
-                    f'expected integer for lifecycle transition, got {id}')
+                    f'expected integer for lifecycle transition, got {tid}')
 
         emit_actions = {}
         actions: List[Action] = []
@@ -138,10 +141,10 @@ class LifecycleTransition(Action):
         # Create EmitEvents for ChangeStates and store
         for name in lifecycle_node_names:
             own_emit_actions = []
-            for id in transition_ids:
+            for tid in transition_ids:
                 change_event = ChangeState(
                     lifecycle_node_matcher=matches_node_name(name),
-                    transition_id=id)
+                    transition_id=tid)
                 emit_action = EmitEvent(
                     event=change_event
                 )
@@ -150,19 +153,19 @@ class LifecycleTransition(Action):
             self.__event_handlers[name] = []
         # Create Transition EventHandlers and Registration actions
         i = 1
-        for id in transition_ids:
+        for tid in transition_ids:
             # Create Transition handler for all indicated nodes
             for node_name in lifecycle_node_names:
 
-                states = self.transition_targets[id]
+                states = self.transition_targets[tid]
                 event_handler = None
                 # For all transitions except the last, emit next ChangeState Event
                 if i < len(transition_ids):
                     event_handler = OnStateTransition(
                         matcher=match_node_name_start_goal(
                             node_name,
-                            states["start_state"],
-                            states["goal_state"]),
+                            states['start_state'],
+                            states['goal_state']),
                         entities=[
                             emit_actions[node_name][i]],
                         handle_once=True
@@ -172,8 +175,8 @@ class LifecycleTransition(Action):
                     event_handler = OnStateTransition(
                         matcher=match_node_name_start_goal(
                             node_name,
-                            states["start_state"],
-                            states["goal_state"]),
+                            states['start_state'],
+                            states['goal_state']),
                         entities=[
                             launch.actions.OpaqueFunction(
                                 function=functools.partial(
@@ -196,13 +199,13 @@ class LifecycleTransition(Action):
         for node_name in lifecycle_node_names:
             event_handler = \
                 launch.EventHandler(
-                    matcher=match_node_name_goal(node_name, "errorprocessing"),
+                    matcher=match_node_name_goal(node_name, 'errorprocessing'),
                     entities=[
                         launch.actions.OpaqueFunction(
                             function=functools.partial(
                                 self._remove_event_handlers,
                                 node_name=node_name,
-                                reason="error occured during transitions"
+                                reason='error occured during transitions'
                             )
                         )
                     ],

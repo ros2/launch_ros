@@ -22,15 +22,15 @@ from typing import Union
 
 import launch
 from launch import LaunchContext, SomeSubstitutionsType
-from launch.utilities import normalize_to_list_of_substitutions
-from launch.utilities import perform_substitutions
 from launch.action import Action
 from launch.actions import EmitEvent, RegisterEventHandler
+from launch.utilities import normalize_to_list_of_substitutions
+from launch.utilities import perform_substitutions
 
 from launch_ros.event_handlers import OnStateTransition
 from launch_ros.events.lifecycle import ChangeState, StateTransition
-from lifecycle_msgs.msg import Transition
 from launch_ros.events.matchers import matches_node_name
+from lifecycle_msgs.msg import Transition
 
 
 class LifecycleTransition(Action):
@@ -84,10 +84,13 @@ class LifecycleTransition(Action):
         self.__lifecycle_node_names = [
             normalize_to_list_of_substitutions(name)
             for name in lifecycle_node_names]
-        transition_ids = [str(id) if isinstance(
-            id, int) else id for id in transition_ids]
+        transition_ids = [
+            str(transition_id)
+            if isinstance(transition_id, int) else transition_id
+            for transition_id in transition_ids]
         self.__transition_ids = [
-            normalize_to_list_of_substitutions(id) for id in transition_ids]
+            normalize_to_list_of_substitutions(transition_id)
+            for transition_id in transition_ids]
 
         self.__event_handlers = {}
         self.__logger = launch.logging.get_logger(__name__)

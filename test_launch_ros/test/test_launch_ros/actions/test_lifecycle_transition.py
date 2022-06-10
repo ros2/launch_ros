@@ -15,7 +15,7 @@
 """Tests for the LifcycleTransition action."""
 
 from launch import LaunchContext
-from launch.actions import RegisterEventHandler, EmitEvent
+from launch.actions import EmitEvent, RegisterEventHandler
 from launch_ros.actions import LifecycleTransition
 from lifecycle_msgs.msg import Transition
 

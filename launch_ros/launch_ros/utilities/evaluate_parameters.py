@@ -93,16 +93,20 @@ def evaluate_parameter_dict(
                     if not check_sequence_type_is_allowed(yaml_evaluated_value):
                         raise TypeError(
                             'Expected a non-empty sequence, with items of uniform type. '
-                            'Allowed sequence item types are bool, int, float, str.'
+                            'Allowed sequence item types are bool, int, float, str. '
+                            'Got inconsistent input for "{}"'.format(evaluated_name)
                         )
                     evaluated_value = tuple(yaml_evaluated_value)
                 else:
                     raise TypeError(
                         'Allowed value types are bytes, bool, int, float, str, Sequence[bool]'
-                        ', Sequence[int], Sequence[float], Sequence[str]. Got {}.'
+                        ', Sequence[int], Sequence[float], Sequence[str]. Got {} for "{}". '
                         'If the parameter is meant to be a string, try wrapping it in '
                         'launch_ros.parameter_descriptions.ParameterValue'
-                        '(value, value_type=str)'.format(type(yaml_evaluated_value))
+                        '(value, value_type=str)'.format(
+                            type(yaml_evaluated_value),
+                            evaluated_name
+                        )
                     )
             elif isinstance(value[0], Sequence):
                 # Value is an array of a list of substitutions
@@ -119,7 +123,8 @@ def evaluate_parameter_dict(
                 if not check_sequence_type_is_allowed(yaml_evaluated_value):
                     raise TypeError(
                         'Expected a non-empty sequence, with items of uniform type. '
-                        'Allowed sequence item types are bool, int, float, str.'
+                        'Allowed sequence item types are bool, int, float, str. '
+                        'Got inconsistent input for "{}"'.format(evaluated_name)
                     )
                 evaluated_value = tuple(yaml_evaluated_value)
             else:

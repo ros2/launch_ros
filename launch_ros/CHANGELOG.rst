@@ -2,6 +2,12 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.7 (2022-09-12)
+-------------------
+* Handle empty strings when evaluating parameters (`#300 <https://github.com/ros2/launch_ros/issues/300>`_) (`#302 <https://github.com/ros2/launch_ros/issues/302>`_)
+* Fix TypeError accessing name and value of SetParameter (`#298 <https://github.com/ros2/launch_ros/issues/298>`_)
+* Contributors: Jacob Perron
+
 0.11.6 (2022-01-31)
 -------------------
 * Validate complex attributes of 'node' action (backport `#198 <https://github.com/ros2/launch_ros/issues/198>`_) (`#293 <https://github.com/ros2/launch_ros/issues/293>`_)

@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.7 (2022-09-12)
+-------------------
+* Handle empty strings when evaluating parameters (`#300 <https://github.com/ros2/launch_ros/issues/300>`_) (`#302 <https://github.com/ros2/launch_ros/issues/302>`_)
+* Contributors: Jacob Perron
+
 0.11.6 (2022-01-31)
 -------------------
 * More Helpful Error Messages (`#275 <https://github.com/ros2/launch_ros/issues/275>`_) (`#289 <https://github.com/ros2/launch_ros/issues/289>`_)

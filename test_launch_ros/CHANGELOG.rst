@@ -2,8 +2,8 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.21.0 (2022-09-13)
+-------------------
 * Support default values in parameter substitution (`#313 <https://github.com/ros2/launch_ros/issues/313>`_)
 * Contributors: Kenji Miyake
 

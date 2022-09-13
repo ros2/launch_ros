@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Support default values in parameter substitution (`#313 <https://github.com/ros2/launch_ros/issues/313>`_)
+* Contributors: Kenji Miyake
+
 0.20.0 (2022-04-29)
 -------------------
 * Run condition for composable nodes (`#311 <https://github.com/ros2/launch_ros/issues/311>`_)

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for the `SetROSLogDir` action."""
+"""Module for the `SetRosLogDir` action."""
 
 import os
 from typing import List
@@ -31,7 +31,7 @@ from launch.utilities import perform_substitutions
 
 
 @expose_action('set_ros_log_dir')
-class SetROSLogDir(Action):
+class SetRosLogDir(Action):
     """
     Action that sets the ros log directory.
 
@@ -52,7 +52,7 @@ class SetROSLogDir(Action):
         **kwargs
     ) -> None:
         """
-        Create a SetROSLogDir action.
+        Create a SetRosLogDir action.
 
         :param new_log_dir: new log directory, if absolute it sets the ros log dir,
             but if it is a relative path, then it is joined with the current ros log dir.
@@ -62,7 +62,7 @@ class SetROSLogDir(Action):
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
-        """Return `SetROSLogDir` action and kwargs for constructing it."""
+        """Return `SetRosLogDir` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         kwargs['new_log_dir'] = parser.parse_substitution(entity.get_attr('new_log_dir'))
         return cls, kwargs

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for the SetROSLogDir Action."""
+"""Tests for the SetRosLogDir Action."""
 
 import io
 import os
@@ -23,12 +23,12 @@ from launch.actions import PopEnvironment
 from launch.actions import PushEnvironment
 from launch.frontend import Parser
 
-from launch_ros.actions import SetROSLogDir
+from launch_ros.actions import SetRosLogDir
 
 
 def test_set_ros_log_dir_constructor():
-    """Test the constructor for SetROSLogDir class."""
-    SetROSLogDir(new_log_dir='')
+    """Test the constructor for SetRosLogDir class."""
+    SetRosLogDir(new_log_dir='')
 
 
 def test_set_ros_log_dir_relative(tmpdir):
@@ -39,7 +39,7 @@ def test_set_ros_log_dir_relative(tmpdir):
     try:
         initial_ros_log_dir = os.path.join(tmpdir, 'test_ros_log_dir')
         os.environ['ROS_LOG_DIR'] = initial_ros_log_dir
-        SetROSLogDir('relative').visit(lc)
+        SetRosLogDir('relative').visit(lc)
         assert os.environ['ROS_LOG_DIR'] == os.path.join(initial_ros_log_dir, 'relative')
     finally:
         PopEnvironment().visit(lc)
@@ -54,14 +54,14 @@ def test_set_ros_log_dir_absolute(tmpdir):
         initial_ros_log_dir = os.path.join(tmpdir, 'test_ros_log_dir')
         os.environ['ROS_LOG_DIR'] = initial_ros_log_dir
         new_ros_log_dir = os.path.join(tmpdir, 'test_set_ros_log_dir_absolute')
-        SetROSLogDir(new_ros_log_dir).visit(lc)
+        SetRosLogDir(new_ros_log_dir).visit(lc)
         assert os.environ['ROS_LOG_DIR'] == new_ros_log_dir
     finally:
         PopEnvironment().visit(lc)
 
 
 def test_set_ros_log_dir_frontend():
-    """Test the frontend parsing of SetROSLogDir."""
+    """Test the frontend parsing of SetRosLogDir."""
     xml_file = textwrap.dedent(r"""
         <launch>
             <set_ros_log_dir new_log_dir="relative" />
@@ -72,4 +72,4 @@ def test_set_ros_log_dir_frontend():
         root_entity, parser = Parser.load(f)
         ld = parser.parse_description(root_entity)
         assert len(ld.entities) == 1
-        assert isinstance(ld.entities[0], SetROSLogDir)
+        assert isinstance(ld.entities[0], SetRosLogDir)

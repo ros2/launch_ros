@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for the RosTimer action."""
+"""Module for the ROSTimer action."""
 
 import asyncio
 import collections.abc
@@ -39,7 +39,7 @@ from launch_ros.ros_adapters import get_ros_node
 
 
 @expose_action('ros_timer')
-class RosTimer(TimerAction):
+class ROSTimer(TimerAction):
     """
     Action that defers other entities until a period of time has passed, unless canceled.
 
@@ -56,15 +56,15 @@ class RosTimer(TimerAction):
         **kwargs
     ) -> None:
         """
-        Create a RosTimer.
+        Create a ROSTimer.
 
         :param period: is the time (in seconds) to set the timer for.
         :param actions: is an iterable containing actions to be executed upon on timeout.
         """
         super().__init__(period=period, actions=actions, **kwargs)
         period_types = list(SomeSubstitutionsType_types_tuple) + [float]
-        ensure_argument_type(period, period_types, 'period', 'RosTimer')
-        ensure_argument_type(actions, collections.abc.Iterable, 'actions', 'RosTimer')
+        ensure_argument_type(period, period_types, 'period', 'ROSTimer')
+        ensure_argument_type(actions, collections.abc.Iterable, 'actions', 'ROSTimer')
         self.__period = type_utils.normalize_typed_substitution(period, float)
         self.__timer_future: Optional[asyncio.Future] = None
 
@@ -94,7 +94,7 @@ class RosTimer(TimerAction):
         entity: Entity,
         parser: Parser,
     ):
-        """Return the `RosTimer` action and kwargs for constructing it."""
+        """Return the `ROSTimer` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         kwargs['period'] = parser.parse_if_substitutions(
             entity.get_attr('period', data_type=float, can_be_str=True))
@@ -102,8 +102,8 @@ class RosTimer(TimerAction):
         return cls, kwargs
 
     def describe(self) -> Text:
-        """Return a description of this RosTimer."""
-        return 'RosTimer(period={}, actions=<actions>)'.format(self.__period)
+        """Return a description of this ROSTimer."""
+        return 'ROSTimer(period={}, actions=<actions>)'.format(self.__period)
 
     def execute(self, context: LaunchContext):
         self.__timer_future = create_future(context.asyncio_loop)

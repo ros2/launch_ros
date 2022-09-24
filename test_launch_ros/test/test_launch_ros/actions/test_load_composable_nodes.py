@@ -23,7 +23,7 @@ from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import GroupAction
 from launch_ros.actions import LoadComposableNodes
-from launch_ros.actions import PushRosNamespace
+from launch_ros.actions import PushROSNamespace
 from launch_ros.actions import SetRemap
 from launch_ros.descriptions import ComposableNode
 from launch_ros.utilities import get_node_name_count
@@ -414,7 +414,7 @@ def test_load_node_with_param_file(mock_component_container):
     # Node name with namespace from launch
     # Params file has no namespace
     context = _assert_launch_no_errors([
-        PushRosNamespace('ns'),
+        PushROSNamespace('ns'),
         _load_composable_node(
             package='foo_package',
             plugin='bar_plugin',
@@ -433,7 +433,7 @@ def test_load_node_with_param_file(mock_component_container):
     # Node name with namespace from launch
     # Params file has expected namespace
     context = _assert_launch_no_errors([
-        PushRosNamespace('ns'),
+        PushROSNamespace('ns'),
         _load_composable_node(
             package='foo_package',
             plugin='bar_plugin',
@@ -490,7 +490,7 @@ def test_load_node_with_namespace_in_group(mock_component_container):
     context = _assert_launch_no_errors([
         GroupAction(
             [
-                PushRosNamespace('foo'),
+                PushROSNamespace('foo'),
                 _load_composable_node(
                     package='foo_package',
                     plugin='bar_plugin',

@@ -17,8 +17,6 @@
 import os
 from typing import List
 
-from rclpy.logging import get_logging_directory
-
 from launch import Action
 from launch import Substitution
 from launch.frontend import Entity
@@ -28,6 +26,7 @@ from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
+from rclpy.logging import get_logging_directory
 
 
 @expose_action('set_ros_log_dir')

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-"""Tests for the RosTimer Action."""
+"""Tests for the ROSTimer Action."""
 from functools import partial
 import threading
 import time
@@ -23,7 +23,7 @@ import launch
 from launch.actions import DeclareLaunchArgument
 import launch.event_handlers
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import RosTimer
+from launch_ros.actions import ROSTimer
 from launch_ros.actions import SetUseSimTime
 import pytest
 import rclpy
@@ -57,7 +57,7 @@ def test_multiple_launch_with_timers():
     def generate_launch_description():
         return launch.LaunchDescription([
 
-            RosTimer(
+            ROSTimer(
                 period=1.,
                 actions=[]
             ),
@@ -76,7 +76,7 @@ def test_timer_with_launch_configuration():
     def generate_launch_description():
         return launch.LaunchDescription([
             DeclareLaunchArgument('my_period', default_value='0.1'),
-            RosTimer(
+            ROSTimer(
                 period=LaunchConfiguration('my_period'),
                 actions=[]
             ),
@@ -98,7 +98,7 @@ def test_timer_action_sanity_check():
 
         launch.actions.OpaqueFunction(function=set_start_time),
 
-        RosTimer(
+        ROSTimer(
             period=1.,
             actions=[
                 launch.actions.OpaqueFunction(function=set_end_time),
@@ -125,14 +125,14 @@ def test_shutdown_preempts_timers():
 
     ld = launch.LaunchDescription([
 
-        RosTimer(
+        ROSTimer(
             period=1.,
             actions=[
                 launch.actions.Shutdown(reason='fast shutdown')
             ]
         ),
 
-        RosTimer(
+        ROSTimer(
             period=2.,
             actions=[
                 launch.actions.Shutdown(reason='slow shutdown')
@@ -179,7 +179,7 @@ def test_timer_uses_sim_time(rclpy_node):
 
         launch.actions.OpaqueFunction(function=set_start_time),
 
-        RosTimer(
+        ROSTimer(
             period=200.,
             actions=[
                 launch.actions.OpaqueFunction(function=set_end_time)

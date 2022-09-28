@@ -18,8 +18,10 @@ from .composable_node_container import ComposableNodeContainer
 from .lifecycle_node import LifecycleNode
 from .load_composable_nodes import LoadComposableNodes
 from .node import Node
-from .push_ros_namespace import PushRosNamespace
-from .ros_timer import RosTimer
+from .push_ros_namespace import PushROSNamespace
+from .push_ros_namespace import PushROSNamespace as PushRosNamespace
+from .ros_timer import ROSTimer
+from .ros_timer import ROSTimer as RosTimer
 from .set_parameter import SetParameter
 from .set_parameters_from_file import SetParametersFromFile
 from .set_remap import SetRemap
@@ -32,7 +34,9 @@ __all__ = [
     'LifecycleNode',
     'LoadComposableNodes',
     'Node',
+    'PushROSNamespace',
     'PushRosNamespace',
+    'ROSTimer',
     'RosTimer',
     'SetParameter',
     'SetParametersFromFile',

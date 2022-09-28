@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for the `PushRosNamespace` action."""
+"""Module for the `PushROSNamespace` action."""
 
 from typing import List
 
@@ -35,7 +35,7 @@ from rclpy.validate_namespace import validate_namespace
 
 @expose_action('push_ros_namespace')
 @expose_action('push-ros-namespace')
-class PushRosNamespace(Action):
+class PushROSNamespace(Action):
     """
     Action that pushes the ros namespace.
 
@@ -48,13 +48,13 @@ class PushRosNamespace(Action):
         namespace: SomeSubstitutionsType,
         **kwargs
     ) -> None:
-        """Create a PushRosNamespace action."""
+        """Create a PushROSNamespace action."""
         super().__init__(**kwargs)
         self.__namespace = normalize_to_list_of_substitutions(namespace)
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
-        """Return `PushRosNamespace` action and kwargs for constructing it."""
+        """Return `PushROSNamespace` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         kwargs['namespace'] = parser.parse_substitution(entity.get_attr('namespace'))
         return cls, kwargs

@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for the PushRosNamespace Action."""
+"""Tests for the PushROSNamespace Action."""
 
 from launch_ros.actions import Node
-from launch_ros.actions import PushRosNamespace
+from launch_ros.actions import PushROSNamespace
 from launch_ros.actions.load_composable_nodes import get_composable_node_load_request
 from launch_ros.descriptions import ComposableNode
 
@@ -105,10 +105,10 @@ def get_test_cases():
 def test_push_ros_namespace(config):
     lc = MockContext()
     if config.push_ns is not None:
-        pns1 = PushRosNamespace(config.push_ns)
+        pns1 = PushROSNamespace(config.push_ns)
         pns1.execute(lc)
     if config.second_push_ns is not None:
-        pns2 = PushRosNamespace(config.second_push_ns)
+        pns2 = PushROSNamespace(config.second_push_ns)
         pns2.execute(lc)
     node = Node(
         package='dont_care',
@@ -132,10 +132,10 @@ def test_push_ros_namespace(config):
 def test_push_ros_namespace_with_composable_node(config):
     lc = MockContext()
     if config.push_ns is not None:
-        pns1 = PushRosNamespace(config.push_ns)
+        pns1 = PushROSNamespace(config.push_ns)
         pns1.execute(lc)
     if config.second_push_ns is not None:
-        pns2 = PushRosNamespace(config.second_push_ns)
+        pns2 = PushROSNamespace(config.second_push_ns)
         pns2.execute(lc)
     node_description = ComposableNode(
         package='asd',

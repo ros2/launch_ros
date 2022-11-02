@@ -2,8 +2,8 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.22.0 (2022-11-02)
+-------------------
 * RosTimer -> ROSTimer and PushRosNamespace -> PushROSNamespace, to follow PEP8 (`#326 <https://github.com/ros2/launch_ros/issues/326>`_)
 * add SetROSLogDir action (`#325 <https://github.com/ros2/launch_ros/issues/325>`_)
 * Contributors: William Woodall

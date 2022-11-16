@@ -17,12 +17,19 @@
 # importing downstream modules in upstream packages when built with a merged
 # workspace.
 
+import pytest
+
 
 def pytest_launch_collect_makemodule(path, parent, entrypoint):
     marks = getattr(entrypoint, 'pytestmark', [])
     if marks and any(m.name == 'rostest' for m in marks):
         from launch_testing_ros.pytest.hooks import LaunchROSTestModule
-        return LaunchROSTestModule.from_parent(parent=parent, fspath=path)
+        module = LaunchROSTestModule.from_parent(parent=parent, fspath=path)
+        for mark in marks:
+            decorator = getattr(pytest.mark, mark.name)
+            decorator = decorator.with_args(*mark.args, **mark.kwargs)
+            module.add_marker(decorator)
+        return module
 
 
 def pytest_configure(config):

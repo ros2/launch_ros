@@ -18,7 +18,6 @@ import threading
 
 from typing import List
 from typing import Optional
-from typing import Text
 from typing import Union
 
 import composition_interfaces.srv

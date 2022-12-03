@@ -95,7 +95,7 @@ class Parameter(Substitution):
         for param in params_container:
             if isinstance(param, tuple):
                 if param[0] == name:
-                    return param[1]
+                    return str(param[1])
 
         if self.__default is None:
             raise SubstitutionFailure("parameter '{}' not found".format(name))

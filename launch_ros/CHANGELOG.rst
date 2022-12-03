@@ -2,6 +2,9 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.14.4 (2022-12-02)
+-------------------
+
 0.14.3 (2022-04-28)
 -------------------
 * Handle empty strings when evaluating parameters (`#300 <https://github.com/ros2/launch_ros/issues/300>`_) (`#301 <https://github.com/ros2/launch_ros/issues/301>`_)

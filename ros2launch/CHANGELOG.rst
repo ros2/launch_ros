@@ -2,6 +2,9 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.14.4 (2022-12-02)
+-------------------
+
 0.14.3 (2022-04-28)
 -------------------
 * Simplify logic to fix absolute paths (`#230 <https://github.com/ros2/launch_ros/issues/230>`_) (`#296 <https://github.com/ros2/launch_ros/issues/296>`_)

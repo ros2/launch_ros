@@ -123,8 +123,8 @@ def test_composable_node_container_in_group_with_launch_configuration_in_descrip
 
 def test_composable_node_container_if_condition():
     """Nominal test for launching a ComposableNodeContainer."""
-    TEST_NODE_NAME_1 = 'test_component_container_node_name_1'
-    TEST_NODE_NAME_2 = 'test_component_container_node_name_2'
+    test_node_name_1 = 'test_component_container_node_name_1'
+    test_node_name_2 = 'test_component_container_node_name_2'
     actions = [
         DeclareLaunchArgument(name='flag', default_value='False'),
         ComposableNodeContainer(
@@ -160,14 +160,14 @@ def test_composable_node_container_if_condition():
                 ComposableNode(
                     package='composition',
                     plugin='composition::Listener',
-                    name=TEST_NODE_NAME_1,
+                    name=test_node_name_1,
                     namespace=TEST_NODE_NAMESPACE,
                     condition=UnlessCondition(LaunchConfiguration('flag'))
                 ),
                 ComposableNode(
                     package='composition',
                     plugin='composition::Listener',
-                    name=TEST_NODE_NAME_2,
+                    name=test_node_name_2,
                     namespace=TEST_NODE_NAMESPACE,
                     condition=IfCondition(LaunchConfiguration('flag'))
                 )
@@ -179,5 +179,5 @@ def test_composable_node_container_if_condition():
     context = _assert_launch_no_errors(actions)
 
     assert get_node_name_count(context, f'/{TEST_CONTAINER_NAMESPACE}/{TEST_CONTAINER_NAME}') == 1
-    assert get_node_name_count(context, f'/{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME_1}') == 1
-    assert get_node_name_count(context, f'/{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME_2}') == 0
+    assert get_node_name_count(context, f'/{TEST_NODE_NAMESPACE}/{test_node_name_1}') == 1
+    assert get_node_name_count(context, f'/{TEST_NODE_NAMESPACE}/{test_node_name_2}') == 0

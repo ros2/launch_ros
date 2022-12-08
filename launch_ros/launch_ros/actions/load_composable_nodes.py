@@ -229,16 +229,19 @@ class LoadComposableNodes(Action):
 
         # Generate load requests before execute() exits to avoid race with context changing
         # due to scope change (e.g. if loading nodes from within a GroupAction).
-        load_node_requests = [
-            get_composable_node_load_request(node_description, context)
-            for node_description in self.__composable_node_descriptions
-        ]
+        load_node_requests = []
+        for node_description in self.__composable_node_descriptions:
+            request = get_composable_node_load_request(node_description, context)
+            # The request can be None if the node description's condition evaluates to False
+            if request is not None:
+                load_node_requests.append(request)
 
-        context.add_completion_future(
-            context.asyncio_loop.run_in_executor(
-                None, self._load_in_sequence, load_node_requests, context
+        if load_node_requests:
+            context.add_completion_future(
+                context.asyncio_loop.run_in_executor(
+                    None, self._load_in_sequence, load_node_requests, context
+                )
             )
-        )
 
 
 def get_composable_node_load_request(
@@ -246,6 +249,11 @@ def get_composable_node_load_request(
     context: LaunchContext
 ):
     """Get the request that will be sent to the composable node container."""
+    if composable_node_description.condition() is not None:
+        if not composable_node_description.condition().evaluate(context):
+            # Return no request if the node description's condition evaluates to False
+            return None
+
     request = composition_interfaces.srv.LoadNode.Request()
     request.package_name = perform_substitutions(
         context, composable_node_description.package

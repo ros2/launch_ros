@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.14.5 (2022-12-07)
+-------------------
+* Fix "imported but not used" linters (`#334 <https://github.com/ros2/launch_ros/issues/334>`_)
+* Contributors: Crola1702, Jorge Perez
+
 0.14.4 (2022-12-02)
 -------------------
 

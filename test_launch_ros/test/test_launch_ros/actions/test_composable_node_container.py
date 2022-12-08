@@ -89,6 +89,22 @@ def test_composable_node_container_empty_list_of_nodes():
     assert get_node_name_count(context, f'/{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}') == 0
 
 
+def test_composable_node_container_no_list_of_nodes():
+    """Test launching a ComposableNodeContainer with no passed in list of nodes."""
+    actions = [
+        ComposableNodeContainer(
+            package='rclcpp_components',
+            executable='component_container',
+            name=TEST_CONTAINER_NAME,
+            namespace=TEST_CONTAINER_NAMESPACE
+        ),
+    ]
+
+    context = _assert_launch_no_errors(actions)
+    assert get_node_name_count(context, f'/{TEST_CONTAINER_NAMESPACE}/{TEST_CONTAINER_NAME}') == 1
+    assert get_node_name_count(context, f'/{TEST_NODE_NAMESPACE}/{TEST_NODE_NAME}') == 0
+
+
 def test_composable_node_container_in_group_with_launch_configuration_in_description():
     """
     Test launch configuration is passed to ComposableNode description inside GroupAction.

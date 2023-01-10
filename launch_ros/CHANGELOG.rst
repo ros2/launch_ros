@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.19.4 (2023-01-10)
+-------------------
+* fix: return text value to avoid exception (`#338 <https://github.com/ros2/launch_ros/issues/338>`_) (`#340 <https://github.com/ros2/launch_ros/issues/340>`_)
+* Contributors: Daisuke Nishimatsu
+
 0.19.3 (2022-05-17)
 -------------------
 

@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.19.4 (2023-01-10)
+-------------------
+* Inherit markers from generate_test_description (`#330 <https://github.com/ros2/launch_ros/issues/330>`_) (`#332 <https://github.com/ros2/launch_ros/issues/332>`_)
+* Contributors: mergify[bot]
+
 0.19.3 (2022-05-17)
 -------------------
 

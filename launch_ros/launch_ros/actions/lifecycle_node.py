@@ -17,6 +17,7 @@
 import functools
 import threading
 from typing import cast
+from typing import Dict
 from typing import List
 from typing import Optional
 
@@ -43,6 +44,7 @@ class LifecycleNode(Node):
         *,
         name: SomeSubstitutionsType,
         namespace: SomeSubstitutionsType,
+        additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
         **kwargs
     ) -> None:
         """
@@ -71,8 +73,9 @@ class LifecycleNode(Node):
         :param name: The name of the lifecycle node.
           Although it defaults to None it is a required parameter and the default will be removed
           in a future release.
+        :param additional_env: dictionary of environment variables to be added.
         """
-        super().__init__(name=name, namespace=namespace, **kwargs)
+        super().__init__(name=name, namespace=namespace, additional_env=additional_env, **kwargs)
         self.__logger = launch.logging.get_logger(__name__)
         self.__rclpy_subscription = None
         self.__current_state = \

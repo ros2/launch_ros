@@ -127,6 +127,7 @@ class Node(ExecuteProcess):
         remappings: Optional[SomeRemapRules] = None,
         ros_arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
+        additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
         **kwargs
     ) -> None:
         """
@@ -197,6 +198,7 @@ class Node(ExecuteProcess):
             passed to the node as ROS remapping rules
         :param: ros_arguments list of ROS arguments for the node
         :param: arguments list of extra arguments for the node
+        :param additional_env: dictionary of environment variables to be added.
         """
         if package is not None:
             cmd = [ExecutableInPackage(package=package, executable=executable)]
@@ -217,7 +219,7 @@ class Node(ExecuteProcess):
             normalized_params = normalize_parameters(parameters)
         # Forward 'exec_name' as to ExecuteProcess constructor
         kwargs['name'] = exec_name
-        super().__init__(cmd=cmd, **kwargs)
+        super().__init__(cmd=cmd, additional_env=additional_env, **kwargs)
         self.__package = package
         self.__node_executable = executable
         self.__node_name = name

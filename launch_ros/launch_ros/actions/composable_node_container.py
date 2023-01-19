@@ -14,6 +14,7 @@
 
 """Module for the ComposableNodeContainer action."""
 
+from typing import Dict
 from typing import List
 from typing import Optional
 
@@ -39,6 +40,7 @@ class ComposableNodeContainer(Node):
         name: SomeSubstitutionsType,
         namespace: SomeSubstitutionsType,
         composable_node_descriptions: Optional[List[ComposableNode]] = None,
+        additional_env: Optional[Dict[SomeSubstitutionsType, SomeSubstitutionsType]] = None,
         **kwargs
     ) -> None:
         """
@@ -51,8 +53,9 @@ class ComposableNodeContainer(Node):
         :param: namespace the ROS namespace for this Node, mandatory for full container node
              name resolution
         :param composable_node_descriptions: optional descriptions of composable nodes to be loaded
+        :param additional_env: dictionary of environment variables to be added.
         """
-        super().__init__(name=name, namespace=namespace, **kwargs)
+        super().__init__(name=name, namespace=namespace, additional_env=additional_env, **kwargs)
         self.__composable_node_descriptions = composable_node_descriptions
 
     @classmethod

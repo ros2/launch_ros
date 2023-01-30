@@ -375,7 +375,53 @@ def test_load_node_with_param_file(mock_component_container):
     assert request.parameters[1].name == 'param_3'
     assert request.parameters[1].value.integer_value == 3
 
-    # Case 7: node name not found
+    # Case 7: multiple nodes in one namespace
+    context = _assert_launch_no_errors([
+        LoadComposableNodes(  # Load in same action so it happens sequentially
+            target_container=f'/{TEST_CONTAINER_NAME}',
+            composable_node_descriptions=[
+                ComposableNode(
+                    package='foo_package',
+                    plugin='bar_plugin',
+                    name='node_1',
+                    namespace='ns_1',
+                    parameters=[
+                        parameters_file_dir / 'example_parameters_multiple_nodes.yaml'
+                    ]
+                ),
+                ComposableNode(
+                    package='foo_package',
+                    plugin='bar_plugin',
+                    name='node_2',
+                    namespace='ns_1',
+                    parameters=[
+                        parameters_file_dir / 'example_parameters_multiple_nodes.yaml'
+                    ]
+                )
+            ]
+        )
+    ])
+    request = mock_component_container.requests[-2]
+    assert get_node_name_count(context, '/ns_1/node_1') == 1
+    assert request.node_name == 'node_1'
+    assert request.node_namespace == '/ns_1'
+    assert len(request.parameters) == 2
+    assert request.parameters[0].name == 'param_1'
+    assert request.parameters[0].value.integer_value == 11
+    assert request.parameters[1].name == 'param_2'
+    assert request.parameters[1].value.integer_value == 22
+
+    request = mock_component_container.requests[-1]
+    assert get_node_name_count(context, '/ns_1/node_2') == 1
+    assert request.node_name == 'node_2'
+    assert request.node_namespace == '/ns_1'
+    assert len(request.parameters) == 2
+    assert request.parameters[0].name == 'param_3'
+    assert request.parameters[0].value.integer_value == 33
+    assert request.parameters[1].name == 'param_4'
+    assert request.parameters[1].value.integer_value == 44
+
+    # Case 8: node name not found
     context = _assert_launch_no_errors([
         _load_composable_node(
             package='foo_package',

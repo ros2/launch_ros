@@ -46,6 +46,7 @@ class WaitForTopics:
         print('Given topics are receiving messages !')
         print(wait_for_topics.topics_not_received()) # Should be an empty set
         print(wait_for_topics.topics_received()) # Should be {'topic_1', 'topic_2'}
+        print(wait_for_topics.messages_received('topic_1')) # Should be [message_1, ...]
         wait_for_topics.shutdown()
     """
 
@@ -86,6 +87,12 @@ class WaitForTopics:
         """Topics that did not receive any messages."""
         return self.__ros_node.expected_topics - self.__ros_node.received_topics
 
+    def messages_received(self, topic_name):
+        """List of received messages of a specific topic."""
+        if topic_name not in self.__ros_node.received_messages:
+            raise KeyError("No message received with topic " + topic_name)
+        return self.__ros_node.received_messages[topic_name]
+
     def __enter__(self):
         if not self.wait():
             raise RuntimeError('Did not receive messages on these topics: ',
@@ -109,6 +116,7 @@ class _WaitForTopicsNode(Node):
         self.subscriber_list = []
         self.expected_topics = {name for name, _ in topic_tuples}
         self.received_topics = set()
+        self.received_messages = {}
 
         for topic_name, topic_type in topic_tuples:
             # Create a subscriber
@@ -127,6 +135,7 @@ class _WaitForTopicsNode(Node):
             if topic_name not in self.received_topics:
                 self.get_logger().debug('Message received for ' + topic_name)
                 self.received_topics.add(topic_name)
+                self.received_messages.setdefault(topic_name, []).append(data)
             if self.received_topics == self.expected_topics:
                 self.msg_event_object.set()
 

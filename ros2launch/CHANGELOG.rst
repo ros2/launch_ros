@@ -2,8 +2,8 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.23.0 (2023-02-14)
+-------------------
 * [rolling] Update maintainers - 2022-11-07 (`#331 <https://github.com/ros2/launch_ros/issues/331>`_)
 * Contributors: Audrow Nash
 

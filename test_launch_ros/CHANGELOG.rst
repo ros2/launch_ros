@@ -2,8 +2,8 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.23.0 (2023-02-14)
+-------------------
 * Fix normalize_parameters_dict for multiple nodes in the same namespace (`#347 <https://github.com/ros2/launch_ros/issues/347>`_)
 * Implement None check for ComposableNodeContainer (`#341 <https://github.com/ros2/launch_ros/issues/341>`_)
 * Add LifecyleTransition action (`#317 <https://github.com/ros2/launch_ros/issues/317>`_)

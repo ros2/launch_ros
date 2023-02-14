@@ -2,6 +2,12 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Inherit markers from generate_test_description (`#330 <https://github.com/ros2/launch_ros/issues/330>`_)
+* [rolling] Update maintainers - 2022-11-07 (`#331 <https://github.com/ros2/launch_ros/issues/331>`_)
+* Contributors: Audrow Nash, Scott K Logan
+
 0.22.0 (2022-11-02)
 -------------------
 

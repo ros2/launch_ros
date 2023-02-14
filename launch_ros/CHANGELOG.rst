@@ -2,6 +2,17 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix normalize_parameters_dict for multiple nodes in the same namespace (`#347 <https://github.com/ros2/launch_ros/issues/347>`_)
+* Implement None check for ComposableNodeContainer (`#341 <https://github.com/ros2/launch_ros/issues/341>`_)
+* Add LifecyleTransition action (`#317 <https://github.com/ros2/launch_ros/issues/317>`_)
+* Improve evaluate_paramenter_dict exceptions error message (`#320 <https://github.com/ros2/launch_ros/issues/320>`_)
+* Ensure load_composable_nodes respects condition (`#339 <https://github.com/ros2/launch_ros/issues/339>`_)
+* fix: return text value to avoid exception (`#338 <https://github.com/ros2/launch_ros/issues/338>`_)
+* [rolling] Update maintainers - 2022-11-07 (`#331 <https://github.com/ros2/launch_ros/issues/331>`_)
+* Contributors: Alexey Merzlyakov, Audrow Nash, Christoph Hellmann Santos, Daisuke Nishimatsu, Felipe Gomes de Melo, methylDragon
+
 0.22.0 (2022-11-02)
 -------------------
 * RosTimer -> ROSTimer and PushRosNamespace -> PushROSNamespace, to follow PEP8 (`#326 <https://github.com/ros2/launch_ros/issues/326>`_)

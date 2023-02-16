@@ -218,10 +218,18 @@ class LoadComposableNodes(Action):
         else:
             self.__logger.error(
                 'target container is neither a ComposableNodeContainer nor a SubstitutionType')
-            return
+            return None
+
+        domain_id = None
+        if self.__target_container.additional_env is not None:
+            for item in self.__target_container.additional_env:
+                key = item[0][0].text
+                value = item[1][0].text
+                if key == 'ROS_DOMAIN_ID':
+                    domain_id = value
 
         # Create a client to load nodes in the target container.
-        self.__rclpy_load_node_client = get_ros_node(context).create_client(
+        self.__rclpy_load_node_client = get_ros_node(context, domain_id=domain_id).create_client(
             composition_interfaces.srv.LoadNode, '{}/_container/load_node'.format(
                 self.__final_target_container_name
             )
@@ -242,6 +250,7 @@ class LoadComposableNodes(Action):
                     None, self._load_in_sequence, load_node_requests, context
                 )
             )
+        return None
 
 
 def get_composable_node_load_request(

@@ -16,6 +16,7 @@ import random
 import string
 from threading import Event
 from threading import Thread
+from collections import deque
 
 import rclpy
 from rclpy.executors import SingleThreadedExecutor
@@ -51,9 +52,10 @@ class WaitForTopics:
             wait_for_topics.shutdown()
     """
 
-    def __init__(self, topic_tuples, timeout=5.0):
+    def __init__(self, topic_tuples, timeout=5.0, max_number_of_messages=100):
         self.topic_tuples = topic_tuples
         self.timeout = timeout
+        self.max_number_of_messages = max_number_of_messages
         self.__ros_context = rclpy.Context()
         rclpy.init(context=self.__ros_context)
         self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)
@@ -65,9 +67,13 @@ class WaitForTopics:
         self.__ros_spin_thread.start()
 
     def _prepare_ros_node(self):
-        node_name = '_test_node_' +\
-            ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-        self.__ros_node = _WaitForTopicsNode(name=node_name, node_context=self.__ros_context)
+        node_name = '_test_node_' + ''.join(
+            random.choices(string.ascii_uppercase + string.digits, k=10)
+        )
+        self.__ros_node = _WaitForTopicsNode(
+            name=node_name, node_context=self.__ros_context,
+            max_number_of_messages=self.max_number_of_messages
+        )
         self.__ros_executor.add_node(self.__ros_node)
 
     def wait(self):
@@ -107,9 +113,11 @@ class WaitForTopics:
 class _WaitForTopicsNode(Node):
     """Internal node used for subscribing to a set of topics."""
 
-    def __init__(self, name='test_node', node_context=None):
+    def __init__(self, name='test_node', node_context=None,
+                 max_number_of_messages=None):
         super().__init__(node_name=name, context=node_context)
         self.msg_event_object = Event()
+        self.max_number_of_messages = max_number_of_messages
 
     def start_subscribers(self, topic_tuples):
         self.subscriber_list = []
@@ -127,6 +135,8 @@ class _WaitForTopicsNode(Node):
                     10
                 )
             )
+            # Initialize ring buffer of received messages
+            self.received_messages[topic_name] = deque(maxlen=self.max_number_of_messages)
 
     def callback_template(self, topic_name):
 
@@ -134,7 +144,7 @@ class _WaitForTopicsNode(Node):
             if topic_name not in self.received_topics:
                 self.get_logger().debug('Message received for ' + topic_name)
                 self.received_topics.add(topic_name)
-                self.received_messages.setdefault(topic_name, []).append(data)
+                self.received_messages[topic_name].append(data)
             if self.received_topics == self.expected_topics:
                 self.msg_event_object.set()
 

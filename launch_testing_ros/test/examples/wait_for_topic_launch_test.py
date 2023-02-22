@@ -15,6 +15,7 @@
 import os
 import sys
 import unittest
+import re
 
 import launch
 import launch.actions
@@ -57,11 +58,15 @@ if os.name != 'nt':
             """All the supplied topics should be read successfully."""
             topic_list = [('chatter_' + str(i), String) for i in range(count)]
             expected_topics = {'chatter_' + str(i) for i in range(count)}
+            message_pattern = re.compile('Hello World: \d+')
 
             # Method 1 : Using the magic methods and 'with' keyword
-            with WaitForTopics(topic_list, timeout=10.0) as wait_for_node_object_1:
+            with WaitForTopics(topic_list, timeout=2.0, max_number_of_messages=10) as wait_for_node_object_1:
                 assert wait_for_node_object_1.topics_received() == expected_topics
                 assert wait_for_node_object_1.topics_not_received() == set()
+                for topic_name, _ in topic_list:
+                    message = wait_for_node_object_1.messages_received(topic_name).pop().data
+                    assert message_pattern.match(message)
 
             # Multiple instances of WaitForNode() can be created safely as
             # their internal nodes spin in separate contexts
@@ -70,6 +75,9 @@ if os.name != 'nt':
             assert wait_for_node_object_2.wait()
             assert wait_for_node_object_2.topics_received() == expected_topics
             assert wait_for_node_object_2.topics_not_received() == set()
+            for topic_name, _ in topic_list:
+                message = wait_for_node_object_2.messages_received(topic_name).pop().data
+                assert message_pattern.match(message)
             wait_for_node_object_2.shutdown()
 
         def test_topics_unsuccessful(self, count):

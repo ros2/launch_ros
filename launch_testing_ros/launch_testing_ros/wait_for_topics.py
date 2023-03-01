@@ -50,9 +50,15 @@ class WaitForTopics:
             wait_for_topics.shutdown()
     """
 
-    def __init__(self, topic_tuples, timeout=5.0):
+    def __init__(self, topic_tuples, timeout=5.0, callback=None, callback_arguments=None):
         self.topic_tuples = topic_tuples
         self.timeout = timeout
+        self.callback = callback
+        if self.callback is not None and not callable(self.callback):
+            raise TypeError("The passed callback is not callable")
+        self.callback_arguments = (
+            callback_arguments if callback_arguments is not None else []
+        )
         self.__ros_context = rclpy.Context()
         rclpy.init(context=self.__ros_context)
         self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)
@@ -71,6 +77,13 @@ class WaitForTopics:
 
     def wait(self):
         self.__ros_node.start_subscribers(self.topic_tuples)
+        if self.callback:
+            if isinstance(self.callback_arguments, dict):
+                self.callback(**self.callback_arguments)
+            elif isinstance(self.callback_arguments, (list, set, tuple)):
+                self.callback(*self.callback_arguments)
+            else:
+                self.callback(self.callback_arguments)
         return self.__ros_node.msg_event_object.wait(self.timeout)
 
     def shutdown(self):

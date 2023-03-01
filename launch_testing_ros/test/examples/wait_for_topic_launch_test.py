@@ -13,18 +13,19 @@
 # limitations under the License.
 
 import os
+import re
 import sys
 import unittest
-import re
 
 import launch
 import launch.actions
 import launch_ros.actions
 import launch_testing.actions
 import launch_testing.markers
-from launch_testing_ros import WaitForTopics
 import pytest
 from std_msgs.msg import String
+
+from launch_testing_ros import WaitForTopics
 
 
 def generate_node(i):
@@ -58,10 +59,11 @@ if os.name != 'nt':
             """All the supplied topics should be read successfully."""
             topic_list = [('chatter_' + str(i), String) for i in range(count)]
             expected_topics = {'chatter_' + str(i) for i in range(count)}
-            message_pattern = re.compile('Hello World: \d+')
+            message_pattern = re.compile(r'Hello World: \d+')
 
             # Method 1 : Using the magic methods and 'with' keyword
-            with WaitForTopics(topic_list, timeout=2.0, max_number_of_messages=10) as wait_for_node_object_1:
+            with WaitForTopics(topic_list, timeout=2.0,
+                               max_number_of_messages=10) as wait_for_node_object_1:
                 assert wait_for_node_object_1.topics_received() == expected_topics
                 assert wait_for_node_object_1.topics_not_received() == set()
                 for topic_name, _ in topic_list:

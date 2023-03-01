@@ -14,9 +14,9 @@
 
 import random
 import string
+from collections import deque
 from threading import Event
 from threading import Thread
-from collections import deque
 
 import rclpy
 from rclpy.executors import SingleThreadedExecutor

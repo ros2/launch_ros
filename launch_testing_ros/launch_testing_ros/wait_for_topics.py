@@ -93,8 +93,6 @@ class WaitForTopics:
         return self
 
     def __exit__(self, exep_type, exep_value, trace):
-        if exep_type is not None:
-            raise Exception('Exception occured, value: ', exep_value)
         self.shutdown()
 
 

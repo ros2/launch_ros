@@ -63,7 +63,7 @@ if os.name != 'nt':
 
             # Method 1 : Using the magic methods and 'with' keyword
             with WaitForTopics(topic_list, timeout=2.0,
-                               max_number_of_messages=10) as wait_for_node_object_1:
+                               messages_received_buffer_length=10) as wait_for_node_object_1:
                 assert wait_for_node_object_1.topics_received() == expected_topics
                 assert wait_for_node_object_1.topics_not_received() == set()
                 for topic_name, _ in topic_list:

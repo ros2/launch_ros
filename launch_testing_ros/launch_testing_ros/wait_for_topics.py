@@ -52,10 +52,10 @@ class WaitForTopics:
             wait_for_topics.shutdown()
     """
 
-    def __init__(self, topic_tuples, timeout=5.0, max_number_of_messages=100):
+    def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10):
         self.topic_tuples = topic_tuples
         self.timeout = timeout
-        self.max_number_of_messages = max_number_of_messages
+        self.messages_received_buffer_length = messages_received_buffer_length
         self.__ros_context = rclpy.Context()
         rclpy.init(context=self.__ros_context)
         self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)
@@ -72,7 +72,7 @@ class WaitForTopics:
         )
         self.__ros_node = _WaitForTopicsNode(
             name=node_name, node_context=self.__ros_context,
-            max_number_of_messages=self.max_number_of_messages
+            max_number_of_messages=self.messages_received_buffer_length
         )
         self.__ros_executor.add_node(self.__ros_node)
 
@@ -94,11 +94,11 @@ class WaitForTopics:
         """Topics that did not receive any messages."""
         return self.__ros_node.expected_topics - self.__ros_node.received_topics
 
-    def messages_received(self, topic_name):
+    def received_messages(self, topic_name):
         """List of received messages of a specific topic."""
-        if topic_name not in self.__ros_node.received_messages:
+        if topic_name not in self.__ros_node.received_messages_buffer:
             raise KeyError("No message received with topic " + topic_name)
-        return list(self.__ros_node.received_messages[topic_name])
+        return list(self.__ros_node.received_messages_buffer[topic_name])
 
     def __enter__(self):
         if not self.wait():
@@ -123,7 +123,7 @@ class _WaitForTopicsNode(Node):
         self.subscriber_list = []
         self.expected_topics = {name for name, _ in topic_tuples}
         self.received_topics = set()
-        self.received_messages = {}
+        self.received_messages_buffer = {}
 
         for topic_name, topic_type in topic_tuples:
             # Create a subscriber
@@ -136,7 +136,7 @@ class _WaitForTopicsNode(Node):
                 )
             )
             # Initialize ring buffer of received messages
-            self.received_messages[topic_name] = deque(maxlen=self.max_number_of_messages)
+            self.received_messages_buffer[topic_name] = deque(maxlen=self.max_number_of_messages)
 
     def callback_template(self, topic_name):
 
@@ -144,7 +144,7 @@ class _WaitForTopicsNode(Node):
             if topic_name not in self.received_topics:
                 self.get_logger().debug('Message received for ' + topic_name)
                 self.received_topics.add(topic_name)
-                self.received_messages[topic_name].append(data)
+                self.received_messages_buffer[topic_name].append(data)
             if self.received_topics == self.expected_topics:
                 self.msg_event_object.set()
 

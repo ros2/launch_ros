@@ -67,7 +67,7 @@ if os.name != 'nt':
                 assert wait_for_node_object_1.topics_received() == expected_topics
                 assert wait_for_node_object_1.topics_not_received() == set()
                 for topic_name, _ in topic_list:
-                    message = wait_for_node_object_1.messages_received(topic_name).pop().data
+                    message = wait_for_node_object_1.received_messages(topic_name).pop().data
                     assert message_pattern.match(message)
 
             # Multiple instances of WaitForNode() can be created safely as
@@ -78,7 +78,7 @@ if os.name != 'nt':
             assert wait_for_node_object_2.topics_received() == expected_topics
             assert wait_for_node_object_2.topics_not_received() == set()
             for topic_name, _ in topic_list:
-                message = wait_for_node_object_2.messages_received(topic_name).pop().data
+                message = wait_for_node_object_2.received_messages(topic_name).pop().data
                 assert message_pattern.match(message)
             wait_for_node_object_2.shutdown()
 

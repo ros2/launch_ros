@@ -20,7 +20,7 @@ from typing import Text
 
 from launch.event import Event
 from launch.event_handler import EventHandler
-from launch.some_actions_type import SomeActionsType
+from launch.some_entities_type import SomeEntitiesType
 from launch.some_substitutions_type import SomeSubstitutionsType
 
 from ..actions import LifecycleNode
@@ -33,7 +33,7 @@ class OnStateTransition(EventHandler):
     def __init__(
         self,
         *,
-        entities: SomeActionsType,
+        entities: SomeEntitiesType,
         target_lifecycle_node: LifecycleNode = None,
         transition: Optional[SomeSubstitutionsType] = None,
         start_state: Optional[SomeSubstitutionsType] = None,

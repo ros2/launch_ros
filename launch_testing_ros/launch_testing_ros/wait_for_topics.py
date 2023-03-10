@@ -98,7 +98,7 @@ class WaitForTopics:
     def received_messages(self, topic_name):
         """List of received messages of a specific topic."""
         if topic_name not in self.__ros_node.received_messages_buffer:
-            raise KeyError("No message received with topic " + topic_name)
+            raise KeyError("No messages received for topic: " + topic_name)
         return list(self.__ros_node.received_messages_buffer[topic_name])
 
     def __enter__(self):

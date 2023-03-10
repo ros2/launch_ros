@@ -71,8 +71,9 @@ class WaitForTopics:
             random.choices(string.ascii_uppercase + string.digits, k=10)
         )
         self.__ros_node = _WaitForTopicsNode(
-            name=node_name, node_context=self.__ros_context,
-            max_number_of_messages=self.messages_received_buffer_length
+            name=node_name,
+            node_context=self.__ros_context,
+            max_number_of_messages=self.messages_received_buffer_length,
         )
         self.__ros_executor.add_node(self.__ros_node)
 

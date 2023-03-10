@@ -114,8 +114,11 @@ class WaitForTopics:
 class _WaitForTopicsNode(Node):
     """Internal node used for subscribing to a set of topics."""
 
-    def __init__(self, name='test_node', node_context=None,
-                 max_number_of_messages=None):
+    def __init__(self,
+        name='test_node',
+        node_context=None,
+        max_number_of_messages=None,
+    ):
         super().__init__(node_name=name, context=node_context)
         self.msg_event_object = Event()
         self.max_number_of_messages = max_number_of_messages

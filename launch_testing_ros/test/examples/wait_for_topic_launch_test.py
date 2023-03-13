@@ -68,6 +68,7 @@ if os.name != 'nt':
                 assert wait_for_node_object_1.topics_received() == expected_topics
                 assert wait_for_node_object_1.topics_not_received() == set()
                 for topic_name, _ in topic_list:
+                    assert len(wait_for_node_object_1.received_messages(topic_name)) >= 1
                     message = wait_for_node_object_1.received_messages(topic_name).pop().data
                     assert message_pattern.match(message)
 
@@ -79,6 +80,7 @@ if os.name != 'nt':
             assert wait_for_node_object_2.topics_received() == expected_topics
             assert wait_for_node_object_2.topics_not_received() == set()
             for topic_name, _ in topic_list:
+                assert len(wait_for_node_object_1.received_messages(topic_name)) >= 1
                 message = wait_for_node_object_2.received_messages(topic_name).pop().data
                 assert message_pattern.match(message)
             wait_for_node_object_2.shutdown()

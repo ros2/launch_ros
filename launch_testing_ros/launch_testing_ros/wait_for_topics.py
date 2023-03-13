@@ -27,26 +27,27 @@ class WaitForTopics:
     Wait to receive messages on supplied topics.
 
     Example usage:
-    --------------
 
     from std_msgs.msg import String
 
-    # Method 1, using the 'with' keyword
-    def method_1():
-        topic_list = [('topic_1', String), ('topic_2', String)]
-        with WaitForTopics(topic_list, timeout=5.0):
-            # 'topic_1' and 'topic_2' received at least one message each
-            print('Given topics are receiving messages !')
+    .. code-block:: python
 
-    # Method 2, calling wait() and shutdown() manually
-    def method_2():
-        topic_list = [('topic_1', String), ('topic_2', String)]
-        wait_for_topics = WaitForTopics(topic_list, timeout=5.0)
-        assert wait_for_topics.wait()
-        print('Given topics are receiving messages !')
-        print(wait_for_topics.topics_not_received()) # Should be an empty set
-        print(wait_for_topics.topics_received()) # Should be {'topic_1', 'topic_2'}
-        wait_for_topics.shutdown()
+        # Method 1, using the 'with' keyword
+        def method_1():
+            topic_list = [('topic_1', String), ('topic_2', String)]
+            with WaitForTopics(topic_list, timeout=5.0):
+                # 'topic_1' and 'topic_2' received at least one message each
+                print('Given topics are receiving messages !')
+
+        # Method 2, calling wait() and shutdown() manually
+        def method_2():
+            topic_list = [('topic_1', String), ('topic_2', String)]
+            wait_for_topics = WaitForTopics(topic_list, timeout=5.0)
+            assert wait_for_topics.wait()
+            print('Given topics are receiving messages !')
+            print(wait_for_topics.topics_not_received()) # Should be an empty set
+            print(wait_for_topics.topics_received()) # Should be {'topic_1', 'topic_2'}
+            wait_for_topics.shutdown()
     """
 
     def __init__(self, topic_tuples, timeout=5.0):

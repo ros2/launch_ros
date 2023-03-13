@@ -41,12 +41,12 @@ def basic_output_filter(
     Create a line filtering function to help output testing.
 
     :param filtered_prefixes: A list of byte strings representing prefixes that will cause
-    output lines to be ignored if they start with one of the prefixes. By default lines
-    starting with the process ID (`b'pid'`) and return code (`b'rc'`) will be ignored.
+        output lines to be ignored if they start with one of the prefixes. By default lines
+        starting with the process ID (`b'pid'`) and return code (`b'rc'`) will be ignored.
     :param filtered_patterns: A list of byte strings representing regexes that will cause
-    output lines to be ignored if they match one of the regexes.
+        output lines to be ignored if they match one of the regexes.
     :param filtered_rmw_implementation: RMW implementation for which the output will be
-    ignored in addition to the `filtered_prefixes`/`filtered_patterns`.
+        ignored in addition to the `filtered_prefixes`/`filtered_patterns`.
     """
     from launch_testing.tools.output import basic_output_filter as base_output_filter
     from launch_testing.tools.output import get_default_filtered_prefixes

@@ -145,10 +145,10 @@ class _WaitForTopicsNode(Node):
     def callback_template(self, topic_name):
 
         def topic_callback(data):
+            self.get_logger().debug('Message received for ' + topic_name)
+            self.received_messages_buffer[topic_name].append(data)
             if topic_name not in self.received_topics:
-                self.get_logger().debug('Message received for ' + topic_name)
                 self.received_topics.add(topic_name)
-                self.received_messages_buffer[topic_name].append(data)
             if self.received_topics == self.expected_topics:
                 self.msg_event_object.set()
 

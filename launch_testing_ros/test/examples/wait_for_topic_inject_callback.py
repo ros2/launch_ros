@@ -24,7 +24,7 @@ import launch_testing.markers
 import pytest
 from std_msgs.msg import String
 
-from axel_launch_testing_ros import WaitForTopics
+from launch_testing_ros import WaitForTopics
 
 
 def generate_node():

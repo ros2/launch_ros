@@ -114,39 +114,47 @@ class WaitForTopics:
 class _WaitForTopicsNode(Node):
     """Internal node used for subscribing to a set of topics."""
 
-    def __init__(self,
-        name='test_node',
-        node_context=None,
-        max_number_of_messages=None,
+    def __init__(
+            self, name="test_node", node_context=None, max_number_of_messages=None
     ):
-        super().__init__(node_name=name, context=node_context)
+        super().__init__(node_name=name, context=node_context)  # type: ignore
         self.msg_event_object = Event()
         self.max_number_of_messages = max_number_of_messages
+        self.subscriber_list = []
+        self.topic_tuples = []
+        self.expected_topics = set()
+        self.received_topics = set()
+        self.received_messages = {}
+
+    def _reset(self):
+        self.received_topics = set()
+        for buffer in self.received_messages.values():
+            buffer.clear()
 
     def start_subscribers(self, topic_tuples):
-        self.subscriber_list = []
-        self.expected_topics = {name for name, _ in topic_tuples}
-        self.received_topics = set()
-        self.received_messages_buffer = {}
-
+        self._reset()
         for topic_name, topic_type in topic_tuples:
-            # Create a subscriber
-            self.subscriber_list.append(
-                self.create_subscription(
-                    topic_type,
-                    topic_name,
-                    self.callback_template(topic_name),
-                    10
+            if (topic_name, topic_type) not in self.topic_tuples:
+                self.topic_tuples.append((topic_name, topic_type))
+                self.expected_topics.add(topic_name)
+                # Initialize ring buffer of received messages
+                self.received_messages[topic_name] = deque(
+                    maxlen=self.max_number_of_messages
                 )
-            )
-            # Initialize ring buffer of received messages
-            self.received_messages_buffer[topic_name] = deque(maxlen=self.max_number_of_messages)
+                # Create a subscriber
+                self.subscriber_list.append(
+                    self.create_subscription(
+                        topic_type,
+                        topic_name,
+                        self.callback_template(topic_name),
+                        10
+                    )
+                )
 
     def callback_template(self, topic_name):
-
         def topic_callback(data):
-            self.get_logger().debug('Message received for ' + topic_name)
-            self.received_messages_buffer[topic_name].append(data)
+            self.get_logger().debug("Message received for " + topic_name)
+            self.received_messages[topic_name].append(data)
             if topic_name not in self.received_topics:
                 self.received_topics.add(topic_name)
             if self.received_topics == self.expected_topics:

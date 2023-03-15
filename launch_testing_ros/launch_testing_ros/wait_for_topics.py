@@ -127,6 +127,7 @@ class _WaitForTopicsNode(Node):
         self.received_messages = {}
 
     def _reset(self):
+        self.msg_event_object.clear()
         self.received_topics = set()
         for buffer in self.received_messages.values():
             buffer.clear()

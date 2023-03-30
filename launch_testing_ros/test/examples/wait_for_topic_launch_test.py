@@ -59,14 +59,14 @@ if os.name != 'nt':
             expected_topics = {'chatter_' + str(i) for i in range(count)}
 
             # Method 1 : Using the magic methods and 'with' keyword
-            with WaitForTopics(topic_list, timeout=2.0) as wait_for_node_object_1:
+            with WaitForTopics(topic_list, timeout=10.0) as wait_for_node_object_1:
                 assert wait_for_node_object_1.topics_received() == expected_topics
                 assert wait_for_node_object_1.topics_not_received() == set()
 
             # Multiple instances of WaitForNode() can be created safely as
             # their internal nodes spin in separate contexts
             # Method 2 : Manually calling wait() and shutdown()
-            wait_for_node_object_2 = WaitForTopics(topic_list, timeout=2.0)
+            wait_for_node_object_2 = WaitForTopics(topic_list, timeout=10.0)
             assert wait_for_node_object_2.wait()
             assert wait_for_node_object_2.topics_received() == expected_topics
             assert wait_for_node_object_2.topics_not_received() == set()

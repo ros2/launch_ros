@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Enable document generation using rosdoc2 (`#359 <https://github.com/ros2/launch_ros/issues/359>`_)
+* Contributors: Yadu
+
 0.23.0 (2023-02-14)
 -------------------
 * Fix normalize_parameters_dict for multiple nodes in the same namespace (`#347 <https://github.com/ros2/launch_ros/issues/347>`_)

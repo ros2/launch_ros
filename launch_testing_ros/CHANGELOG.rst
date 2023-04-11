@@ -2,6 +2,13 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Increase the timeouts in wait_for_topic_launch_test. (`#360 <https://github.com/ros2/launch_ros/issues/360>`_)
+* Enable document generation using rosdoc2 (`#359 <https://github.com/ros2/launch_ros/issues/359>`_)
+* exit() methods should not reraise the passed-in exception (`#357 <https://github.com/ros2/launch_ros/issues/357>`_)
+* Contributors: Chris Lalancette, Giorgio Pintaudi, Yadu
+
 0.23.0 (2023-02-14)
 -------------------
 * Inherit markers from generate_test_description (`#330 <https://github.com/ros2/launch_ros/issues/330>`_)

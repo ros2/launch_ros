@@ -124,12 +124,12 @@ class _WaitForTopicsNode(Node):
         self.topic_tuples = []
         self.expected_topics = set()
         self.received_topics = set()
-        self.received_messages = {}
+        self.received_messages_buffer = {}
 
     def _reset(self):
         self.msg_event_object.clear()
         self.received_topics = set()
-        for buffer in self.received_messages.values():
+        for buffer in self.received_messages_buffer.values():
             buffer.clear()
 
     def start_subscribers(self, topic_tuples):
@@ -139,7 +139,7 @@ class _WaitForTopicsNode(Node):
                 self.topic_tuples.append((topic_name, topic_type))
                 self.expected_topics.add(topic_name)
                 # Initialize ring buffer of received messages
-                self.received_messages[topic_name] = deque(
+                self.received_messages_buffer[topic_name] = deque(
                     maxlen=self.max_number_of_messages
                 )
                 # Create a subscriber
@@ -155,7 +155,7 @@ class _WaitForTopicsNode(Node):
     def callback_template(self, topic_name):
         def topic_callback(data):
             self.get_logger().debug("Message received for " + topic_name)
-            self.received_messages[topic_name].append(data)
+            self.received_messages_buffer[topic_name].append(data)
             if topic_name not in self.received_topics:
                 self.received_topics.add(topic_name)
             if self.received_topics == self.expected_topics:

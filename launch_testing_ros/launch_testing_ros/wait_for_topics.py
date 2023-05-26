@@ -73,7 +73,7 @@ class WaitForTopics:
         self.__ros_node = _WaitForTopicsNode(
             name=node_name,
             node_context=self.__ros_context,
-            max_number_of_messages=self.messages_received_buffer_length,
+            messages_received_buffer_length=self.messages_received_buffer_length,
         )
         self.__ros_executor.add_node(self.__ros_node)
 
@@ -115,11 +115,11 @@ class _WaitForTopicsNode(Node):
     """Internal node used for subscribing to a set of topics."""
 
     def __init__(
-            self, name="test_node", node_context=None, max_number_of_messages=None
+            self, name="test_node", node_context=None, messages_received_buffer_length=None
     ):
         super().__init__(node_name=name, context=node_context)  # type: ignore
         self.msg_event_object = Event()
-        self.max_number_of_messages = max_number_of_messages
+        self.messages_received_buffer_length = messages_received_buffer_length
         self.subscriber_list = []
         self.topic_tuples = []
         self.expected_topics = set()
@@ -140,7 +140,7 @@ class _WaitForTopicsNode(Node):
                 self.expected_topics.add(topic_name)
                 # Initialize ring buffer of received messages
                 self.received_messages_buffer[topic_name] = deque(
-                    maxlen=self.max_number_of_messages
+                    maxlen=self.messages_received_buffer_length
                 )
                 # Create a subscriber
                 self.subscriber_list.append(

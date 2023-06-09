@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import deque
 import random
 import string
-from collections import deque
 from threading import Event
 from threading import Thread
 
@@ -98,7 +98,7 @@ class WaitForTopics:
     def received_messages(self, topic_name):
         """List of received messages of a specific topic."""
         if topic_name not in self.__ros_node.received_messages_buffer:
-            raise KeyError("No messages received for topic: " + topic_name)
+            raise KeyError('No messages received for topic: ' + topic_name)
         return list(self.__ros_node.received_messages_buffer[topic_name])
 
     def __enter__(self):
@@ -115,7 +115,7 @@ class _WaitForTopicsNode(Node):
     """Internal node used for subscribing to a set of topics."""
 
     def __init__(
-            self, name="test_node", node_context=None, messages_received_buffer_length=None
+            self, name='test_node', node_context=None, messages_received_buffer_length=None
     ):
         super().__init__(node_name=name, context=node_context)  # type: ignore
         self.msg_event_object = Event()
@@ -154,7 +154,7 @@ class _WaitForTopicsNode(Node):
 
     def callback_template(self, topic_name):
         def topic_callback(data):
-            self.get_logger().debug("Message received for " + topic_name)
+            self.get_logger().debug('Message received for ' + topic_name)
             self.received_messages_buffer[topic_name].append(data)
             if topic_name not in self.received_topics:
                 self.received_topics.add(topic_name)

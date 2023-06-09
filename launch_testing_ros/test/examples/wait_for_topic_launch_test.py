@@ -23,9 +23,8 @@ import launch_ros.actions
 import launch_testing.actions
 import launch_testing.markers
 import pytest
-from std_msgs.msg import String
-
 from launch_testing_ros import WaitForTopics
+from std_msgs.msg import String
 
 
 def generate_node(i):

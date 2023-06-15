@@ -558,6 +558,7 @@ def instantiate_extension(
         extensions[extension_name] = extension_instance
     return extension_instance
 
+
 g_entry_points_impl = None
 
 

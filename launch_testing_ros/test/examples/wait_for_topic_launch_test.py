@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import re
 import sys
 import unittest
 
@@ -22,7 +23,9 @@ import launch_ros.actions
 import launch_testing.actions
 import launch_testing.markers
 from launch_testing_ros import WaitForTopics
+
 import pytest
+
 from std_msgs.msg import String
 
 
@@ -57,11 +60,18 @@ if os.name != 'nt':
             """All the supplied topics should be read successfully."""
             topic_list = [('chatter_' + str(i), String) for i in range(count)]
             expected_topics = {'chatter_' + str(i) for i in range(count)}
+            message_pattern = re.compile(r'Hello World: \d+')
 
             # Method 1 : Using the magic methods and 'with' keyword
-            with WaitForTopics(topic_list, timeout=10.0) as wait_for_node_object_1:
+            with WaitForTopics(
+                topic_list, timeout=2.0, messages_received_buffer_length=10
+            ) as wait_for_node_object_1:
                 assert wait_for_node_object_1.topics_received() == expected_topics
                 assert wait_for_node_object_1.topics_not_received() == set()
+                for topic_name, _ in topic_list:
+                    assert len(wait_for_node_object_1.received_messages(topic_name)) >= 1
+                    message = wait_for_node_object_1.received_messages(topic_name).pop().data
+                    assert message_pattern.match(message)
 
             # Multiple instances of WaitForNode() can be created safely as
             # their internal nodes spin in separate contexts
@@ -70,6 +80,10 @@ if os.name != 'nt':
             assert wait_for_node_object_2.wait()
             assert wait_for_node_object_2.topics_received() == expected_topics
             assert wait_for_node_object_2.topics_not_received() == set()
+            for topic_name, _ in topic_list:
+                assert len(wait_for_node_object_1.received_messages(topic_name)) >= 1
+                message = wait_for_node_object_2.received_messages(topic_name).pop().data
+                assert message_pattern.match(message)
             wait_for_node_object_2.shutdown()
 
         def test_topics_unsuccessful(self, count):

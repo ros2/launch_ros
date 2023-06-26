@@ -156,7 +156,7 @@ def check_launch_node(file):
     ld = parser.parse_description(root_entity)
     ls = LaunchService()
     ls.include_launch_description(ld)
-    assert(0 == ls.run())
+    assert 0 == ls.run()
     evaluated_parameters = evaluate_parameters(
         ls.context,
         ld.describe_sub_entities()[3]._Node__parameters

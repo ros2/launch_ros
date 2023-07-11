@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* `WaitForTopics`: get content of messages for each topic (`#353 <https://github.com/ros2/launch_ros/issues/353>`_)
+* Contributors: Giorgio Pintaudi
+
 0.25.0 (2023-04-27)
 -------------------
 

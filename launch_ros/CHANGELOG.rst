@@ -2,6 +2,12 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* cache lookup of importlib metadata in Node action (`#365 <https://github.com/ros2/launch_ros/issues/365>`_)
+* Get rid of unnecessary checks in composable_node_container. (`#364 <https://github.com/ros2/launch_ros/issues/364>`_)
+* Contributors: Chris Lalancette, William Woodall
+
 0.25.0 (2023-04-27)
 -------------------
 

@@ -101,7 +101,7 @@ def to_parameters_list(
                         if match:
                             param_dict.update(normalized_param_dict[key])
 
-                    if not warned_once and not node_name:
+                    if not warned_once and not param_dict:
                         warnings.warn(
                             'node name not provided to launch; parameter files will not apply',
                             UserWarning

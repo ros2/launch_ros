@@ -396,12 +396,12 @@ def test_load_node_with_param_file(mock_component_container):
     assert request.node_name == 'node_1'
     assert request.node_namespace == '/ns_1'
     assert len(request.parameters) == 3
-    assert request.parameters[0].name == 'param_2'
-    assert request.parameters[0].value.integer_value == 2
-    assert request.parameters[1].name == 'param_3'
-    assert request.parameters[1].value.integer_value == 33
-    assert request.parameters[2].name == 'param_1'
-    assert request.parameters[2].value.integer_value == 1
+    assert request.parameters[0].name == 'param_1'
+    assert request.parameters[0].value.integer_value == 1
+    assert request.parameters[1].name == 'param_2'
+    assert request.parameters[1].value.integer_value == 22
+    assert request.parameters[2].name == 'param_3'
+    assert request.parameters[2].value.integer_value == 33
 
     request = mock_component_container.requests[-1]
     assert get_node_name_count(context, '/ns_2/node_2') == 1

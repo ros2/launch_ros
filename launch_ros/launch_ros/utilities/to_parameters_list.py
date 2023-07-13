@@ -95,12 +95,12 @@ def to_parameters_list(
                     param_dict.clear()
 
                     for key, value in normalized_param_dict.items():
-                        p1 = '/' + key
-                        p1 = p1.replace('/*', '(/\\w+)')
+                        pattern = key if key[0] == '/' else '/' + key
+                        pattern = pattern.replace('/*', '(/\\w+)')
                         try:
-                            match = re.match(p1, node_name)
+                            match = re.fullmatch(pattern, node_name)
                             if match:
-                                param_dict.update(normalized_param_dict[key])
+                                param_dict.update(value)
                         except re.error as e:
                             raise RuntimeError(
                               'invalid yaml file {}, error: {}'.format(str(params_set_or_path), e))

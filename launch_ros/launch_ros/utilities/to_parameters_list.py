@@ -14,8 +14,8 @@
 
 """Module with utility to transform evaluated parameters into parameter lists."""
 
-import re
 import pathlib
+import re
 from typing import List
 import warnings
 
@@ -97,9 +97,13 @@ def to_parameters_list(
                     for key, value in normalized_param_dict.items():
                         p1 = '/' + key
                         p1 = p1.replace('/*', '(/\\w+)')
-                        match = re.match(p1, node_name)
-                        if match:
-                            param_dict.update(normalized_param_dict[key])
+                        try:
+                            match = re.match(p1, node_name)
+                            if match:
+                                param_dict.update(normalized_param_dict[key])
+                        except re.error as e:
+                            raise RuntimeError(
+                              'invalid yaml file {}, error: {}'.format(str(params_set_or_path), e))
 
                     if not warned_once and not param_dict:
                         warnings.warn(

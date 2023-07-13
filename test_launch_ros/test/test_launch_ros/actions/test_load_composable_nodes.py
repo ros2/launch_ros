@@ -477,6 +477,26 @@ def test_load_node_with_param_file(mock_component_container):
     assert request.node_namespace == '/ns'
     assert len(request.parameters) == 0
 
+    # Case 9: wildcard mixed
+    context = _assert_launch_no_errors([
+        _load_composable_node(
+            package='foo_package',
+            plugin='bar_plugin',
+            name='my_node',
+            namespace='/wildcard_ns/aa/extra1/extra2',
+            parameters=[
+                parameters_file_dir / 'example_parameters_wildcard_mixed.yaml'
+            ],
+        )
+    ])
+    request = mock_component_container.requests[-1]
+    assert get_node_name_count(context, '/wildcard_ns/aa/extra1/extra2/my_node') == 1
+    assert request.node_name == 'my_node'
+    assert request.node_namespace == '/wildcard_ns/aa/extra1/extra2'
+    assert len(request.parameters) == 1
+    assert request.parameters[0].name == 'param'
+    assert request.parameters[0].value.string_value == 'wildcard'
+
     # Namespace not found
     context = _assert_launch_no_errors([
         _load_composable_node(

@@ -105,7 +105,7 @@ def to_parameters_list(
                             raise RuntimeError(
                               'invalid yaml file {}, error: {}'.format(str(params_set_or_path), e))
 
-                    if not warned_once and not param_dict:
+                    if not warned_once and not node_name:
                         warnings.warn(
                             'node name not provided to launch; parameter files will not apply',
                             UserWarning

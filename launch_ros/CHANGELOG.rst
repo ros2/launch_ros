@@ -2,6 +2,13 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.19.5 (2023-07-17)
+-------------------
+* Run condition for composable nodes (`#311 <https://github.com/ros2/launch_ros/issues/311>`_) (`#363 <https://github.com/ros2/launch_ros/issues/363>`_)
+* Fix normalize_parameters_dict for multiple nodes in the same namespace (backport `#347 <https://github.com/ros2/launch_ros/issues/347>`_) (`#350 <https://github.com/ros2/launch_ros/issues/350>`_)
+  Co-authored-by: Alexey Merzlyakov <60094858+AlexeyMerzlyakov@users.noreply.github.com>
+* Contributors: mergify[bot]
+
 0.19.4 (2023-01-10)
 -------------------
 * fix: return text value to avoid exception (`#338 <https://github.com/ros2/launch_ros/issues/338>`_) (`#340 <https://github.com/ros2/launch_ros/issues/340>`_)

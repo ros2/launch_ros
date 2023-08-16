@@ -15,6 +15,9 @@ setup(
     ],
     entry_points={
         'pytest11': ['launch_ros = launch_testing_ros_pytest_entrypoint'],
+        'console_scripts': [
+            'repeater = launch_testing_ros.repeater:main'
+        ]
     },
     install_requires=['setuptools'],
     zip_safe=True,

@@ -2,8 +2,8 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.26.1 (2023-08-21)
+-------------------
 * Remove create_future implementation. (`#372 <https://github.com/ros2/launch_ros/issues/372>`_)
 * Contributors: Chris Lalancette
 

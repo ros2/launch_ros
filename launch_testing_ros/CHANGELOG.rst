@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.26.0 (2023-07-11)
 -------------------
 * `WaitForTopics`: get content of messages for each topic (`#353 <https://github.com/ros2/launch_ros/issues/353>`_)

@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remove create_future implementation. (`#372 <https://github.com/ros2/launch_ros/issues/372>`_)
+* Contributors: Chris Lalancette
+
 0.26.0 (2023-07-11)
 -------------------
 * cache lookup of importlib metadata in Node action (`#365 <https://github.com/ros2/launch_ros/issues/365>`_)

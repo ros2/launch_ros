@@ -63,8 +63,14 @@ class WaitForTopics:
         self._prepare_ros_node()
 
         # Start spinning
-        self.__ros_spin_thread = Thread(target=self.__ros_executor.spin)
+        self.__ros_spin_thread = Thread(target=self._spin_handle_external_shutdown)
         self.__ros_spin_thread.start()
+
+    def _spin_handle_external_shutdown(self):
+        try:
+            self.__ros_executor.spin()
+        except rclpy.executors.ExternalShutdownException:
+            pass
 
     def _prepare_ros_node(self):
         node_name = '_test_node_' + ''.join(

@@ -12,6 +12,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
     ],
+    package_data={'launch_ros': ['py.typed']},
     install_requires=[
         'setuptools',
         'ament_index_python',

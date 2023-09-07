@@ -2,6 +2,12 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Handle spin() ExternalShutdownException. (`#378 <https://github.com/ros2/launch_ros/issues/378>`_)
+* Increase the timeout in wait_for_topic_launch_test. (`#377 <https://github.com/ros2/launch_ros/issues/377>`_)
+* Contributors: Chris Lalancette
+
 0.26.1 (2023-08-21)
 -------------------
 

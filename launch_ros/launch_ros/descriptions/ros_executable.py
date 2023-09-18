@@ -53,7 +53,11 @@ class RosExecutable(Executable):
             cmd = [executable]
 
         if ros_arguments is not None:
-            arguments += ['--ros-args'] + ros_arguments
+            if arguments is not None:
+                arguments.append('--ros-args')
+            else:
+                arguments = ['--ros-args']
+            arguments.extend(ros_arguments)
 
         self.__package = package
         self.__executable = executable

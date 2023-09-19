@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name='launch_testing_ros',
-    version='0.19.5',
+    version='0.19.6',
     packages=find_packages(exclude=['test']),
     py_modules=['launch_testing_ros_pytest_entrypoint'],
     data_files=[

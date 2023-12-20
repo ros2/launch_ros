@@ -23,6 +23,7 @@ import launch
 import launch.actions
 import launch_ros.actions
 import launch_testing.actions
+from launch_testing.io_handler import ActiveIoHandler
 import launch_testing.markers
 import pytest
 import rclpy
@@ -49,7 +50,7 @@ def generate_test_description():
 
 class TestFixture(unittest.TestCase):
 
-    def test_check_if_msgs_published(self, proc_output):
+    def test_check_if_msgs_published(self, proc_output: ActiveIoHandler):
         rclpy.init()
         try:
             node = MakeTestNode('test_node')
@@ -62,7 +63,7 @@ class TestFixture(unittest.TestCase):
 
 class MakeTestNode(Node):
 
-    def __init__(self, name='test_node'):
+    def __init__(self, name: str = 'test_node'):
         super().__init__(name)
         self.msg_event_object = Event()
 
@@ -79,5 +80,5 @@ class MakeTestNode(Node):
         self.ros_spin_thread = Thread(target=lambda node: rclpy.spin(node), args=(self,))
         self.ros_spin_thread.start()
 
-    def subscriber_callback(self, data):
+    def subscriber_callback(self, data: String):
         self.msg_event_object.set()

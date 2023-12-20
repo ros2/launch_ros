@@ -5,13 +5,14 @@ package_name = 'launch_ros'
 
 setup(
     name=package_name,
-    version='0.25.0',
+    version='0.26.2',
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/' + package_name, ['package.xml']),
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
     ],
+    package_data={'launch_ros': ['py.typed']},
     install_requires=[
         'setuptools',
         'ament_index_python',

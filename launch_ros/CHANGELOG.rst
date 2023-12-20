@@ -2,6 +2,22 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.26.2 (2023-09-07)
+-------------------
+* Create py.typed to mark this library as typed (`#379 <https://github.com/ros2/launch_ros/issues/379>`_)
+* Contributors: Jonas Otto
+
+0.26.1 (2023-08-21)
+-------------------
+* Remove create_future implementation. (`#372 <https://github.com/ros2/launch_ros/issues/372>`_)
+* Contributors: Chris Lalancette
+
+0.26.0 (2023-07-11)
+-------------------
+* cache lookup of importlib metadata in Node action (`#365 <https://github.com/ros2/launch_ros/issues/365>`_)
+* Get rid of unnecessary checks in composable_node_container. (`#364 <https://github.com/ros2/launch_ros/issues/364>`_)
+* Contributors: Chris Lalancette, William Woodall
+
 0.25.0 (2023-04-27)
 -------------------
 

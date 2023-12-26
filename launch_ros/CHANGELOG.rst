@@ -2,6 +2,9 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.26.2 (2023-09-07)
 -------------------
 * Create py.typed to mark this library as typed (`#379 <https://github.com/ros2/launch_ros/issues/379>`_)

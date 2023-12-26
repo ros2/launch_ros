@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* added type hinting to launch_testing_ros/test/examples (`#386 <https://github.com/ros2/launch_ros/issues/386>`_)
+* Contributors: Yaswanth
+
 0.26.2 (2023-09-07)
 -------------------
 * Handle spin() ExternalShutdownException. (`#378 <https://github.com/ros2/launch_ros/issues/378>`_)

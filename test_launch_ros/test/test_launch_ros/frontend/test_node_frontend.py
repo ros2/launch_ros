@@ -37,7 +37,7 @@ def test_launch_frontend_xml():
             <let name="a_string" value="\'[2, 5, 8]\'"/>
             <let name="a_list" value="[2, 5, 8]"/>
             <let name="my_value" value="100"/>
-            <node pkg="demo_nodes_py" exec="talker_qos" output="screen" name="my_talker" namespace="my_ns" exec_name="my_talker_process" args="--number_of_cycles 1" ros_args="--log-level info">
+            <node pkg="demo_nodes_py" exec="talker_qos" output="screen" name="my_talker" namespace="my_ns" exec_name="my_talker_process" args="--number_of_cycles 1" ros_args="--log-level info --log-file-name filename">
                 <param name="param1" value="ads"/>
                 <param name="param_group1">
                     <param name="param_group2">
@@ -91,7 +91,7 @@ def test_launch_frontend_yaml():
                 namespace: my_ns
                 exec_name: my_talker_process
                 args: '--number_of_cycles 1'
-                ros_args: '--log-level info'
+                ros_args: '--log-level info --log-file-name filename'
                 param:
                     -   name: param1
                         value: ads
@@ -206,7 +206,7 @@ def check_launch_node(file):
 
     talker_node_action = ld.describe_sub_entities()[3]
     talker_node_cmd_string = ' '.join(talker_node_action.process_details['cmd'])
-    assert '--ros-args --log-level info' in talker_node_cmd_string
+    assert '--ros-args --log-level info --log-file-name filename' in talker_node_cmd_string
 
     listener_node_action = ld.describe_sub_entities()[4]
     listener_node_cmd = listener_node_action.process_details['cmd']

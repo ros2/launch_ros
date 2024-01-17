@@ -63,13 +63,9 @@ if os.name != 'nt':
             message_pattern = re.compile(r'Hello World: \d+')
 
             # Method 1 : Using the magic methods and 'with' keyword
-<<<<<<< HEAD
-            with WaitForTopics(topic_list, timeout=2.0) as wait_for_node_object_1:
-=======
             with WaitForTopics(
                 topic_list, timeout=2.0, messages_received_buffer_length=10
             ) as wait_for_node_object_1:
->>>>>>> 2d125a5 (`WaitForTopics`: get content of messages for each topic (#353))
                 assert wait_for_node_object_1.topics_received() == expected_topics
                 assert wait_for_node_object_1.topics_not_received() == set()
                 for topic_name, _ in topic_list:

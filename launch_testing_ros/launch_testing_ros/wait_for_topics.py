@@ -38,7 +38,10 @@ class WaitForTopics:
         with WaitForTopics(topic_list, timeout=5.0):
             # 'topic_1' and 'topic_2' received at least one message each
             print('Given topics are receiving messages !')
-<<<<<<< HEAD
+            print(wait_for_topics.topics_not_received()) # Should be an empty set
+            print(wait_for_topics.topics_received()) # Should be {'topic_1', 'topic_2'}
+            print(wait_for_topics.messages_received('topic_1')) # Should be [message_1, ...]
+            wait_for_topics.shutdown()
 
     # Method 2, calling wait() and shutdown() manually
     def method_2():
@@ -49,12 +52,6 @@ class WaitForTopics:
         print(wait_for_topics.topics_not_received()) # Should be an empty set
         print(wait_for_topics.topics_received()) # Should be {'topic_1', 'topic_2'}
         wait_for_topics.shutdown()
-=======
-            print(wait_for_topics.topics_not_received()) # Should be an empty set
-            print(wait_for_topics.topics_received()) # Should be {'topic_1', 'topic_2'}
-            print(wait_for_topics.messages_received('topic_1')) # Should be [message_1, ...]
-            wait_for_topics.shutdown()
->>>>>>> 2d125a5 (`WaitForTopics`: get content of messages for each topic (#353))
     """
 
     def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10):

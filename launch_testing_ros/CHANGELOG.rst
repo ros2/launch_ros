@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.26.3 (2023-12-26)
 -------------------
 * added type hinting to launch_testing_ros/test/examples (`#386 <https://github.com/ros2/launch_ros/issues/386>`_)

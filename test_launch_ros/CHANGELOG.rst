@@ -2,8 +2,8 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.26.4 (2024-01-24)
+-------------------
 * add "--log-file-name" command line argument for test. (`#387 <https://github.com/ros2/launch_ros/issues/387>`_)
 * Contributors: Tomoya Fujita
 

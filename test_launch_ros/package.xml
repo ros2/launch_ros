@@ -4,7 +4,7 @@
   schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>test_launch_ros</name>
-  <version>0.26.3</version>
+  <version>0.26.4</version>
   <description>Tests for ROS specific extensions to the launch tool.</description>
 
   <maintainer email="aditya.pande@openrobotics.org">Aditya Pande</maintainer>

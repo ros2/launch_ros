@@ -2,6 +2,9 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.19.7 (2024-01-24)
+-------------------
+
 0.19.6 (2023-09-19)
 -------------------
 * Implement None check for ComposableNodeContainer (`#341 <https://github.com/ros2/launch_ros/issues/341>`_) (`#371 <https://github.com/ros2/launch_ros/issues/371>`_)

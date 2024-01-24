@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.19.7 (2024-01-24)
+-------------------
+* `WaitForTopics`: get content of messages for each topic (backport `#353 <https://github.com/ros2/launch_ros/issues/353>`_) (`#389 <https://github.com/ros2/launch_ros/issues/389>`_)
+* Contributors: mergify[bot]
+
 0.19.6 (2023-09-19)
 -------------------
 

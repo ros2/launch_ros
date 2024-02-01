@@ -26,20 +26,19 @@ import pytest
 from std_msgs.msg import String
 
 
-
 def generate_node():
     """Return node and remap the topic based on the index provided."""
     path_to_test = os.path.dirname(__file__)
     return launch_ros.actions.Node(
         executable=sys.executable,
-        arguments=[os.path.join(path_to_test, "repeater.py")],
-        name="demo_node",
-        additional_env={"PYTHONUNBUFFERED": "1"},
+        arguments=[os.path.join(path_to_test, 'repeater.py')],
+        name='demo_node',
+        additional_env={'PYTHONUNBUFFERED': '1'},
     )
 
 
 def trigger_callback():
-    os.system(f'ros2 topic pub --once /input std_msgs/msg/String "data: Hello World"')
+    os.system('ros2 topic pub --once /input std_msgs/msg/String "data: Hello World"')
 
 
 @pytest.mark.launch_test
@@ -51,17 +50,18 @@ def generate_test_description():
 
 # TODO: Test cases fail on Windows debug builds
 # https://github.com/ros2/launch_ros/issues/292
-if os.name != "nt":
+if os.name != 'nt':
 
     class TestFixture(unittest.TestCase):
+
         def test_topics_successful(self):
             """All the supplied topics should be read successfully."""
-            topic_list = [("output", String)]
-            expected_topics = {"output"}
+            topic_list = [('output', String)]
+            expected_topics = {'output'}
 
             # Method 1 : Using the magic methods and 'with' keyword
             with WaitForTopics(
-                    topic_list, timeout=2000.0, callback=trigger_callback
+                topic_list, timeout=2000.0, callback=trigger_callback
             ) as wait_for_node_object_1:
                 assert wait_for_node_object_1.topics_received() == expected_topics
                 assert wait_for_node_object_1.topics_not_received() == set()

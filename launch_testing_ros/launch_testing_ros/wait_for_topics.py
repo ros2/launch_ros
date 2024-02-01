@@ -59,7 +59,7 @@ class WaitForTopics:
         self.messages_received_buffer_length = messages_received_buffer_length
         self.callback = callback
         if self.callback is not None and not callable(self.callback):
-            raise TypeError("The passed callback is not callable")
+            raise TypeError('The passed callback is not callable')
         self.callback_arguments = (
             callback_arguments if callback_arguments is not None else []
         )

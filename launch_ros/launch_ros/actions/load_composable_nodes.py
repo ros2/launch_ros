@@ -38,6 +38,8 @@ from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 from launch_ros.parameter_descriptions import ParameterFile
 
+from rclpy.exceptions import InvalidHandle
+
 from .composable_node_container import ComposableNodeContainer
 
 from ..descriptions import ComposableNode
@@ -116,14 +118,24 @@ class LoadComposableNodes(Action):
         :param request: service request to load a node
         :param context: current launch context
         """
-        while not self.__rclpy_load_node_client.wait_for_service(timeout_sec=1.0):
-            if context.is_shutdown:
-                self.__logger.warning(
-                    "Abandoning wait for the '{}' service, due to shutdown.".format(
-                        self.__rclpy_load_node_client.srv_name
+        try:
+            while not self.__rclpy_load_node_client.wait_for_service(timeout_sec=1.0):
+                if context.is_shutdown:
+                    self.__logger.warning(
+                        "Abandoning wait for the '{}' service, "
+                        'due to shutdown.'.format(
+                            self.__rclpy_load_node_client.srv_name
+                        )
                     )
+                    return
+        except InvalidHandle:
+            self.__logger.warning(
+                "Abandoning wait for the '{}' service, "
+                'due to invalid rclpy handle.'.format(
+                    self.__rclpy_load_node_client.srv_name
                 )
-                return
+            )
+            return
 
         # Asynchronously wait on service call so that we can periodically check for shutdown
         event = threading.Event()

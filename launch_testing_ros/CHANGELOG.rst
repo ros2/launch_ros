@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* `WaitForTopics`: get content of messages for each topic (`#388 <https://github.com/ros2/launch_ros/issues/388>`_)
+* Contributors: Giorgio Pintaudi
+
 0.24.0 (2023-04-11)
 -------------------
 * Increase the timeouts in wait_for_topic_launch_test. (`#360 <https://github.com/ros2/launch_ros/issues/360>`_)

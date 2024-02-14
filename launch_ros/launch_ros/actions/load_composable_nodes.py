@@ -85,7 +85,7 @@ class LoadComposableNodes(Action):
         super().__init__(**kwargs)
         self.__composable_node_descriptions = composable_node_descriptions
         self.__target_container = target_container
-        self.__final_target_container_name = None  # type: Optional[Text]
+        self.__final_target_container_name: Optional[Text] = None
         self.__logger = launch.logging.get_logger(__name__)
 
     @classmethod

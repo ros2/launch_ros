@@ -15,8 +15,8 @@
 """Module for the ExecutableInPackage substitution."""
 
 import os
-from typing import Iterable
 from typing import List
+from typing import Sequence
 from typing import Text
 
 from launch.frontend import expose_substitution
@@ -51,7 +51,7 @@ class ExecutableInPackage(FindPackagePrefix):
         self.__executable = normalize_to_list_of_substitutions(executable)
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]):
         """Parse a ExecutableInPackage substitution."""
         if not data or len(data) != 2:
             raise AttributeError('exec-in-package substitution expects 2 arguments')

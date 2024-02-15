@@ -19,6 +19,7 @@ from typing import Any
 from typing import Iterable
 from typing import List
 from typing import Optional
+from typing import Sequence
 from typing import Text
 from typing import Union
 
@@ -68,7 +69,7 @@ class Parameter(Substitution):
                 normalize_to_list_of_substitutions(str_normalized_default)
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]):
         """Parse a Parameter substitution."""
         if len(data) < 1 or len(data) > 2:
             raise TypeError('param substitution expects 1 or 2 arguments')

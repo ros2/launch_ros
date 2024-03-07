@@ -104,3 +104,20 @@ if os.name != 'nt':
             assert wait_for_node_object.topics_received() == expected_topics
             assert wait_for_node_object.topics_not_received() == {'invalid_topic'}
             wait_for_node_object.shutdown()
+
+        def test_callback(self, count):
+            topic_list = [('chatter_' + str(i), String) for i in range(count)]
+            expected_topics = {'chatter_' + str(i) for i in range(count)}
+
+            # Method 1 : Using the magic methods and 'with' keyword
+
+            is_callback_called = [[False]]
+
+            def callback(arg):
+                arg[0] = True
+
+            with WaitForTopics(topic_list, timeout=2.0, callback=callback,
+                               callback_arguments=is_callback_called) as wait_for_node_object_1:
+                assert wait_for_node_object_1.topics_received() == expected_topics
+                assert wait_for_node_object_1.topics_not_received() == set()
+                assert is_callback_called[0]

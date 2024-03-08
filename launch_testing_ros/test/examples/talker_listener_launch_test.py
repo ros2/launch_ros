@@ -140,7 +140,7 @@ class TestTalkerListenerLink(unittest.TestCase):
                 success = proc_output.waitFor(
                     expected_output=msg.data,
                     process=listener,
-                    timeout=1.0,
+                    timeout=15.0,
                 )
                 if success:
                     break

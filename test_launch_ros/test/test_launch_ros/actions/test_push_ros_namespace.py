@@ -14,10 +14,13 @@
 
 """Tests for the PushROSNamespace Action."""
 
+from _collections import defaultdict
+
 from launch_ros.actions import Node
 from launch_ros.actions import PushROSNamespace
 from launch_ros.actions.load_composable_nodes import get_composable_node_load_request
 from launch_ros.descriptions import ComposableNode
+from launch_ros.descriptions import Node as NodeDescription
 
 import pytest
 
@@ -26,6 +29,14 @@ class MockContext:
 
     def __init__(self):
         self.launch_configurations = {}
+        self.locals = lambda: None
+        self.locals.unique_ros_node_names = defaultdict(int)
+
+    def extend_globals(self, val):
+        pass
+
+    def extend_locals(self, val):
+        pass
 
     def perform_substitution(self, sub):
         return sub.perform(None)
@@ -110,22 +121,24 @@ def test_push_ros_namespace(config):
     if config.second_push_ns is not None:
         pns2 = PushROSNamespace(config.second_push_ns)
         pns2.execute(lc)
-    node = Node(
+    node_object = Node(
         package='dont_care',
         executable='whatever',
         namespace=config.node_ns,
         name=config.node_name
     )
-    node._perform_substitutions(lc)
+    for node in node_object.ros_exec.nodes:
+        node._perform_substitutions(lc, node_object.ros_exec)
     expected_ns = (
-        config.expected_ns if config.expected_ns is not None else Node.UNSPECIFIED_NODE_NAMESPACE
+        config.expected_ns if config.expected_ns is not None else
+        NodeDescription.UNSPECIFIED_NODE_NAMESPACE
     )
     expected_name = (
-        config.node_name if config.node_name is not None else Node.UNSPECIFIED_NODE_NAME
+        config.node_name if config.node_name is not None else NodeDescription.UNSPECIFIED_NODE_NAME
     )
     expected_fqn = expected_ns.rstrip('/') + '/' + expected_name
-    assert expected_ns == node.expanded_node_namespace
-    assert expected_fqn == node.node_name
+    assert expected_ns == node.expanded_namespace
+    assert expected_fqn == node.name
 
 
 @pytest.mark.parametrize('config', get_test_cases())

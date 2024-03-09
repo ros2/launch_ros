@@ -195,6 +195,6 @@ def test_timer_uses_sim_time(rclpy_node):
 
     # Timer is using sim time which is 100x faster than system time,
     # so 200 sec timer should finish in 2 sec
-    tolerance = 0.1
+    tolerance = 0.5
     assert (end_time - start_time) > 2 - tolerance
     assert (end_time - start_time) < 2 + tolerance

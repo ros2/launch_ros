@@ -16,6 +16,8 @@
 
 import os
 
+from _collections import defaultdict
+
 from launch import LaunchContext
 from launch.actions import PopLaunchConfigurations
 from launch.actions import PushLaunchConfigurations
@@ -34,6 +36,14 @@ class MockContext:
 
     def __init__(self):
         self.launch_configurations = {}
+        self.locals = lambda: None
+        self.locals.unique_ros_node_names = defaultdict(int)
+
+    def extend_globals(self, val):
+        pass
+
+    def extend_locals(self, val):
+        pass
 
     def perform_substitution(self, sub):
         return sub.perform(None)
@@ -74,14 +84,18 @@ def test_set_param_with_node():
     set_param_single = SetParameter(name='my_param', value='my_value')
     set_param_file.execute(lc)
     set_param_single.execute(lc)
-    node_1._perform_substitutions(lc)
-    node_2._perform_substitutions(lc)
+    # node_1._perform_substitutions(lc)
+    for node_description in node_1.ros_exec.nodes:
+        node_description._perform_substitutions(lc, node_1.ros_exec)
+    # node_2._perform_substitutions(lc)
+    for node_description in node_2.ros_exec.nodes:
+        node_description._perform_substitutions(lc, node_2.ros_exec)
 
     actual_command_1 = [perform_substitutions(lc, item) for item in
-                        node_1.cmd if type(item[0]) == TextSubstitution]
+                        node_1.ros_exec.cmd if type(item[0]) == TextSubstitution]
 
     actual_command_2 = [perform_substitutions(lc, item) for item in
-                        node_2.cmd if type(item[0]) == TextSubstitution]
+                        node_2.ros_exec.cmd if type(item[0]) == TextSubstitution]
 
     assert actual_command_1[3] == '--params-file'
     assert os.path.isfile(actual_command_1[4])

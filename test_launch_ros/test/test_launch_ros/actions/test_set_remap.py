@@ -14,6 +14,8 @@
 
 """Tests for the SetRemap Action."""
 
+from _collections import defaultdict
+
 from launch import LaunchContext
 from launch.actions import PopLaunchConfigurations
 from launch.actions import PushLaunchConfigurations
@@ -30,6 +32,14 @@ class MockContext:
 
     def __init__(self):
         self.launch_configurations = {}
+        self.locals = lambda: None
+        self.locals.unique_ros_node_names = defaultdict(int)
+
+    def extend_globals(self, val):
+        pass
+
+    def extend_locals(self, val):
+        pass
 
     def perform_substitution(self, sub):
         return sub.perform(None)
@@ -83,7 +93,8 @@ def test_set_remap_with_node():
     )
     set_remap = SetRemap('from1', 'to1')
     set_remap.execute(lc)
-    node._perform_substitutions(lc)
+    for node_instance in node.ros_exec.nodes:
+        node_instance._perform_substitutions(lc, node.ros_exec)
     assert len(node.expanded_remapping_rules) == 2
     assert node.expanded_remapping_rules == [('from1', 'to1'), ('from2', 'to2')]
 

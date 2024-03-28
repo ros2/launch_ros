@@ -39,4 +39,8 @@ setup(
     ),
     license='Apache License, Version 2.0',
     tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            'mock-composable-container=test_launch_ros.mock_composable_container:main'],
+    }
 )

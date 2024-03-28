@@ -33,7 +33,8 @@ class ROSAdapter:
         self,
         *,
         argv: Optional[List[str]] = None,
-        autostart: bool = True
+        autostart: bool = True,
+        domain_id: Optional[int] = None,
     ):
         """
         Construct adapter.
@@ -47,6 +48,7 @@ class ROSAdapter:
         self.__ros_node = None
         self.__ros_executor = None
         self.__is_running = False
+        self.__domain_id = domain_id
 
         if autostart:
             self.start()
@@ -57,8 +59,14 @@ class ROSAdapter:
             raise RuntimeError('Cannot start a ROS adapter that is already running')
         self.__ros_context = rclpy.Context()
         rclpy.init(args=self.__argv, context=self.__ros_context)
+
+        if self.__domain_id:
+            node_name = 'launch_ros_{}_{}'.format(os.getpid(), self.__domain_id)
+        else:
+            node_name = 'launch_ros_{}'.format(os.getpid())
+
         self.__ros_node = rclpy.create_node(
-            'launch_ros_{}'.format(os.getpid()),
+            node_name,
             context=self.__ros_context
         )
         self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)
@@ -106,7 +114,7 @@ class ROSAdapter:
         return self.__ros_executor
 
 
-def get_ros_adapter(context: launch.LaunchContext):
+def get_ros_adapter(context: launch.LaunchContext, domain_id: Optional[int] = None):
     """
     Get the ROS adapter managed by the given launch context.
 
@@ -115,16 +123,21 @@ def get_ros_adapter(context: launch.LaunchContext):
     This function is reentrant but concurrent calls on the
     same `context` are not safe.
     """
-    if not hasattr(context.locals, 'ros_adapter'):
-        ros_adapter = ROSAdapter()
-        context.extend_globals({'ros_adapter': ros_adapter})
+
+    if (not hasattr(context.locals, 'ros_adapter') or
+            domain_id not in context.locals.ros_adapter):
+        print(f"Start node with domain: {domain_id}")
+        ros_adapter = ROSAdapter(domain_id=domain_id)
+        context.extend_globals({'ros_adapter': {}})
+        context.locals.ros_adapter[domain_id] = ros_adapter
         context.register_event_handler(launch.event_handlers.OnShutdown(
             on_shutdown=lambda *args, **kwargs: ros_adapter.shutdown()
         ))
-    return context.locals.ros_adapter
+
+    return context.locals.ros_adapter[domain_id]
 
 
-def get_ros_node(context: launch.LaunchContext):
+def get_ros_node(context: launch.LaunchContext, domain_id: Optional[int] = None):
     """
     Get the ROS node managed by the given launch context.
 
@@ -133,4 +146,4 @@ def get_ros_node(context: launch.LaunchContext):
     This function is reentrant but concurrent calls on the
     same `context` are not safe.
     """
-    return get_ros_adapter(context).ros_node
+    return get_ros_adapter(context, domain_id).ros_node

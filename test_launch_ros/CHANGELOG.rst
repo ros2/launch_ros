@@ -2,8 +2,8 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.26.5 (2024-03-28)
+-------------------
 * Small fixes for modern flake8. (`#395 <https://github.com/ros2/launch_ros/issues/395>`_)
 * Contributors: Chris Lalancette
 

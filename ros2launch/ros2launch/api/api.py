@@ -46,7 +46,7 @@ def get_share_file_path_from_package(*, package_name, file_name):
     """
     package_share_directory = get_package_share_directory(package_name)
     matching_file_paths = []
-    for root, dirs, files in os.walk(package_share_directory):
+    for root, dirs, files in os.walk(package_share_directory, followlinks=True):
         for name in files:
             if name == file_name:
                 matching_file_paths.append(os.path.join(root, name))
@@ -68,7 +68,7 @@ def get_share_file_path_from_package(*, package_name, file_name):
 def get_launch_file_paths(*, path):
     """Return a list of paths to launch files within a given path."""
     launch_file_paths = []
-    for root, dirs, files in os.walk(path):
+    for root, dirs, files in os.walk(path, followlinks=True):
         for file_name in files:
             file_path = os.path.join(root, file_name)
             if is_launch_file(path=file_path):

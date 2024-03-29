@@ -161,10 +161,8 @@ class _WaitForTopicsNode(Node):
 
     def _sub_matched_event_callback(self, info: QoSSubscriptionMatchedInfo):
         if info.current_count != 0:
-            self.get_logger().info("First publisher is connected.")
             self._any_publisher_connected.set()
         else:
-            self.get_logger().info("Last publisher is disconnected.")
             self._any_publisher_connected.clear()
 
     def _reset(self):

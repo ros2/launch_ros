@@ -19,6 +19,8 @@ from threading import Event
 from threading import Thread
 
 import rclpy
+from rclpy.event_handler import QoSSubscriptionMatchedInfo
+from rclpy.event_handler import SubscriptionEventCallbacks
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 
@@ -108,6 +110,7 @@ class WaitForTopics:
                 self.callback(*self.callback_arguments)
             else:
                 self.callback(self.callback_arguments)
+        self.__ros_node._any_publisher_connected.wait()
         return self.__ros_node.msg_event_object.wait(self.timeout)
 
     def shutdown(self):
@@ -154,6 +157,15 @@ class _WaitForTopicsNode(Node):
         self.expected_topics = set()
         self.received_topics = set()
         self.received_messages_buffer = {}
+        self._any_publisher_connected = Event()
+
+    def _sub_matched_event_callback(self, info: QoSSubscriptionMatchedInfo):
+        if info.current_count != 0:
+            self.get_logger().info("First publisher is connected.")
+            self._any_publisher_connected.set()
+        else:
+            self.get_logger().info("Last publisher is disconnected.")
+            self._any_publisher_connected.clear()
 
     def _reset(self):
         self.msg_event_object.clear()
@@ -172,12 +184,16 @@ class _WaitForTopicsNode(Node):
                     maxlen=self.messages_received_buffer_length
                 )
                 # Create a subscriber
+                sub_event_callback = SubscriptionEventCallbacks(
+                    matched=self._sub_matched_event_callback
+                )
                 self.subscriber_list.append(
                     self.create_subscription(
                         topic_type,
                         topic_name,
                         self.callback_template(topic_name),
-                        10
+                        10,
+                        event_callbacks=sub_event_callback,
                     )
                 )
 

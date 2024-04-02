@@ -65,7 +65,7 @@ class TestFixture(unittest.TestCase):
             request = SetParameters.Request()
             request.parameters = parameters
             future = client.call_async(request)
-            rclpy.spin_until_future_complete(self.node, future, timeout_sec=15.0)
+            rclpy.spin_until_complete(self.node, future, timeout_sec=15.0)
 
             assert future.done(), 'Client request timed out'
 

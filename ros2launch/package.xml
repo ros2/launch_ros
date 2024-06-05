@@ -25,9 +25,9 @@
   <depend>ros2cli</depend>
   <depend>ros2pkg</depend>
 
-  <!-- explicitly depend on the main launch frontends -->
-  <exec_depend>launch_xml</exec_depend>
-  <exec_depend>launch_yaml</exec_depend>
+  <!-- Explicit group resolution - see ros-infrastructure/catkin_pkg#369 -->
+  <exec_depend condition="$DISABLE_GROUPS_WORKAROUND != 1">launch_xml</exec_depend>
+  <exec_depend condition="$DISABLE_GROUPS_WORKAROUND != 1">launch_yaml</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

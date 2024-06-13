@@ -196,6 +196,7 @@ class Node(ExecuteProcess):
         :param: remappings ordered list of 'to' and 'from' string pairs to be
             passed to the node as ROS remapping rules
         :param: ros_arguments list of ROS arguments for the node
+        :param: prefix command placed in front of executable on launch
         :param: arguments list of extra arguments for the node
         """
         if package is not None:

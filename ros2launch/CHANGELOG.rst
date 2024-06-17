@@ -2,6 +2,11 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add mechanism to disable workaround for dependency groups (`#397 <https://github.com/ros2/launch_ros/issues/397>`_)
+* Contributors: Scott K Logan
+
 0.27.0 (2024-04-26)
 -------------------
 

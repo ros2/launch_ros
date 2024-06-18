@@ -15,6 +15,7 @@
 """Module with utility to transform evaluated parameters into parameter lists."""
 
 import pathlib
+import re
 from typing import List
 import warnings
 
@@ -74,10 +75,13 @@ def to_parameters_list(
     :returns: a list of parameters
     """
     parameters = []  # type: List[rclpy.parameter.Parameter]
-    node_name = node_name.lstrip('/')
+
+    if node_name[0] != '/':
+        node_name = '/' + node_name
+
     if namespace and namespace != '/':
         namespace = namespace.strip('/')
-        node_name = f'{namespace}/{node_name}'
+        node_name = f'/{namespace}{node_name}'
 
     params_set = {}
     warned_once = False
@@ -89,10 +93,18 @@ def to_parameters_list(
 
                 if normalized_param_dict:
                     param_dict.clear()
-                    if '**' in normalized_param_dict:
-                        param_dict = normalized_param_dict['**']
-                    if node_name in normalized_param_dict:
-                        param_dict.update(normalized_param_dict[node_name])
+
+                    for key, value in normalized_param_dict.items():
+                        pattern = key if key[0] == '/' else '/' + key
+                        pattern = pattern.replace('/*', '(/\\w+)')
+                        try:
+                            match = re.fullmatch(pattern, node_name)
+                            if match:
+                                param_dict.update(value)
+                        except re.error as e:
+                            raise RuntimeError(
+                              'invalid yaml file {}, error: {}'.format(str(params_set_or_path), e))
+
                     if not warned_once and not node_name:
                         warnings.warn(
                             'node name not provided to launch; parameter files will not apply',

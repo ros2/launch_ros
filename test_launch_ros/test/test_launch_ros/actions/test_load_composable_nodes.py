@@ -111,7 +111,7 @@ def mock_component_container():
         executor.add_node(container)
 
         # Start spinning in a thread
-        thread = threading.Thread(target=lambda exec: exec.spin(), args=(executor,))
+        thread = threading.Thread(target=lambda executor: executor.spin(), args=(executor,))
         thread.start()
         yield container
         executor.remove_node(container)

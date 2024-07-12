@@ -14,8 +14,8 @@
 
 """Module for the FindPackage substitution."""
 
-from typing import Iterable
 from typing import List
+from typing import Sequence
 from typing import Text
 
 from ament_index_python.packages import get_package_prefix
@@ -45,7 +45,7 @@ class FindPackage(Substitution):
         self.__package = normalize_to_list_of_substitutions(package)
 
     @classmethod
-    def parse(cls, data: Iterable[SomeSubstitutionsType]):
+    def parse(cls, data: Sequence[SomeSubstitutionsType]):
         """Parse a FindPackage substitution."""
         if not data or len(data) != 1:
             raise AttributeError('find package substitutions expect 1 argument')

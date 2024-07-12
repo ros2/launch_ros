@@ -157,7 +157,7 @@ def evaluate_parameters(context: LaunchContext, parameters: Parameters) -> Evalu
     :param parameters: normalized parameters
     :returns: values after evaluating lists of substitutions
     """
-    output_params = []  # type: List[Union[pathlib.Path, Dict[str, EvaluatedParameterValue]]]
+    output_params: List[Union[pathlib.Path, Dict[str, EvaluatedParameterValue]]] = []
     for param in parameters:
         if isinstance(param, ParameterFile):
             # Evaluate a list of Substitution to a file path

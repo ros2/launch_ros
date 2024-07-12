@@ -2,6 +2,25 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.27.1 (2024-06-17)
+-------------------
+
+0.27.0 (2024-04-26)
+-------------------
+
+0.26.5 (2024-03-28)
+-------------------
+* Small fixes for modern flake8. (`#395 <https://github.com/ros2/launch_ros/issues/395>`_)
+* Contributors: Chris Lalancette
+
+0.26.4 (2024-01-24)
+-------------------
+* add "--log-file-name" command line argument for test. (`#387 <https://github.com/ros2/launch_ros/issues/387>`_)
+* Contributors: Tomoya Fujita
+
+0.26.3 (2023-12-26)
+-------------------
+
 0.26.2 (2023-09-07)
 -------------------
 

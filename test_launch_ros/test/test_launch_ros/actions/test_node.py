@@ -94,11 +94,12 @@ class TestNode(unittest.TestCase):
             assert expanded_remappings[i] == ('chatter', 'new_chatter')
 
     def test_launch_node_with_ros_arguments(self):
-        node_action = self._create_node(ros_arguments=['--log-level', 'debug'])
+        node_action = self._create_node(
+            ros_arguments=['--log-level', 'debug', '--log-file-name', 'filename'])
         self._assert_launch_no_errors([node_action])
 
         cmd_string = ' '.join(node_action.process_details['cmd'])
-        assert '--ros-args --log-level debug' in cmd_string
+        assert '--ros-args --log-level debug --log-file-name filename' in cmd_string
 
     def test_launch_required_node(self):
         # This node will never exit on its own, it'll keep publishing forever.

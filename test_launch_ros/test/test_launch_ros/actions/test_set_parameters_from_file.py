@@ -78,10 +78,10 @@ def test_set_param_with_node():
     node_2._perform_substitutions(lc)
 
     actual_command_1 = [perform_substitutions(lc, item) for item in
-                        node_1.cmd if type(item[0]) == TextSubstitution]
+                        node_1.cmd if isinstance(item[0], TextSubstitution)]
 
     actual_command_2 = [perform_substitutions(lc, item) for item in
-                        node_2.cmd if type(item[0]) == TextSubstitution]
+                        node_2.cmd if isinstance(item[0], TextSubstitution)]
 
     assert actual_command_1[3] == '--params-file'
     assert os.path.isfile(actual_command_1[4])

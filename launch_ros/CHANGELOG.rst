@@ -2,6 +2,24 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.27.1 (2024-06-17)
+-------------------
+
+0.27.0 (2024-04-26)
+-------------------
+
+0.26.5 (2024-03-28)
+-------------------
+* Fix: typing. Iterable doesn't have __getitem_\_ (`#393 <https://github.com/ros2/launch_ros/issues/393>`_)
+* Cleanup some type annotations. (`#392 <https://github.com/ros2/launch_ros/issues/392>`_)
+* Contributors: Chris Lalancette, Matthijs van der Burgh
+
+0.26.4 (2024-01-24)
+-------------------
+
+0.26.3 (2023-12-26)
+-------------------
+
 0.26.2 (2023-09-07)
 -------------------
 * Create py.typed to mark this library as typed (`#379 <https://github.com/ros2/launch_ros/issues/379>`_)

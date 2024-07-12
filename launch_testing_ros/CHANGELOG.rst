@@ -2,6 +2,25 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.27.1 (2024-06-17)
+-------------------
+
+0.27.0 (2024-04-26)
+-------------------
+
+0.26.5 (2024-03-28)
+-------------------
+* Make launch_testing_ros examples more robust. (`#394 <https://github.com/ros2/launch_ros/issues/394>`_)
+* Contributors: Chris Lalancette
+
+0.26.4 (2024-01-24)
+-------------------
+
+0.26.3 (2023-12-26)
+-------------------
+* added type hinting to launch_testing_ros/test/examples (`#386 <https://github.com/ros2/launch_ros/issues/386>`_)
+* Contributors: Yaswanth
+
 0.26.2 (2023-09-07)
 -------------------
 * Handle spin() ExternalShutdownException. (`#378 <https://github.com/ros2/launch_ros/issues/378>`_)

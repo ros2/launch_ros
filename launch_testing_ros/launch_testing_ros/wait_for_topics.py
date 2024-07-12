@@ -52,11 +52,11 @@ class WaitForTopics:
             print(wait_for_topics.topics_received()) # Should be {'topic_1', 'topic_2'}
             print(wait_for_topics.messages_received('topic_1')) # Should be [message_1, ...]
             wait_for_topics.shutdown()
-            
+
         # Method3, using a callback
         def callback_function(arg):
             print(f'Callback function called with argument: {arg}')
-            
+
         def method_3():
             topic_list = [('topic_1', String), ('topic_2', String)]
             with WaitForTopics(topic_list, callback=callback_function, callback_arguments="Hello"):

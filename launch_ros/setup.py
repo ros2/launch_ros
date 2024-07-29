@@ -5,7 +5,7 @@ package_name = 'launch_ros'
 
 setup(
     name=package_name,
-    version='0.27.1',
+    version='0.27.2',
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/' + package_name, ['package.xml']),

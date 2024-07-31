@@ -41,7 +41,7 @@ def generate_node():
 def trigger_callback():
     command = 'ros2 topic pub --once --max-wait-time-secs 10 --keep-alive 1 \
         /input std_msgs/msg/String "data: Hello World"'
-    p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
+    p = Popen(command.split(), stdout=PIPE, stderr=PIPE)
     stdout, stderr = p.communicate()
     print("stdout: ", stdout)
     print("stderr: ", stderr)

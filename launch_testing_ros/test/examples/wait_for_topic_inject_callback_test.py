@@ -15,6 +15,7 @@
 import os
 import sys
 import unittest
+from subprocess import PIPE, Popen
 
 import launch
 import launch.actions
@@ -40,7 +41,10 @@ def generate_node():
 def trigger_callback():
     command = 'ros2 topic pub --once --max-wait-time-secs 10 --keep-alive 1 \
         /input std_msgs/msg/String "data: Hello World"'
-    print(os.popen(command).read())
+    p = Popen(command, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate()
+    print("stdout: ", stdout)
+    print("stderr: ", stderr)
     print('Callback triggered')
 
 

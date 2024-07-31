@@ -38,7 +38,9 @@ def generate_node():
 
 
 def trigger_callback():
-    os.system('ros2 topic pub --once /input std_msgs/msg/String "data: Hello World"')
+    command = 'ros2 topic pub --once --max-wait-time-secs 10 --keep-alive 1 \
+        /input std_msgs/msg/String "data: Hello World"'
+    print(os.popen(command).read())
     print('Callback triggered')
 
 

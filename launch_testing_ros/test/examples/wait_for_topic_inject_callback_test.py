@@ -39,6 +39,7 @@ def generate_node():
 
 def trigger_callback():
     os.system('ros2 topic pub --once /input std_msgs/msg/String "data: Hello World"')
+    print('Callback triggered')
 
 
 @pytest.mark.launch_test
@@ -61,7 +62,7 @@ if os.name != 'nt':
 
             # Method 1 : Using the magic methods and 'with' keyword
             with WaitForTopics(
-                topic_list, timeout=2000.0, callback=trigger_callback
+                topic_list, timeout=10.0, callback=trigger_callback
             ) as wait_for_node_object_1:
                 assert wait_for_node_object_1.topics_received() == expected_topics
                 assert wait_for_node_object_1.topics_not_received() == set()

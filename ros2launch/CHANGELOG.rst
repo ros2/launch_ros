@@ -2,6 +2,9 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.27.2 (2024-07-29)
+-------------------
+
 0.27.1 (2024-06-17)
 -------------------
 * Add mechanism to disable workaround for dependency groups (`#397 <https://github.com/ros2/launch_ros/issues/397>`_)

@@ -2,6 +2,12 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.27.2 (2024-07-29)
+-------------------
+* Revamp the test_load_composable_nodes test. (`#403 <https://github.com/ros2/launch_ros/issues/403>`_)
+* Switch to use rclpy.init context manager. (`#402 <https://github.com/ros2/launch_ros/issues/402>`_)
+* Contributors: Chris Lalancette
+
 0.27.1 (2024-06-17)
 -------------------
 

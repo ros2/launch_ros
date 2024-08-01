@@ -22,8 +22,8 @@ import launch_ros.actions
 import launch_testing.actions
 import launch_testing.markers
 from launch_testing_ros import WaitForTopics
-import rclpy
 import pytest
+import rclpy
 from std_msgs.msg import String
 
 
@@ -43,7 +43,7 @@ def trigger_callback():
     node = rclpy.create_node('trigger')
     publisher = node.create_publisher(String, 'input', 10)
     while publisher.get_subscription_count() == 0:
-        rclpy.spin_once(node, timeout_sec=0.1) 
+        rclpy.spin_once(node, timeout_sec=0.1)
     msg = String()
     msg.data = 'Hello World'
     publisher.publish(msg)

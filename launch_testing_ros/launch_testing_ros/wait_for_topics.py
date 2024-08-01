@@ -19,6 +19,8 @@ from threading import Event
 from threading import Thread
 
 import rclpy
+from rclpy.event_handler import QoSSubscriptionMatchedInfo
+from rclpy.event_handler import SubscriptionEventCallbacks
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 
@@ -50,12 +52,28 @@ class WaitForTopics:
             print(wait_for_topics.topics_received()) # Should be {'topic_1', 'topic_2'}
             print(wait_for_topics.messages_received('topic_1')) # Should be [message_1, ...]
             wait_for_topics.shutdown()
+
+        # Method3, using a callback
+        def callback_function(arg):
+            print(f'Callback function called with argument: {arg}')
+
+        def method_3():
+            topic_list = [('topic_1', String), ('topic_2', String)]
+            with WaitForTopics(topic_list, callback=callback_function, callback_arguments="Hello"):
+                print('Given topics are receiving messages !')
     """
 
-    def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10):
+    def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10,
+                 callback=None, callback_arguments=None):
         self.topic_tuples = topic_tuples
         self.timeout = timeout
         self.messages_received_buffer_length = messages_received_buffer_length
+        self.callback = callback
+        if self.callback is not None and not callable(self.callback):
+            raise TypeError('The passed callback is not callable')
+        self.callback_arguments = (
+            callback_arguments if callback_arguments is not None else []
+        )
         self.__ros_context = rclpy.Context()
         rclpy.init(context=self.__ros_context)
         self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)
@@ -85,6 +103,14 @@ class WaitForTopics:
 
     def wait(self):
         self.__ros_node.start_subscribers(self.topic_tuples)
+        if self.callback:
+            if isinstance(self.callback_arguments, dict):
+                self.callback(**self.callback_arguments)
+            elif isinstance(self.callback_arguments, (list, set, tuple)):
+                self.callback(*self.callback_arguments)
+            else:
+                self.callback(self.callback_arguments)
+        self.__ros_node._any_publisher_connected.wait()
         return self.__ros_node.msg_event_object.wait(self.timeout)
 
     def shutdown(self):
@@ -131,6 +157,13 @@ class _WaitForTopicsNode(Node):
         self.expected_topics = set()
         self.received_topics = set()
         self.received_messages_buffer = {}
+        self._any_publisher_connected = Event()
+
+    def _sub_matched_event_callback(self, info: QoSSubscriptionMatchedInfo):
+        if info.current_count != 0:
+            self._any_publisher_connected.set()
+        else:
+            self._any_publisher_connected.clear()
 
     def _reset(self):
         self.msg_event_object.clear()
@@ -149,12 +182,16 @@ class _WaitForTopicsNode(Node):
                     maxlen=self.messages_received_buffer_length
                 )
                 # Create a subscriber
+                sub_event_callback = SubscriptionEventCallbacks(
+                    matched=self._sub_matched_event_callback
+                )
                 self.subscriber_list.append(
                     self.create_subscription(
                         topic_type,
                         topic_name,
                         self.callback_template(topic_name),
-                        10
+                        10,
+                        event_callbacks=sub_event_callback,
                     )
                 )
 

@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import os
-from subprocess import PIPE, Popen
 import sys
 import unittest
 
@@ -23,6 +22,7 @@ import launch_ros.actions
 import launch_testing.actions
 import launch_testing.markers
 from launch_testing_ros import WaitForTopics
+import rclpy
 import pytest
 from std_msgs.msg import String
 
@@ -39,13 +39,17 @@ def generate_node():
 
 
 def trigger_callback():
-    command = 'ros2 topic pub --once --max-wait-time-secs 10 --keep-alive 1 \
-        /input std_msgs/msg/String "data: Hello World"'
-    p = Popen(command.split(), stdout=PIPE, stderr=PIPE)
-    stdout, stderr = p.communicate()
-    print("stdout: ", stdout)
-    print("stderr: ", stderr)
-    print('Callback triggered')
+    rclpy.init()
+    node = rclpy.create_node('trigger')
+    publisher = node.create_publisher(String, 'input', 10)
+    while publisher.get_subscription_count() == 0:
+        rclpy.spin_once(node, timeout_sec=0.1) 
+    msg = String()
+    msg.data = 'Hello World'
+    publisher.publish(msg)
+    print('Published message')
+    node.destroy_node()
+    rclpy.shutdown()
 
 
 @pytest.mark.launch_test

@@ -25,8 +25,8 @@ setup(
     author_email='william@osrfoundation.org',
     maintainer='Aditya Pande, Brandon Ong',
     maintainer_email='aditya.pande@openrobotics.org, brandon@openrobotics.org',
-    url='https://github.com/ros2/launch',
-    download_url='https://github.com/ros2/launch/releases',
+    url='https://github.com/ros2/launch_ros',
+    download_url='https://github.com/ros2/launch_ros/releases',
     keywords=['ROS'],
     classifiers=[
         'Intended Audience :: Developers',

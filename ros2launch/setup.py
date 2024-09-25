@@ -16,17 +16,10 @@ setup(
     zip_safe=True,
     author='William Woodall',
     author_email='william@osrfoundation.org',
-<<<<<<< HEAD
     maintainer='Aditya Pande, Jacob Perron, Michel Hidalgo',
     maintainer_email='aditya.pande@openrobotics.org, jacob@openrobotics.org, michel@ekumenlabs.com',  # noqa: E501
-    url='https://github.com/ros2/launch/tree/master/ros2launch',
-    download_url='https://github.com/ros2/launch/releases',
-=======
-    maintainer='Aditya Pande, Brandon Ong',
-    maintainer_email='aditya.pande@openrobotics.org, brandon@openrobotics.org',
-    url='https://github.com/ros2/launch_ros',
+    url='https://github.com/ros2/launch_ros/tree/master/ros2launch',
     download_url='https://github.com/ros2/launch_ros/releases',
->>>>>>> edb6376 (Fix url in setup.py (#413))
     keywords=[],
     classifiers=[
         'Environment :: Console',

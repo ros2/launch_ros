@@ -23,8 +23,8 @@ setup(
     author_email='william@osrfoundation.org',
     maintainer='Aditya Pande, Jacob Perron, Michel Hidalgo',
     maintainer_email='aditya.pande@openrobotics.org, jacob@openrobotics.org, michel@ekumenlabs.com',  # noqa: E501
-    url='https://github.com/ros2/launch',
-    download_url='https://github.com/ros2/launch/releases',
+    url='https://github.com/ros2/launch_ros',
+    download_url='https://github.com/ros2/launch_ros/releases',
     keywords=['ROS'],
     classifiers=[
         'Intended Audience :: Developers',

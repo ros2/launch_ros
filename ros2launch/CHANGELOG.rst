@@ -2,8 +2,8 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.27.3 (2024-10-03)
+-------------------
 * Fix url in setup.py (`#413 <https://github.com/ros2/launch_ros/issues/413>`_)
 * Contributors: Wei HU
 

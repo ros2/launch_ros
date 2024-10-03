@@ -2,6 +2,12 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add in a timeout for test_launch_ros. (`#417 <https://github.com/ros2/launch_ros/issues/417>`_)
+* Fix url in setup.py (`#413 <https://github.com/ros2/launch_ros/issues/413>`_)
+* Contributors: Chris Lalancette, Wei HU
+
 0.27.2 (2024-07-29)
 -------------------
 * Revamp the test_load_composable_nodes test. (`#403 <https://github.com/ros2/launch_ros/issues/403>`_)

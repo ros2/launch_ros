@@ -27,6 +27,7 @@ from launch_ros.actions import SetParameter, SetParametersFromFile
 from launch_ros.actions.load_composable_nodes import get_composable_node_load_request
 from launch_ros.descriptions import ComposableNode
 
+import pytest
 import yaml
 
 
@@ -176,3 +177,19 @@ def test_set_param_with_composable_node():
     assert parameters[0].value.integer_value == 10
     assert parameters[1].name == 'asd'
     assert parameters[1].value.string_value == 'bsd'
+
+
+def test_set_bad_wildcard_param_with_composable_node():
+    lc = MockContext()
+    node_description = ComposableNode(
+        package='asd',
+        plugin='my_plugin',
+        name='my_node',
+        namespace='my_ns'
+    )
+    param_file_path = \
+        os.path.dirname(os.path.abspath(__file__)) + '/example_parameters_bad_wildcard.yaml'
+    set_param_1 = SetParametersFromFile(param_file_path)
+    set_param_1.execute(lc)
+    with pytest.raises(RuntimeError):
+        get_composable_node_load_request(node_description, lc)

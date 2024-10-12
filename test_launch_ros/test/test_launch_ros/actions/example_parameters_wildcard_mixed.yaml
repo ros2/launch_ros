@@ -1,0 +1,3 @@
+/*/aa/**/my_node:
+  ros__parameters:
+    param: "wildcard"

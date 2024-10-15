@@ -25,6 +25,7 @@ import launch_testing.markers
 import pytest
 import rclpy
 from rclpy.node import Node
+from rclpy.utilities import get_rmw_implementation_identifier
 
 
 @pytest.mark.launch_test
@@ -48,6 +49,11 @@ def generate_test_description():
 
 
 class TestFixture(unittest.TestCase):
+
+    # https://github.com/ros2/launch_ros/issues/408
+    @unittest.skipIf(
+        get_rmw_implementation_identifier() == 'rmw_connext_cpp',
+        reason='Test failing with Connext')
 
     def test_node_start(self, proc_output):
         rclpy.init()

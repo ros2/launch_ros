@@ -52,7 +52,7 @@ class TestFixture(unittest.TestCase):
 
     # https://github.com/ros2/launch_ros/issues/408
     @unittest.skipIf(
-        get_rmw_implementation_identifier() == 'rmw_connext_cpp',
+        get_rmw_implementation_identifier() == 'rmw_connextdds',
         reason='Test failing with Connext')
     def test_node_start(self, proc_output):
         rclpy.init()

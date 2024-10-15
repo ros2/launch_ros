@@ -54,7 +54,6 @@ class TestFixture(unittest.TestCase):
     @unittest.skipIf(
         get_rmw_implementation_identifier() == 'rmw_connext_cpp',
         reason='Test failing with Connext')
-
     def test_node_start(self, proc_output):
         rclpy.init()
         try:

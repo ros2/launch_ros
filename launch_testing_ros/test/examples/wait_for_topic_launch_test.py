@@ -76,11 +76,7 @@ if os.name != 'nt':
             # Multiple instances of WaitForNode() can be created safely as
             # their internal nodes spin in separate contexts
             # Method 2 : Manually calling wait() and shutdown()
-<<<<<<< HEAD
-            wait_for_node_object_2 = WaitForTopics(topic_list, timeout=2.0)
-=======
             wait_for_node_object_2 = WaitForTopics(topic_list, timeout=15.0)
->>>>>>> 14c1095 ([Backport] Make launch_testing_ros examples more robust. (#394) (#420))
             assert wait_for_node_object_2.wait()
             assert wait_for_node_object_2.topics_received() == expected_topics
             assert wait_for_node_object_2.topics_not_received() == set()

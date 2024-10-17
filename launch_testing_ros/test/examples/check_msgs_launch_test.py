@@ -81,6 +81,6 @@ class TestFixture(unittest.TestCase):
         self.node.destroy_node()
         rclpy.shutdown()
 
-    def test_check_if_msgs_published(self, proc_output: ActiveIoHandler):
+    def test_check_if_msgs_published(self, proc_output):
         msgs_received_flag = self.msg_event_object.wait(timeout=15.0)
         assert msgs_received_flag, 'Did not receive msgs !'

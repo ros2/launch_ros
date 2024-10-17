@@ -52,7 +52,7 @@ class TestFixture(unittest.TestCase):
         self.node.destroy_node()
         rclpy.shutdown()
 
-    def test_set_parameter(self, proc_output: ActiveIoHandler):
+    def test_set_parameter(self, proc_output):
         parameters = [rclpy.Parameter('demo_parameter_1', value=True).to_parameter_msg()]
 
         client = self.node.create_client(SetParameters, 'demo_node_1/set_parameters')

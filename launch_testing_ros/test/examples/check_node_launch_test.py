@@ -56,7 +56,7 @@ class TestFixture(unittest.TestCase):
         self.node.destroy_node()
         rclpy.shutdown()
 
-    def test_node_start(self, proc_output: ActiveIoHandler):
+    def test_node_start(self, proc_output):
         found = False
         print('Waiting for node...')
         # demo_node_1 won't start for at least 5 seconds after this test

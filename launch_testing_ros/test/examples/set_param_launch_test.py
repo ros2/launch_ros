@@ -24,7 +24,6 @@ import launch_testing.markers
 import pytest
 from rcl_interfaces.srv import SetParameters
 import rclpy
-from rclpy.node import Node
 
 
 @pytest.mark.launch_test
@@ -45,35 +44,30 @@ def generate_test_description():
 
 class TestFixture(unittest.TestCase):
 
-    def test_set_parameter(self, proc_output):
+    def setUp(self):
         rclpy.init()
+        self.node = rclpy.create_node('test_node')
+
+    def tearDown(self):
+        self.node.destroy_node()
+        rclpy.shutdown()
+
+    def test_set_parameter(self, proc_output):
+        parameters = [rclpy.Parameter('demo_parameter_1', value=True).to_parameter_msg()]
+
+        client = self.node.create_client(SetParameters, 'demo_node_1/set_parameters')
         try:
-            node = MakeTestNode('test_node')
-            response = node.set_parameter(state=True)
-            assert response.successful, 'Could not set parameter!'
+            ready = client.wait_for_service(timeout_sec=15.0)
+            if not ready:
+                raise RuntimeError('Wait for service timed out')
+
+            request = SetParameters.Request()
+            request.parameters = parameters
+            future = client.call_async(request)
+            rclpy.spin_until_future_complete(self.node, future, timeout_sec=15.0)
+
+            assert future.done(), 'Client request timed out'
+
+            assert future.result().results[0].successful, 'Could not set parameter!'
         finally:
-            rclpy.shutdown()
-
-
-class MakeTestNode(Node):
-
-    def __init__(self, name='test_node'):
-        super().__init__(name)
-
-    def set_parameter(self, state=True, timeout=5.0):
-        parameters = [rclpy.Parameter('demo_parameter_1', value=state).to_parameter_msg()]
-
-        client = self.create_client(SetParameters, 'demo_node_1/set_parameters')
-        ready = client.wait_for_service(timeout_sec=timeout)
-        if not ready:
-            raise RuntimeError('Wait for service timed out')
-
-        request = SetParameters.Request()
-        request.parameters = parameters
-        future = client.call_async(request)
-        rclpy.spin_until_future_complete(self, future, timeout_sec=timeout)
-
-        assert future.done(), 'Client request timed out'
-
-        response = future.result()
-        return response.results[0]
+            self.node.destroy_client(client)

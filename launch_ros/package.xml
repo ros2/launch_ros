@@ -17,18 +17,19 @@
   <author email="michel@ekumenlabs.com">Michel Hidalgo</author>
   <author email="william@osrfoundation.org">William Woodall</author>
 
-  <depend>ament_index_python</depend>
-  <depend>launch</depend>
-  <depend>lifecycle_msgs</depend>
-  <depend>osrf_pycommon</depend>
-  <depend>rclpy</depend>
-  <depend>python3-importlib-metadata</depend>
-  <depend>python3-yaml</depend>
-  <depend>composition_interfaces</depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>composition_interfaces</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>lifecycle_msgs</exec_depend>
+  <exec_depend>osrf_pycommon</exec_depend>
+  <exec_depend>python3-importlib-metadata</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>rclpy</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
+  <test_depend>ament_xmllint</test_depend>
   <test_depend>python3-pytest</test_depend>
 
   <export>

@@ -19,11 +19,11 @@
   <author email="michel@ekumenlabs.com">Michel Hidalgo</author>
   <author email="william@osrfoundation.org">William Woodall</author>
 
-  <depend>ament_index_python</depend>
-  <depend>launch</depend>
-  <depend>launch_ros</depend>
-  <depend>ros2cli</depend>
-  <depend>ros2pkg</depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ros2cli</exec_depend>
+  <exec_depend>ros2pkg</exec_depend>
 
   <!-- Explicit group resolution - see ros-infrastructure/catkin_pkg#369 -->
   <exec_depend condition="$DISABLE_GROUPS_WORKAROUND != 1">launch_xml</exec_depend>
@@ -32,6 +32,7 @@
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
+  <test_depend>ament_xmllint</test_depend>
   <test_depend>python3-pytest</test_depend>
 
   <group_depend>launch_frontend_packages</group_depend>

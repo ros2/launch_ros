@@ -20,6 +20,7 @@
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
+  <test_depend>ament_xmllint</test_depend>
   <test_depend>builtin_interfaces</test_depend>
   <test_depend>composition</test_depend>
   <test_depend>demo_nodes_py</test_depend>

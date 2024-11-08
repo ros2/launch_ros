@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix url in setup.py (`#416 <https://github.com/ros2/launch_ros/issues/416>`_)
+* Contributors: Wei HU
+
 0.24.1 (2024-02-07)
 -------------------
 

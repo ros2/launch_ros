@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Make launch_testing_ros examples more robust. (`#420 <https://github.com/ros2/launch_ros/issues/420>`_)
+* Contributors: Tomoya Fujita
+
 0.24.1 (2024-02-07)
 -------------------
 * `WaitForTopics`: get content of messages for each topic (`#388 <https://github.com/ros2/launch_ros/issues/388>`_)

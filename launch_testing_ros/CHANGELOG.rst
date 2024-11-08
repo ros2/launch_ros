@@ -2,8 +2,8 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.24.2 (2024-11-09)
+-------------------
 * Make launch_testing_ros examples more robust. (`#420 <https://github.com/ros2/launch_ros/issues/420>`_)
 * Contributors: Tomoya Fujita
 

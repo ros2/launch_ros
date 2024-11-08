@@ -2,8 +2,8 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.24.2 (2024-11-09)
+-------------------
 * cache lookup of importlib metadata in Node action (`#411 <https://github.com/ros2/launch_ros/issues/411>`_)
 * Fix url in setup.py (`#416 <https://github.com/ros2/launch_ros/issues/416>`_)
 * Contributors: roscan-tech, Wei HU

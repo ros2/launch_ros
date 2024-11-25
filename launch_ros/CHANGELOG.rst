@@ -2,6 +2,12 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.19.8 (2024-11-25)
+-------------------
+* Fix url in setup.py (backport `#413 <https://github.com/ros2/launch_ros/issues/413>`_) (`#415 <https://github.com/ros2/launch_ros/issues/415>`_)
+* [backport] cache lookup of importlib metadata in Node action (`#365 <https://github.com/ros2/launch_ros/issues/365>`_) (`#406 <https://github.com/ros2/launch_ros/issues/406>`_)
+* Contributors: mergify[bot], xueying
+
 0.19.7 (2024-01-24)
 -------------------
 

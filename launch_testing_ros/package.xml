@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>launch_testing_ros</name>
-  <version>0.19.7</version>
+  <version>0.19.8</version>
   <description>A package providing utilities for writing ROS2 enabled launch tests.</description>
   <maintainer email="aditya.pande@osrfoundation.org">Aditya Pande</maintainer>
   <maintainer email="jacob@openrobotics.org">Jacob Perron</maintainer>

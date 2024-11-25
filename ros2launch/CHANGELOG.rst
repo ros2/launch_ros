@@ -2,6 +2,11 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.19.8 (2024-11-25)
+-------------------
+* Fix url in setup.py (backport `#413 <https://github.com/ros2/launch_ros/issues/413>`_) (`#415 <https://github.com/ros2/launch_ros/issues/415>`_)
+* Contributors: mergify[bot]
+
 0.19.7 (2024-01-24)
 -------------------
 

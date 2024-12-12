@@ -14,6 +14,7 @@
 
 import os
 import sys
+import time
 import unittest
 
 import launch
@@ -23,7 +24,6 @@ import launch_testing.actions
 import launch_testing.markers
 from launch_testing_ros import WaitForTopics
 import pytest
-import rclpy
 from std_msgs.msg import String
 
 
@@ -38,18 +38,15 @@ def generate_node():
     )
 
 
-def trigger_callback():
-    rclpy.init()
-    node = rclpy.create_node('trigger')
-    publisher = node.create_publisher(String, 'input', 10)
-    while publisher.get_subscription_count() == 0:
-        rclpy.spin_once(node, timeout_sec=0.1)
+def trigger_callback(node):
+    if not hasattr(node, 'my_publisher'):
+        node.my_publisher = node.create_publisher(String, 'input', 10)
+    while node.my_publisher.get_subscription_count() == 0:
+        time.sleep(0.1)
     msg = String()
     msg.data = 'Hello World'
-    publisher.publish(msg)
+    node.my_publisher.publish(msg)
     print('Published message')
-    node.destroy_node()
-    rclpy.shutdown()
 
 
 @pytest.mark.launch_test

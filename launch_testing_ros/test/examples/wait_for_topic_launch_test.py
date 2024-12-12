@@ -109,15 +109,17 @@ if os.name != 'nt':
             topic_list = [('chatter_' + str(i), String) for i in range(count)]
             expected_topics = {'chatter_' + str(i) for i in range(count)}
 
-            # Method 1 : Using the magic methods and 'with' keyword
+            # Method 3 : Using a callback function
 
-            is_callback_called = [[False]]
+            # Using a list to store the callback function's argument as it is mutable
+            is_callback_called = [False]
 
-            def callback(arg):
+            def callback(node, arg):
+                node.get_logger().info(f'Callback function called with argument: {arg[0]}')
                 arg[0] = True
 
-            with WaitForTopics(topic_list, timeout=2.0, callback=callback,
-                               callback_arguments=is_callback_called) as wait_for_node_object_1:
-                assert wait_for_node_object_1.topics_received() == expected_topics
-                assert wait_for_node_object_1.topics_not_received() == set()
-                assert is_callback_called[0]
+            wait_for_node_object = WaitForTopics(topic_list, timeout=2.0, callback=callback)
+            assert wait_for_node_object.wait(is_callback_called)
+            assert wait_for_node_object.topics_received() == expected_topics
+            assert wait_for_node_object.topics_not_received() == set()
+            assert is_callback_called[0]

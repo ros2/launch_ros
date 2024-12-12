@@ -53,27 +53,28 @@ class WaitForTopics:
             print(wait_for_topics.messages_received('topic_1')) # Should be [message_1, ...]
             wait_for_topics.shutdown()
 
-        # Method3, using a callback
-        def callback_function(arg):
-            print(f'Callback function called with argument: {arg}')
+        # Method3, calling a callback function before the wait. The callback function takes
+        # the WaitForTopics object as the first argument. Any additional arguments has
+        # to be passed to the wait(*args, **kwargs) method directly.
+        def callback_function(node, arg=""):
+            node.get_logger().info('Callback function called with argument: ' + arg)
 
         def method_3():
             topic_list = [('topic_1', String), ('topic_2', String)]
-            with WaitForTopics(topic_list, callback=callback_function, callback_arguments="Hello"):
-                print('Given topics are receiving messages !')
+            wait_for_topics = WaitForTopics(topic_list, timeout=5.0)
+            assert wait_for_topics.wait("Hello World!")
+            print('Given topics are receiving messages !')
+            wait_for_topics.shutdown()
     """
 
     def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10,
-                 callback=None, callback_arguments=None):
+                 callback=None):
         self.topic_tuples = topic_tuples
         self.timeout = timeout
         self.messages_received_buffer_length = messages_received_buffer_length
         self.callback = callback
         if self.callback is not None and not callable(self.callback):
             raise TypeError('The passed callback is not callable')
-        self.callback_arguments = (
-            callback_arguments if callback_arguments is not None else []
-        )
         self.__ros_context = rclpy.Context()
         rclpy.init(context=self.__ros_context)
         self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)
@@ -101,15 +102,10 @@ class WaitForTopics:
         )
         self.__ros_executor.add_node(self.__ros_node)
 
-    def wait(self):
+    def wait(self, *args, **kwargs):
         self.__ros_node.start_subscribers(self.topic_tuples)
         if self.callback:
-            if isinstance(self.callback_arguments, dict):
-                self.callback(**self.callback_arguments)
-            elif isinstance(self.callback_arguments, (list, set, tuple)):
-                self.callback(*self.callback_arguments)
-            else:
-                self.callback(self.callback_arguments)
+            self.callback(self.__ros_node, *args, **kwargs)
         self.__ros_node._any_publisher_connected.wait()
         return self.__ros_node.msg_event_object.wait(self.timeout)
 

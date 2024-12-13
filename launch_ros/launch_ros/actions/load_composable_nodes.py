@@ -220,6 +220,13 @@ class LoadComposableNodes(Action):
                 'target container is neither a ComposableNodeContainer nor a SubstitutionType')
             return
 
+        # Check if a global ros_namespace has been set with push ros namespace.
+        base_ns = context.launch_configurations.get('ros_namespace', None)
+        if base_ns is not None:
+            self.__final_target_container_name = make_namespace_absolute(
+                prefix_namespace(base_ns, self.__final_target_container_name)
+            )
+
         # Create a client to load nodes in the target container.
         self.__rclpy_load_node_client = get_ros_node(context).create_client(
             composition_interfaces.srv.LoadNode, '{}/_container/load_node'.format(

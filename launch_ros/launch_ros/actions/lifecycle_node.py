@@ -23,6 +23,9 @@ from typing import Optional
 import launch
 from launch import SomeSubstitutionsType
 from launch.action import Action
+from launch.frontend import Entity
+from launch.frontend import expose_action
+from launch.frontend import Parser
 import launch.logging
 
 import lifecycle_msgs.msg
@@ -35,6 +38,7 @@ from ..events.lifecycle import StateTransition
 from ..ros_adapters import get_ros_node
 
 
+@expose_action('lifecycle_node')
 class LifecycleNode(Node):
     """Action that executes a ROS lifecycle node."""
 
@@ -77,6 +81,13 @@ class LifecycleNode(Node):
         self.__rclpy_subscription = None
         self.__current_state = \
             ChangeState.valid_states[lifecycle_msgs.msg.State.PRIMARY_STATE_UNKNOWN]
+
+    @classmethod
+    def parse(cls, entity: Entity, parser: Parser):
+        """Return `LifecycleNode` action and kwargs for constructing it."""
+        _, kwargs = super().parse(entity, parser)
+
+        return cls, kwargs
 
     def _on_transition_event(self, context, msg):
         try:

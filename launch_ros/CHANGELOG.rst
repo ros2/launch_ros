@@ -2,6 +2,13 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix url in setup.py (`#413 <https://github.com/ros2/launch_ros/issues/413>`_) (`#414 <https://github.com/ros2/launch_ros/issues/414>`_)
+  (cherry picked from commit edb63764c39993645fd6bc7e0fc31ed7316f0b45)
+  Co-authored-by: Wei HU <37072526+huweiATgithub@users.noreply.github.com>
+* Contributors: mergify[bot]
+
 0.26.5 (2024-03-28)
 -------------------
 * Fix: typing. Iterable doesn't have __getitem_\_ (`#393 <https://github.com/ros2/launch_ros/issues/393>`_)

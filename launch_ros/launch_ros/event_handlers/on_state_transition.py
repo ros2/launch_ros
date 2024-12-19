@@ -14,6 +14,7 @@
 
 """Module for OnStateTransition class."""
 
+from inspect import getattr_static
 from typing import Callable
 from typing import Optional
 from typing import Text
@@ -23,7 +24,6 @@ from launch.event_handler import EventHandler
 from launch.some_entities_type import SomeEntitiesType
 from launch.some_substitutions_type import SomeSubstitutionsType
 
-from ..actions import LifecycleNode
 from ..events.lifecycle import StateTransition
 
 
@@ -34,7 +34,7 @@ class OnStateTransition(EventHandler):
         self,
         *,
         entities: SomeEntitiesType,
-        target_lifecycle_node: LifecycleNode = None,
+        target_lifecycle_node: Optional[SomeSubstitutionsType] = None,
         transition: Optional[SomeSubstitutionsType] = None,
         start_state: Optional[SomeSubstitutionsType] = None,
         goal_state: Optional[SomeSubstitutionsType] = None,
@@ -51,8 +51,15 @@ class OnStateTransition(EventHandler):
 
         If matcher is given, the other conditions are not considered.
         """
-        if not isinstance(target_lifecycle_node, (LifecycleNode, type(None))):
-            raise RuntimeError("OnStateTransition requires a 'LifecycleNode' action as the target")
+        target_lifecycle_property = type(target_lifecycle_node).__dict__.get('is_lifecycle_node', None)
+        if not isinstance(target_lifecycle_property, (property, type(None))):
+            raise RuntimeError("OnStateTransition requires a 'LifecycleNode' action as the target,"
+                               " target_lifecycle_node is not a node type.")
+
+        if target_lifecycle_node and not target_lifecycle_node.is_lifecycle_node:
+            raise RuntimeError("OnStateTransition requires a 'LifecycleNode' action as the target,"
+                               " target_lifecycle_node is not a lifecycle-enabled node.")
+
         # Handle optional matcher argument.
         self.__custom_matcher = matcher
         if self.__custom_matcher is None:

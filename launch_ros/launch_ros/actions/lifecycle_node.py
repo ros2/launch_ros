@@ -31,6 +31,7 @@ import lifecycle_msgs.srv
 from .node import Node
 from ..events.lifecycle import ChangeState
 from ..events.lifecycle import StateTransition
+from .lifecycle_transition import LifecycleTransition
 
 from ..ros_adapters import get_ros_node
 
@@ -77,6 +78,10 @@ class LifecycleNode(Node):
         self.__rclpy_subscription = None
         self.__current_state = \
             ChangeState.valid_states[lifecycle_msgs.msg.State.PRIMARY_STATE_UNKNOWN]
+
+    @property
+    def is_lifecycle_node(self):
+        return True
 
     def _on_transition_event(self, context, msg):
         try:
@@ -161,5 +166,27 @@ class LifecycleNode(Node):
             matcher=lambda event: isinstance(event, ChangeState),
             entities=[launch.actions.OpaqueFunction(function=self._on_change_state_event)],
         ))
+
+        # If autostart is enabled, transition to the 'active' state.
+        autostart_actions = None
+        if self.node_autostart:
+            autostart_actions = [
+                LifecycleTransition(
+                    lifecycle_node_names=[self.node_name],
+                    transition_ids=[lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE]
+                ),
+                LifecycleTransition(
+                    lifecycle_node_names=[self.node_name],
+                    transition_ids=[lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE]
+                ),
+            ]
+
         # Delegate execution to Node and ExecuteProcess.
-        return super().execute(context)
+        node_actions = super().execute(context)  # type: Optional[List[Action]]
+        if node_actions is not None and autostart_actions is not None:
+            return node_actions + autostart_actions
+        if node_actions is not None:
+            return node_actions
+        if autostart_actions is not None:
+            return autostart_actions
+        return None

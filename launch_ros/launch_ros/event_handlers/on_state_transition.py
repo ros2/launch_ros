@@ -14,7 +14,6 @@
 
 """Module for OnStateTransition class."""
 
-from inspect import getattr_static
 from typing import Callable
 from typing import Optional
 from typing import Text
@@ -51,14 +50,14 @@ class OnStateTransition(EventHandler):
 
         If matcher is given, the other conditions are not considered.
         """
-        target_lifecycle_property = type(target_lifecycle_node).__dict__.get('is_lifecycle_node', None)
-        if not isinstance(target_lifecycle_property, (property, type(None))):
-            raise RuntimeError("OnStateTransition requires a 'LifecycleNode' action as the target,"
-                               " target_lifecycle_node is not a node type.")
+        lifecycle_property = type(target_lifecycle_node).__dict__.get('is_lifecycle_node', None)
+        if not isinstance(lifecycle_property, (property, type(None))):
+            raise RuntimeError('OnStateTransition requires a "LifecycleNode" action as the target,'
+                               ' target_lifecycle_node is not a node type.')
 
         if target_lifecycle_node and not target_lifecycle_node.is_lifecycle_node:
-            raise RuntimeError("OnStateTransition requires a 'LifecycleNode' action as the target,"
-                               " target_lifecycle_node is not a lifecycle-enabled node.")
+            raise RuntimeError('OnStateTransition requires a "LifecycleNode" action as the target,'
+                               ' target_lifecycle_node is not a lifecycle-enabled node.')
 
         # Handle optional matcher argument.
         self.__custom_matcher = matcher

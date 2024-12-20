@@ -27,8 +27,6 @@ import launch_ros.actions  # noqa: E402
 import launch_ros.events  # noqa: E402
 import launch_ros.events.lifecycle  # noqa: E402
 
-import lifecycle_msgs.msg  # noqa: E402
-
 
 def main(argv=sys.argv[1:]):
     ld = launch.LaunchDescription()

@@ -28,10 +28,10 @@ import launch.logging
 import lifecycle_msgs.msg
 import lifecycle_msgs.srv
 
+from .lifecycle_transition import LifecycleTransition
 from .node import Node
 from ..events.lifecycle import ChangeState
 from ..events.lifecycle import StateTransition
-from .lifecycle_transition import LifecycleTransition
 
 from ..ros_adapters import get_ros_node
 

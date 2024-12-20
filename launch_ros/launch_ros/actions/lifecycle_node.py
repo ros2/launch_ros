@@ -14,9 +14,6 @@
 
 """Module for the LifecycleNode action."""
 
-import functools
-import threading
-from typing import cast
 from typing import List
 from typing import Optional
 
@@ -30,10 +27,7 @@ import lifecycle_msgs.srv
 
 from .lifecycle_transition import LifecycleTransition
 from .node import Node
-from ..events.lifecycle import ChangeState
-from ..events.lifecycle import StateTransition
 
-from ..ros_adapters import get_ros_node
 from ..utilities import LifecycleEventManager
 
 

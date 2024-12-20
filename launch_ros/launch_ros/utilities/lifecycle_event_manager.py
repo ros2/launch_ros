@@ -31,6 +31,7 @@ from ..ros_adapters import get_ros_node
 
 
 class LifecycleEventManager:
+
     def __init__(self, name) -> None:
         """
         Construct a LifecycleEventManager utility.
@@ -57,7 +58,7 @@ class LifecycleEventManager:
         self.__node_name = name
         self.__rclpy_subscription = None
         self.__rclpy_change_state_client = None
-    
+
     @property
     def node_name(self):
         return self.__node_name

@@ -19,10 +19,10 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))  # noqa
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'launch'))  # noqa
 
-import launch  # noqa: E402
-
 from launch_ros.actions import ComposableNodeContainer, LoadComposableNodes
 from launch_ros.descriptions import ComposableNode
+
+import launch  # noqa: E402
 
 
 def main(argv=sys.argv[1:]):

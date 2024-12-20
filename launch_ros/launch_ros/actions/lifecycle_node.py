@@ -76,6 +76,7 @@ class LifecycleNode(Node):
         super().__init__(name=name, namespace=namespace, **kwargs)
         self.__logger = launch.logging.get_logger(__name__)
         self.__rclpy_subscription = None
+        self.__rclpy_change_state_client = None
 
     @property
     def is_lifecycle_node(self):

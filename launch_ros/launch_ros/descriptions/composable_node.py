@@ -17,6 +17,7 @@
 from typing import List
 from typing import Optional
 
+import launch
 from launch.condition import Condition
 from launch.conditions import IfCondition, UnlessCondition
 from launch.frontend import Entity
@@ -29,6 +30,7 @@ from launch_ros.parameters_type import Parameters
 from launch_ros.parameters_type import SomeParameters
 from launch_ros.remap_rule_type import RemapRules
 from launch_ros.remap_rule_type import SomeRemapRules
+from launch_ros.utilities import LifecycleEventManager
 from launch_ros.utilities import normalize_parameters
 from launch_ros.utilities import normalize_remap_rules
 
@@ -43,6 +45,7 @@ class ComposableNode:
         name: Optional[SomeSubstitutionsType] = None,
         namespace: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[SomeParameters] = None,
+        autostart: Optional[bool] = False,
         remappings: Optional[SomeRemapRules] = None,
         extra_arguments: Optional[SomeParameters] = None,
         condition: Optional[Condition] = None,
@@ -83,6 +86,8 @@ class ComposableNode:
             self.__extra_arguments = normalize_parameters(extra_arguments)
 
         self.__condition = condition
+        self.__autostart = autostart
+        self.__lifecycle_event_manager = None
 
     @classmethod
     def parse(cls, parser: Parser, entity: Entity):
@@ -143,6 +148,10 @@ class ComposableNode:
 
         return cls, kwargs
 
+    def init_lifecycle_event_manager(self, node_name, context: launch.LaunchContext) -> None:
+        self.__lifecycle_event_manager = LifecycleEventManager(node_name)
+        self.__lifecycle_event_manager.setup_lifecycle_manager(context)
+
     @property
     def package(self) -> List[Substitution]:
         """Get node package name as a sequence of substitutions to be performed."""
@@ -162,6 +171,11 @@ class ComposableNode:
     def node_namespace(self) -> Optional[List[Substitution]]:
         """Get node namespace as a sequence of substitutions to be performed."""
         return self.__node_namespace
+
+    @property
+    def node_autostart(self):
+        """Getter for autostart."""
+        return self.__autostart
 
     @property
     def parameters(self) -> Optional[Parameters]:

@@ -76,8 +76,6 @@ class LifecycleNode(Node):
         super().__init__(name=name, namespace=namespace, **kwargs)
         self.__logger = launch.logging.get_logger(__name__)
         self.__rclpy_subscription = None
-        self.__current_state = \
-            ChangeState.valid_states[lifecycle_msgs.msg.State.PRIMARY_STATE_UNKNOWN]
 
     @property
     def is_lifecycle_node(self):
@@ -86,7 +84,6 @@ class LifecycleNode(Node):
     def _on_transition_event(self, context, msg):
         try:
             event = StateTransition(action=self, msg=msg)
-            self.__current_state = ChangeState.valid_states[msg.goal_state.id]
             context.asyncio_loop.call_soon_threadsafe(lambda: context.emit_event_sync(event))
         except Exception as exc:
             self.__logger.error(

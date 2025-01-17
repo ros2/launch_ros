@@ -86,7 +86,7 @@ class LifecycleNode(Node):
         if '<node_name_unspecified>' in self.node_name:
             raise RuntimeError('node_name unexpectedly incomplete for lifecycle node')
 
-        self.__lifecycle_event_manager = LifecycleEventManager(self.node_name)
+        self.__lifecycle_event_manager = LifecycleEventManager(self)
         self.__lifecycle_event_manager.setup_lifecycle_manager(context)
 
         # If autostart is enabled, transition to the 'active' state.

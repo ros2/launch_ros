@@ -32,7 +32,7 @@ from ..ros_adapters import get_ros_node
 
 class LifecycleEventManager:
 
-    def __init__(self, name) -> None:
+    def __init__(self, lifecycle_node) -> None:
         """
         Construct a LifecycleEventManager utility.
 
@@ -55,13 +55,16 @@ class LifecycleEventManager:
         :param name: The name of the lifecycle node.
         """
         self.__logger = launch.logging.get_logger(__name__)
-        self.__node_name = name
+        self.__lifecycle_node = lifecycle_node
         self.__rclpy_subscription = None
         self.__rclpy_change_state_client = None
 
     @property
     def node_name(self):
-        return self.__node_name
+        return self.__lifecycle_node.node_name
+
+    def __eq__(self, other):
+        return self.__lifecycle_node == other
 
     def _on_transition_event(self, context, msg):
         try:
@@ -107,7 +110,7 @@ class LifecycleEventManager:
             self.__logger.error(
                 "Failed to make transition '{}' for LifecycleNode '{}'".format(
                     ChangeState.valid_transitions[request.transition.id],
-                    self.__node_name,
+                    self.node_name,
                 )
             )
 
@@ -126,14 +129,14 @@ class LifecycleEventManager:
         # Create a subscription to monitor the state changes of the subprocess.
         self.__rclpy_subscription = node.create_subscription(
             lifecycle_msgs.msg.TransitionEvent,
-            '{}/transition_event'.format(self.__node_name),
+            '{}/transition_event'.format(self.node_name),
             functools.partial(self._on_transition_event, context),
             10)
 
         # Create a service client to change state on demand.
         self.__rclpy_change_state_client = node.create_client(
             lifecycle_msgs.srv.ChangeState,
-            '{}/change_state'.format(self.__node_name))
+            '{}/change_state'.format(self.node_name))
 
         # Register an event handler to change states on a ChangeState lifecycle event.
         context.register_event_handler(launch.EventHandler(

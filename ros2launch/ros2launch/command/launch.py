@@ -102,6 +102,10 @@ class LaunchCommand(CommandExtension):
             help=('Regex pattern for filtering which executables the --launch-prefix is applied '
                   'to by matching the executable name.')
         )
+        parser.add_argument(
+            '-r', '--remap', action='append', dest='remap_rules',
+            help=("Topics remapping rules, in the 'from:=to' form")
+        )
         arg = parser.add_argument(
             'package_name',
             help='Name of the ROS package which contains the launch file')
@@ -175,5 +179,6 @@ class LaunchCommand(CommandExtension):
                 noninteractive=args.noninteractive,
                 args=args,
                 option_extensions=self._option_extensions,
-                debug=args.debug
+                debug=args.debug,
+                remap_rules=args.remap_rules
             )

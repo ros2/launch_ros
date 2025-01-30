@@ -45,7 +45,6 @@ class ComposableNode:
         name: Optional[SomeSubstitutionsType] = None,
         namespace: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[SomeParameters] = None,
-        autostart: Optional[bool] = False,
         remappings: Optional[SomeRemapRules] = None,
         extra_arguments: Optional[SomeParameters] = None,
         condition: Optional[Condition] = None,
@@ -86,8 +85,6 @@ class ComposableNode:
             self.__extra_arguments = normalize_parameters(extra_arguments)
 
         self.__condition = condition
-        self.__autostart = autostart
-        self.__lifecycle_event_manager = None
 
     @classmethod
     def parse(cls, parser: Parser, entity: Entity):
@@ -148,10 +145,6 @@ class ComposableNode:
 
         return cls, kwargs
 
-    def init_lifecycle_event_manager(self, node_name, context: launch.LaunchContext) -> None:
-        self.__lifecycle_event_manager = LifecycleEventManager(node_name)
-        self.__lifecycle_event_manager.setup_lifecycle_manager(context)
-
     @property
     def package(self) -> List[Substitution]:
         """Get node package name as a sequence of substitutions to be performed."""
@@ -175,7 +168,7 @@ class ComposableNode:
     @property
     def node_autostart(self):
         """Getter for autostart."""
-        return self.__autostart
+        return False
 
     @property
     def parameters(self) -> Optional[Parameters]:

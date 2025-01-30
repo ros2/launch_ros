@@ -19,7 +19,7 @@ import sys
 import launch  # noqa: E402
 
 from launch_ros.actions import ComposableNodeContainer, LoadComposableNodes
-from launch_ros.descriptions import ComposableNode
+from launch_ros.descriptions import ComposableLifecycleNode
 
 
 def main(argv=sys.argv[1:]):
@@ -32,7 +32,7 @@ def main(argv=sys.argv[1:]):
             package='rclcpp_components',
             executable='component_container',
             composable_node_descriptions=[
-                ComposableNode(
+                ComposableLifecycleNode(
                     package='composition',
                     plugin='composition::Listener',
                     name='listener',
@@ -44,7 +44,7 @@ def main(argv=sys.argv[1:]):
     loader = LoadComposableNodes(
         target_container='lifecycle_component_container',
         composable_node_descriptions=[
-            ComposableNode(
+            ComposableLifecycleNode(
                 package='composition',
                 plugin='composition::Talker',
                 name='talker',

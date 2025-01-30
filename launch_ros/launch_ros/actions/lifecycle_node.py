@@ -39,6 +39,7 @@ class LifecycleNode(Node):
         *,
         name: SomeSubstitutionsType,
         namespace: SomeSubstitutionsType,
+        autostart: Optional[bool] = False,
         **kwargs
     ) -> None:
         """
@@ -70,7 +71,13 @@ class LifecycleNode(Node):
         """
         super().__init__(name=name, namespace=namespace, **kwargs)
         self.__logger = launch.logging.get_logger(__name__)
+        self.__autostart = autostart
         self.__lifecycle_event_manager = None
+
+    @property
+    def node_autostart(self):
+        """Getter for autostart."""
+        return self.__autostart
 
     @property
     def is_lifecycle_node(self):

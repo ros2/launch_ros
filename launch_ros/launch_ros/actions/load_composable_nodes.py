@@ -247,7 +247,7 @@ class LoadComposableNodes(Action):
                     complete_node_name = '/' + complete_node_name
                 self.__logger.info(
                     'Autostart enabled for requested lifecycle node {}'.format(complete_node_name))
-                node_description.init_lifecycle_event_manager(complete_node_name, context)
+                node_description.init_lifecycle_event_manager(node_description, context)
                 autostart_actions.append(
                     LifecycleTransition(
                         lifecycle_node_names=[complete_node_name],

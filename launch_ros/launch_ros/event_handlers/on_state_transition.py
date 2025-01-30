@@ -33,7 +33,7 @@ class OnStateTransition(EventHandler):
         self,
         *,
         entities: SomeEntitiesType,
-        target_lifecycle_node: Optional[SomeSubstitutionsType] = None,
+        target_lifecycle_node: Optional['LifecycleNode'] = None,
         transition: Optional[SomeSubstitutionsType] = None,
         start_state: Optional[SomeSubstitutionsType] = None,
         goal_state: Optional[SomeSubstitutionsType] = None,

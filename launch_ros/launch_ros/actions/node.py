@@ -125,7 +125,6 @@ class Node(ExecuteProcess):
         exec_name: Optional[SomeSubstitutionsType] = None,
         parameters: Optional[SomeParameters] = None,
         remappings: Optional[SomeRemapRules] = None,
-        autostart: Optional[bool] = False,
         ros_arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
         arguments: Optional[Iterable[SomeSubstitutionsType]] = None,
         **kwargs
@@ -223,7 +222,6 @@ class Node(ExecuteProcess):
         self.__node_executable = executable
         self.__node_name = name
         self.__node_namespace = namespace
-        self.__autostart = autostart
         self.__parameters = [] if parameters is None else normalized_params
         self.__remappings = [] if remappings is None else list(normalize_remap_rules(remappings))
         self.__ros_arguments = ros_arguments
@@ -367,7 +365,7 @@ class Node(ExecuteProcess):
     @property
     def node_autostart(self):
         """Getter for autostart."""
-        return self.__autostart
+        return False
 
     @property
     def is_lifecycle_node(self):

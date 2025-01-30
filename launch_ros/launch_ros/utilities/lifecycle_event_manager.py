@@ -52,7 +52,7 @@ class LifecycleEventManager:
             one, or even all lifecycle nodes, and it requests the targeted nodes
             to change state, see its documentation for more details.
 
-        :param name: The name of the lifecycle node.
+        :param lifecycle_node: The lifecycle node to event manage.
         """
         self.__logger = launch.logging.get_logger(__name__)
         self.__lifecycle_node = lifecycle_node

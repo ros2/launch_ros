@@ -104,7 +104,7 @@ class LaunchCommand(CommandExtension):
         )
         parser.add_argument(
             '-r', '--remap', action='append', dest='remap_rules',
-            help=("Topics remapping rules, in the 'from:=to' form")
+            help=("Remapping rules, in the 'from:=to' form")
         )
         arg = parser.add_argument(
             'package_name',

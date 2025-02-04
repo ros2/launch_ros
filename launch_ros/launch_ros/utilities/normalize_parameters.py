@@ -89,9 +89,6 @@ def _normalize_parameter_array_value(value: SomeParameterValue) -> ParameterValu
         new_value = []  # type: List[SomeSubstitutionsType]
         for element in value:
             if isinstance(element, (float, int, bool, str)):
-                def quoted_representor(dumper, data):
-                    return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
-                yaml.add_representer(str, quoted_representor)
                 new_value.append(yaml.dump(element))
             else:
                 new_value.append(element)
@@ -152,9 +149,6 @@ def normalize_parameter_dict(
         elif isinstance(value, ParameterValueDescription):
             normalized[tuple(name)] = value
         elif isinstance(value, str):
-            def quoted_representor(dumper, data):
-                return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
-            yaml.add_representer(str, quoted_representor)
             normalized[tuple(name)] = tuple(normalize_to_list_of_substitutions(yaml.dump(value)))
         elif isinstance(value, Substitution):
             normalized[tuple(name)] = tuple(normalize_to_list_of_substitutions(value))

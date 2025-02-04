@@ -382,10 +382,6 @@ class Node(ExecuteProcess):
 
     def _get_parameter_rule(self, param: 'Parameter', context: LaunchContext):
         name, value = param.evaluate(context)
-
-        def quoted_representor(dumper, data):
-            return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
-        yaml.add_representer(str, quoted_representor)
         return f'{name}:={yaml.dump(value)}'
 
     def _perform_substitutions(self, context: LaunchContext) -> None:

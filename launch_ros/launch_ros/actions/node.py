@@ -373,6 +373,10 @@ class Node(ExecuteProcess):
                 self.node_name if self.is_node_name_fully_specified() else '/**':
                 {'ros__parameters': params}
             }
+
+            def quoted_representor(dumper, data):
+                return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+            yaml.add_representer(str, quoted_representor)
             yaml.dump(param_dict, h, default_flow_style=False)
             return param_file_path
 

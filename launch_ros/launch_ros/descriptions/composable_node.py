@@ -17,7 +17,6 @@
 from typing import List
 from typing import Optional
 
-import launch
 from launch.condition import Condition
 from launch.conditions import IfCondition, UnlessCondition
 from launch.frontend import Entity
@@ -30,7 +29,6 @@ from launch_ros.parameters_type import Parameters
 from launch_ros.parameters_type import SomeParameters
 from launch_ros.remap_rule_type import RemapRules
 from launch_ros.remap_rule_type import SomeRemapRules
-from launch_ros.utilities import LifecycleEventManager
 from launch_ros.utilities import normalize_parameters
 from launch_ros.utilities import normalize_remap_rules
 

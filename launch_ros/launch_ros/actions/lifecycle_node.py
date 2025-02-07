@@ -39,7 +39,7 @@ class LifecycleNode(Node):
         *,
         name: SomeSubstitutionsType,
         namespace: SomeSubstitutionsType,
-        autostart: Optional[bool] = False,
+        autostart: bool = False,
         **kwargs
     ) -> None:
         """

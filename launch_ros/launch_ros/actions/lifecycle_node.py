@@ -85,6 +85,9 @@ class LifecycleNode(Node):
     def is_lifecycle_node(self):
         return True
 
+    def get_lifecycle_event_manager(self):
+        return self.__lifecycle_event_manager
+
     def execute(self, context: launch.LaunchContext) -> Optional[List[Action]]:
         """
         Execute the action.

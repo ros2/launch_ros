@@ -63,12 +63,9 @@ class LifecycleEventManager:
     def node_name(self):
         return self.__lifecycle_node.node_name
 
-    def __eq__(self, other):
-        return self.__lifecycle_node == other
-
     def _on_transition_event(self, context, msg):
         try:
-            event = StateTransition(action=self, msg=msg)
+            event = StateTransition(action=self.__lifecycle_node, msg=msg)
             context.asyncio_loop.call_soon_threadsafe(lambda: context.emit_event_sync(event))
         except Exception as exc:
             self.__logger.error(
@@ -116,8 +113,9 @@ class LifecycleEventManager:
 
     def _on_change_state_event(self, context: launch.LaunchContext) -> None:
         typed_event = cast(ChangeState, context.locals.event)
-        if not typed_event.lifecycle_node_matcher(self):
+        if not typed_event.lifecycle_node_matcher(self.__lifecycle_node):
             return None
+        print('Ju lee, were doing the thing!')
         request = lifecycle_msgs.srv.ChangeState.Request()
         request.transition.id = typed_event.transition_id
         context.add_completion_future(

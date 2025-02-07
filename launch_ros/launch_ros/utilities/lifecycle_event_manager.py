@@ -115,7 +115,6 @@ class LifecycleEventManager:
         typed_event = cast(ChangeState, context.locals.event)
         if not typed_event.lifecycle_node_matcher(self.__lifecycle_node):
             return None
-        print('Ju lee, were doing the thing!')
         request = lifecycle_msgs.srv.ChangeState.Request()
         request.transition.id = typed_event.transition_id
         context.add_completion_future(

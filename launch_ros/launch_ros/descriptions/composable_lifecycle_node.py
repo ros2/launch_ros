@@ -34,61 +34,37 @@ from .composable_node import ComposableNode
 
 class ComposableLifecycleNode(ComposableNode):
     """Describes a lifecycle node that can be loaded into a container with other nodes."""
-
     def __init__(
         self, *,
-        package: SomeSubstitutionsType,
-        plugin: SomeSubstitutionsType,
-        name: Optional[SomeSubstitutionsType] = None,
-        namespace: Optional[SomeSubstitutionsType] = None,
-        parameters: Optional[SomeParameters] = None,
-        autostart: Optional[bool] = False,
-        remappings: Optional[SomeRemapRules] = None,
-        extra_arguments: Optional[SomeParameters] = None,
-        condition: Optional[Condition] = None,
+        autostart: bool = False,
+        **kwargs
     ) -> None:
         """
-        Initialize a ComposableNode description.
+        Initialize a ComposableLifecycleNode description.
 
-        :param package: name of the ROS package the node plugin lives in
-        :param plugin: name of the plugin to be loaded
-        :param name: name to give to the ROS node
-        :param namespace: namespace to give to the ROS node
-        :param parameters: list of either paths to yaml files or dictionaries of parameters
         :param autostart: Whether to autostart lifecycle node in the activated state
-        :param remappings: list of from/to pairs for remapping names
-        :param extra_arguments: container specific arguments to be passed to the loaded node
-        :param condition: action will be executed if the condition evaluates to true
         """
-        super().__init__(
-            package=package,
-            plugin=plugin,
-            name=name,
-            namespace=namespace,
-            parameters=parameters,
-            remappings=remappings,
-            extra_arguments=extra_arguments,
-            condition=condition)
+        super().__init__(**kwargs)
 
         self.__autostart = autostart
         self.__lifecycle_event_manager = None
-        self.__node_name = self._ComposableNode__node_name
+        self.__node_name = super().node_name
 
-    def init_lifecycle_event_manager(self, node, context: launch.LaunchContext) -> None:
+    def init_lifecycle_event_manager(self, context: launch.LaunchContext) -> None:
         # LifecycleEventManager needs a pre-substitution node name
-        self.__node_name = perform_substitutions(context, node.node_name)
-        self.__lifecycle_event_manager = LifecycleEventManager(node)
+        self.__node_name = perform_substitutions(context, self.node_name)
+        self.__lifecycle_event_manager = LifecycleEventManager(self)
         self.__lifecycle_event_manager.setup_lifecycle_manager(context)
 
     @property
     def package(self) -> List[Substitution]:
         """Get node package name as a sequence of substitutions to be performed."""
-        return self._ComposableNode__package
+        return super().package
 
     @property
     def node_plugin(self) -> List[Substitution]:
         """Get node plugin name as a sequence of substitutions to be performed."""
-        return self._ComposableNode__node_plugin
+        return super().node_plugin
 
     @property
     def node_name(self) -> Optional[List[Substitution]]:
@@ -98,7 +74,7 @@ class ComposableLifecycleNode(ComposableNode):
     @property
     def node_namespace(self) -> Optional[List[Substitution]]:
         """Get node namespace as a sequence of substitutions to be performed."""
-        return self._ComposableNode__node_namespace
+        return super().node_namespace
 
     @property
     def node_autostart(self):
@@ -108,14 +84,14 @@ class ComposableLifecycleNode(ComposableNode):
     @property
     def parameters(self) -> Optional[Parameters]:
         """Get node parameter YAML files or dicts with substitutions to be performed."""
-        return self._ComposableNode__parameters
+        return super().parameters
 
     @property
     def remappings(self) -> Optional[RemapRules]:
         """Get node remapping rules as (from, to) tuples with substitutions to be performed."""
-        return self._ComposableNode__remappings
+        return super().remappings
 
     @property
     def extra_arguments(self) -> Optional[Parameters]:
         """Get container extra arguments YAML files or dicts with substitutions to be performed."""
-        return self._ComposableNode__extra_arguments
+        return super().extra_arguments

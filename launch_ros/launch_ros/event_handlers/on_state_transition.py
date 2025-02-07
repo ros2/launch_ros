@@ -55,7 +55,11 @@ class OnStateTransition(EventHandler):
             raise RuntimeError('OnStateTransition requires a "LifecycleNode" action as the target,'
                                ' target_lifecycle_node is not a node type.')
 
-        if target_lifecycle_node and not target_lifecycle_node.is_lifecycle_node:
+        if (
+            target_lifecycle_node and
+            hasattr(target_lifecycle_node, 'is_lifecycle_node') and
+            not target_lifecycle_node.is_lifecycle_node
+        ):
             raise RuntimeError('OnStateTransition requires a "LifecycleNode" action as the target,'
                                ' target_lifecycle_node is not a lifecycle-enabled node.')
 

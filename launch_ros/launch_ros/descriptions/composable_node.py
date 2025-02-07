@@ -164,11 +164,6 @@ class ComposableNode:
         return self.__node_namespace
 
     @property
-    def node_autostart(self):
-        """Getter for autostart."""
-        return False
-
-    @property
     def parameters(self) -> Optional[Parameters]:
         """Get node parameter YAML files or dicts with substitutions to be performed."""
         return self.__parameters

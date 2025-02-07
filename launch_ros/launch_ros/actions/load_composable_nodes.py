@@ -241,7 +241,7 @@ class LoadComposableNodes(Action):
                 load_node_requests.append(request)
 
             # If autostart is enabled, transition to the 'active' state.
-            if node_description.node_autostart:
+            if hasattr(node_description, 'node_autostart') and node_description.node_autostart:
                 complete_node_name = request.node_namespace + request.node_name
                 if not complete_node_name.startswith('/'):
                     complete_node_name = '/' + complete_node_name

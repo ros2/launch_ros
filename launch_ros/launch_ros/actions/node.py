@@ -362,15 +362,6 @@ class Node(ExecuteProcess):
             raise RuntimeError("cannot access 'node_name' before executing action")
         return self.__final_node_name
 
-    @property
-    def node_autostart(self):
-        """Getter for autostart."""
-        return False
-
-    @property
-    def is_lifecycle_node(self):
-        return False
-
     def is_node_name_fully_specified(self):
         keywords = (self.UNSPECIFIED_NODE_NAME, self.UNSPECIFIED_NODE_NAMESPACE)
         return all(x not in self.node_name for x in keywords)

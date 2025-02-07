@@ -68,6 +68,8 @@ class LifecycleNode(Node):
         :param name: The name of the lifecycle node.
           Although it defaults to None it is a required parameter and the default will be removed
           in a future release.
+        :param namespace: The ROS namespace for this Node
+        :param autostart: Whether or not to automatically transition to the 'active' state.
         """
         super().__init__(name=name, namespace=namespace, **kwargs)
         self.__logger = launch.logging.get_logger(__name__)

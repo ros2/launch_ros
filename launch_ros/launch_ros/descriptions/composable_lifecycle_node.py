@@ -19,7 +19,6 @@ from typing import Optional
 
 import launch
 from launch.substitution import Substitution
-# from launch.utilities import ensure_argument_type
 from launch.utilities import perform_substitutions
 from launch_ros.parameters_type import Parameters
 from launch_ros.remap_rule_type import RemapRules

@@ -18,15 +18,11 @@ from typing import List
 from typing import Optional
 
 import launch
-from launch.condition import Condition
-from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitution import Substitution
 # from launch.utilities import ensure_argument_type
 from launch.utilities import perform_substitutions
 from launch_ros.parameters_type import Parameters
-from launch_ros.parameters_type import SomeParameters
 from launch_ros.remap_rule_type import RemapRules
-from launch_ros.remap_rule_type import SomeRemapRules
 from launch_ros.utilities import LifecycleEventManager
 
 from .composable_node import ComposableNode
@@ -34,6 +30,7 @@ from .composable_node import ComposableNode
 
 class ComposableLifecycleNode(ComposableNode):
     """Describes a lifecycle node that can be loaded into a container with other nodes."""
+
     def __init__(
         self, *,
         autostart: bool = False,

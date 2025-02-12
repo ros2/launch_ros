@@ -33,7 +33,7 @@ class OnStateTransition(EventHandler):
         self,
         *,
         entities: SomeEntitiesType,
-        target_lifecycle_node: Optional['LifecycleNode'] = None,
+        target_lifecycle_node: Optional['LifecycleNode'] = None,  # noqa: F821
         transition: Optional[SomeSubstitutionsType] = None,
         start_state: Optional[SomeSubstitutionsType] = None,
         goal_state: Optional[SomeSubstitutionsType] = None,
@@ -51,17 +51,17 @@ class OnStateTransition(EventHandler):
         If matcher is given, the other conditions are not considered.
         """
         lifecycle_property = type(target_lifecycle_node).__dict__.get('is_lifecycle_node', None)
-        if not isinstance(lifecycle_property, (property, type(None))):
-            raise RuntimeError('OnStateTransition requires a "LifecycleNode" action as the target,'
-                               ' target_lifecycle_node is not a node type.')
+        if target_lifecycle_node and not isinstance(lifecycle_property, (property)):
+            raise RuntimeError('OnStateTransition requires a lifecycle enabled node as the target,'
+                               ' target_lifecycle_node is not a lifecycle-enabled node type.')
 
         if (
             target_lifecycle_node and
             hasattr(target_lifecycle_node, 'is_lifecycle_node') and
             not target_lifecycle_node.is_lifecycle_node
         ):
-            raise RuntimeError('OnStateTransition requires a "LifecycleNode" action as the target,'
-                               ' target_lifecycle_node is not a lifecycle-enabled node.')
+            raise RuntimeError('OnStateTransition requires a lifecycle enabled node as the target,'
+                               ' target_lifecycle_node is not lifecycle-enabled.')
 
         # Handle optional matcher argument.
         self.__custom_matcher = matcher

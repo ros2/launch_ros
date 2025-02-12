@@ -50,8 +50,8 @@ class OnStateTransition(EventHandler):
 
         If matcher is given, the other conditions are not considered.
         """
-        lifecycle_property = type(target_lifecycle_node).__dict__.get('is_lifecycle_node', None)
-        if target_lifecycle_node and not isinstance(lifecycle_property, (property)):
+        from ..actions import LifecycleNode
+        if not isinstance(target_lifecycle_node, (LifecycleNode, type(None))):
             raise RuntimeError('OnStateTransition requires a lifecycle enabled node as the target,'
                                ' target_lifecycle_node is not a lifecycle-enabled node type.')
 

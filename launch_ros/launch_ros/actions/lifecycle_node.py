@@ -14,9 +14,6 @@
 
 """Module for the LifecycleNode action."""
 
-import functools
-import threading
-from typing import cast
 from typing import List
 from typing import Optional
 
@@ -28,11 +25,10 @@ import launch.logging
 import lifecycle_msgs.msg
 import lifecycle_msgs.srv
 
+from .lifecycle_transition import LifecycleTransition
 from .node import Node
-from ..events.lifecycle import ChangeState
-from ..events.lifecycle import StateTransition
 
-from ..ros_adapters import get_ros_node
+from ..utilities import LifecycleEventManager
 
 
 class LifecycleNode(Node):
@@ -43,6 +39,7 @@ class LifecycleNode(Node):
         *,
         name: SomeSubstitutionsType,
         namespace: SomeSubstitutionsType,
+        autostart: bool = False,
         **kwargs
     ) -> None:
         """
@@ -71,70 +68,25 @@ class LifecycleNode(Node):
         :param name: The name of the lifecycle node.
           Although it defaults to None it is a required parameter and the default will be removed
           in a future release.
+        :param namespace: The ROS namespace for this Node
+        :param autostart: Whether or not to automatically transition to the 'active' state.
         """
         super().__init__(name=name, namespace=namespace, **kwargs)
         self.__logger = launch.logging.get_logger(__name__)
-        self.__rclpy_subscription = None
-        self.__current_state = \
-            ChangeState.valid_states[lifecycle_msgs.msg.State.PRIMARY_STATE_UNKNOWN]
+        self.__autostart = autostart
+        self.__lifecycle_event_manager = None
 
-    def _on_transition_event(self, context, msg):
-        try:
-            event = StateTransition(action=self, msg=msg)
-            self.__current_state = ChangeState.valid_states[msg.goal_state.id]
-            context.asyncio_loop.call_soon_threadsafe(lambda: context.emit_event_sync(event))
-        except Exception as exc:
-            self.__logger.error(
-                "Exception in handling of 'lifecycle.msg.TransitionEvent': {}".format(exc))
+    @property
+    def node_autostart(self):
+        """Getter for autostart."""
+        return self.__autostart
 
-    def _call_change_state(self, request, context: launch.LaunchContext):
-        while not self.__rclpy_change_state_client.wait_for_service(timeout_sec=1.0):
-            if context.is_shutdown:
-                self.__logger.warning(
-                    "Abandoning wait for the '{}' service, due to shutdown.".format(
-                        self.__rclpy_change_state_client.srv_name),
-                )
-                return
+    @property
+    def is_lifecycle_node(self):
+        return True
 
-        # Asynchronously wait so that we can periodically check for shutdown.
-        event = threading.Event()
-
-        def unblock(future):
-            nonlocal event
-            event.set()
-
-        response_future = self.__rclpy_change_state_client.call_async(request)
-        response_future.add_done_callback(unblock)
-
-        while not event.wait(1.0):
-            if context.is_shutdown:
-                self.__logger.warning(
-                    "Abandoning wait for the '{}' service response, due to shutdown.".format(
-                        self.__rclpy_change_state_client.srv_name),
-                )
-                response_future.cancel()
-                return
-
-        if response_future.exception() is not None:
-            raise response_future.exception()
-        response = response_future.result()
-
-        if not response.success:
-            self.__logger.error(
-                "Failed to make transition '{}' for LifecycleNode '{}'".format(
-                    ChangeState.valid_transitions[request.transition.id],
-                    self.node_name,
-                )
-            )
-
-    def _on_change_state_event(self, context: launch.LaunchContext) -> None:
-        typed_event = cast(ChangeState, context.locals.event)
-        if not typed_event.lifecycle_node_matcher(self):
-            return None
-        request = lifecycle_msgs.srv.ChangeState.Request()
-        request.transition.id = typed_event.transition_id
-        context.add_completion_future(
-            context.asyncio_loop.run_in_executor(None, self._call_change_state, request, context))
+    def get_lifecycle_event_manager(self):
+        return self.__lifecycle_event_manager
 
     def execute(self, context: launch.LaunchContext) -> Optional[List[Action]]:
         """
@@ -145,21 +97,30 @@ class LifecycleNode(Node):
         self._perform_substitutions(context)  # ensure self.node_name is expanded
         if '<node_name_unspecified>' in self.node_name:
             raise RuntimeError('node_name unexpectedly incomplete for lifecycle node')
-        node = get_ros_node(context)
-        # Create a subscription to monitor the state changes of the subprocess.
-        self.__rclpy_subscription = node.create_subscription(
-            lifecycle_msgs.msg.TransitionEvent,
-            '{}/transition_event'.format(self.node_name),
-            functools.partial(self._on_transition_event, context),
-            10)
-        # Create a service client to change state on demand.
-        self.__rclpy_change_state_client = node.create_client(
-            lifecycle_msgs.srv.ChangeState,
-            '{}/change_state'.format(self.node_name))
-        # Register an event handler to change states on a ChangeState lifecycle event.
-        context.register_event_handler(launch.EventHandler(
-            matcher=lambda event: isinstance(event, ChangeState),
-            entities=[launch.actions.OpaqueFunction(function=self._on_change_state_event)],
-        ))
+
+        self.__lifecycle_event_manager = LifecycleEventManager(self)
+        self.__lifecycle_event_manager.setup_lifecycle_manager(context)
+
+        # If autostart is enabled, transition to the 'active' state.
+        autostart_actions = None
+        if self.node_autostart:
+            autostart_actions = [
+                LifecycleTransition(
+                    lifecycle_node_names=[self.node_name],
+                    transition_ids=[lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE]
+                ),
+                LifecycleTransition(
+                    lifecycle_node_names=[self.node_name],
+                    transition_ids=[lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE]
+                ),
+            ]
+
         # Delegate execution to Node and ExecuteProcess.
-        return super().execute(context)
+        node_actions = super().execute(context)  # type: Optional[List[Action]]
+        if node_actions is not None and autostart_actions is not None:
+            return node_actions + autostart_actions
+        if node_actions is not None:
+            return node_actions
+        if autostart_actions is not None:
+            return autostart_actions
+        return None

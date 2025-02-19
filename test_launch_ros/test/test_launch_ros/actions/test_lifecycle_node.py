@@ -41,6 +41,13 @@ def test_lifecycle_node_constructor():
         name='my_node',
         namespace='my_ns',
     )
+    LifecycleNode(
+        package='asd',
+        executable='bsd',
+        name='my_node',
+        namespace='my_ns',
+        autostart=True,
+    )
 
 
 def test_node_name():

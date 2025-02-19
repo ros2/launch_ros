@@ -14,6 +14,7 @@
 
 """descriptions Module."""
 
+from .composable_lifecycle_node import ComposableLifecycleNode
 from .composable_node import ComposableNode
 from ..parameter_descriptions import Parameter
 from ..parameter_descriptions import ParameterFile
@@ -22,6 +23,7 @@ from ..parameter_descriptions import ParameterValue
 
 __all__ = [
     'ComposableNode',
+    'ComposableLifecycleNode',
     'Parameter',
     'ParameterFile',
     'ParameterValue',

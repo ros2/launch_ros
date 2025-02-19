@@ -23,7 +23,6 @@ from launch.event_handler import EventHandler
 from launch.some_entities_type import SomeEntitiesType
 from launch.some_substitutions_type import SomeSubstitutionsType
 
-from ..actions import LifecycleNode
 from ..events.lifecycle import StateTransition
 
 
@@ -34,7 +33,7 @@ class OnStateTransition(EventHandler):
         self,
         *,
         entities: SomeEntitiesType,
-        target_lifecycle_node: LifecycleNode = None,
+        target_lifecycle_node: Optional['LifecycleNode'] = None,  # noqa: F821
         transition: Optional[SomeSubstitutionsType] = None,
         start_state: Optional[SomeSubstitutionsType] = None,
         goal_state: Optional[SomeSubstitutionsType] = None,
@@ -51,8 +50,19 @@ class OnStateTransition(EventHandler):
 
         If matcher is given, the other conditions are not considered.
         """
+        from ..actions import LifecycleNode
         if not isinstance(target_lifecycle_node, (LifecycleNode, type(None))):
-            raise RuntimeError("OnStateTransition requires a 'LifecycleNode' action as the target")
+            raise RuntimeError('OnStateTransition requires a lifecycle enabled node as the target,'
+                               ' target_lifecycle_node is not a lifecycle-enabled node type.')
+
+        if (
+            target_lifecycle_node and
+            hasattr(target_lifecycle_node, 'is_lifecycle_node') and
+            not target_lifecycle_node.is_lifecycle_node
+        ):
+            raise RuntimeError('OnStateTransition requires a lifecycle enabled node as the target,'
+                               ' target_lifecycle_node is not lifecycle-enabled.')
+
         # Handle optional matcher argument.
         self.__custom_matcher = matcher
         if self.__custom_matcher is None:

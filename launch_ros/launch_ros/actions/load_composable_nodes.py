@@ -237,12 +237,14 @@ class LoadComposableNodes(Action):
         :param request: service request to unload a node
         :param client: service client to call the service
         """
-        if not client.wait_for_service(timeout_sec=5.0):
-            self.__logger.warning(
-                "Abandoning wait for the '{}' service, due to timeout.".format(
+        if not client.service_is_ready():
+            self.__logger.info(
+                "Could not unload node '{}'. Is '{}' down?".format(
+                    self.__loaded_nodes[request.unique_id], self.__final_target_container_name,
                     client.srv_name
                 )
             )
+            return
 
         # Asynchronously wait on service call so that we can periodically check for shutdown
         event = threading.Event()

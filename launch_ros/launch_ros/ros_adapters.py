@@ -51,14 +51,18 @@ class ROSAdapter:
         if autostart:
             self.start()
 
-    def start(self):
-        """Start ROS adapter."""
+    def start(self, custom_name: Optional[str] = None):
+        """
+        Start ROS adapter.
+        
+        :param: custom_name Custom name for the ROS node.
+        """
         if self.__is_running:
             raise RuntimeError('Cannot start a ROS adapter that is already running')
         self.__ros_context = rclpy.Context()
         rclpy.init(args=self.__argv, context=self.__ros_context)
         self.__ros_node = rclpy.create_node(
-            'launch_ros_{}'.format(os.getpid()),
+            'launch_ros_{}'.format(os.getpid()) if custom_name is None else custom_name,
             context=self.__ros_context
         )
         self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)

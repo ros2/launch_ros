@@ -107,11 +107,8 @@ class LifecycleNode(Node):
             autostart_actions = [
                 LifecycleTransition(
                     lifecycle_node_names=[self.node_name],
-                    transition_ids=[lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE]
-                ),
-                LifecycleTransition(
-                    lifecycle_node_names=[self.node_name],
-                    transition_ids=[lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE]
+                    transition_ids=[lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE,
+                                    lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE]
                 ),
             ]
 

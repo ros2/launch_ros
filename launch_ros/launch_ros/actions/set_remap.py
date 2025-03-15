@@ -34,8 +34,11 @@ class SetRemap(Action):
 
     This remapping rule will be passed to all the nodes launched in the same scope, overriding
     the ones specified in the `Node` action constructor.
-    e.g.:
-    ```python3
+
+    For example:
+
+    .. code-block:: python
+
         LaunchDescription([
             ...,
             GroupAction(
@@ -43,14 +46,13 @@ class SetRemap(Action):
                     ...,
                     SetRemap(src='asd', dst='bsd'),
                     ...,
-                    Node(...),  // the remap rule will be passed to this node
+                    Node(...),  # the remap rule will be passed to this node
                     ...,
                 ]
             ),
-            Node(...),  // here it won't be passed, as it's not in the same scope
+            Node(...),  # here it won't be passed, as it's not in the same scope
             ...
         ])
-    ```
     """
 
     def __init__(

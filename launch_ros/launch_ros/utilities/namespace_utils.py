@@ -47,24 +47,24 @@ def prefix_namespace(
         `ns` prefixed with `base_ns`.
         In all cases, trailing `/` are stripped from the result.
 
-    ## Examples:
+    For example:
 
-    ```python3
-    combined_ns = prefix_namespace('my_ns', 'original_ns')
-    assert combined_ns == 'my_ns/original_ns'
+    .. code-block:: python
 
-    combined_ns = prefix_namespace('/my_ns', 'original_ns')
-    assert combined_ns == '/my_ns/original_ns'
+        combined_ns = prefix_namespace('my_ns', 'original_ns')
+        assert combined_ns == 'my_ns/original_ns'
 
-    combined_ns = prefix_namespace('my_ns', '/original_ns')
-    assert combined_ns == '/original_ns'
+        combined_ns = prefix_namespace('/my_ns', 'original_ns')
+        assert combined_ns == '/my_ns/original_ns'
 
-    combined_ns = prefix_namespace(None, 'original_ns')
-    assert combined_ns == 'original_ns'
+        combined_ns = prefix_namespace('my_ns', '/original_ns')
+        assert combined_ns == '/original_ns'
 
-    combined_ns = prefix_namespace('my_ns', None)
-    assert combined_ns == 'my_ns'
-    ```
+        combined_ns = prefix_namespace(None, 'original_ns')
+        assert combined_ns == 'original_ns'
+
+        combined_ns = prefix_namespace('my_ns', None)
+        assert combined_ns == 'my_ns'
     """
     combined_ns: Optional[Text] = None
     if base_ns is not None or ns is not None:

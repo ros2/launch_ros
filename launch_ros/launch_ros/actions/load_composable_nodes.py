@@ -251,14 +251,9 @@ class LoadComposableNodes(Action):
                 autostart_actions.append(
                     LifecycleTransition(
                         lifecycle_node_names=[complete_node_name],
-                        transition_ids=[lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE]
+                        transition_ids=[lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE,
+                                        lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE]
                     ))
-                autostart_actions.append(
-                    LifecycleTransition(
-                        lifecycle_node_names=[complete_node_name],
-                        transition_ids=[lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE]
-                    ),
-                )
 
         if load_node_requests:
             context.add_completion_future(

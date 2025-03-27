@@ -16,6 +16,11 @@
 
 import launch_testing.test_runner
 
+from rmw_test_fixture_implementation import RMWTestIsolator
+
 
 class LaunchTestRunner(launch_testing.test_runner.LaunchTestRunner):
-    pass
+
+    def run(self):
+        with RMWTestIsolator():
+            return super().run()

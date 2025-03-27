@@ -42,7 +42,7 @@ def generate_node(i: int):
     )
 
 
-@pytest.mark.launch_test
+@pytest.mark.rostest
 @launch_testing.markers.keep_alive
 def generate_test_description():
     # 'n' changes the number of nodes and topics generated for this test

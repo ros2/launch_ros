@@ -30,7 +30,7 @@ import rclpy
 from std_msgs.msg import String
 
 
-@pytest.mark.launch_test
+@pytest.mark.rostest
 @launch_testing.markers.keep_alive
 def generate_test_description():
     path_to_test = os.path.dirname(__file__)

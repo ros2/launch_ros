@@ -61,7 +61,9 @@ class WaitForTopics:
 
         def method_3():
             topic_list = [('topic_1', String), ('topic_2', String)]
-            wait_for_topics = WaitForTopics(topic_list, timeout=5.0)
+            wait_for_topics = WaitForTopics(topic_list, timeout=5.0, callback=callback_function)
+            # The callback function will be called inside the wait() method after the
+            # subscribers are created and before the publishers are connected.
             assert wait_for_topics.wait("Hello World!")
             print('Given topics are receiving messages !')
             wait_for_topics.shutdown()

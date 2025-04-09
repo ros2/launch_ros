@@ -108,7 +108,7 @@ class WaitForTopics:
         self.__ros_node.start_subscribers(self.topic_tuples)
         if self.callback:
             self.callback(self.__ros_node, *args, **kwargs)
-        self.__ros_node._any_publisher_connected.wait()
+        self.__ros_node.any_publisher_connected.wait()
         return self.__ros_node.msg_event_object.wait(self.timeout)
 
     def shutdown(self):
@@ -159,9 +159,9 @@ class _WaitForTopicsNode(Node):
 
     def _sub_matched_event_callback(self, info: QoSSubscriptionMatchedInfo):
         if info.current_count != 0:
-            self._any_publisher_connected.set()
+            self.any_publisher_connected.set()
         else:
-            self._any_publisher_connected.clear()
+            self.any_publisher_connected.clear()
 
     def _reset(self):
         self.msg_event_object.clear()

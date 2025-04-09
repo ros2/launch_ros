@@ -37,7 +37,7 @@ def generate_node():
     )
 
 
-def trigger_callback(node):
+def trigger_function(node):
     if not hasattr(node, 'my_publisher'):
         node.my_publisher = node.create_publisher(String, 'input', 10)
     while node.my_publisher.get_subscription_count() == 0:

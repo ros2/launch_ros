@@ -77,7 +77,7 @@ class WaitForTopics:
         self.trigger = trigger
         self.node_namespace = node_namespace
         if self.trigger is not None and not callable(self.trigger):
-            raise TypeError('The passed callback is not callable')
+            raise TypeError('The passed trigger is not callable')
         self.__ros_context = rclpy.Context()
         rclpy.init(context=self.__ros_context)
         self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)

@@ -62,6 +62,7 @@ if sys.platform.startswith('win'):
             'CLI tests can block for a pathological amount of time on Windows.',
             allow_module_level=True)
 
+
 class TestFixture(unittest.TestCase):
 
     def test_topics_successful(self):

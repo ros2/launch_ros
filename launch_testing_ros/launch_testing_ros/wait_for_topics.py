@@ -108,7 +108,7 @@ class WaitForTopics:
         self.__ros_node.start_subscribers(self.topic_tuples)
         if self.trigger:
             self.trigger(self.__ros_node, *args, **kwargs)
-        self.__ros_node.any_publisher_connected.wait()
+        self.__ros_node.any_publisher_connected.wait(self.timeout)
         return self.__ros_node.msg_event_object.wait(self.timeout)
 
     def shutdown(self):

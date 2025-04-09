@@ -18,7 +18,6 @@ import time
 import unittest
 
 import launch
-import launch.actions
 import launch_ros.actions
 import launch_testing.actions
 import launch_testing.markers
@@ -72,7 +71,7 @@ if sys.platform.startswith('win'):
 
             # Method 1 : Using the magic methods and 'with' keyword
             with WaitForTopics(
-                topic_list, timeout=10.0, callback=trigger_callback
+                topic_list, timeout=10.0, trigger=trigger_callback
             ) as wait_for_node_object_1:
                 assert wait_for_node_object_1.topics_received() == expected_topics
                 assert wait_for_node_object_1.topics_not_received() == set()

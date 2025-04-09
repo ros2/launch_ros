@@ -105,7 +105,7 @@ if os.name != 'nt':
             assert wait_for_node_object.topics_not_received() == {'invalid_topic'}
             wait_for_node_object.shutdown()
 
-        def test_callback(self, count):
+        def test_trigger_callback(self, count):
             topic_list = [('chatter_' + str(i), String) for i in range(count)]
             expected_topics = {'chatter_' + str(i) for i in range(count)}
 
@@ -114,11 +114,11 @@ if os.name != 'nt':
             # Using a list to store the callback function's argument as it is mutable
             is_callback_called = [False]
 
-            def callback(node, arg):
-                node.get_logger().info(f'Callback function called with argument: {arg[0]}')
+            def trigger_callback(node, arg):
+                node.get_logger().info(f'Trigger function called with argument: {arg[0]}')
                 arg[0] = True
 
-            wait_for_node_object = WaitForTopics(topic_list, timeout=2.0, callback=callback)
+            wait_for_node_object = WaitForTopics(topic_list, timeout=2.0, trigger=trigger_callback)
             assert wait_for_node_object.wait(is_callback_called)
             assert wait_for_node_object.topics_received() == expected_topics
             assert wait_for_node_object.topics_not_received() == set()

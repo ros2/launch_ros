@@ -53,16 +53,16 @@ class WaitForTopics:
             print(wait_for_topics.messages_received('topic_1')) # Should be [message_1, ...]
             wait_for_topics.shutdown()
 
-        # Method3, calling a callback function before the wait. The callback function takes
+        # Method3, calling a trigger function before the wait. The trigger function takes
         # the WaitForTopics node object as the first argument. Any additional arguments have
         # to be passed to the wait(*args, **kwargs) method directly.
-        def callback_function(node, arg=""):
-            node.get_logger().info('Callback function called with argument: ' + arg)
+        def trigger_function(node, arg=""):
+            node.get_logger().info('Trigger function called with argument: ' + arg)
 
         def method_3():
             topic_list = [('topic_1', String), ('topic_2', String)]
-            wait_for_topics = WaitForTopics(topic_list, timeout=5.0, callback=callback_function)
-            # The callback function will be called inside the wait() method after the
+            wait_for_topics = WaitForTopics(topic_list, timeout=5.0, trigger=trigger_function)
+            # The trigger function will be called inside the wait() method after the
             # subscribers are created and before the publishers are connected.
             assert wait_for_topics.wait("Hello World!")
             print('Given topics are receiving messages !')
@@ -70,12 +70,12 @@ class WaitForTopics:
     """
 
     def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10,
-                 callback=None) -> None:
+                 trigger=None) -> None:
         self.topic_tuples = topic_tuples
         self.timeout = timeout
         self.messages_received_buffer_length = messages_received_buffer_length
-        self.callback = callback
-        if self.callback is not None and not callable(self.callback):
+        self.trigger = trigger
+        if self.trigger is not None and not callable(self.trigger):
             raise TypeError('The passed callback is not callable')
         self.__ros_context = rclpy.Context()
         rclpy.init(context=self.__ros_context)
@@ -106,8 +106,8 @@ class WaitForTopics:
 
     def wait(self, *args, **kwargs):
         self.__ros_node.start_subscribers(self.topic_tuples)
-        if self.callback:
-            self.callback(self.__ros_node, *args, **kwargs)
+        if self.trigger:
+            self.trigger(self.__ros_node, *args, **kwargs)
         self.__ros_node.any_publisher_connected.wait()
         return self.__ros_node.msg_event_object.wait(self.timeout)
 

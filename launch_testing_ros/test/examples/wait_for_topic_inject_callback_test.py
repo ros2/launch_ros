@@ -62,16 +62,16 @@ if sys.platform.startswith('win'):
             'CLI tests can block for a pathological amount of time on Windows.',
             allow_module_level=True)
 
-    class TestFixture(unittest.TestCase):
+class TestFixture(unittest.TestCase):
 
-        def test_topics_successful(self):
-            """All the supplied topics should be read successfully."""
-            topic_list = [('output', String)]
-            expected_topics = {'output'}
+    def test_topics_successful(self):
+        """All the supplied topics should be read successfully."""
+        topic_list = [('output', String)]
+        expected_topics = {'output'}
 
-            # Method 1 : Using the magic methods and 'with' keyword
-            with WaitForTopics(
-                topic_list, timeout=10.0, trigger=trigger_callback
-            ) as wait_for_node_object_1:
-                assert wait_for_node_object_1.topics_received() == expected_topics
-                assert wait_for_node_object_1.topics_not_received() == set()
+        # Method 1 : Using the magic methods and 'with' keyword
+        with WaitForTopics(
+            topic_list, timeout=10.0, trigger=trigger_function
+        ) as wait_for_node_object_1:
+            assert wait_for_node_object_1.topics_received() == expected_topics
+            assert wait_for_node_object_1.topics_not_received() == set()

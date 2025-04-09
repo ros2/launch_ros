@@ -70,11 +70,12 @@ class WaitForTopics:
     """
 
     def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10,
-                 trigger=None) -> None:
+                 trigger=None, node_namespace=None) -> None:
         self.topic_tuples = topic_tuples
         self.timeout = timeout
         self.messages_received_buffer_length = messages_received_buffer_length
         self.trigger = trigger
+        self.node_namespace = node_namespace
         if self.trigger is not None and not callable(self.trigger):
             raise TypeError('The passed callback is not callable')
         self.__ros_context = rclpy.Context()
@@ -101,6 +102,7 @@ class WaitForTopics:
             name=node_name,
             node_context=self.__ros_context,
             messages_received_buffer_length=self.messages_received_buffer_length,
+            node_namespace=self.node_namespace
         )
         self.__ros_executor.add_node(self.__ros_node)
 
@@ -145,9 +147,12 @@ class _WaitForTopicsNode(Node):
     """Internal node used for subscribing to a set of topics."""
 
     def __init__(
-        self, name='test_node', node_context=None, messages_received_buffer_length=None
+        self, name='test_node',
+        node_context=None,
+        messages_received_buffer_length=None,
+        node_namespace=None
     ) -> None:
-        super().__init__(node_name=name, context=node_context)  # type: ignore
+        super().__init__(node_name=name, context=node_context, namespace=node_namespace)
         self.msg_event_object = Event()
         self.messages_received_buffer_length = messages_received_buffer_length
         self.subscriber_list = []

@@ -54,7 +54,7 @@ class WaitForTopics:
             wait_for_topics.shutdown()
 
         # Method3, calling a callback function before the wait. The callback function takes
-        # the WaitForTopics object as the first argument. Any additional arguments has
+        # the WaitForTopics node object as the first argument. Any additional arguments have
         # to be passed to the wait(*args, **kwargs) method directly.
         def callback_function(node, arg=""):
             node.get_logger().info('Callback function called with argument: ' + arg)
@@ -70,7 +70,7 @@ class WaitForTopics:
     """
 
     def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10,
-                 callback=None):
+                 callback=None) -> None:
         self.topic_tuples = topic_tuples
         self.timeout = timeout
         self.messages_received_buffer_length = messages_received_buffer_length
@@ -155,7 +155,7 @@ class _WaitForTopicsNode(Node):
         self.expected_topics = set()
         self.received_topics = set()
         self.received_messages_buffer = {}
-        self._any_publisher_connected = Event()
+        self.any_publisher_connected = Event()
 
     def _sub_matched_event_callback(self, info: QoSSubscriptionMatchedInfo):
         if info.current_count != 0:

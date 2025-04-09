@@ -1,4 +1,4 @@
-# Copyright 2021 Open Source Robotics Foundation, Inc.
+# Copyright 2025 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ from std_msgs.msg import String
 
 
 def generate_node():
-    """Return node and remap the topic based on the index provided."""
+    """Return node."""
     path_to_test = os.path.dirname(__file__)
     return launch_ros.actions.Node(
         executable=sys.executable,
@@ -58,7 +58,10 @@ def generate_test_description():
 
 # TODO: Test cases fail on Windows debug builds
 # https://github.com/ros2/launch_ros/issues/292
-if os.name != 'nt':
+if sys.platform.startswith('win'):
+    pytest.skip(
+            'CLI tests can block for a pathological amount of time on Windows.',
+            allow_module_level=True)
 
     class TestFixture(unittest.TestCase):
 

@@ -1,4 +1,4 @@
-# Copyright 2019 Open Source Robotics Foundation, Inc.
+# Copyright 2025 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,16 +22,15 @@ class Repeater(Node):
 
     def __init__(self):
         super().__init__('repeater')
-        self.count = 0
         self.subscription = self.create_subscription(
             String, 'input', self.callback, 10
         )
         self.publisher = self.create_publisher(String, 'output', 10)
 
     def callback(self, input_msg):
-        self.get_logger().info('I heard: [%s]' % input_msg.data)
+        self.get_logger().info(f'I heard: [{input_msg.data}]')
         output_msg_data = input_msg.data
-        self.get_logger().info('Publishing: "{0}"'.format(output_msg_data))
+        self.get_logger().info(f'Publishing: "{output_msg_data}"')
         self.publisher.publish(String(data=output_msg_data))
 
 

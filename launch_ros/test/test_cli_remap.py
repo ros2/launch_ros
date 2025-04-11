@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
 import subprocess
+import unittest
+
 
 class TestRemapArgument(unittest.TestCase):
     """Test the --remap command line argument for ros2 launch."""
@@ -25,31 +26,47 @@ class TestRemapArgument(unittest.TestCase):
         try:
             # Start the talker_listener launch file with remapping
             launch_proc_remapped = subprocess.Popen(
-                ['ros2', 'launch', 'demo_nodes_cpp', 'talker_listener_launch.py', 
-                 '--remap', '/chatter:=/chatter_remapped'],
+                [
+                    "ros2",
+                    "launch",
+                    "demo_nodes_cpp",
+                    "talker_listener_launch.py",
+                    "--remap",
+                    "/chatter:=/chatter_remapped",
+                ],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
+                stderr=subprocess.PIPE,
             )
 
             # Run ros2 topic list to get the remapped topics
-            result = subprocess.run(['ros2', 'topic', 'list'], 
-                                  stdout=subprocess.PIPE, 
-                                  stderr=subprocess.PIPE, 
-                                  text=True, 
-                                  check=True)
-            remapped_topics = result.stdout.strip().split('\n')
+            result = subprocess.run(
+                ["ros2", "topic", "list"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True,
+            )
+            remapped_topics = result.stdout.strip().split("\n")
 
             # Verify /chatter is NOT in the list
-            self.assertNotIn('/chatter', remapped_topics, 
-                           f"Did not expect to find /chatter after remapping. Topics: {remapped_topics}")
+            self.assertNotIn(
+                "/chatter",
+                remapped_topics,
+                f"Did not expect to find /chatter after remapping. Topics: {
+                    remapped_topics}",
+            )
 
             # Verify /chatter_remapped IS in the list
-            self.assertIn('/chatter_remapped', remapped_topics, 
-                        f"Expected to find /chatter_remapped after remapping. Topics: {remapped_topics}")
+            self.assertIn(
+                "/chatter_remapped",
+                remapped_topics,
+                f"Expected to find /chatter_remapped after remapping. Topics: {
+                    remapped_topics}",
+            )
 
         finally:
             # Clean up
-            if 'launch_proc_remapped' in locals():
+            if "launch_proc_remapped" in locals():
                 launch_proc_remapped.terminate()
                 try:
                     launch_proc_remapped.wait(timeout=5)
@@ -58,6 +75,5 @@ class TestRemapArgument(unittest.TestCase):
                     launch_proc_remapped.wait()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
-    

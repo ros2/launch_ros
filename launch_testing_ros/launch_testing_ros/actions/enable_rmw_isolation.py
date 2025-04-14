@@ -37,7 +37,5 @@ class EnableRmwIsolation(Action):
 
     def execute(self, context: LaunchContext) -> Optional[List[LaunchDescriptionEntity]]:
         rmw_test_isolation_start()
-        import os
-        print(f"ENABLED ISOLATION FOR {os.environ.get('RMW_IMPLEMENTATION')}")
         context.register_event_handler(OnShutdown(
             on_shutdown=self.__on_shutdown))

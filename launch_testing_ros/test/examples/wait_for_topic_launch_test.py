@@ -104,3 +104,22 @@ if os.name != 'nt':
             assert wait_for_node_object.topics_received() == expected_topics
             assert wait_for_node_object.topics_not_received() == {'invalid_topic'}
             wait_for_node_object.shutdown()
+
+        def test_trigger_function(self, count):
+            topic_list = [('chatter_' + str(i), String) for i in range(count)]
+            expected_topics = {'chatter_' + str(i) for i in range(count)}
+
+            # Method 3 : Using a trigger function
+
+            # Using a list to store the trigger function's argument as it is mutable
+            is_trigger_called = [False]
+
+            def trigger_function(node, arg):
+                node.get_logger().info(f'Trigger function called with argument: {arg[0]}')
+                arg[0] = True
+
+            wait_for_node_object = WaitForTopics(topic_list, timeout=2.0, trigger=trigger_function)
+            assert wait_for_node_object.wait(is_trigger_called)
+            assert wait_for_node_object.topics_received() == expected_topics
+            assert wait_for_node_object.topics_not_received() == set()
+            assert is_trigger_called[0]

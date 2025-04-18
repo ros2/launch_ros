@@ -2,6 +2,13 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.28.1 (2025-04-18)
+-------------------
+* `WaitForTopics`: let the user inject a trigger function to be executed after starting the subscribers (`#356 <https://github.com/ros2/launch_ros/issues/356>`_)
+* Add EnableRmwIsolation action for starting rmw_test_fixture (`#459 <https://github.com/ros2/launch_ros/issues/459>`_)
+* Fix function params indentation (`#446 <https://github.com/ros2/launch_ros/issues/446>`_)
+* Contributors: Christophe Bedard, Giorgio Pintaudi, Scott K Logan
+
 0.28.0 (2024-11-20)
 -------------------
 * Add ament_xmllint to the ament_python packages. (`#423 <https://github.com/ros2/launch_ros/issues/423>`_)

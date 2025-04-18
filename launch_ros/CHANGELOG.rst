@@ -2,6 +2,16 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.28.1 (2025-04-18)
+-------------------
+* Remove the slash stripping since leading slash matters (`#456 <https://github.com/ros2/launch_ros/issues/456>`_)
+* Fixing lifecycle node autostart issue `#445 <https://github.com/ros2/launch_ros/issues/445>`_ (`#449 <https://github.com/ros2/launch_ros/issues/449>`_)
+* Change docstring markdown code blocks to RST (`#450 <https://github.com/ros2/launch_ros/issues/450>`_)
+* Autostarting lifecycle nodes and example launch file demo (`#430 <https://github.com/ros2/launch_ros/issues/430>`_)
+* Add YAML dumper representator for str type to keep quotes always. (`#436 <https://github.com/ros2/launch_ros/issues/436>`_)
+* Mock launch components causing rosdoc2 to fail Python API (`#425 <https://github.com/ros2/launch_ros/issues/425>`_)
+* Contributors: Christophe Bedard, Olivia/F.F., R Kent James, Steve Macenski, Tomoya Fujita
+
 0.28.0 (2024-11-20)
 -------------------
 * Add ament_xmllint to the ament_python packages. (`#423 <https://github.com/ros2/launch_ros/issues/423>`_)

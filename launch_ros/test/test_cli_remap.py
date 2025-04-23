@@ -28,20 +28,24 @@ class TestRemapArgument(unittest.TestCase):
         launch_proc_remapped = None
         try:
             # Start the talker_listener launch file with remapping
+            # Note: Using shell=True to allow sourcing the setup file.
+            # Ensure ROS_DISTRO is set in the environment where this test runs.
+            command_str = (
+                'source /opt/ros/$ROS_DISTRO/setup.bash && '
+                'ros2 launch demo_nodes_cpp talker_listener_launch.py '
+                '--remap /chatter:=/chatter_remapped'
+            )
             launch_proc_remapped = subprocess.Popen(
-                [
-                    'ros2',
-                    'launch',
-                    'demo_nodes_cpp',
-                    'talker_listener_launch.py',
-                    '--remap',
-                    '/chatter:=/chatter_remapped',
-                ],
+                command_str,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                shell=True,  # Execute through the shell
+                executable='/bin/bash'  # Be explicit about the shell
             )
 
             # Initialize rclpy and create node for checking topics
+            stdout_log = ''
+            stderr_log = ''
             rclpy.init()
             node = None
             try:
@@ -69,11 +73,29 @@ class TestRemapArgument(unittest.TestCase):
                 final_topics = [name for name,
                                 types in final_topic_names_and_types]
 
+                # Capture stdout and stderr before asserting
+                if launch_proc_remapped and not remapped_topic_found:
+                    # Ensure the process is terminated before reading streams
+                    if launch_proc_remapped.poll() is None:
+                        launch_proc_remapped.terminate()
+                        try:
+                            launch_proc_remapped.wait(timeout=1)
+                        except subprocess.TimeoutExpired:
+                            if launch_proc_remapped.poll() is None:
+                                launch_proc_remapped.kill()
+                                launch_proc_remapped.wait(timeout=1)
+                    # Now read the streams
+                    stdout_bytes, stderr_bytes = launch_proc_remapped.communicate()
+                    stdout_log = stdout_bytes.decode('utf-8', errors='replace')
+                    stderr_log = stderr_bytes.decode('utf-8', errors='replace')
+
                 # Verify /chatter_remapped IS in the list
                 self.assertTrue(
                     remapped_topic_found,
-                    f'Expected topic "/chatter_remapped" not found within {timeout}s. '
-                    f'Final topics found: {final_topics}'
+                    f'Expected topic "/chatter_remapped" not found within {timeout}s.\n'
+                    f'Final topics found: {final_topics}\n'
+                    f'--- Launch STDOUT ---\n{stdout_log}\n'
+                    f'--- Launch STDERR ---\n{stderr_log}'
                 )
 
                 # Verify /chatter is NOT in the list
@@ -93,13 +115,15 @@ class TestRemapArgument(unittest.TestCase):
 
         finally:
             # Clean up the launch process
-            if launch_proc_remapped is not None:
+            if launch_proc_remapped is not None and launch_proc_remapped.poll() is None:
+                # Ensure process is terminated if not already done for logging
                 launch_proc_remapped.terminate()
                 try:
                     launch_proc_remapped.wait(timeout=5)
                 except subprocess.TimeoutExpired:
-                    launch_proc_remapped.kill()
-                    launch_proc_remapped.wait()
+                    if launch_proc_remapped.poll() is None:  # Check again if terminate failed
+                        launch_proc_remapped.kill()
+                        launch_proc_remapped.wait()
 
 
 if __name__ == '__main__':

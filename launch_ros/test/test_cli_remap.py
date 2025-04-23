@@ -15,6 +15,8 @@
 import subprocess
 import unittest
 import time
+import rclpy
+from rclpy.node import Node
 
 
 class TestRemapArgument(unittest.TestCase):
@@ -37,40 +39,60 @@ class TestRemapArgument(unittest.TestCase):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            
-            # Give the nodes time to start and register their topics
-            time.sleep(5)
-            
-            # Run ros2 topic list to get the remapped topics
-            # Using run without check=True to handle errors
-            result = subprocess.run(
-                ["ros2", "topic", "list"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-            )
-            
-            # Check if the command was successful
-            if result.returncode != 0:
-                self.fail(f"'ros2 topic list' command failed with error: {result.stderr}")
-                
-            remapped_topics = result.stdout.strip().split("\n")
-            
-            # Verify /chatter is NOT in the list
-            self.assertNotIn(
-                "/chatter",
-                remapped_topics,
-                f"Did not expect to find /chatter after remapping. Topics: {remapped_topics}",
-            )
-            
-            # Verify /chatter_remapped IS in the list
-            self.assertIn(
-                "/chatter_remapped",
-                remapped_topics,
-                f"Expected to find /chatter_remapped after remapping. Topics: {remapped_topics}",
-            )
+
+            # Initialize rclpy and create node for checking topics
+            rclpy.init()
+            node = None
+            try:
+                node = Node('__test_remap_checker', use_global_arguments=False)
+
+                # Wait for the remapped topic to appear, poll for it
+                start_time = time.time()
+                timeout = 15.0  # seconds
+                remapped_topic_found = False
+
+                while time.time() - start_time < timeout:
+                    topic_names_and_types = node.get_topic_names_and_types()
+                    current_topics = [name for name,
+                                      types in topic_names_and_types]
+
+                    if '/chatter_remapped' in current_topics:
+                        remapped_topic_found = True
+                        break  # Found the target topic
+
+                    # Avoid busy-waiting
+                    time.sleep(0.5)
+
+                # Get the final list of topics after the loop/timeout
+                final_topic_names_and_types = node.get_topic_names_and_types()
+                final_topics = [name for name,
+                                types in final_topic_names_and_types]
+
+                # Verify /chatter_remapped IS in the list
+                self.assertTrue(
+                    remapped_topic_found,
+                    f"Expected topic '/chatter_remapped' not found within {
+                        timeout}s. "
+                    f"Final topics found: {final_topics}"
+                )
+
+                # Verify /chatter is NOT in the list
+                self.assertNotIn(
+                    '/chatter',
+                    final_topics,
+                    f"Unexpectedly found original topic '/chatter'. Final topics: {
+                        final_topics}"
+                )
+
+            finally:
+                # Clean up node and rclpy
+                if node is not None:
+                    node.destroy_node()
+                if rclpy.ok():
+                    rclpy.shutdown()
+
         finally:
-            # Clean up
+            # Clean up the launch process
             if launch_proc_remapped is not None:
                 launch_proc_remapped.terminate()
                 try:
@@ -82,4 +104,3 @@ class TestRemapArgument(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-    

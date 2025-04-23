@@ -13,8 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import subprocess
-import unittest
 import time
+import unittest
+
 import rclpy
 from rclpy.node import Node
 
@@ -29,12 +30,12 @@ class TestRemapArgument(unittest.TestCase):
             # Start the talker_listener launch file with remapping
             launch_proc_remapped = subprocess.Popen(
                 [
-                    "ros2",
-                    "launch",
-                    "demo_nodes_cpp",
-                    "talker_listener_launch.py",
-                    "--remap",
-                    "/chatter:=/chatter_remapped",
+                    'ros2',
+                    'launch',
+                    'demo_nodes_cpp',
+                    'talker_listener_launch.py',
+                    '--remap',
+                    '/chatter:=/chatter_remapped',
                 ],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -71,17 +72,16 @@ class TestRemapArgument(unittest.TestCase):
                 # Verify /chatter_remapped IS in the list
                 self.assertTrue(
                     remapped_topic_found,
-                    f"Expected topic '/chatter_remapped' not found within {
-                        timeout}s. "
-                    f"Final topics found: {final_topics}"
+                    f'Expected topic "/chatter_remapped" not found within {timeout}s. '
+                    f'Final topics found: {final_topics}'
                 )
 
                 # Verify /chatter is NOT in the list
                 self.assertNotIn(
                     '/chatter',
                     final_topics,
-                    f"Unexpectedly found original topic '/chatter'. Final topics: {
-                        final_topics}"
+                    f'Unexpectedly found original topic "/chatter". Final topics: {
+                        final_topics}'
                 )
 
             finally:
@@ -102,5 +102,5 @@ class TestRemapArgument(unittest.TestCase):
                     launch_proc_remapped.wait()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

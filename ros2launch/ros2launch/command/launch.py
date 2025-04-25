@@ -79,7 +79,8 @@ class LaunchCommand(CommandExtension):
         parser.add_argument(
             '-d', '--debug', default=False, action='store_true',
             help='Put the launch system in debug mode, provides more verbose output.')
-        parser.add_argument('-f', '--log-file-name', default=None,
+        parser.add_argument(
+            '-f', '--log-file-name', default=None,
             help='Name of the logging file')
         command_group = parser.add_mutually_exclusive_group()
         command_group.add_argument(

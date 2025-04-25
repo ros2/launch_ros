@@ -159,7 +159,7 @@ def launch_a_launch_file(
     if args and args.launch_prefix_filter:
         launch_file_arguments.append(f'launch-prefix-filter:={args.launch_prefix_filter}')
 
-    log_file_name = args.log_file_name if args and args.log_file_name else None
+    log_file_name = args.log_file_name if args and args.log_file_name else 'launch'
     launch_service = launch.LaunchService(
         argv=launch_file_arguments,
         noninteractive=noninteractive,

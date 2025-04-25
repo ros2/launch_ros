@@ -2,6 +2,9 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.0 (2025-04-25)
+-------------------
+
 0.28.1 (2025-04-18)
 -------------------
 * Remove the slash stripping since leading slash matters (`#456 <https://github.com/ros2/launch_ros/issues/456>`_)

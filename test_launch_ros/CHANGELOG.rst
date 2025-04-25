@@ -2,6 +2,9 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.0 (2025-04-25)
+-------------------
+
 0.28.1 (2025-04-18)
 -------------------
 * Add python3-pytest-timeout to test_launch_ros. (`#454 <https://github.com/ros2/launch_ros/issues/454>`_)

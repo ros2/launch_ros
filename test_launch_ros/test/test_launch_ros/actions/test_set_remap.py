@@ -14,6 +14,10 @@
 
 """Tests for the SetRemap Action."""
 
+from typing import Any
+from typing import Dict
+from typing import Text
+
 from launch import LaunchContext
 from launch.actions import PopLaunchConfigurations
 from launch.actions import PushLaunchConfigurations
@@ -30,9 +34,37 @@ class MockContext:
 
     def __init__(self):
         self.launch_configurations = {}
+        self.__locals = {}
 
     def perform_substitution(self, sub):
         return sub.perform(None)
+
+    @property  # noqa: A003
+    def locals(self):  # noqa: A003
+        """Getter for the locals."""
+        class AttributeDict:
+
+            def __init__(self, dict_in):
+                self.__dict__['__dict'] = dict_in
+
+            def __getattr__(self, key):
+                _dict = self.__dict__['__dict']
+                if key not in _dict:
+                    raise AttributeError(
+                        "context.locals does not contain attribute '{}', it contains: [{}]".format(
+                            key,
+                            ', '.join(_dict.keys())
+                        )
+                    )
+                return _dict[key]
+
+            def __setattr__(self, key, value):
+                raise AttributeError("can't set attribute '{}', locals are read-only".format(key))
+
+        return AttributeDict(self.__locals)
+
+    def extend_locals(self, extension: Dict[Text, Any]) -> None:
+        self.__locals.update(extension)
 
 
 def get_set_remap_test_remaps():

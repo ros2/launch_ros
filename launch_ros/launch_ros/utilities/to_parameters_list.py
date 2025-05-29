@@ -15,6 +15,7 @@
 """Module with utility to transform evaluated parameters into parameter lists."""
 
 import pathlib
+import re
 from typing import List
 import warnings
 
@@ -56,6 +57,12 @@ def __normalize_parameters_dict(dictionary):
     return normalize_parameters_dict(dictionary, [], {})
 
 
+def is_node_name_matched(node_name: str, node_fqn: str) -> bool:
+    # Will match ["/*" -> "(/\\w+)" and "/**" -> "(/\\w+)*"]
+    regex = node_name.replace('/*', '(/\\w+)')
+    return bool(re.fullmatch(regex, node_fqn))
+
+
 def to_parameters_list(
     context: LaunchContext,
     node_name: str,
@@ -89,8 +96,9 @@ def to_parameters_list(
 
                 if normalized_param_dict:
                     param_dict.clear()
-                    if '**' in normalized_param_dict:
-                        param_dict = normalized_param_dict['**']
+                    for key in normalized_param_dict:
+                        if (is_node_name_matched(f'/{key}', f'/{node_name}')):
+                            param_dict.update(normalized_param_dict[key])
                     if node_name in normalized_param_dict:
                         param_dict.update(normalized_param_dict[node_name])
                     if not warned_once and not node_name:

@@ -400,7 +400,7 @@ class Node(ExecuteProcess):
             if self.__node_namespace is not None:
                 expanded_node_namespace = perform_substitutions(
                     context, normalize_to_list_of_substitutions(self.__node_namespace))
-            base_ns = context.launch_configurations.get('ros_namespace', None)
+            base_ns = context.get_locals_as_dict().get('ros_namespace', None)
             expanded_node_namespace = make_namespace_absolute(
                 prefix_namespace(base_ns, expanded_node_namespace))
             if expanded_node_namespace is not None:
@@ -468,7 +468,7 @@ class Node(ExecuteProcess):
                 cmd_extension = ['--params-file' if is_file else '-p', f'{param_argument}']
                 self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
         # expand remappings too
-        global_remaps = context.launch_configurations.get('ros_remaps', None)
+        global_remaps = context.get_locals_as_dict().get('ros_remaps', None)
         if global_remaps or self.__remappings:
             self.__expanded_remappings = []
         if global_remaps:

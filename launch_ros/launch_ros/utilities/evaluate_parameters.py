@@ -102,7 +102,14 @@ def evaluate_parameter_dict(
                         ', Sequence[int], Sequence[float], Sequence[str]. Got {}.'
                         'If the parameter is meant to be a string, try wrapping it in '
                         'launch_ros.parameter_descriptions.ParameterValue'
+<<<<<<< HEAD
                         '(value, value_type=str)'.format(type(yaml_evaluated_value))
+=======
+                        '(value, value_type=str)'.format(
+                            type(yaml_evaluated_value).__name__,
+                            evaluated_name
+                        )
+>>>>>>> 9c5f6a7 (improve type readability in errors (#469))
                     )
             elif isinstance(value[0], Sequence):
                 # Value is an array of a list of substitutions

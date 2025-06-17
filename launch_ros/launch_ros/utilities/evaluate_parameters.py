@@ -104,7 +104,7 @@ def evaluate_parameter_dict(
                         'If the parameter is meant to be a string, try wrapping it in '
                         'launch_ros.parameter_descriptions.ParameterValue'
                         '(value, value_type=str)'.format(
-                            type(yaml_evaluated_value),
+                            type(yaml_evaluated_value).__name__,
                             evaluated_name
                         )
                     )

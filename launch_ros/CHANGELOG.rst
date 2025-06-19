@@ -2,6 +2,12 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.1 (2025-06-19)
+-------------------
+* improve type readability in errors (`#469 <https://github.com/ros2/launch_ros/issues/469>`_)
+* Fix: LoadComposableNodes fails to parse wildcard param files correctly (`#460 <https://github.com/ros2/launch_ros/issues/460>`_) (`#465 <https://github.com/ros2/launch_ros/issues/465>`_)
+* Contributors: Emre Kuru, Kenji Brameld
+
 0.29.0 (2025-04-25)
 -------------------
 

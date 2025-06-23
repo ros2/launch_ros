@@ -63,7 +63,7 @@ class WaitForTopics:
             topic_list = [('topic_1', String), ('topic_2', String)]
             wait_for_topics = WaitForTopics(topic_list, timeout=5.0, trigger=trigger_function)
             # The trigger function will be called inside the wait() method after the
-            # subscribers are created and before the publishers are connected.
+            # subscribers are created and the publishers are connected.
             assert wait_for_topics.wait("Hello World!")
             print('Given topics are receiving messages !')
             wait_for_topics.shutdown()

@@ -4,7 +4,7 @@
   schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>launch_ros</name>
-  <version>0.28.1</version>
+  <version>0.28.2</version>
   <description>ROS specific extensions to the launch tool.</description>
 
   <maintainer email="aditya.pande@openrobotics.org">Aditya Pande</maintainer>

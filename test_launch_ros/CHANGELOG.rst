@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.28.2 (2025-06-23)
+-------------------
+* Fix: LoadComposableNodes fails to parse wildcard param files correctly (`#460 <https://github.com/ros2/launch_ros/issues/460>`_) (`#465 <https://github.com/ros2/launch_ros/issues/465>`_) (`#466 <https://github.com/ros2/launch_ros/issues/466>`_)
+* Contributors: mergify[bot]
+
 0.28.1 (2025-04-18)
 -------------------
 * Add python3-pytest-timeout to test_launch_ros. (`#454 <https://github.com/ros2/launch_ros/issues/454>`_)

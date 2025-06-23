@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.28.2 (2025-06-23)
+-------------------
+
 0.28.1 (2025-04-18)
 -------------------
 * `WaitForTopics`: let the user inject a trigger function to be executed after starting the subscribers (`#356 <https://github.com/ros2/launch_ros/issues/356>`_)

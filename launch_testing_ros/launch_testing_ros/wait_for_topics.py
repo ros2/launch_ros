@@ -50,6 +50,24 @@ class WaitForTopics:
             print(wait_for_topics.topics_received()) # Should be {'topic_1', 'topic_2'}
             print(wait_for_topics.messages_received('topic_1')) # Should be [message_1, ...]
             wait_for_topics.shutdown()
+<<<<<<< HEAD
+=======
+
+        # Method3, calling a trigger function before the wait. The trigger function takes
+        # the WaitForTopics node object as the first argument. Any additional arguments have
+        # to be passed to the wait(*args, **kwargs) method directly.
+        def trigger_function(node, arg=""):
+            node.get_logger().info('Trigger function called with argument: ' + arg)
+
+        def method_3():
+            topic_list = [('topic_1', String), ('topic_2', String)]
+            wait_for_topics = WaitForTopics(topic_list, timeout=5.0, trigger=trigger_function)
+            # The trigger function will be called inside the wait() method after the
+            # subscribers are created and the publishers are connected.
+            assert wait_for_topics.wait("Hello World!")
+            print('Given topics are receiving messages !')
+            wait_for_topics.shutdown()
+>>>>>>> fb6d0b5 (`WaitForTopics`: wait for publisher-subscriber connection to be established (#474))
     """
 
     def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10) -> None:
@@ -85,6 +103,12 @@ class WaitForTopics:
 
     def wait(self):
         self.__ros_node.start_subscribers(self.topic_tuples)
+<<<<<<< HEAD
+=======
+        self.__ros_node.any_publisher_connected.wait(self.timeout)
+        if self.trigger:
+            self.trigger(self.__ros_node, *args, **kwargs)
+>>>>>>> fb6d0b5 (`WaitForTopics`: wait for publisher-subscriber connection to be established (#474))
         return self.__ros_node.msg_event_object.wait(self.timeout)
 
     def shutdown(self):

@@ -30,7 +30,6 @@ setup(
     keywords=['ROS'],
     classifiers=[
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
@@ -39,7 +38,11 @@ setup(
         'This package provides ROS specific extensions to the launch package.'
     ),
     license='Apache License, Version 2.0',
-    tests_require=['pytest'],
+    extras_require={
+        'test': [
+            'pytest',
+        ],
+    },
     entry_points={
         'launch.frontend.launch_extension': [
             'launch_ros = launch_ros',

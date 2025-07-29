@@ -2,8 +2,8 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.29.2 (2025-07-29)
+-------------------
 * fix setuptools deprecations (`#475 <https://github.com/ros2/launch_ros/issues/475>`_)
 * `WaitForTopics`: wait for publisher-subscriber connection to be established (`#474 <https://github.com/ros2/launch_ros/issues/474>`_)
 * Contributors: Giorgio Pintaudi, mosfet80

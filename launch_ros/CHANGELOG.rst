@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix setuptools deprecations (`#475 <https://github.com/ros2/launch_ros/issues/475>`_)
+* Contributors: mosfet80
+
 0.29.1 (2025-06-19)
 -------------------
 * improve type readability in errors (`#469 <https://github.com/ros2/launch_ros/issues/469>`_)

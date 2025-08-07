@@ -232,16 +232,6 @@ class LoadComposableNodes(Action):
 
         # Generate load requests before execute() exits to avoid race with context changing
         # due to scope change (e.g. if loading nodes from within a GroupAction).
-<<<<<<< HEAD
-        load_node_requests = [
-            get_composable_node_load_request(node_description, context)
-            for node_description in self.__composable_node_descriptions
-        ]
-
-        context.add_completion_future(
-            context.asyncio_loop.run_in_executor(
-                None, self._load_in_sequence, load_node_requests, context
-=======
         load_node_requests = []
         autostart_actions = []
         for node_description in self.__composable_node_descriptions:
@@ -275,9 +265,7 @@ class LoadComposableNodes(Action):
                 context.asyncio_loop.run_in_executor(
                     None, self._load_in_sequence, load_node_requests, context
                 )
->>>>>>> 3569f0d (Autostarting lifecycle nodes and example launch file demo (#430))
             )
-        )
 
         load_actions = super().execute(context)
         if load_actions is not None and len(autostart_actions) != 0:

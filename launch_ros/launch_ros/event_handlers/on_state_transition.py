@@ -32,13 +32,8 @@ class OnStateTransition(EventHandler):
     def __init__(
         self,
         *,
-<<<<<<< HEAD
-        entities: SomeActionsType,
-        target_lifecycle_node: LifecycleNode = None,
-=======
         entities: SomeEntitiesType,
         target_lifecycle_node: Optional['LifecycleNode'] = None,  # noqa: F821
->>>>>>> 3569f0d (Autostarting lifecycle nodes and example launch file demo (#430))
         transition: Optional[SomeSubstitutionsType] = None,
         start_state: Optional[SomeSubstitutionsType] = None,
         goal_state: Optional[SomeSubstitutionsType] = None,

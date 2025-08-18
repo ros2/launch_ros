@@ -26,6 +26,7 @@ from launch.some_substitutions_type import SomeSubstitutionsType
 
 from .node import Node
 
+from ..descriptions import ComposableLifecycleNode
 from ..descriptions import ComposableNode
 
 
@@ -62,12 +63,26 @@ class ComposableNodeContainer(Node):
 
         composable_nodes = entity.get_attr(
             'composable_node', data_type=List[Entity], optional=True)
-        if composable_nodes is not None:
+        composable_lifecycle_nodes = entity.get_attr(
+            'composable_lifecycle_node', data_type=List[Entity], optional=True)
+
+        if composable_lifecycle_nodes is not None or composable_nodes is not None:
             kwargs['composable_node_descriptions'] = []
+
+        if composable_nodes is not None:
             for entity in composable_nodes:
                 composable_node_cls, composable_node_kwargs = ComposableNode.parse(parser, entity)
                 kwargs['composable_node_descriptions'].append(
                     composable_node_cls(**composable_node_kwargs))
+                entity.assert_entity_completely_parsed()
+
+        if composable_lifecycle_nodes is not None:
+            for entity in composable_lifecycle_nodes:
+                composable_node_cls, composable_node_kwargs = ComposableLifecycleNode.parse(
+                    parser, entity)
+                kwargs['composable_node_descriptions'].append(
+                    composable_node_cls(**composable_node_kwargs))
+                entity.assert_entity_completely_parsed()
 
         return cls, kwargs
 

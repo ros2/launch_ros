@@ -138,8 +138,6 @@ class ComposableNode:
             for extra_arg in extra_arguments:
                 extra_arg.assert_entity_completely_parsed()
 
-        entity.assert_entity_completely_parsed()
-
         return cls, kwargs
 
     @property

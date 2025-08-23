@@ -362,6 +362,11 @@ class Node(ExecuteProcess):
             raise RuntimeError("cannot access 'node_name' before executing action")
         return self.__final_node_name
 
+    @property
+    def fully_qualified_node_name(self):
+        """Getter for fully_qualified_node_name."""
+        return self.node_name
+
     def is_node_name_fully_specified(self):
         keywords = (self.UNSPECIFIED_NODE_NAME, self.UNSPECIFIED_NODE_NAMESPACE)
         return all(x not in self.node_name for x in keywords)

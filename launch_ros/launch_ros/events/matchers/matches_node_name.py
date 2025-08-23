@@ -26,4 +26,4 @@ def matches_node_name(node_name: Text) -> Callable[['Node'], bool]:
     """Return a matcher which matches based on the name of the node itself."""
     if not node_name.startswith('/'):
         node_name = f'/{node_name}'
-    return lambda action: action.node_name == node_name
+    return lambda action: action.fully_qualified_node_name == node_name

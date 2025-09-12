@@ -12,12 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List
+from typing import Union
 
 from launch import Action
 from launch.frontend import Entity
 from launch.frontend import expose_action
 from launch.frontend import Parser
 from launch.launch_context import LaunchContext
+from launch.some_substitutions_type import SomeSubstitutionsType
+from launch.substitution import Substitution
+from launch.utilities.type_utils import normalize_typed_substitution
+from launch.utilities.type_utils import perform_typed_substitution
 
 from launch_ros.ros_adapters import get_ros_node
 
@@ -30,32 +36,33 @@ class SetUseSimTime(Action):
 
     def __init__(
         self,
-        value: bool,
+        value: Union[bool, SomeSubstitutionsType],
         **kwargs
     ) -> None:
         """Create a SetUseSimTime action."""
         super().__init__(**kwargs)
-        self.__value = value
+        self.__value = normalize_typed_substitution(value, bool)
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
         """Return `SetUseSimTime` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
-        kwargs['value'] = parser.parse_substitution(entity.get_attr('value'))
+        kwargs['value'] = parser.parse_if_substitutions(entity.get_attr('value', data_type=bool))
         return cls, kwargs
 
     @property
-    def value(self) -> bool:
+    def value(self) -> List[Substitution]:
         """Getter for value."""
         return self.__value
 
     def execute(self, context: LaunchContext):
         """Execute the action."""
+        value = perform_typed_substitution(context, self.value, bool)
         node = get_ros_node(context)
         param = Parameter(
             'use_sim_time',
             Parameter.Type.BOOL,
-            self.value
+            value,
         )
         node.set_parameters([param])
         if not node.get_parameter('use_sim_time').get_parameter_value().bool_value:

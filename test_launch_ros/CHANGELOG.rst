@@ -2,8 +2,8 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.28.3 (2025-09-15)
+-------------------
 * Fix SetUseSimTime for launch frontends (`#488 <https://github.com/ros2/launch_ros/issues/488>`_) (`#489 <https://github.com/ros2/launch_ros/issues/489>`_)
 * fix setuptools deprecations (`#475 <https://github.com/ros2/launch_ros/issues/475>`_) (`#484 <https://github.com/ros2/launch_ros/issues/484>`_)
 * Contributors: mergify[bot]

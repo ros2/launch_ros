@@ -2,8 +2,8 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.28.3 (2025-09-15)
+-------------------
 * fix setuptools deprecations (`#475 <https://github.com/ros2/launch_ros/issues/475>`_) (`#484 <https://github.com/ros2/launch_ros/issues/484>`_)
 * Contributors: mergify[bot]
 

@@ -2,6 +2,12 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix SetUseSimTime for launch frontends (`#488 <https://github.com/ros2/launch_ros/issues/488>`_) (`#489 <https://github.com/ros2/launch_ros/issues/489>`_)
+* fix setuptools deprecations (`#475 <https://github.com/ros2/launch_ros/issues/475>`_) (`#484 <https://github.com/ros2/launch_ros/issues/484>`_)
+* Contributors: mergify[bot]
+
 0.28.2 (2025-06-23)
 -------------------
 * Fix: LoadComposableNodes fails to parse wildcard param files correctly (`#460 <https://github.com/ros2/launch_ros/issues/460>`_) (`#465 <https://github.com/ros2/launch_ros/issues/465>`_) (`#466 <https://github.com/ros2/launch_ros/issues/466>`_)

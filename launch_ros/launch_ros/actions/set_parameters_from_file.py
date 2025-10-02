@@ -29,8 +29,10 @@ class SetParametersFromFile(Action):
     """
     Action that sets parameters for all nodes in scope based on a given yaml file.
 
-    e.g.
-    ```python3
+    For example:
+
+    .. code-block:: python
+
         LaunchDescription([
             ...,
             GroupAction(
@@ -38,24 +40,23 @@ class SetParametersFromFile(Action):
                     ...,
                     SetParametersFromFile('path/to/file.yaml'),
                     ...,
-                    Node(...),  // the params will be passed to this node
+                    Node(...),  # the params will be passed to this node
                     ...,
                 ]
             ),
-            Node(...),  // here it won't be passed, as it's not in the same scope
+            Node(...),  # here it won't be passed, as it's not in the same scope
             ...
         ])
-    ```
-    ```xml
-    <launch>
-        <group>
-            <set_parameters_from_file filename='/path/to/file.yaml'/>
-            <node .../>    // Node in scope, params will be passed
-        </group>
-        <node .../>  // Node not in scope, params won't be passed
-    </launch>
 
-    ```
+    .. code-block:: xml
+
+        <launch>
+            <group>
+                <set_parameters_from_file filename='/path/to/file.yaml'/>
+                <node .../>  <!-- Node in scope, params will be passed -->
+            </group>
+            <node .../>  <!-- Node not in scope, params won't be passed -->
+        </launch>
     """
 
     def __init__(

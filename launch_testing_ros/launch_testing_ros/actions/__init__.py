@@ -1,4 +1,4 @@
-# Copyright 2019 Open Source Robotics Foundation, Inc.
+# Copyright 2025 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,19 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""descriptions Module."""
-
-from .composable_lifecycle_node import ComposableLifecycleNode
-from .composable_node import ComposableNode
-from ..parameter_descriptions import Parameter
-from ..parameter_descriptions import ParameterFile
-from ..parameter_descriptions import ParameterValue
-
+from .enable_rmw_isolation import EnableRmwIsolation
 
 __all__ = [
-    'ComposableNode',
-    'ComposableLifecycleNode',
-    'Parameter',
-    'ParameterFile',
-    'ParameterValue',
+    'EnableRmwIsolation',
 ]

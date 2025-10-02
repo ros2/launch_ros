@@ -2,6 +2,25 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.2 (2025-07-29)
+-------------------
+* fix setuptools deprecations (`#475 <https://github.com/ros2/launch_ros/issues/475>`_)
+* Contributors: mosfet80
+
+0.29.1 (2025-06-19)
+-------------------
+* Fix: LoadComposableNodes fails to parse wildcard param files correctly (`#460 <https://github.com/ros2/launch_ros/issues/460>`_) (`#465 <https://github.com/ros2/launch_ros/issues/465>`_)
+* Contributors: Emre Kuru
+
+0.29.0 (2025-04-25)
+-------------------
+
+0.28.1 (2025-04-18)
+-------------------
+* Add python3-pytest-timeout to test_launch_ros. (`#454 <https://github.com/ros2/launch_ros/issues/454>`_)
+* Autostarting lifecycle nodes and example launch file demo (`#430 <https://github.com/ros2/launch_ros/issues/430>`_)
+* Contributors: Steve Macenski, Tomoya Fujita
+
 0.28.0 (2024-11-20)
 -------------------
 * Add ament_xmllint to the ament_python packages. (`#423 <https://github.com/ros2/launch_ros/issues/423>`_)

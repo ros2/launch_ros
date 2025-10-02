@@ -38,7 +38,10 @@ from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 from launch_ros.parameter_descriptions import ParameterFile
 
+import lifecycle_msgs.msg
+
 from .composable_node_container import ComposableNodeContainer
+from .lifecycle_transition import LifecycleTransition
 
 from ..descriptions import ComposableNode
 from ..ros_adapters import get_ros_node
@@ -230,11 +233,27 @@ class LoadComposableNodes(Action):
         # Generate load requests before execute() exits to avoid race with context changing
         # due to scope change (e.g. if loading nodes from within a GroupAction).
         load_node_requests = []
+        autostart_actions = []
         for node_description in self.__composable_node_descriptions:
             request = get_composable_node_load_request(node_description, context)
             # The request can be None if the node description's condition evaluates to False
             if request is not None:
                 load_node_requests.append(request)
+
+            # If autostart is enabled, transition to the 'active' state.
+            if hasattr(node_description, 'node_autostart') and node_description.node_autostart:
+                complete_node_name = request.node_namespace + request.node_name
+                if not complete_node_name.startswith('/'):
+                    complete_node_name = '/' + complete_node_name
+                self.__logger.info(
+                    'Autostart enabled for requested lifecycle node {}'.format(complete_node_name))
+                node_description.init_lifecycle_event_manager(context)
+                autostart_actions.append(
+                    LifecycleTransition(
+                        lifecycle_node_names=[complete_node_name],
+                        transition_ids=[lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE,
+                                        lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE]
+                    ))
 
         if load_node_requests:
             context.add_completion_future(
@@ -242,6 +261,14 @@ class LoadComposableNodes(Action):
                     None, self._load_in_sequence, load_node_requests, context
                 )
             )
+
+        load_actions = super().execute(context)
+        if load_actions is not None and len(autostart_actions) != 0:
+            return load_actions + autostart_actions
+        if load_actions is not None:
+            return load_actions
+        if len(autostart_actions) != 0:
+            return autostart_actions
 
 
 def get_composable_node_load_request(

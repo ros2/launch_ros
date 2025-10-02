@@ -35,8 +35,11 @@ class SetParameter(Action):
     Action that sets a parameter in the current context.
 
     This parameter will be set in all the nodes launched in the same scope.
-    e.g.:
-    ```python3
+
+    For example:
+
+    .. code-block:: python
+
         LaunchDescription([
             ...,
             GroupAction(
@@ -44,14 +47,13 @@ class SetParameter(Action):
                     ...,
                     SetParameter(name='my_param', value='2'),
                     ...,
-                    Node(...),  // the param will be passed to this node
+                    Node(...),  # the param will be passed to this node
                     ...,
                 ]
             ),
-            Node(...),  // here it won't be passed, as it's not in the same scope
+            Node(...),  # here it won't be passed, as it's not in the same scope
             ...
         ])
-    ```
     """
 
     def __init__(

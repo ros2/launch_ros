@@ -19,7 +19,6 @@ from typing import Optional
 
 import launch
 from launch.substitution import Substitution
-from launch.utilities import perform_substitutions
 from launch_ros.parameters_type import Parameters
 from launch_ros.remap_rule_type import RemapRules
 from launch_ros.utilities import LifecycleEventManager
@@ -44,11 +43,10 @@ class ComposableLifecycleNode(ComposableNode):
 
         self.__autostart = autostart
         self.__lifecycle_event_manager = None
-        self.__node_name = super().node_name
 
     def init_lifecycle_event_manager(self, context: launch.LaunchContext) -> None:
-        # LifecycleEventManager needs a pre-substitution node name
-        self.__node_name = perform_substitutions(context, self.node_name)
+        # LifecycleEventManager needs qualified node name
+        assert self.is_node_name_fully_specified()
         self.__lifecycle_event_manager = LifecycleEventManager(self)
         self.__lifecycle_event_manager.setup_lifecycle_manager(context)
 
@@ -65,7 +63,7 @@ class ComposableLifecycleNode(ComposableNode):
     @property
     def node_name(self) -> Optional[List[Substitution]]:
         """Get node name as a sequence of substitutions to be performed."""
-        return self.__node_name
+        return super().node_name
 
     @property
     def node_namespace(self) -> Optional[List[Substitution]]:

@@ -61,7 +61,7 @@ class LifecycleEventManager:
 
     @property
     def node_name(self):
-        return self.__lifecycle_node.node_name
+        return self.__lifecycle_node.fully_qualified_node_name
 
     def _on_transition_event(self, context, msg):
         try:

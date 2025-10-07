@@ -69,6 +69,8 @@ class ComposableNode:
         if namespace is not None:
             self.__node_namespace = normalize_to_list_of_substitutions(namespace)
 
+        self.__final_node_name = None  # type: Optional[str]
+
         self.__parameters = None  # type: Optional[Parameters]
         if parameters is not None:
             self.__parameters = normalize_parameters(parameters)
@@ -156,6 +158,23 @@ class ComposableNode:
     def node_name(self) -> Optional[List[Substitution]]:
         """Get node name as a sequence of substitutions to be performed."""
         return self.__node_name
+
+    @property
+    def fully_qualified_node_name(self) -> str:
+        """Getter for fully_qualified_node_name."""
+        if self.__final_node_name is None:
+            raise RuntimeError("cannot access 'fully_qualified_node_name' before executing action")
+        return self.__final_node_name
+
+    @fully_qualified_node_name.setter
+    def fully_qualified_node_name(self, fully_qualified_node_name: Optional[str]):
+        """Setter for fully_qualified_node_name."""
+        if self.__final_node_name is not None:
+            raise RuntimeError("'fully_qualified_node_name' is already set")
+        self.__final_node_name = fully_qualified_node_name
+
+    def is_node_name_fully_specified(self) -> bool:
+        return self.__final_node_name is not None
 
     @property
     def node_namespace(self) -> Optional[List[Substitution]]:

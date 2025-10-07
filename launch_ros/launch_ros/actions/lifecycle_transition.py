@@ -229,7 +229,7 @@ def match_node_name_start_goal(node_name: str, start_state: str, goal_state: str
         node_name = f'/{node_name}'
     return lambda event: (
         isinstance(event, StateTransition) and
-        (event.action.node_name == node_name) and
+        (event.action.fully_qualified_node_name == node_name) and
         (event.goal_state == goal_state) and
         (event.start_state == start_state)
     )
@@ -240,6 +240,6 @@ def match_node_name_goal(node_name: str, goal_state: str):
         node_name = f'/{node_name}'
     return lambda event: (
         isinstance(event, StateTransition) and
-        (event.action.node_name == node_name) and
+        (event.action.fully_qualified_node_name == node_name) and
         (event.goal_state == goal_state)
     )

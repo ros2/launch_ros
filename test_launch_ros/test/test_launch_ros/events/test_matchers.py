@@ -23,6 +23,10 @@ class MockNode:
     def __init__(self, node_name):
         self.node_name = node_name
 
+    @property
+    def fully_qualified_node_name(self):
+        return self.node_name
+
 
 def test_matches_node_name():
     """Test the matches_node_name function."""

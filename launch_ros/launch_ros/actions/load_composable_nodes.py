@@ -242,7 +242,13 @@ class LoadComposableNodes(Action):
 
             # If autostart is enabled, transition to the 'active' state.
             if hasattr(node_description, 'node_autostart') and node_description.node_autostart:
-                complete_node_name = request.node_namespace + request.node_name
+                if not node_description.is_node_name_fully_specified():
+                    self.__logger.error(
+                        'auto-starting ComposableLifecycleNode is not fully qualified '
+                        '(node_name must be specified) [ignoring autostart=True]'
+                    )
+                    continue
+                complete_node_name = node_description.fully_qualified_node_name
                 if not complete_node_name.startswith('/'):
                     complete_node_name = '/' + complete_node_name
                 self.__logger.info(
@@ -300,6 +306,12 @@ def get_composable_node_load_request(
     if combined_ns is not None:
         request.node_namespace = combined_ns
     # request.log_level = perform_substitutions(context, node_description.log_level)
+    # TODO(SuperJappie08): Maybe better to use the response of the request.
+    if request.node_name:
+        composable_node_description.fully_qualified_node_name = prefix_namespace(
+            request.node_namespace, request.node_name
+        )
+
     remappings = []
     global_remaps = context.launch_configurations.get('ros_remaps', None)
     if global_remaps:

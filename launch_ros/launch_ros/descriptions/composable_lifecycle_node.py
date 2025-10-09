@@ -14,6 +14,7 @@
 
 """Module for a description of a ComposableLifecycleNode."""
 
+from typing import cast
 from typing import List
 from typing import Optional
 from typing import Union
@@ -22,7 +23,9 @@ import launch
 from launch.frontend import Entity
 from launch.frontend import Parser
 from launch.some_substitutions_type import SomeSubstitutionsType
+from launch.some_substitutions_type import SomeSubstitutionsType_types_tuple
 from launch.substitution import Substitution
+from launch.utilities import ensure_argument_type
 from launch.utilities import perform_substitutions
 from launch.utilities import type_utils
 from launch_ros.parameters_type import Parameters
@@ -47,8 +50,17 @@ class ComposableLifecycleNode(ComposableNode):
         """
         super().__init__(**kwargs)
 
-        self.__autostart = type_utils.normalize_typed_substitution(autostart, bool)
-        self.__lifecycle_event_manager = None
+        ensure_argument_type(
+            autostart,
+            list(SomeSubstitutionsType_types_tuple) + [bool],
+            'autostart',
+            'ComposableLifecycleNode'
+        )
+        self.__autostart = cast(
+            Union[bool, List[Substitution]],
+            type_utils.normalize_typed_substitution(autostart, bool)
+        )
+        self.__lifecycle_event_manager = None  # type: Optional[LifecycleEventManager]
         self.__node_name = super().node_name
 
     @classmethod
@@ -91,7 +103,7 @@ class ComposableLifecycleNode(ComposableNode):
     @property
     def node_autostart(self) -> Union[bool, List[Substitution]]:
         """Getter for autostart."""
-        return self.__autostart  # type: Union[bool, List[Substitution]]
+        return self.__autostart
 
     @property
     def parameters(self) -> Optional[Parameters]:

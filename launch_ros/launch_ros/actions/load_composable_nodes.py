@@ -36,6 +36,7 @@ from launch.utilities import ensure_argument_type
 from launch.utilities import is_a_subclass
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
+from launch.utilities import type_utils
 from launch_ros.parameter_descriptions import ParameterFile
 
 import lifecycle_msgs.msg
@@ -43,6 +44,7 @@ import lifecycle_msgs.msg
 from .composable_node_container import ComposableNodeContainer
 from .lifecycle_transition import LifecycleTransition
 
+from ..descriptions import ComposableLifecycleNode
 from ..descriptions import ComposableNode
 from ..ros_adapters import get_ros_node
 from ..utilities import add_node_name
@@ -99,12 +101,28 @@ class LoadComposableNodes(Action):
         kwargs['target_container'] = parser.parse_substitution(
             entity.get_attr('target', data_type=str))
 
-        composable_nodes = entity.get_attr('composable_node', data_type=List[Entity])
         kwargs['composable_node_descriptions'] = []
+        composable_nodes = entity.get_attr(
+            'composable_node', data_type=List[Entity], optional=True) or []
+        composable_lifecycle_nodes = entity.get_attr(
+            'composable_lifecycle_node', data_type=List[Entity], optional=True) or []
+        if not (bool(composable_nodes) or bool(composable_lifecycle_nodes)):
+            raise RuntimeError(
+                'Must provide atleast one composable_node or composable_lifecycle_node'
+            )
+
         for entity in composable_nodes:
             composable_node_cls, composable_node_kwargs = ComposableNode.parse(parser, entity)
             kwargs['composable_node_descriptions'].append(
                 composable_node_cls(**composable_node_kwargs))
+            entity.assert_entity_completely_parsed()
+
+        for entity in composable_lifecycle_nodes:
+            composable_node_cls, composable_node_kwargs = ComposableLifecycleNode.parse(
+                parser, entity)
+            kwargs['composable_node_descriptions'].append(
+                composable_node_cls(**composable_node_kwargs))
+            entity.assert_entity_completely_parsed()
 
         return cls, kwargs
 
@@ -241,8 +259,13 @@ class LoadComposableNodes(Action):
                 load_node_requests.append(request)
 
             # If autostart is enabled, transition to the 'active' state.
-            if hasattr(node_description, 'node_autostart') and node_description.node_autostart:
-                complete_node_name = request.node_namespace + request.node_name
+            if hasattr(node_description, 'node_autostart') and \
+               type_utils.perform_typed_substitution(
+                    context, node_description.node_autostart, bool):
+                node_namespace = request.node_namespace
+                if node_namespace[-1] != '/':
+                    node_namespace += '/'
+                complete_node_name = node_namespace + request.node_name
                 if not complete_node_name.startswith('/'):
                     complete_node_name = '/' + complete_node_name
                 self.__logger.info(

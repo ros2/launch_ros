@@ -2,6 +2,13 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.3 (2025-10-17)
+-------------------
+* Expose composable_lifecycle_node in front-end (`#480 <https://github.com/ros2/launch_ros/issues/480>`_)
+* Switch osrf_pycommon dependency to system package (`#431 <https://github.com/ros2/launch_ros/issues/431>`_)
+* Fix SetUseSimTime for launch frontends (`#488 <https://github.com/ros2/launch_ros/issues/488>`_)
+* Contributors: Christophe Bedard, Jasper van Brakel, Scott K Logan
+
 0.29.2 (2025-07-29)
 -------------------
 * fix setuptools deprecations (`#475 <https://github.com/ros2/launch_ros/issues/475>`_)

@@ -36,3 +36,10 @@ def test_find_package_share():
     package_prefix = Path(sub.perform(context))
     package_xml_file = package_prefix / Path('package.xml')
     assert package_xml_file.is_file()
+
+
+def test_find_package_paths():
+    sub = FindPackageShare('launch_ros') / 'package.xml'
+    context = LaunchContext()
+    result_path = sub.perform(context)
+    assert Path(result_path).is_file()

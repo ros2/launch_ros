@@ -25,11 +25,12 @@ from launch.frontend import expose_substitution
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitution import Substitution
+from launch.substitutions import PathSubstitution
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
 
 
-class FindPackage(Substitution):
+class FindPackage(PathSubstitution):
     """
     Abstract base class for substitutions involving finding a package.
 
@@ -41,7 +42,7 @@ class FindPackage(Substitution):
         package: SomeSubstitutionsType,
     ) -> None:
         """Create a FindPackage substitution."""
-        super().__init__()
+        super().__init__(self)
         self.__package = normalize_to_list_of_substitutions(package)
 
     @classmethod

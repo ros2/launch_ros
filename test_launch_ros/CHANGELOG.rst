@@ -2,6 +2,12 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.4 (2025-11-07)
+-------------------
+* Make FindPackage substitutions a Path to get operator / (`#494 <https://github.com/ros2/launch_ros/issues/494>`_)
+* Expose lifecycle_node (`#327 <https://github.com/ros2/launch_ros/issues/327>`_) (with test) (`#482 <https://github.com/ros2/launch_ros/issues/482>`_)
+* Contributors: Emerson Knapp, Jasper van Brakel
+
 0.29.3 (2025-10-17)
 -------------------
 * Switch osrf_pycommon dependency to system package (`#431 <https://github.com/ros2/launch_ros/issues/431>`_)

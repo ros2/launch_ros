@@ -21,8 +21,12 @@
   <exec_depend>composition_interfaces</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>lifecycle_msgs</exec_depend>
+<<<<<<< HEAD
   <exec_depend>osrf_pycommon</exec_depend>
   <exec_depend>python3-importlib-metadata</exec_depend>
+=======
+  <exec_depend>python3-osrf-pycommon</exec_depend>
+>>>>>>> 95aaac4 (remove importlib (#508))
   <exec_depend>python3-yaml</exec_depend>
   <exec_depend>rclpy</exec_depend>
 

@@ -4,7 +4,7 @@
   schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>launch_ros</name>
-  <version>0.29.0</version>
+  <version>0.29.4</version>
   <description>ROS specific extensions to the launch tool.</description>
 
   <maintainer email="aditya.pande@openrobotics.org">Aditya Pande</maintainer>
@@ -21,8 +21,7 @@
   <exec_depend>composition_interfaces</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>lifecycle_msgs</exec_depend>
-  <exec_depend>osrf_pycommon</exec_depend>
-  <exec_depend>python3-importlib-metadata</exec_depend>
+  <exec_depend>python3-osrf-pycommon</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
   <exec_depend>rclpy</exec_depend>
 

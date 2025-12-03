@@ -53,7 +53,7 @@ class WaitForTopics:
             print(wait_for_topics.messages_received('topic_1')) # Should be [message_1, ...]
             wait_for_topics.shutdown()
 
-        # Method3, calling a trigger function before the wait. The trigger function takes
+        # Method 3, calling a trigger function before the wait. The trigger function takes
         # the WaitForTopics node object as the first argument. Any additional arguments have
         # to be passed to the wait(*args, **kwargs) method directly.
         def trigger_function(node, arg=""):
@@ -63,19 +63,20 @@ class WaitForTopics:
             topic_list = [('topic_1', String), ('topic_2', String)]
             wait_for_topics = WaitForTopics(topic_list, timeout=5.0, trigger=trigger_function)
             # The trigger function will be called inside the wait() method after the
-            # subscribers are created and before the publishers are connected.
+            # subscribers are created and the publishers are connected.
             assert wait_for_topics.wait("Hello World!")
             print('Given topics are receiving messages !')
             wait_for_topics.shutdown()
     """
 
     def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10,
-                 trigger=None, node_namespace=None) -> None:
+                 trigger=None, node_namespace=None, qos_profile=10) -> None:
         self.topic_tuples = topic_tuples
         self.timeout = timeout
         self.messages_received_buffer_length = messages_received_buffer_length
         self.trigger = trigger
         self.node_namespace = node_namespace
+        self.qos_profile = qos_profile
         if self.trigger is not None and not callable(self.trigger):
             raise TypeError('The passed trigger is not callable')
         self.__ros_context = rclpy.Context()
@@ -102,15 +103,16 @@ class WaitForTopics:
             name=node_name,
             node_context=self.__ros_context,
             messages_received_buffer_length=self.messages_received_buffer_length,
-            node_namespace=self.node_namespace
+            node_namespace=self.node_namespace,
+            qos_profile=self.qos_profile
         )
         self.__ros_executor.add_node(self.__ros_node)
 
     def wait(self, *args, **kwargs):
         self.__ros_node.start_subscribers(self.topic_tuples)
+        self.__ros_node.any_publisher_connected.wait(self.timeout)
         if self.trigger:
             self.trigger(self.__ros_node, *args, **kwargs)
-        self.__ros_node.any_publisher_connected.wait(self.timeout)
         return self.__ros_node.msg_event_object.wait(self.timeout)
 
     def shutdown(self):
@@ -150,7 +152,8 @@ class _WaitForTopicsNode(Node):
         self, name='test_node',
         node_context=None,
         messages_received_buffer_length=None,
-        node_namespace=None
+        node_namespace=None,
+        qos_profile=10
     ) -> None:
         super().__init__(node_name=name, context=node_context, namespace=node_namespace)
         self.msg_event_object = Event()
@@ -161,6 +164,7 @@ class _WaitForTopicsNode(Node):
         self.received_topics = set()
         self.received_messages_buffer = {}
         self.any_publisher_connected = Event()
+        self.qos_profile = qos_profile
 
     def _sub_matched_event_callback(self, info: QoSSubscriptionMatchedInfo):
         if info.current_count != 0:
@@ -193,7 +197,7 @@ class _WaitForTopicsNode(Node):
                         topic_type,
                         topic_name,
                         self.callback_template(topic_name),
-                        10,
+                        self.qos_profile,
                         event_callbacks=sub_event_callback,
                     )
                 )

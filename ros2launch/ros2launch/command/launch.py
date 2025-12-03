@@ -92,6 +92,9 @@ class LaunchCommand(CommandExtension):
                   ' configuration using the OVERRIDE_LAUNCH_PROCESS_OUTPUT envvar.')
         )
         parser.add_argument(
+            '-f', '--log-file-name', type=str, default='launch',
+            help='Name of the log file (postfixed with .log automatically if not provided).')
+        parser.add_argument(
             '--launch-prefix',
             help='Prefix command, which should go before all executables. '
                  'Command must be wrapped in quotes if it contains spaces '

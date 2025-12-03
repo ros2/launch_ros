@@ -14,8 +14,10 @@
 
 """Module for the Node action."""
 
+from importlib import metadata
 import os
 import pathlib
+import sys
 from tempfile import NamedTemporaryFile
 from typing import Dict
 from typing import Iterable
@@ -24,11 +26,6 @@ from typing import Optional
 from typing import Text  # noqa: F401
 from typing import Tuple  # noqa: F401
 from typing import Union
-
-try:
-    import importlib.metadata as importlib_metadata
-except ModuleNotFoundError:
-    import importlib_metadata
 
 from launch.action import Action
 from launch.actions import ExecuteProcess
@@ -569,9 +566,9 @@ def get_extensions(logger):
     global g_entry_points_impl
     group_name = 'launch_ros.node_action'
     if g_entry_points_impl is None:
-        g_entry_points_impl = importlib_metadata.entry_points()
+        g_entry_points_impl = metadata.entry_points()
     entry_points_impl = g_entry_points_impl
-    if hasattr(entry_points_impl, 'select'):
+    if sys.version_info >= (3, 12):
         groups = entry_points_impl.select(group=group_name)
     else:
         groups = entry_points_impl.get(group_name, [])

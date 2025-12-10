@@ -51,75 +51,73 @@ def generate_test_description():
     return launch.LaunchDescription(description), {'count': n}
 
 
-# TODO: Test cases fail on Windows debug builds
-# https://github.com/ros2/launch_ros/issues/292
-if os.name != 'nt':
-    class TestFixture(unittest.TestCase):
+class TestFixture(unittest.TestCase):
 
-        def test_topics_successful(self, count: int):
-            """All the supplied topics should be read successfully."""
-            topic_list = [('chatter_' + str(i), String) for i in range(count)]
-            expected_topics = {'chatter_' + str(i) for i in range(count)}
-            message_pattern = re.compile(r'Hello World: \d+')
+    def test_topics_successful(self, count: int):
+        """All the supplied topics should be read successfully."""
+        topic_list = [('chatter_' + str(i), String) for i in range(count)]
+        expected_topics = {'chatter_' + str(i) for i in range(count)}
+        message_pattern = re.compile(r'Hello World: \d+')
 
-            # Method 1 : Using the magic methods and 'with' keyword
-            with WaitForTopics(
-                topic_list, timeout=15.0, messages_received_buffer_length=10
-            ) as wait_for_node_object_1:
-                assert wait_for_node_object_1.topics_received() == expected_topics
-                assert wait_for_node_object_1.topics_not_received() == set()
-                for topic_name, _ in topic_list:
-                    assert len(wait_for_node_object_1.received_messages(topic_name)) >= 1
-                    message = wait_for_node_object_1.received_messages(topic_name).pop().data
-                    assert message_pattern.match(message)
-
-            # Multiple instances of WaitForNode() can be created safely as
-            # their internal nodes spin in separate contexts
-            # Method 2 : Manually calling wait() and shutdown()
-            wait_for_node_object_2 = WaitForTopics(topic_list, timeout=15.0)
-            assert wait_for_node_object_2.wait()
-            assert wait_for_node_object_2.topics_received() == expected_topics
-            assert wait_for_node_object_2.topics_not_received() == set()
+        # Method 1 : Using the magic methods and 'with' keyword
+        with WaitForTopics(
+            topic_list, timeout=15.0, messages_received_buffer_length=10
+        ) as wait_for_node_object_1:
+            assert wait_for_node_object_1.topics_received() == expected_topics
+            assert wait_for_node_object_1.topics_not_received() == set()
             for topic_name, _ in topic_list:
                 assert len(wait_for_node_object_1.received_messages(topic_name)) >= 1
-                message = wait_for_node_object_2.received_messages(topic_name).pop().data
+                message = wait_for_node_object_1.received_messages(topic_name).pop().data
                 assert message_pattern.match(message)
-            wait_for_node_object_2.shutdown()
 
-        def test_topics_unsuccessful(self, count: int):
-            """All topics should be read except for the 'invalid_topic'."""
-            topic_list = [('chatter_' + str(i), String) for i in range(count)]
-            # Add a topic that will never have anything published on it
-            topic_list.append(('invalid_topic', String))
-            expected_topics = {'chatter_' + str(i) for i in range(count)}
+        # Multiple instances of WaitForNode() can be created safely as
+        # their internal nodes spin in separate contexts
+        # Method 2 : Manually calling wait() and shutdown()
+        wait_for_node_object_2 = WaitForTopics(topic_list, timeout=15.0)
+        assert wait_for_node_object_2.wait()
+        assert wait_for_node_object_2.topics_received() == expected_topics
+        assert wait_for_node_object_2.topics_not_received() == set()
+        for topic_name, _ in topic_list:
+            assert len(wait_for_node_object_1.received_messages(topic_name)) >= 1
+            message = wait_for_node_object_2.received_messages(topic_name).pop().data
+            assert message_pattern.match(message)
+        wait_for_node_object_2.shutdown()
 
-            # Method 1
-            with pytest.raises(RuntimeError):
-                with WaitForTopics(topic_list, timeout=2.0):
-                    pass
+    def test_topics_unsuccessful(self, count: int):
+        """All topics should be read except for the 'invalid_topic'."""
+        topic_list = [('chatter_' + str(i), String) for i in range(count)]
+        # Add a topic that will never have anything published on it
+        topic_list.append(('invalid_topic', String))
+        expected_topics = {'chatter_' + str(i) for i in range(count)}
 
-            # Method 2
-            wait_for_node_object = WaitForTopics(topic_list, timeout=2.0)
-            assert not wait_for_node_object.wait()
-            assert wait_for_node_object.topics_received() == expected_topics
-            assert wait_for_node_object.topics_not_received() == {'invalid_topic'}
-            wait_for_node_object.shutdown()
+        # Method 1
+        with pytest.raises(RuntimeError):
+            with WaitForTopics(topic_list, timeout=2.0):
+                pass
 
-        def test_trigger_function(self, count):
-            topic_list = [('chatter_' + str(i), String) for i in range(count)]
-            expected_topics = {'chatter_' + str(i) for i in range(count)}
+        # Method 2
+        wait_for_node_object = WaitForTopics(topic_list, timeout=2.0)
+        assert not wait_for_node_object.wait()
+        assert wait_for_node_object.topics_received() == expected_topics
+        assert wait_for_node_object.topics_not_received() == {'invalid_topic'}
+        wait_for_node_object.shutdown()
 
-            # Method 3 : Using a trigger function
+    def test_trigger_function(self, count):
+        topic_list = [('chatter_' + str(i), String) for i in range(count)]
+        expected_topics = {'chatter_' + str(i) for i in range(count)}
 
-            # Using a list to store the trigger function's argument as it is mutable
-            is_trigger_called = [False]
+        # Method 3 : Using a trigger function
 
-            def trigger_function(node, arg):
-                node.get_logger().info(f'Trigger function called with argument: {arg[0]}')
-                arg[0] = True
+        # Using a list to store the trigger function's argument as it is mutable
+        is_trigger_called = [False]
 
-            wait_for_node_object = WaitForTopics(topic_list, timeout=2.0, trigger=trigger_function)
-            assert wait_for_node_object.wait(is_trigger_called)
-            assert wait_for_node_object.topics_received() == expected_topics
-            assert wait_for_node_object.topics_not_received() == set()
-            assert is_trigger_called[0]
+        def trigger_function(node, arg):
+            node.get_logger().info(f'Trigger function called with argument: {arg[0]}')
+            arg[0] = True
+
+        wait_for_node_object = WaitForTopics(topic_list, timeout=2.0, trigger=trigger_function)
+        assert wait_for_node_object.wait(is_trigger_called)
+        assert wait_for_node_object.topics_received() == expected_topics
+        assert wait_for_node_object.topics_not_received() == set()
+        assert is_trigger_called[0]
+        wait_for_node_object.shutdown()

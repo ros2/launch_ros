@@ -59,14 +59,6 @@ def generate_test_description():
     return launch.LaunchDescription(description)
 
 
-# TODO: Test cases fail on Windows debug builds
-# https://github.com/ros2/launch_ros/issues/292
-if sys.platform.startswith('win'):
-    pytest.skip(
-            'CLI tests can block for a pathological amount of time on Windows.',
-            allow_module_level=True)
-
-
 class TestFixture(unittest.TestCase):
 
     def test_topics_successful(self):

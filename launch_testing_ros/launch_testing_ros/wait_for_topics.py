@@ -97,7 +97,6 @@ class WaitForTopics:
         finally:
             self.__ros_executor.shutdown()
 
-
     def _prepare_ros_node(self):
         node_name = '_test_node_' + ''.join(
             random.choices(string.ascii_uppercase + string.digits, k=10)

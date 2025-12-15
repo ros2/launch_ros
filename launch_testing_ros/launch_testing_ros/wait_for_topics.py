@@ -86,7 +86,7 @@ class WaitForTopics:
         self._prepare_ros_node()
 
         # Start spinning
-        self.__ros_spin_thread = Thread(target=self._spin_handle_external_shutdown)
+        self.__ros_spin_thread = Thread(target=self._spin_handle_external_shutdown, daemon=False)
         self.__ros_spin_thread.start()
 
     def _spin_handle_external_shutdown(self):
@@ -94,6 +94,8 @@ class WaitForTopics:
             self.__ros_executor.spin()
         except rclpy.executors.ExternalShutdownException:
             pass
+        finally:
+            self.__ros_executor.shutdown()
 
     def _prepare_ros_node(self):
         node_name = '_test_node_' + ''.join(
@@ -137,6 +139,7 @@ class WaitForTopics:
 
     def __enter__(self):
         if not self.wait():
+            self.shutdown()
             raise RuntimeError('Did not receive messages on these topics: ',
                                self.topics_not_received())
         return self

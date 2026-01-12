@@ -2,6 +2,12 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.5 (2026-01-12)
+-------------------
+* Fix launch_ros_testing shutdown race in WaitForTopics (`#511 <https://github.com/ros2/launch_ros/issues/511>`_)
+* Give the option to inject a quality of service profile (`#493 <https://github.com/ros2/launch_ros/issues/493>`_)
+* Contributors: Giorgio Pintaudi, Michael Carroll
+
 0.29.4 (2025-11-07)
 -------------------
 

@@ -2,6 +2,12 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.28.5 (2026-01-12)
+-------------------
+* Give the option to inject a quality of service profile (`#493 <https://github.com/ros2/launch_ros/issues/493>`_)
+* `WaitForTopics`: wait for publisher-subscriber connection to be established (`#474 <https://github.com/ros2/launch_ros/issues/474>`_)
+* Contributors: Giorgio Pintaudi
+
 0.28.4 (2025-11-07)
 -------------------
 

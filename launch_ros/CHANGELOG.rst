@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.28.5 (2026-01-12)
+-------------------
+* Remove importlib (backport `#508 <https://github.com/ros2/launch_ros/issues/508>`_) (`#509 <https://github.com/ros2/launch_ros/issues/509>`_)
+* Contributors: mergify[bot]
+
 0.28.4 (2025-11-07)
 -------------------
 * Make FindPackage substitutions a Path to get operator / (`#494 <https://github.com/ros2/launch_ros/issues/494>`_) (`#498 <https://github.com/ros2/launch_ros/issues/498>`_)

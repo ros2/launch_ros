@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.6 (2026-02-09)
+-------------------
+* Compatiblity with 'Populate Transitions' `ros2/rcl#1269 <https://github.com/ros2/rcl/issues/1269>`_ (`#495 <https://github.com/ros2/launch_ros/issues/495>`_)
+* Contributors: Jasper van Brakel
+
 0.29.5 (2026-01-12)
 -------------------
 * remove importlib (`#508 <https://github.com/ros2/launch_ros/issues/508>`_)

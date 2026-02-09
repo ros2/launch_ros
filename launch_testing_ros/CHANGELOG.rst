@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.6 (2026-02-09)
+-------------------
+
 0.29.5 (2026-01-12)
 -------------------
 * Fix launch_ros_testing shutdown race in WaitForTopics (`#511 <https://github.com/ros2/launch_ros/issues/511>`_)

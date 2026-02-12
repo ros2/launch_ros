@@ -18,7 +18,7 @@ from typing import Generator
 
 import launch
 from launch.substitutions import LaunchConfiguration
-from nav2_common.launch import RewrittenYaml
+from launch_ros.substitutions import RewrittenYaml
 import pytest
 import yaml
 

@@ -17,6 +17,7 @@ import tempfile
 from typing import Optional, TypeAlias, Union
 
 import launch
+from launch.utilities import normalize_to_list_of_substitutions
 import yaml
 
 YamlValue: TypeAlias = Union[str, int, float, bool]
@@ -62,10 +63,6 @@ class RewrittenYaml(launch.Substitution):
         :param: value_rewrites values to replace
         :param: convert_types whether to attempt converting the string to a number or boolean
         """
-
-        # import here to avoid loop
-        from launch.utilities import normalize_to_list_of_substitutions
-
         self.__source_file: list[launch.Substitution] = \
             normalize_to_list_of_substitutions(source_file)
         self.__param_rewrites = {}

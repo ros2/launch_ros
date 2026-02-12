@@ -64,7 +64,7 @@ class MockComponentContainer(rclpy.node.Node):
         self.requests.append(request)
         if self.fail_request:
             response.success = False
-            response.error_message = "Component failure"
+            response.error_message = 'Component failure'
             return response
 
         response.success = True

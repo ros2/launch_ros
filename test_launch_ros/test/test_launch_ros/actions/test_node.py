@@ -54,6 +54,7 @@ class TestNode(unittest.TestCase):
             exec_name='my_node_process',
             ros_arguments=ros_arguments,
             arguments=['--number_of_cycles', '1'],
+            additional_env={'PYTHONUNBUFFERED': '1'},
             parameters=parameters,
             remappings=remappings,
         )
@@ -106,6 +107,7 @@ class TestNode(unittest.TestCase):
         long_running_node = launch_ros.actions.Node(
             package='demo_nodes_py', executable='talker_qos', output='screen',
             namespace='my_ns',
+            additional_env={'PYTHONUNBUFFERED': '1'},
         )
 
         # This node will exit after publishing a single message. It is required, so we
@@ -115,6 +117,7 @@ class TestNode(unittest.TestCase):
         required_node = launch_ros.actions.Node(
             package='demo_nodes_py', executable='talker_qos', output='screen',
             namespace='my_ns2', arguments=['--number_of_cycles', '1'],
+            additional_env={'PYTHONUNBUFFERED': '1'},
             on_exit=Shutdown()
         )
 
@@ -255,6 +258,7 @@ class TestNode(unittest.TestCase):
             package='demo_nodes_py', executable='talker_qos', output='screen',
             arguments=['--number_of_cycles', '1'],
             parameters=[{'my_param': 'value'}],
+            additional_env={'PYTHONUNBUFFERED': '1'},
         )
         self._assert_launch_no_errors([node_action])
 
@@ -325,6 +329,7 @@ def get_test_node_name_parameters():
                 package='asd',
                 executable='bsd',
                 name='my_node',
+                additional_env={'PYTHONUNBUFFERED': '1'},
             ),
             False,
             id='Node without namespace'
@@ -334,6 +339,7 @@ def get_test_node_name_parameters():
                 package='asd',
                 executable='bsd',
                 namespace='my_ns',
+                additional_env={'PYTHONUNBUFFERED': '1'},
             ),
             False,
             id='Node without name'
@@ -344,6 +350,7 @@ def get_test_node_name_parameters():
                 executable='bsd',
                 name='my_node',
                 namespace='my_ns',
+                additional_env={'PYTHONUNBUFFERED': '1'},
             ),
             True,
             id='Node with fully qualified name'

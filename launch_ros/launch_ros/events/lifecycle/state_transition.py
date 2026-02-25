@@ -22,8 +22,9 @@ from launch.event import Event
 import lifecycle_msgs.msg
 
 if TYPE_CHECKING:
-    from ...actions import LifecycleNode
     import builtin_interfaces.msg
+
+    from ...actions import LifecycleNode
 
 
 class StateTransition(Event):

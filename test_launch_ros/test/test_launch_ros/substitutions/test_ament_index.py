@@ -17,7 +17,7 @@
 from pathlib import Path
 
 from launch import LaunchContext
-from launch.substitutions.substitution_failure import SubstitutionFailure
+from launch.substitutions import SubstitutionFailure
 from launch_ros.substitutions import AmentIndexResource
 
 import pytest

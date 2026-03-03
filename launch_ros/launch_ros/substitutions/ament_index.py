@@ -22,7 +22,7 @@ from launch.frontend import expose_substitution
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitution import Substitution
-from launch.substitutions import PathSubstitution
+from launch.substitutions import PathSubstitution, SubstitutionFailure
 from launch.utilities import normalize_to_list_of_substitutions, perform_substitutions
 
 
@@ -78,4 +78,7 @@ class AmentIndexResource(PathSubstitution):
         """Perform the substitution by looking up the resource in the ament index."""
         resource_type = perform_substitutions(context, self.resource_type)
         resource_name = perform_substitutions(context, self.resource_name)
-        return get_resource(resource_type, resource_name)[1]
+        try:
+            return get_resource(resource_type, resource_name)[1]
+        except Exception as e:
+            raise SubstitutionFailure(e)

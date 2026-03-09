@@ -34,7 +34,7 @@ from lifecycle_msgs.msg import Transition
 
 
 class LifecycleTransition(Action):
-    """An action that simplifies execution of lifecyle transitions."""
+    """An action that simplifies execution of lifecycle transitions."""
 
     transition_targets = {
         Transition.TRANSITION_CONFIGURE:
@@ -68,7 +68,7 @@ class LifecycleTransition(Action):
         an event that triggers the first lifecycle transition of each node
         wait that the node reaches the transition goal and trigger the next
         transition in the list.
-        You need to make sure, that the sequence of lifecyle transition you
+        You need to make sure, that the sequence of lifecycle transition you
         pass in is possible.
 
         :param lifecycle_node_names: The names of the lifecycle nodes to transition
@@ -208,7 +208,7 @@ class LifecycleTransition(Action):
                             function=functools.partial(
                                 self._remove_event_handlers,
                                 node_name=node_name,
-                                reason='error occured during transitions'
+                                reason='error occurred during transitions'
                             )
                         )
                     ],

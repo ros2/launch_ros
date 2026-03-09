@@ -98,6 +98,18 @@ class LoadComposableNodes(Action):
 
         composable_nodes = entity.get_attr('composable_node', data_type=List[Entity])
         kwargs['composable_node_descriptions'] = []
+<<<<<<< HEAD
+=======
+        composable_nodes = entity.get_attr(
+            'composable_node', data_type=List[Entity], optional=True) or []
+        composable_lifecycle_nodes = entity.get_attr(
+            'composable_lifecycle_node', data_type=List[Entity], optional=True) or []
+        if not (bool(composable_nodes) or bool(composable_lifecycle_nodes)):
+            raise RuntimeError(
+                'Must provide at least one composable_node or composable_lifecycle_node'
+            )
+
+>>>>>>> 26828a6 (correct typos (#524))
         for entity in composable_nodes:
             composable_node_cls, composable_node_kwargs = ComposableNode.parse(parser, entity)
             kwargs['composable_node_descriptions'].append(

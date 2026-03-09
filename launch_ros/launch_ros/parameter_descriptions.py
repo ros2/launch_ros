@@ -116,7 +116,7 @@ class Parameter:
                 - An uniform list: `List[int]`, `List[str]`, `List[float]`, `List[bool]`.
                   Lists are written like in `yaml`.
                 - `None`, which means that yaml rules will be used.
-                  The result of the convertion must be one of the above types,
+                  The result of the conversion must be one of the above types,
                   if not `ValueError` is raised.
             If value is not a substitution and this parameter is provided,
             it will be used to check `value` type.

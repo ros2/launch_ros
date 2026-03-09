@@ -107,7 +107,7 @@ def test_parameter_description():
     assert param.value == 'asd'
     assert param.value_type is None
     assert param.evaluate(lc) == ('my_param', 'asd')
-    # After the first `evaluate` call, the followings `.name` `.value` and `.evaluate()`
+    # After the first `evaluate` call, the following `.name` `.value` and `.evaluate()`
     # calls are calculated differently. Test them too.
     assert param.name == 'my_param'
     assert param.value == 'asd'

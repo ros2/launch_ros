@@ -84,7 +84,6 @@ class LifecycleEventManager:
         event = threading.Event()
 
         def unblock(future):
-            nonlocal event
             event.set()
 
         response_future = self.__rclpy_change_state_client.call_async(request)

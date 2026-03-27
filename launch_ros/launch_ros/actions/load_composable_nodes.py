@@ -157,7 +157,6 @@ class LoadComposableNodes(Action):
         event = threading.Event()
 
         def unblock(future=None):
-            nonlocal event
             event.set()
 
         self.__logger.debug(

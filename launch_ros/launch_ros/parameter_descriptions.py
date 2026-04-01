@@ -164,7 +164,37 @@ class Parameter:
         return (name, value)
 
 
-class ParameterFile:
+class TempYamlFile:
+    """Common infrastructure for writing to a temporary yaml file."""
+
+    def __init__(self, prefix):
+        self.__temp_file_prefix = prefix
+        self.__created_tmp_file = False
+        self.evaluated_param_file: Optional[Path] = None
+
+    def write_contents(self, s):
+        with NamedTemporaryFile(mode='w', prefix=self.__temp_file_prefix, delete=False) as f:
+            f.write(s)
+            self.evaluated_param_file = Path(f.name)
+            self.__created_tmp_file = True
+
+    def write_yaml(self, o):
+        self.write_contents(yaml.dump(o))
+
+    def cleanup(self):
+        """Delete created temporary files."""
+        if self.__created_tmp_file and self.evaluated_param_file is not None:
+            try:
+                os.unlink(self.evaluated_param_file)
+            except FileNotFoundError:
+                pass
+            self.evaluated_param_file = None
+
+    def __del__(self):
+        self.cleanup()
+
+
+class ParameterFile(TempYamlFile):
     """Describes a ROS parameter file."""
 
     def __init__(
@@ -179,12 +209,7 @@ class ParameterFile:
         :param param_file: Path to a parameter file.
         :param allow_subst: Allow substitutions in the parameter file.
         """
-        # In Python, __del__ is called even if the constructor throws an
-        # exception.  It is possible for ensure_argument_type() below to
-        # throw an exception and try to access these member variables
-        # during cleanup, so make sure to initialize them here.
-        self.__evaluated_param_file: Optional[Path] = None
-        self.__created_tmp_file = False
+        TempYamlFile.__init__(self, 'launch_params_')
 
         ensure_argument_type(
             param_file,
@@ -207,8 +232,8 @@ class ParameterFile:
     @property
     def param_file(self) -> Union[FilePath, List[Substitution]]:
         """Getter for parameter file."""
-        if self.__evaluated_param_file is not None:
-            return self.__evaluated_param_file
+        if self.evaluated_param_file is not None:
+            return self.evaluated_param_file
         return self.__param_file
 
     @property
@@ -226,8 +251,8 @@ class ParameterFile:
 
     def evaluate(self, context: LaunchContext) -> Path:
         """Evaluate and return a parameter file path."""
-        if self.__evaluated_param_file is not None:
-            return self.__evaluated_param_file
+        if self.evaluated_param_file is not None:
+            return self.evaluated_param_file
 
         param_file = self.__param_file
         if isinstance(param_file, list):
@@ -237,29 +262,15 @@ class ParameterFile:
         allow_substs = perform_typed_substitution(context, self.__allow_substs, data_type=bool)
         param_file_path: Path = Path(param_file)
         if allow_substs:
-            with open(param_file_path, 'r') as f, NamedTemporaryFile(
-                mode='w', prefix='launch_params_', delete=False
-            ) as h:
+            with open(param_file_path, 'r') as f:
                 parsed = perform_substitutions(context, parse_substitution(f.read()))
                 try:
                     yaml.safe_load(parsed)
                 except Exception:
                     raise SubstitutionFailure(
                         'The substituted parameter file is not a valid yaml file')
-                h.write(parsed)
-                param_file_path = Path(h.name)
-                self.__created_tmp_file = True
-        self.__evaluated_param_file = param_file_path
+                self.write_contents(parsed)
+
+                param_file_path = self.evaluated_param_file
+        self.evaluated_param_file = param_file_path
         return param_file_path
-
-    def cleanup(self):
-        """Delete created temporary files."""
-        if self.__created_tmp_file and self.__evaluated_param_file is not None:
-            try:
-                os.unlink(self.__evaluated_param_file)
-            except FileNotFoundError:
-                pass
-            self.__evaluated_param_file = None
-
-    def __del__(self):
-        self.cleanup()

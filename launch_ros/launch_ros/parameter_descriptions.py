@@ -274,3 +274,97 @@ class ParameterFile(TempYamlFile):
                 param_file_path = self.evaluated_param_file
         self.evaluated_param_file = param_file_path
         return param_file_path
+
+
+def recursive_update(d, u):
+    for k, v in u.items():
+        if isinstance(v, dict):
+            d[k] = recursive_update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d
+
+
+class CombinedParameterFiles(TempYamlFile):
+    """Describes a ROS parameter file made from multiple source files."""
+
+    def __init__(
+        self,
+        param_files: List[Union[FilePath, SomeSubstitutionsType]],
+        *,
+        allow_substs: [bool, SomeSubstitutionsType] = False
+    ) -> None:
+        """
+        Construct a combined parameter file description.
+
+        :param param_files: List of Paths to parameter files.
+        :param allow_subst: Allow substitutions in the parameter file.
+        """
+        TempYamlFile.__init__(self, 'combined_launch_params_')
+
+        # TODO: Fix typing
+        ensure_argument_type(
+            param_files,
+            SomeSubstitutionsType_types_tuple + (os.PathLike, bytes),
+            'param_file',
+            'ParameterFile()'
+        )
+        ensure_argument_type(
+            allow_substs,
+            bool,
+            'allow_subst',
+            'ParameterFile()'
+        )
+        self.__param_files: List[Union[List[Substitution], FilePath]] = []
+        for param_file in param_files:
+            if isinstance(param_file, SomeSubstitutionsType_types_tuple):
+                param_file = normalize_to_list_of_substitutions(param_file)
+            self.__param_files.append(param_file)
+
+        self.__allow_substs = normalize_typed_substitution(allow_substs, data_type=bool)
+        self.__evaluated_allow_substs: Optional[bool] = None
+
+    @property
+    def param_files(self) -> List[Union[FilePath, List[Substitution]]]:
+        """Getter for parameter file."""
+        if self.evaluated_param_file is not None:
+            return self.evaluated_param_file
+        return self.__param_files
+
+    @property
+    def allow_substs(self) -> Union[bool, List[Substitution]]:
+        """Getter for allow substitutions argument."""
+        if self.__evaluated_allow_substs is not None:
+            return self.__evaluated_allow_substs
+        return self.__allow_substs
+
+    def __str__(self) -> Text:
+        return (
+            'launch_ros.description.CombinedParameterFiles'
+            f'(param_files={self.param_files}, allow_substs={self.allow_substs})'
+        )
+
+    def evaluate(self, context: LaunchContext) -> Path:
+        """Evaluate and return a parameter file path."""
+        if self.evaluated_param_file is not None:
+            return self.evaluated_param_file
+
+        allow_substs = perform_typed_substitution(context, self.__allow_substs, data_type=bool)
+
+        d = {}
+        for param_file in self.__param_files:
+            if isinstance(param_file, list):
+                # list of substitutions
+                param_file = perform_substitutions(context, param_file)
+
+            new_d = None
+            if allow_substs:
+                with open(param_file, 'r') as f:
+                    subbed = perform_substitutions(context, parse_substitution(f.read()))
+                    new_d = yaml.safe_load(subbed)
+            else:
+                new_d = yaml.safe_load(open(param_file))
+            recursive_update(d, new_d)
+
+        self.write_yaml(d)
+        return self.evaluated_param_file

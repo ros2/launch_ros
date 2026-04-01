@@ -32,6 +32,7 @@ from launch.utilities import normalize_to_list_of_substitutions
 
 import yaml
 
+from ..parameter_descriptions import CombinedParameterFiles
 from ..parameter_descriptions import Parameter as ParameterDescription
 from ..parameter_descriptions import ParameterFile
 from ..parameter_descriptions import ParameterValue as ParameterValueDescription
@@ -178,13 +179,13 @@ def normalize_parameters(parameters: SomeParameters) -> Parameters:
     if isinstance(parameters, str) or not isinstance(parameters, Sequence):
         raise TypeError('Expecting list of parameters, got {}'.format(parameters))
 
-    normalized_params: List[Union[ParameterFile, ParametersDict, ParameterDescription]] = []
+    normalized_params: List[Union[
+        ParameterFile, CombinedParameterFiles, ParametersDict, ParameterDescription
+    ]] = []
     for param in parameters:
         if isinstance(param, Mapping):
             normalized_params.append(normalize_parameter_dict(param))
-        elif isinstance(param, ParameterDescription):
-            normalized_params.append(param)
-        elif isinstance(param, ParameterFile):
+        elif isinstance(param, (ParameterDescription, ParameterFile, CombinedParameterFiles)):
             normalized_params.append(param)
         else:
             # It's a path

@@ -2,6 +2,13 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.7 (2026-04-09)
+-------------------
+* Surpressing multi-threaded process warning from flake8. (`#520 <https://github.com/ros2/launch_ros//issues/520>`_)
+* correct typos (`#524 <https://github.com/ros2/launch_ros//issues/524>`_)
+* set PYTHONUNBUFFERED to 1 to avoid hangs due to lost buffers (`#519 <https://github.com/ros2/launch_ros//issues/519>`_)
+* Contributors: Auguste Lalande, Clara Berendsen, Tomoya Fujita
+
 0.29.6 (2026-02-09)
 -------------------
 

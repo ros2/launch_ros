@@ -2,6 +2,11 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.7 (2026-04-09)
+-------------------
+* correct typos (`#524 <https://github.com/ros2/launch_ros//issues/524>`_)
+* Contributors: Auguste Lalande
+
 0.29.6 (2026-02-09)
 -------------------
 

@@ -2,6 +2,13 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.7 (2026-04-09)
+-------------------
+* Add tests isolation in launch_testing_ros (`#528 <https://github.com/ros2/launch_ros//issues/528>`_)
+* Surpressing multi-threaded process warning from flake8. (`#520 <https://github.com/ros2/launch_ros//issues/520>`_)
+* correct typos (`#524 <https://github.com/ros2/launch_ros//issues/524>`_)
+* Contributors: Auguste Lalande, Julien Enoch, Tomoya Fujita
+
 0.29.6 (2026-02-09)
 -------------------
 

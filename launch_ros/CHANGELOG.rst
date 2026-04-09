@@ -2,6 +2,14 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.7 (2026-04-09)
+-------------------
+* Fix flake8 (`#529 <https://github.com/ros2/launch_ros//issues/529>`_)
+* correct typos (`#524 <https://github.com/ros2/launch_ros//issues/524>`_)
+* Fix regression (`#521 <https://github.com/ros2/launch_ros//issues/521>`_)
+* Fix rhel10 flake8 error (`#515 <https://github.com/ros2/launch_ros//issues/515>`_)
+* Contributors: Auguste Lalande, Michael Carlstrom
+
 0.29.6 (2026-02-09)
 -------------------
 * Compatiblity with 'Populate Transitions' `ros2/rcl#1269 <https://github.com/ros2/rcl/issues/1269>`_ (`#495 <https://github.com/ros2/launch_ros/issues/495>`_)

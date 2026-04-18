@@ -32,6 +32,7 @@ from launch.actions import ExecuteProcess
 from launch.frontend import Entity
 from launch.frontend import expose_action
 from launch.frontend import Parser
+from launch.conditions import IfCondition, UnlessCondition
 from launch.frontend.type_utils import get_data_type_from_identifier
 
 from launch.launch_context import LaunchContext
@@ -62,6 +63,7 @@ import yaml
 
 from ..descriptions import Parameter
 from ..descriptions import ParameterFile
+from ..parameter_descriptions import ConditionalParameter
 
 
 class NodeActionExtension:
@@ -104,6 +106,19 @@ class NodeActionExtension:
         `[], ros_specific_arguments`.
         """
         return [], ros_specific_arguments
+
+
+def _parse_param_condition(param_entity, parser):
+    """Parse if/unless condition from a param entity."""
+    if_cond = param_entity.get_attr('if', optional=True)
+    unless_cond = param_entity.get_attr('unless', optional=True)
+    if if_cond is not None and unless_cond is not None:
+        raise RuntimeError("if and unless conditions can't be used simultaneously")
+    if if_cond is not None:
+        return IfCondition(predicate_expression=parser.parse_substitution(if_cond))
+    if unless_cond is not None:
+        return UnlessCondition(predicate_expression=parser.parse_substitution(unless_cond))
+    return None
 
 
 @expose_action('node')
@@ -252,6 +267,9 @@ class Node(ExecuteProcess):
                     data_type = get_data_type_from_identifier(type_identifier)
                 value = param.get_attr('value', data_type=data_type, optional=True)
                 nested_params = param.get_attr('param', data_type=List[Entity], optional=True)
+                # Consume if/unless so assert_entity_completely_parsed doesn't raise
+                param.get_attr('if', optional=True)
+                param.get_attr('unless', optional=True)
                 param.assert_entity_completely_parsed()
                 if value is not None and nested_params:
                     raise RuntimeError(
@@ -285,16 +303,23 @@ class Node(ExecuteProcess):
                     allow_substs = parser.parse_substitution(allow_substs)
                 else:
                     allow_substs = bool(allow_substs)
+                condition = _parse_param_condition(param, parser)
                 param.assert_entity_completely_parsed()
-                normalized_params.append(
-                    ParameterFile(parser.parse_substitution(from_attr), allow_substs=allow_substs))
+                result = ParameterFile(
+                    parser.parse_substitution(from_attr), allow_substs=allow_substs)
+                if condition is not None:
+                    result = ConditionalParameter(result, condition=condition)
+                normalized_params.append(result)
                 continue
             elif name is not None:
                 if allow_substs is not None:
                     raise RuntimeError(
                         "'allow_substs' can only be used together with 'from' attribute")
-                normalized_params.append(
-                    get_nested_dictionary_from_nested_key_value_pairs([param]))
+                condition = _parse_param_condition(param, parser)
+                result = get_nested_dictionary_from_nested_key_value_pairs([param])
+                if condition is not None:
+                    result = ConditionalParameter(result, condition=condition)
+                normalized_params.append(result)
                 continue
             raise ValueError('param Entity should have name or from attribute')
         return normalized_params

@@ -108,10 +108,10 @@ class NodeActionExtension:
         return [], ros_specific_arguments
 
 
-def _parse_param_condition(param_entity, parser):
-    """Parse if/unless condition from a param entity."""
-    if_cond = param_entity.get_attr('if', optional=True)
-    unless_cond = param_entity.get_attr('unless', optional=True)
+def _parse_if_unless_condition(entity, parser):
+    """Parse if/unless condition from a frontend entity."""
+    if_cond = entity.get_attr('if', optional=True)
+    unless_cond = entity.get_attr('unless', optional=True)
     if if_cond is not None and unless_cond is not None:
         raise RuntimeError("if and unless conditions can't be used simultaneously")
     if if_cond is not None:
@@ -303,7 +303,7 @@ class Node(ExecuteProcess):
                     allow_substs = parser.parse_substitution(allow_substs)
                 else:
                     allow_substs = bool(allow_substs)
-                condition = _parse_param_condition(param, parser)
+                condition = _parse_if_unless_condition(param, parser)
                 param.assert_entity_completely_parsed()
                 result = ParameterFile(
                     parser.parse_substitution(from_attr), allow_substs=allow_substs)
@@ -315,7 +315,7 @@ class Node(ExecuteProcess):
                 if allow_substs is not None:
                     raise RuntimeError(
                         "'allow_substs' can only be used together with 'from' attribute")
-                condition = _parse_param_condition(param, parser)
+                condition = _parse_if_unless_condition(param, parser)
                 result = get_nested_dictionary_from_nested_key_value_pairs([param])
                 if condition is not None:
                     result = ConditionalParameter(result, condition=condition)

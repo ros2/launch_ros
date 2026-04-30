@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.29.7 (2026-04-09)
 -------------------
 * Add tests isolation in launch_testing_ros (`#528 <https://github.com/ros2/launch_ros//issues/528>`_)

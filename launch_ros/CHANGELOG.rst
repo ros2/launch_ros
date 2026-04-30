@@ -2,6 +2,9 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.29.7 (2026-04-09)
 -------------------
 * Fix flake8 (`#529 <https://github.com/ros2/launch_ros//issues/529>`_)

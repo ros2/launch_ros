@@ -58,10 +58,9 @@ def test_launch_file_params_yaml():
                 name: my_talker
                 args: '--number_of_cycles 1'
                 param:
-                    - file:
-                      - path: {}
-                    - file:
-                      - path: {}
+                - file:
+                    - path: {}
+                    - path: {}
         """.format(yaml_params1, yaml_params2))  # noqa: E501
 
     with io.StringIO(yaml_file) as f:

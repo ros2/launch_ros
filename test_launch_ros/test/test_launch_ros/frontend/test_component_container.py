@@ -188,7 +188,7 @@ def test_launch_container_executor_modes(file_factory, container_args):
         loop.run_until_complete(asyncio.sleep(5))
         if not launch_task.done():
             loop.create_task(ls.shutdown())
-            loop.run_until_complete(launch_task)
+        loop.run_until_complete(launch_task)
         assert 0 == launch_task.result()
 
 
@@ -252,5 +252,5 @@ def check_launch_component_container(file):
     loop.run_until_complete(asyncio.sleep(timeout_sec))
     if not launch_task.done():
         loop.create_task(ls.shutdown())
-        loop.run_until_complete(launch_task)
+    loop.run_until_complete(launch_task)
     assert 0 == launch_task.result()

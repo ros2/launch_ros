@@ -51,7 +51,7 @@ def _launch(launch_description):
     loop.run_until_complete(asyncio.sleep(5))
     if not launch_task.done():
         loop.create_task(ls.shutdown())
-        loop.run_until_complete(launch_task)
+    loop.run_until_complete(launch_task)
     return ls.context
 
 

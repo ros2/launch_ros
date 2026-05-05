@@ -43,7 +43,7 @@ def _assert_launch_no_errors(actions, *, timeout_sec=5):
     loop.run_until_complete(asyncio.sleep(timeout_sec))
     if not launch_task.done():
         loop.create_task(ls.shutdown())
-        loop.run_until_complete(launch_task)
+    loop.run_until_complete(launch_task)
     assert 0 == launch_task.result()
     return ls.context
 

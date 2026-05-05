@@ -153,7 +153,7 @@ def check_launch_lifecycle_node(file):
     loop.run_until_complete(asyncio.sleep(timeout_sec))
     if not launch_task.done():
         loop.create_task(ls.shutdown())
-        loop.run_until_complete(launch_task)
+    loop.run_until_complete(launch_task)
     assert 0 == launch_task.result()
 
     talker_node_cmd_string = ' '.join(lc_talker_node.process_details['cmd'])

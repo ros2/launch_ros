@@ -55,11 +55,8 @@ class TestFixture(unittest.TestCase):
         self.msg_event_object.set()
 
     def spin(self):
-        try:
-            while rclpy.ok() and not self.spinning.is_set():
-                rclpy.spin_once(self.node, timeout_sec=0.1)
-        finally:
-            return
+        while rclpy.ok() and not self.spinning.is_set():
+            rclpy.spin_once(self.node, timeout_sec=0.1)
 
     def setUp(self):
         rclpy.init()

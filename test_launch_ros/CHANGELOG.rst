@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add tests for new component container refactor (`#536 <https://github.com/ros2/launch_ros/issues/536>`_)
+* Contributors: Skyler Medeiros
+
 0.29.7 (2026-04-09)
 -------------------
 * Surpressing multi-threaded process warning from flake8. (`#520 <https://github.com/ros2/launch_ros//issues/520>`_)

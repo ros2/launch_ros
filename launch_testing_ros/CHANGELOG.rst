@@ -2,6 +2,12 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix launch_testing_ros so it works with pytest 7. (`#543 <https://github.com/ros2/launch_ros/issues/543>`_)
+* Fix Pytest 8/9 compatibility in launch_testing_ros hooks (`#540 <https://github.com/ros2/launch_ros/issues/540>`_)
+* Contributors: Chris Lalancette, Michael Carroll
+
 0.29.7 (2026-04-09)
 -------------------
 * Add tests isolation in launch_testing_ros (`#528 <https://github.com/ros2/launch_ros//issues/528>`_)

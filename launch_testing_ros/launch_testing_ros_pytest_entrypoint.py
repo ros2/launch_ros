@@ -17,14 +17,26 @@
 # importing downstream modules in upstream packages when built with a merged
 # workspace.
 
+import pathlib
+
 import pytest
 
 
-def pytest_launch_collect_makemodule(path, parent, entrypoint):
+def _pytest_version_ge(major, minor=0, patch=0):
+    """Return True if pytest version is >= the given version."""
+    pytest_version = tuple([int(v) for v in pytest.__version__.split('.')])
+    return pytest_version >= (major, minor, patch)
+
+
+def pytest_launch_collect_makemodule(module_path, parent, entrypoint):
     marks = getattr(entrypoint, 'pytestmark', [])
     if marks and any(m.name == 'rostest' for m in marks):
         from launch_testing_ros.pytest.hooks import LaunchROSTestModule
-        module = LaunchROSTestModule.from_parent(parent=parent, fspath=path)
+        if _pytest_version_ge(7):
+            path = pathlib.Path(module_path)
+            module = LaunchROSTestModule.from_parent(parent=parent, path=path)
+        else:
+            module = LaunchROSTestModule.from_parent(parent=parent, fspath=module_path)
         for mark in marks:
             decorator = getattr(pytest.mark, mark.name)
             decorator = decorator.with_args(*mark.args, **mark.kwargs)

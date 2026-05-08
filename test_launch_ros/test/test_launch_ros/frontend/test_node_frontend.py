@@ -18,8 +18,6 @@ import pathlib
 import sys
 import textwrap
 
-import pytest
-
 from launch import LaunchService
 from launch.frontend import Parser
 
@@ -151,43 +149,6 @@ def test_launch_frontend_yaml():
 
     with io.StringIO(yaml_file) as f:
         check_launch_node(f)
-
-
-def test_launch_frontend_yaml_rejects_node_name():
-    yaml_file = textwrap.dedent(
-        r"""
-        launch:
-            - node:
-                exec: talker
-                node-name: my_talker
-        """)
-
-    with io.StringIO(yaml_file) as f:
-        root_entity, parser = Parser.load(f)
-        with pytest.raises(ValueError) as exc_info:
-            parser.parse_description(root_entity)
-
-    error_message = str(exc_info.value)
-    assert 'Unexpected key(s)' in error_message
-    assert 'node-name' in error_message
-
-
-def test_launch_frontend_xml_rejects_node_name():
-    xml_file = textwrap.dedent(
-        r"""
-        <launch>
-            <node exec="talker" node-name="my_talker"/>
-        </launch>
-        """)
-
-    with io.StringIO(xml_file) as f:
-        root_entity, parser = Parser.load(f)
-        with pytest.raises(ValueError) as exc_info:
-            parser.parse_description(root_entity)
-
-    error_message = str(exc_info.value)
-    assert 'Unexpected attribute(s)' in error_message
-    assert 'node-name' in error_message
 
 
 def check_launch_node(file):

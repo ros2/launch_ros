@@ -310,9 +310,6 @@ class Node(ExecuteProcess):
         ros_args = entity.get_attr('ros_args', optional=True)
         if ros_args is not None:
             kwargs['ros_arguments'] = super()._parse_cmdline(ros_args, parser)
-        node_name = entity.get_attr('node-name', optional=True)
-        if node_name is not None:
-            kwargs['node_name'] = parser.parse_substitution(node_name)
         node_name = entity.get_attr('name', optional=True)
         if node_name is not None:
             kwargs['name'] = parser.parse_substitution(node_name)

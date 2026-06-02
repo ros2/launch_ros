@@ -2,8 +2,8 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.26.12 (2026-06-02)
+--------------------
 * Correct typos (backport `#524 <https://github.com/ros2/launch_ros/issues/524>`_) (`#526 <https://github.com/ros2/launch_ros/issues/526>`_)
   Co-authored-by: Auguste Lalande <auguste.lalande@gmail.com>
   Co-authored-by: Alejandro Hernandez Cordero <ahcorde@gmail.com>

@@ -2,8 +2,8 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.26.12 (2026-06-02)
+--------------------
 * Expose lifecycle_node (`#327 <https://github.com/ros2/launch_ros/issues/327>`_) (with test) (`#482 <https://github.com/ros2/launch_ros/issues/482>`_) (`#533 <https://github.com/ros2/launch_ros/issues/533>`_)
   (cherry picked from commit e3ef186b9d77809ef1bf286212b98e627659cb71)
   Co-authored-by: Jasper van Brakel <36795178+SuperJappie08@users.noreply.github.com>

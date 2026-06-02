@@ -2,6 +2,17 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Expose lifecycle_node (`#327 <https://github.com/ros2/launch_ros/issues/327>`_) (with test) (`#482 <https://github.com/ros2/launch_ros/issues/482>`_) (`#533 <https://github.com/ros2/launch_ros/issues/533>`_)
+  (cherry picked from commit e3ef186b9d77809ef1bf286212b98e627659cb71)
+  Co-authored-by: Jasper van Brakel <36795178+SuperJappie08@users.noreply.github.com>
+  Co-authored-by: Kenji Miyake <kenji.miyake@tier4.jp>
+* Correct typos (backport `#524 <https://github.com/ros2/launch_ros/issues/524>`_) (`#526 <https://github.com/ros2/launch_ros/issues/526>`_)
+  Co-authored-by: Auguste Lalande <auguste.lalande@gmail.com>
+  Co-authored-by: Alejandro Hernandez Cordero <ahcorde@gmail.com>
+* Contributors: mergify[bot]
+
 0.26.11 (2026-01-12)
 --------------------
 

@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.19.14 (2026-07-02)
+--------------------
+* Correct typos (backport `#524 <https://github.com/ros2/launch_ros/issues/524>`_) (`#527 <https://github.com/ros2/launch_ros/issues/527>`_)
+* Contributors: mergify[bot]
+
 0.19.13 (2025-11-07)
 --------------------
 * Make FindPackage substitutions a Path to get operator / (`#494 <https://github.com/ros2/launch_ros/issues/494>`_) (`#496 <https://github.com/ros2/launch_ros/issues/496>`_)

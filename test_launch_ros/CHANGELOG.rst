@@ -2,6 +2,12 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.28.6 (2026-07-02)
+-------------------
+* Expose lifecycle_node (`#327 <https://github.com/ros2/launch_ros/issues/327>`_) (with test) (`#482 <https://github.com/ros2/launch_ros/issues/482>`_) (`#532 <https://github.com/ros2/launch_ros/issues/532>`_)
+* Correct typos (backport `#524 <https://github.com/ros2/launch_ros/issues/524>`_) (`#525 <https://github.com/ros2/launch_ros/issues/525>`_)
+* Contributors: mergify[bot]
+
 0.28.5 (2026-01-12)
 -------------------
 

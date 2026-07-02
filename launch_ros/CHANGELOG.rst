@@ -2,6 +2,13 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.28.6 (2026-07-02)
+-------------------
+* fix: reject deprecated node-name frontend key (`#538 <https://github.com/ros2/launch_ros/issues/538>`_) (`#546 <https://github.com/ros2/launch_ros/issues/546>`_)
+* Expose lifecycle_node (`#327 <https://github.com/ros2/launch_ros/issues/327>`_) (with test) (`#482 <https://github.com/ros2/launch_ros/issues/482>`_) (`#532 <https://github.com/ros2/launch_ros/issues/532>`_)
+* Correct typos (backport `#524 <https://github.com/ros2/launch_ros/issues/524>`_) (`#525 <https://github.com/ros2/launch_ros/issues/525>`_)
+* Contributors: mergify[bot]
+
 0.28.5 (2026-01-12)
 -------------------
 * Remove importlib (backport `#508 <https://github.com/ros2/launch_ros/issues/508>`_) (`#509 <https://github.com/ros2/launch_ros/issues/509>`_)

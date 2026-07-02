@@ -2,6 +2,11 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.9 (2026-07-02)
+-------------------
+* Fix Pytest 8/9 compatibility in launch_testing_ros hooks (backport `#540 <https://github.com/ros2/launch_ros/issues/540>`_) (`#541 <https://github.com/ros2/launch_ros/issues/541>`_)
+* Contributors: mergify[bot]
+
 0.29.8 (2026-04-30)
 -------------------
 

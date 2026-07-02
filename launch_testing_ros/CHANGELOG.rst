@@ -2,6 +2,9 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.30.1 (2026-07-02)
+-------------------
+
 0.30.0 (2026-05-07)
 -------------------
 * Fix launch_testing_ros so it works with pytest 7. (`#543 <https://github.com/ros2/launch_ros/issues/543>`_)

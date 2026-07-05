@@ -31,7 +31,31 @@ class AmentIndexResource(PathSubstitution):
     """
     Substitution that looks up the path for the given resource type and name.
 
-    The resource is located using ament_index_python.
+    The resource is located using ``ament_index_python``.
+
+    For example, the following will return the path for the
+    ``rosidl_interfaces`` resource named ``std_msgs`` :
+
+    .. tabs::
+
+        .. tab:: XML
+            .. code-block:: xml
+
+                $(ament-index-resource rosidl_interfaces std_msgs)
+
+        .. tab:: YAML
+            .. code-block:: yaml
+
+                $(ament-index-resource rosidl_interfaces std_msgs)
+
+        .. tab:: Python
+            .. code-block:: python
+
+                AmentIndexResource('rosidl_interfaces', 'std_msgs')
+
+    This can be combined with other substitutions like
+    :class:`~launch.substitutions.path_join_substitution.PathJoinSubstitution`
+    to get paths relative to the resource path.
     """
 
     def __init__(

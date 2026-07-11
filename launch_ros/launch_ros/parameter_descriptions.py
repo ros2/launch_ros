@@ -171,7 +171,7 @@ class ParameterFile:
         self,
         param_file: Union[FilePath, SomeSubstitutionsType],
         *,
-        allow_substs: [bool, SomeSubstitutionsType] = False
+        allow_substs: Union[bool, SomeSubstitutionsType] = False
     ) -> None:
         """
         Construct a parameter file description.
@@ -194,7 +194,7 @@ class ParameterFile:
         )
         ensure_argument_type(
             allow_substs,
-            bool,
+            SomeSubstitutionsType_types_tuple + (bool,),
             'allow_subst',
             'ParameterFile()'
         )

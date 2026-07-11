@@ -38,11 +38,11 @@ def test_lifecycle_transition_constructor():
     with pytest.raises(ValueError):
         LifecycleTransition(
             lifecycle_node_names=['talker'],
-            transition_ids=[]
+            transition_ids=iter(())
         )
     with pytest.raises(ValueError):
         LifecycleTransition(
-            lifecycle_node_names=[],
+            lifecycle_node_names=iter(()),
             transition_ids=[Transition.TRANSITION_ACTIVATE]
         )
 
@@ -50,8 +50,8 @@ def test_lifecycle_transition_constructor():
 def test_lifecycle_transition_execute():
     lc = LaunchContext()
     lt = LifecycleTransition(
-        lifecycle_node_names=['talker'],
-        transition_ids=['1']
+        lifecycle_node_names=iter(['talker']),
+        transition_ids=iter(['1'])
     )
     actions = lt.execute(lc)
     # Check that actions are correctly generated

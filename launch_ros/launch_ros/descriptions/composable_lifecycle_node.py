@@ -68,6 +68,9 @@ class ComposableLifecycleNode(ComposableNode):
         """Parse composable_lifecycle_node."""
         _, kwargs = super().parse(parser, entity)
 
+        if 'name' not in kwargs:
+            raise ValueError('Composable lifecycle nodes require a name')
+
         autostart = entity.get_attr('autostart', data_type=bool, optional=True, can_be_str=True)
         if autostart is not None:
             kwargs['autostart'] = parser.parse_if_substitutions(autostart)

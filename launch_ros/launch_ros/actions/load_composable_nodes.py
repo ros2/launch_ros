@@ -257,25 +257,26 @@ class LoadComposableNodes(Action):
             if request is not None:
                 load_node_requests.append(request)
 
-            # If autostart is enabled, transition to the 'active' state.
-            if hasattr(node_description, 'node_autostart') and \
-               type_utils.perform_typed_substitution(
-                    context, node_description.node_autostart, bool):
-                node_namespace = request.node_namespace
-                if node_namespace[-1] != '/':
-                    node_namespace += '/'
-                complete_node_name = node_namespace + request.node_name
-                if not complete_node_name.startswith('/'):
-                    complete_node_name = '/' + complete_node_name
-                self.__logger.info(
-                    'Autostart enabled for requested lifecycle node {}'.format(complete_node_name))
-                node_description.init_lifecycle_event_manager(context)
-                autostart_actions.append(
-                    LifecycleTransition(
-                        lifecycle_node_names=[complete_node_name],
-                        transition_ids=[lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE,
-                                        lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE]
-                    ))
+                # If autostart is enabled, transition to the 'active' state.
+                if hasattr(node_description, 'node_autostart') and \
+                   type_utils.perform_typed_substitution(
+                        context, node_description.node_autostart, bool):
+                    node_namespace = request.node_namespace
+                    if node_namespace[-1] != '/':
+                        node_namespace += '/'
+                    complete_node_name = node_namespace + request.node_name
+                    if not complete_node_name.startswith('/'):
+                        complete_node_name = '/' + complete_node_name
+                    self.__logger.info(
+                        'Autostart enabled for requested lifecycle node {}'.format(
+                            complete_node_name))
+                    node_description.init_lifecycle_event_manager(context)
+                    autostart_actions.append(
+                        LifecycleTransition(
+                            lifecycle_node_names=[complete_node_name],
+                            transition_ids=[lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE,
+                                            lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE]
+                        ))
 
         if load_node_requests:
             context.add_completion_future(

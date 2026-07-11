@@ -185,6 +185,8 @@ class ParameterFile:
         # during cleanup, so make sure to initialize them here.
         self.__evaluated_param_file: Optional[Path] = None
         self.__created_tmp_file = False
+        self.__allow_substs: Union[bool, List[Substitution]] = False
+        self.__evaluated_allow_substs: Optional[bool] = None
 
         ensure_argument_type(
             param_file,
@@ -202,7 +204,6 @@ class ParameterFile:
         if isinstance(param_file, SomeSubstitutionsType_types_tuple):
             self.__param_file = normalize_to_list_of_substitutions(param_file)
         self.__allow_substs = normalize_typed_substitution(allow_substs, data_type=bool)
-        self.__evaluated_allow_substs: Optional[bool] = None
 
     @property
     def param_file(self) -> Union[FilePath, List[Substitution]]:
@@ -249,6 +250,7 @@ class ParameterFile:
                 h.write(parsed)
                 param_file_path = Path(h.name)
                 self.__created_tmp_file = True
+        self.__evaluated_allow_substs = allow_substs
         self.__evaluated_param_file = param_file_path
         return param_file_path
 
@@ -259,7 +261,12 @@ class ParameterFile:
                 os.unlink(self.__evaluated_param_file)
             except FileNotFoundError:
                 pass
+            self.__created_tmp_file = False
             self.__evaluated_param_file = None
+            self.__evaluated_allow_substs = None
+        elif isinstance(self.__allow_substs, list):
+            self.__evaluated_param_file = None
+            self.__evaluated_allow_substs = None
 
     def __del__(self):
         self.cleanup()

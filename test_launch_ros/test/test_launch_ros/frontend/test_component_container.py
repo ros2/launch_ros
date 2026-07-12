@@ -20,6 +20,7 @@ import textwrap
 from launch import LaunchService
 from launch.frontend import Parser
 from launch.utilities import perform_substitutions
+from launch_ros.descriptions import ComposableLifecycleNode
 from launch_ros.descriptions import ComposableNode
 from launch_ros.utilities import evaluate_parameters
 import osrf_pycommon.process_utils
@@ -158,6 +159,52 @@ def test_composable_node_name_is_optional(file):
                         composable_lifecycle_node:
                             - pkg: composition
                               plugin: composition::Talker
+                """
+            ),
+            id='YAML',
+        ),
+        pytest.param(
+            textwrap.dedent(
+                """
+                <launch>
+                    <node_container pkg="rclcpp_components" exec="component_container"
+                                    name="my_container" namespace="">
+                        <composable_lifecycle_node pkg="composition"
+                                                   plugin="composition::Talker" />
+                    </node_container>
+                </launch>
+                """
+            ),
+            id='XML',
+        ),
+    ],
+)
+def test_composable_lifecycle_node_name_is_optional_without_autostart(file):
+    root_entity, parser = Parser.load(io.StringIO(file))
+    launch_description = parser.parse_description(root_entity)
+    container = launch_description.describe_sub_entities()[0]
+    composable_node = container._ComposableNodeContainer__composable_node_descriptions[0]
+
+    assert isinstance(composable_node, ComposableLifecycleNode)
+    assert composable_node.node_name is None
+    assert composable_node.node_autostart is False
+
+
+@pytest.mark.parametrize(
+    'file',
+    [
+        pytest.param(
+            textwrap.dedent(
+                """
+                launch:
+                    - node_container:
+                        pkg: rclcpp_components
+                        exec: component_container
+                        name: my_container
+                        namespace: ''
+                        composable_lifecycle_node:
+                            - pkg: composition
+                              plugin: composition::Talker
                               autostart: true
                 """
             ),
@@ -182,7 +229,9 @@ def test_composable_node_name_is_optional(file):
 )
 def test_composable_lifecycle_node_name_is_required(file):
     root_entity, parser = Parser.load(io.StringIO(file))
-    with pytest.raises(ValueError, match='Composable lifecycle nodes require a name'):
+    with pytest.raises(
+        ValueError, match='Composable lifecycle nodes with autostart require a name'
+    ):
         parser.parse_description(root_entity)
 
 

@@ -14,7 +14,6 @@
 
 """Module containing ROS specific adapters and their initialization."""
 
-import contextlib
 import os
 import threading
 from typing import List
@@ -25,7 +24,6 @@ import launch.events
 
 import rclpy
 from rclpy.executors import SingleThreadedExecutor
-from rclpy.task import Future
 
 
 class ROSAdapter:
@@ -49,25 +47,6 @@ class ROSAdapter:
         self.__ros_node = None
         self.__ros_executor = None
         self.__is_running = False
-        # Serializes construction of the executor's wait set (in the spin
-        # thread, see `_run`) with creation/destruction of entities
-        # (subscriptions, clients, services, timers, ...) on `__ros_node` from
-        # other threads. Mutating the node's entities while the executor builds
-        # its wait set races at the rcl layer and can crash the process; this
-        # has been observed as an access violation on Windows.
-        #
-        # `__node_lock` guards the actual critical section. `__waiters_cv` and
-        # `__waiters` implement fairness: the spin thread would otherwise hold
-        # `__node_lock` almost continuously (re-acquiring it before a blocked
-        # thread is scheduled), starving entity creation. The spin thread yields
-        # `__node_lock` whenever a thread is waiting to access the node.
-        # `__spin_interrupt` is a per-iteration future a waiting thread completes
-        # to cut the current `spin_once` short instead of waiting for its full
-        # timeout.
-        self.__node_lock = threading.Lock()
-        self.__waiters_cv = threading.Condition()
-        self.__waiters = 0
-        self.__spin_interrupt = None
 
         if autostart:
             self.start()
@@ -92,24 +71,10 @@ class ROSAdapter:
         try:
             self.__ros_executor.add_node(self.__ros_node)
             while self.__is_running:
-                interrupt = Future(executor=self.__ros_executor)
-                # Defer to any thread waiting to create/destroy entities on the
-                # node, so it does not race with the wait set built below and is
-                # not starved by this loop re-acquiring `__node_lock`. Then
-                # publish the interrupt future so a thread that starts waiting
-                # once we are spinning can cut the spin short.
-                with self.__waiters_cv:
-                    self.__waiters_cv.wait_for(
-                        lambda: self.__waiters == 0 or not self.__is_running)
-                    self.__spin_interrupt = interrupt
                 # TODO(wjwwood): switch this to `spin()` when it considers
                 #   asynchronously added subscriptions.
                 #   see: https://github.com/ros2/rclpy/issues/188
-                with self.__node_lock:
-                    self.__ros_executor.spin_once_until_future_complete(
-                        interrupt, timeout_sec=1.0)
-                with self.__waiters_cv:
-                    self.__spin_interrupt = None
+                self.__ros_executor.spin_once(timeout_sec=1.0)
         except KeyboardInterrupt:
             pass
         finally:
@@ -120,9 +85,6 @@ class ROSAdapter:
         if not self.__is_running:
             raise RuntimeError('Cannot shutdown a ROS adapter that is not running')
         self.__is_running = False
-        # Wake the spin thread in case it is parked in the fairness gate.
-        with self.__waiters_cv:
-            self.__waiters_cv.notify_all()
         self.__ros_executor_thread.join()
         self.__ros_node.destroy_node()
         rclpy.shutdown(context=self.__ros_context)
@@ -143,38 +105,51 @@ class ROSAdapter:
     def ros_executor(self):
         return self.__ros_executor
 
-    @contextlib.contextmanager
-    def node_access(self):
+    def run_in_spin_thread(self, callback, *args, **kwargs):
         """
-        Serialize access to the managed node with the executor spin thread.
+        Run a callback in the executor spin thread and return its result.
 
-        Use this context manager around any creation or destruction of entities
-        (subscriptions, clients, services, timers, ...) on :attr:`ros_node`::
-
-            with ros_adapter.node_access() as node:
-                node.create_client(...)
-
-        It serializes those mutations with the executor thread as it builds its
-        wait set in :meth:`_run`, which would otherwise race at the rcl layer
-        and can crash the process (e.g. an access violation on Windows).
+        Creating or destroying entities (subscriptions, clients, services,
+        timers, ...) on :attr:`ros_node` from a thread other than the executor
+        spin thread races with the wait set the executor builds in `_run`,
+        which can crash the process at the rcl layer (observed as an access
+        violation on Windows). Marshalling such calls to the spin thread makes
+        them inherently safe, as all entity mutation then happens on the same
+        thread that builds the wait set.
         """
-        # Announce intent so the spin thread yields `__node_lock` to us instead
-        # of continuously re-acquiring it, then complete the interrupt future so
-        # the current `spin_once` returns promptly rather than blocking for the
-        # full timeout.
-        with self.__waiters_cv:
-            self.__waiters += 1
-            interrupt = self.__spin_interrupt
-        if interrupt is not None and not interrupt.done():
-            interrupt.set_result(None)
-        self.__node_lock.acquire()
-        try:
-            yield self.__ros_node
-        finally:
-            self.__node_lock.release()
-            with self.__waiters_cv:
-                self.__waiters -= 1
-                self.__waiters_cv.notify_all()
+        if not self.__is_running or threading.current_thread() is self.__ros_executor_thread:
+            # No spin thread to race with, or already on it; call directly.
+            return callback(*args, **kwargs)
+
+        result = []
+        exception = []
+        done = threading.Event()
+
+        def _task():
+            # Never let an exception propagate into the executor, as the spin
+            # loop in `_run` would re-raise it and exit; capture it here and
+            # re-raise it in the calling thread instead.
+            try:
+                result.append(callback(*args, **kwargs))
+            except Exception as e:
+                exception.append(e)
+            finally:
+                done.set()
+
+        # `Executor.create_task` is thread-safe and wakes the executor, so the
+        # task is executed promptly even if the executor is mid-wait.
+        self.__ros_executor.create_task(_task)
+        while not done.wait(timeout=0.1):
+            if not self.__is_running:
+                # The adapter is shutting down; once the spin thread has exited
+                # the task can no longer run, so fall back to calling directly.
+                self.__ros_executor_thread.join()
+                if done.is_set():
+                    break
+                return callback(*args, **kwargs)
+        if exception:
+            raise exception[0]
+        return result[0]
 
 
 def get_ros_adapter(context: launch.LaunchContext):

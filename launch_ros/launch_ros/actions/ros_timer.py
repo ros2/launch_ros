@@ -73,13 +73,14 @@ class ROSTimer(TimerAction):
 
     async def _wait_to_fire_event(self, context):
         period = type_utils.perform_typed_substitution(context, self.__period, float)
-        # Serialize timer creation with the executor spin thread so it does not
-        # race with the wait set being built (see ROSAdapter.node_access).
-        with get_ros_adapter(context).node_access() as node:
-            node.create_timer(
-                period,
-                partial(context.asyncio_loop.call_soon_threadsafe, self.__timer_callback),
-            )
+        # Marshal timer creation to the executor spin thread so it does not
+        # race with the wait set being built (see ROSAdapter.run_in_spin_thread).
+        ros_adapter = get_ros_adapter(context)
+        ros_adapter.run_in_spin_thread(
+            ros_adapter.ros_node.create_timer,
+            period,
+            partial(context.asyncio_loop.call_soon_threadsafe, self.__timer_callback),
+        )
 
         done, pending = await asyncio.wait(
             [self._canceled_future, self.__timer_future],

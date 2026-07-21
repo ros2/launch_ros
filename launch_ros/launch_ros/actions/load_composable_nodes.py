@@ -241,14 +241,15 @@ class LoadComposableNodes(Action):
             return
 
         # Create a client to load nodes in the target container.
-        # Serialize client creation with the executor spin thread so it does not
-        # race with the wait set being built (see ROSAdapter.node_access).
-        with get_ros_adapter(context).node_access() as node:
-            self.__rclpy_load_node_client = node.create_client(
-                composition_interfaces.srv.LoadNode, '{}/_container/load_node'.format(
-                    self.__final_target_container_name
-                )
+        # Marshal client creation to the executor spin thread so it does not
+        # race with the wait set being built (see ROSAdapter.run_in_spin_thread).
+        ros_adapter = get_ros_adapter(context)
+        self.__rclpy_load_node_client = ros_adapter.run_in_spin_thread(
+            ros_adapter.ros_node.create_client,
+            composition_interfaces.srv.LoadNode, '{}/_container/load_node'.format(
+                self.__final_target_container_name
             )
+        )
 
         # Generate load requests before execute() exits to avoid race with context changing
         # due to scope change (e.g. if loading nodes from within a GroupAction).

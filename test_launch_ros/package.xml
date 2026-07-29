@@ -25,6 +25,7 @@
   <test_depend>composition</test_depend>
   <test_depend>demo_nodes_py</test_depend>
   <test_depend>launch_ros</test_depend>
+  <test_depend>launch_testing_ros</test_depend>
   <test_depend>launch_xml</test_depend>
   <test_depend>launch_yaml</test_depend>
   <test_depend>lifecycle</test_depend>
@@ -34,6 +35,7 @@
   <test_depend>python3-yaml</test_depend>
   <test_depend>rclcpp_components</test_depend>
   <test_depend>rclpy</test_depend>
+  <test_depend>rmw_test_fixture_implementation</test_depend>
   <test_depend>rosgraph_msgs</test_depend>
 
   <export>

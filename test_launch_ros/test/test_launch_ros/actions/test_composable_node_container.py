@@ -25,6 +25,8 @@ from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from launch_ros.utilities import get_node_name_count
 
+from launch_testing_ros.actions import EnableRmwIsolation
+
 import osrf_pycommon.process_utils
 
 TEST_CONTAINER_NAME = 'test_component_container_node_name'
@@ -34,7 +36,7 @@ TEST_NODE_NAMESPACE = 'test_composable_node_namespace'
 
 
 def _assert_launch_no_errors(actions, *, timeout_sec=5):
-    ld = LaunchDescription(actions)
+    ld = LaunchDescription([EnableRmwIsolation(), *actions])
     ls = LaunchService(debug=True)
     ls.include_launch_description(ld)
 

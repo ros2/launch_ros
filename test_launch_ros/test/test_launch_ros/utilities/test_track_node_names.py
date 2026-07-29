@@ -27,6 +27,8 @@ from launch_ros.descriptions.composable_node import ComposableNode
 from launch_ros.utilities import add_node_name
 from launch_ros.utilities import get_node_name_count
 
+from launch_testing_ros.actions import EnableRmwIsolation
+
 import osrf_pycommon.process_utils
 
 TEST_NODE_NAMESPACE = '/my_namespace'
@@ -46,6 +48,7 @@ def test_node_name_count():
 def _launch(launch_description):
     loop = osrf_pycommon.process_utils.get_loop()
     ls = LaunchService()
+    ls.include_launch_description(LaunchDescription([EnableRmwIsolation()]))
     ls.include_launch_description(launch_description)
     launch_task = loop.create_task(ls.run_async())
     loop.run_until_complete(asyncio.sleep(5))

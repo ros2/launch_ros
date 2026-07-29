@@ -17,11 +17,13 @@ import io
 import pathlib
 import textwrap
 
+from launch import LaunchDescription
 from launch import LaunchService
 from launch.frontend import Parser
 from launch.utilities import type_utils
 from launch_ros.actions import LifecycleNode
 from launch_ros.utilities import evaluate_parameters
+from launch_testing_ros.actions import EnableRmwIsolation
 import osrf_pycommon.process_utils
 
 yaml_params = str(pathlib.Path(__file__).parent / 'params.yaml')
@@ -105,6 +107,7 @@ def check_launch_lifecycle_node(file):
     root_entity, parser = Parser.load(file)
     ld = parser.parse_description(root_entity)
     ls = LaunchService()
+    ls.include_launch_description(LaunchDescription([EnableRmwIsolation()]))
     ls.include_launch_description(ld)
 
     loop = osrf_pycommon.process_utils.get_loop()

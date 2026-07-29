@@ -38,6 +38,8 @@ import rclpy.context
 import rclpy.executors
 import rclpy.node
 
+from rmw_test_fixture_implementation import RMWTestIsolator
+
 TEST_CONTAINER_NAME = 'mock_component_container'
 TEST_NODE_NAME = 'test_load_composable_nodes_node'
 
@@ -103,20 +105,21 @@ def _load_composable_node(
 
 @pytest.fixture
 def mock_component_container():
-    context = rclpy.context.Context()
-    with rclpy.init(context=context):
-        executor = rclpy.executors.SingleThreadedExecutor(context=context)
+    with RMWTestIsolator():
+        context = rclpy.context.Context()
+        with rclpy.init(context=context):
+            executor = rclpy.executors.SingleThreadedExecutor(context=context)
 
-        container = MockComponentContainer(context)
-        executor.add_node(container)
+            container = MockComponentContainer(context)
+            executor.add_node(container)
 
-        # Start spinning in a thread
-        thread = threading.Thread(target=lambda executor: executor.spin(), args=(executor,))
-        thread.start()
-        yield container
-        executor.remove_node(container)
-        executor.shutdown()
-        thread.join()
+            # Start spinning in a thread
+            thread = threading.Thread(target=lambda executor: executor.spin(), args=(executor,))
+            thread.start()
+            yield container
+            executor.remove_node(container)
+            executor.shutdown()
+            thread.join()
 
 
 def test_load_node(mock_component_container):

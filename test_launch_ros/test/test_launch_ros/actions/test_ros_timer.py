@@ -28,6 +28,7 @@ from launch_ros.actions import SetUseSimTime
 import pytest
 import rclpy
 from rclpy.clock import Clock, ClockType
+from rmw_test_fixture_implementation import RMWTestIsolator
 from rosgraph_msgs.msg import Clock as ClockMsg
 
 
@@ -151,7 +152,7 @@ def test_shutdown_preempts_timers():
 
 @pytest.fixture
 def rclpy_node():
-    with rclpy.init():
+    with RMWTestIsolator(), rclpy.init():
         node = rclpy.create_node('test_ros_timer_action_node')
         yield node
 

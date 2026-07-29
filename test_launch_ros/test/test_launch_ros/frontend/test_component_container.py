@@ -17,10 +17,12 @@ import asyncio
 import io
 import textwrap
 
+from launch import LaunchDescription
 from launch import LaunchService
 from launch.frontend import Parser
 from launch.utilities import perform_substitutions
 from launch_ros.utilities import evaluate_parameters
+from launch_testing_ros.actions import EnableRmwIsolation
 import osrf_pycommon.process_utils
 import pytest
 
@@ -174,6 +176,7 @@ def test_launch_container_executor_modes(file_factory, container_args):
         root_entity, parser = Parser.load(f)
         ld = parser.parse_description(root_entity)
         ls = LaunchService()
+        ls.include_launch_description(LaunchDescription([EnableRmwIsolation()]))
         ls.include_launch_description(ld)
 
         loop = osrf_pycommon.process_utils.get_loop()
@@ -196,6 +199,7 @@ def check_launch_component_container(file):
     root_entity, parser = Parser.load(file)
     ld = parser.parse_description(root_entity)
     ls = LaunchService()
+    ls.include_launch_description(LaunchDescription([EnableRmwIsolation()]))
     ls.include_launch_description(ld)
 
     loop = osrf_pycommon.process_utils.get_loop()

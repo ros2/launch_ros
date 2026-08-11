@@ -13,15 +13,12 @@
 # limitations under the License.
 
 """
-Regression test for the isolated component_container load race.
+Regression test for concurrent isolated component_container node loading.
 
 Starts several isolated ``component_container`` processes concurrently, each
-loading a composable node. The load clients are already waiting when their
-container starts, which exercises the window where the isolated container path
-briefly advertises a throwaway ``ComponentManager`` (owning
-``~/_container/load_node``) while reading the ``thread_num`` parameter and then
-destroys it before creating the real manager. A load request arriving during
-that window must not be dropped: every composable node is expected to appear.
+loading a composable node whose load request is issued as the container starts
+up. Every container and every composable node is expected to come up: no load
+request may be dropped, regardless of startup timing.
 """
 
 import asyncio
@@ -34,7 +31,7 @@ from launch_ros.utilities import get_node_name_count
 
 import osrf_pycommon.process_utils
 
-# Several containers started at once make the startup race easy to hit.
+# Several containers started at once make a potential startup race easy to hit.
 NUM_CONTAINERS = 8
 
 

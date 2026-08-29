@@ -13,22 +13,13 @@
 # limitations under the License.
 
 import pytest
-
-try:
-    from rmw_test_fixture_implementation import rmw_test_isolation_start
-    from rmw_test_fixture_implementation import rmw_test_isolation_stop
-    _HAS_RMW_ISOLATION = True
-except ImportError:
-    _HAS_RMW_ISOLATION = False
+from rmw_test_fixture_implementation import rmw_test_isolation_start
+from rmw_test_fixture_implementation import rmw_test_isolation_stop
 
 
 @pytest.fixture(autouse=True, scope='session')
 def rmw_isolation():
-    """
-    Start RMW isolation for the whole test session.
-    """
-    if _HAS_RMW_ISOLATION:
-        rmw_test_isolation_start()
+    """Start RMW isolation before any ROS context is created."""
+    rmw_test_isolation_start()
     yield
-    if _HAS_RMW_ISOLATION:
-        rmw_test_isolation_stop()
+    rmw_test_isolation_stop()

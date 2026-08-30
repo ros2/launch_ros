@@ -52,6 +52,7 @@ def test_launch_component_container_yaml():
 
             - load_composable_node:
                 target: my_container
+                on_failure_shutdown: false
                 composable_node:
                     -   pkg: composition
                         plugin: composition::Listener
@@ -84,7 +85,7 @@ def test_launch_component_container_xml():
                 </composable_node>
             </node_container>
 
-            <load_composable_node target="my_container">
+            <load_composable_node target="my_container" on_failure_shutdown="false">
                 <composable_node pkg="composition" plugin="composition::Listener" name="listener" namespace="test_namespace">
                     <remap from="chatter" to="/remap/chatter" />
                     <param name="use_sim_time" value="true"/>
@@ -216,6 +217,7 @@ def check_launch_component_container(file):
     assert perform(node_container._Node__arguments[0]) == 'test_args'
 
     assert perform(load_composable_node._LoadComposableNodes__target_container) == 'my_container'
+    assert load_composable_node._LoadComposableNodes__on_failure_shutdown is False
 
     # Check node parameters
     talker_remappings = list(talker._ComposableNode__remappings)

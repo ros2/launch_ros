@@ -65,6 +65,7 @@ class LoadComposableNodes(Action):
         *,
         composable_node_descriptions: List[ComposableNode],
         target_container: Union[SomeSubstitutionsType, ComposableNodeContainer],
+        on_failure_shutdown: bool = False,
         **kwargs,
     ) -> None:
         """
@@ -79,6 +80,7 @@ class LoadComposableNodes(Action):
 
         :param composable_node_descriptions: descriptions of composable nodes to be loaded
         :param target_container: the container to load the nodes into
+        :param on_failure_shutdown: if True, the launch will shutdown if a node fails to load
         """
         ensure_argument_type(
             target_container,
@@ -90,6 +92,7 @@ class LoadComposableNodes(Action):
         super().__init__(**kwargs)
         self.__composable_node_descriptions = composable_node_descriptions
         self.__target_container = target_container
+        self.__on_failure_shutdown = on_failure_shutdown
         self.__final_target_container_name: Optional[Text] = None
         self.__logger = launch.logging.get_logger(__name__)
 
@@ -100,6 +103,12 @@ class LoadComposableNodes(Action):
 
         kwargs['target_container'] = parser.parse_substitution(
             entity.get_attr('target', data_type=str))
+
+        on_failure_shutdown = entity.get_attr(
+            'on_failure_shutdown', data_type=bool, optional=True
+        )
+        if on_failure_shutdown is not None:
+            kwargs['on_failure_shutdown'] = on_failure_shutdown
 
         kwargs['composable_node_descriptions'] = []
         composable_nodes = entity.get_attr(
@@ -200,6 +209,9 @@ class LoadComposableNodes(Action):
                     response.error_message
                 )
             )
+            # If the user requested strict behavior, trigger a clean shutdown
+            if self.__on_failure_shutdown:
+                raise RuntimeError('Failed to load component. Triggering shutdown.')
 
     def _load_in_sequence(
         self,

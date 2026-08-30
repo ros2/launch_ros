@@ -72,6 +72,9 @@ class ComposableLifecycleNode(ComposableNode):
         if autostart is not None:
             kwargs['autostart'] = parser.parse_if_substitutions(autostart)
 
+        if 'name' not in kwargs and autostart is not None and autostart is not False:
+            raise ValueError('Composable lifecycle nodes with autostart require a name')
+
         return cls, kwargs
 
     def init_lifecycle_event_manager(self, context: launch.LaunchContext) -> None:

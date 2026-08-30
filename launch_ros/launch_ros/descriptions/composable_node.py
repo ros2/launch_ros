@@ -91,7 +91,9 @@ class ComposableNode:
 
         kwargs['package'] = parser.parse_substitution(entity.get_attr('pkg'))
         kwargs['plugin'] = parser.parse_substitution(entity.get_attr('plugin'))
-        kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
+        name = entity.get_attr('name', optional=True)
+        if name is not None:
+            kwargs['name'] = parser.parse_substitution(name)
 
         if_cond = entity.get_attr('if', optional=True)
         unless_cond = entity.get_attr('unless', optional=True)

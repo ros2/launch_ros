@@ -88,6 +88,6 @@ class SetRemap(Action):
         """Execute the action."""
         src = perform_substitutions(context, self.__src)
         dst = perform_substitutions(context, self.__dst)
-        global_remaps = context.launch_configurations.get('ros_remaps', [])
+        global_remaps = context.get_locals_as_dict().get('ros_remaps', [])
         global_remaps.append((src, dst))
-        context.launch_configurations['ros_remaps'] = global_remaps
+        context.extend_locals({'ros_remaps': global_remaps})

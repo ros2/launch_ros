@@ -46,6 +46,7 @@ class ROSAdapter:
         self.__ros_context = None
         self.__ros_node = None
         self.__ros_executor = None
+        self.__ros_executor_thread = None
         self.__is_running = False
 
         if autostart:
@@ -86,8 +87,11 @@ class ROSAdapter:
             raise RuntimeError('Cannot shutdown a ROS adapter that is not running')
         self.__is_running = False
         self.__ros_executor_thread.join()
+        self.__ros_executor.shutdown()
         self.__ros_node.destroy_node()
         rclpy.shutdown(context=self.__ros_context)
+        self.__ros_executor_thread = None
+        self.__ros_node = None
 
     @property
     def argv(self):

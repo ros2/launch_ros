@@ -1,0 +1,5 @@
+my_ns:
+  my_node:
+    ros__parameters:
+      param_from_file_1: 5
+      param_from_file_3: 3.14

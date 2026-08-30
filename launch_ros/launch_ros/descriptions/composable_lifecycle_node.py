@@ -119,3 +119,8 @@ class ComposableLifecycleNode(ComposableNode):
     def extra_arguments(self) -> Optional[Parameters]:
         """Get container extra arguments YAML files or dicts with substitutions to be performed."""
         return super().extra_arguments
+
+    @property
+    def log_level(self) -> Optional[List[Substitution]]:
+        """Get log level as a sequence of substitutions to be performed."""
+        return super().log_level

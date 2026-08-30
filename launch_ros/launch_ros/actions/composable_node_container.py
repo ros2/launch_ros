@@ -15,7 +15,7 @@
 """Module for the ComposableNodeContainer action."""
 
 from typing import List
-from typing import Optional
+from typing import Optional, Union
 
 from launch.action import Action
 from launch.frontend import Entity
@@ -23,6 +23,7 @@ from launch.frontend import expose_action
 from launch.frontend import Parser
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
+from launch.utilities import type_utils
 
 from .node import Node
 
@@ -40,6 +41,7 @@ class ComposableNodeContainer(Node):
         name: SomeSubstitutionsType,
         namespace: SomeSubstitutionsType,
         composable_node_descriptions: Optional[List[ComposableNode]] = None,
+        load_node_timeout: Optional[Union[float, SomeSubstitutionsType]] = None,
         **kwargs
     ) -> None:
         """
@@ -52,14 +54,20 @@ class ComposableNodeContainer(Node):
         :param: namespace the ROS namespace for this Node, mandatory for full container node
              name resolution
         :param composable_node_descriptions: optional descriptions of composable nodes to be loaded
+        :param load_node_timeout: optional timeout for loading each composable node, in seconds
         """
         super().__init__(name=name, namespace=namespace, **kwargs)
         self.__composable_node_descriptions = composable_node_descriptions
+        self.__load_node_timeout = type_utils.normalize_typed_substitution(
+            load_node_timeout, float) if load_node_timeout is not None else None
 
     @classmethod
     def parse(cls, entity: Entity, parser: Parser):
         """Parse node_container."""
         _, kwargs = super().parse(entity, parser)
+
+        kwargs['load_node_timeout'] = parser.parse_if_substitutions(
+            entity.get_attr('load_node_timeout', data_type=float, optional=True, can_be_str=True))
 
         composable_nodes = entity.get_attr(
             'composable_node', data_type=List[Entity], optional=True)
@@ -106,7 +114,8 @@ class ComposableNodeContainer(Node):
             load_actions = [
                 LoadComposableNodes(
                     composable_node_descriptions=valid_composable_nodes,
-                    target_container=self
+                    target_container=self,
+                    load_node_timeout=self.__load_node_timeout
                 )
             ]
         container_actions = super().execute(context)  # type: Optional[List[Action]]

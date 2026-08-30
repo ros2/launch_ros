@@ -105,6 +105,52 @@ class ROSAdapter:
     def ros_executor(self):
         return self.__ros_executor
 
+    def run_in_spin_thread(self, callback, *args, **kwargs):
+        """
+        Run a callback in the executor spin thread and return its result.
+
+        Creating or destroying entities (subscriptions, clients, services,
+        timers, ...) on :attr:`ros_node` from a thread other than the executor
+        spin thread races with the wait set the executor builds in `_run`,
+        which can crash the process at the rcl layer (observed as an access
+        violation on Windows). Marshalling such calls to the spin thread makes
+        them inherently safe, as all entity mutation then happens on the same
+        thread that builds the wait set.
+        """
+        if not self.__is_running or threading.current_thread() is self.__ros_executor_thread:
+            # No spin thread to race with, or already on it; call directly.
+            return callback(*args, **kwargs)
+
+        result = []
+        exception = []
+        done = threading.Event()
+
+        def _task():
+            # Never let an exception propagate into the executor, as the spin
+            # loop in `_run` would re-raise it and exit; capture it here and
+            # re-raise it in the calling thread instead.
+            try:
+                result.append(callback(*args, **kwargs))
+            except Exception as e:
+                exception.append(e)
+            finally:
+                done.set()
+
+        # `Executor.create_task` is thread-safe and wakes the executor, so the
+        # task is executed promptly even if the executor is mid-wait.
+        self.__ros_executor.create_task(_task)
+        while not done.wait(timeout=0.1):
+            if not self.__is_running:
+                # The adapter is shutting down; once the spin thread has exited
+                # the task can no longer run, so fall back to calling directly.
+                self.__ros_executor_thread.join()
+                if done.is_set():
+                    break
+                return callback(*args, **kwargs)
+        if exception:
+            raise exception[0]
+        return result[0]
+
 
 def get_ros_adapter(context: launch.LaunchContext):
     """

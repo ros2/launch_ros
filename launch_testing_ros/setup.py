@@ -32,7 +32,7 @@ setup(
     ],
     description='Test the output of a ROS node.',
     long_description='A package providing utilities for writing ROS2 enabled launch tests.',
-    license='Apache License, Version 2.0',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',

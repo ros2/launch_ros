@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for the LifcycleTransition action."""
+"""Tests for the LifecycleTransition action."""
 
 from launch import LaunchContext
 from launch.actions import EmitEvent, RegisterEventHandler
@@ -55,7 +55,7 @@ def test_lifecycle_transition_execute():
     )
     actions = lt.execute(lc)
     # Check that actions are correctly generated
-    # First action should be RegisterEventHandler for first Transtion
+    # First action should be RegisterEventHandler for first Transition
     assert isinstance(actions[0], RegisterEventHandler)
     # Second action should be EmitEvent for first Transition
     assert isinstance(actions[1], EmitEvent)

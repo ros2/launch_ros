@@ -34,7 +34,7 @@ def test_lifecycle_node_constructor():
             executable='bsd',
             namespace='my_ns',
         )
-    # Successfull construction
+    # Successful construction
     LifecycleNode(
         package='asd',
         executable='bsd',

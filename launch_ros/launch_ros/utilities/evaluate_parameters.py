@@ -152,7 +152,7 @@ def evaluate_parameters(context: LaunchContext, parameters: Parameters) -> Evalu
 
     The parameters must have been normalized with normalize_parameters() prior to calling this.
     Substitutions for parameter values in dictionaries will be evaluated according to yaml rules.
-    If you want the substitution to stay a string, the output of the substition must have quotes.
+    If you want the substitution to stay a string, the output of the substitution must have quotes.
 
     :param parameters: normalized parameters
     :returns: values after evaluating lists of substitutions

@@ -108,7 +108,7 @@ class LoadComposableNodes(Action):
             'composable_lifecycle_node', data_type=List[Entity], optional=True) or []
         if not (bool(composable_nodes) or bool(composable_lifecycle_nodes)):
             raise RuntimeError(
-                'Must provide atleast one composable_node or composable_lifecycle_node'
+                'Must provide at least one composable_node or composable_lifecycle_node'
             )
 
         for entity in composable_nodes:
@@ -150,7 +150,6 @@ class LoadComposableNodes(Action):
         event = threading.Event()
 
         def unblock(future):
-            nonlocal event
             event.set()
 
         self.__logger.debug(

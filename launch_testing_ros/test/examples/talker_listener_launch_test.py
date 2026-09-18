@@ -22,9 +22,11 @@ import launch
 from launch.launch_service import LaunchService
 import launch_ros
 import launch_ros.actions
+
 import launch_testing.actions
 from launch_testing.io_handler import ActiveIoHandler
 import launch_testing_ros
+from launch_testing_ros.actions import EnableRmwIsolation
 
 import pytest
 
@@ -59,6 +61,7 @@ def generate_test_description():
 
     return (
         launch.LaunchDescription([
+            EnableRmwIsolation(),
             talker_node,
             listener_node,
             # Start tests right away - no need to wait for anything

@@ -398,7 +398,7 @@ def test_unallowed_yaml_types_as_strings():
     assert evaluate_parameters(LaunchContext(), norm) == expected
 
 
-def test_empty_string_evalutates_to_empty_string():
+def test_empty_string_evaluates_to_empty_string():
     # Regression test for https://github.com/ros2/launch_ros/pull/289#discussion_r818070166
     orig = [{'foo': TextSubstitution(text='')}]
     norm = normalize_parameters(orig)

@@ -22,6 +22,7 @@ from launch.frontend import Parser
 from launch.utilities import perform_substitutions
 from launch_ros.utilities import evaluate_parameters
 import osrf_pycommon.process_utils
+import pytest
 
 
 def test_launch_component_container_yaml():
@@ -95,6 +96,100 @@ def test_launch_component_container_xml():
     )
     with io.StringIO(xml_file) as f:
         check_launch_component_container(f)
+
+
+def _make_container_yaml(args='', thread_num=None):
+    param_str = ''
+    if thread_num is not None:
+        param_str = (
+            f'                param:\n'
+            f'                    -   name: thread_num\n'
+            f'                        value: {thread_num}\n'
+        )
+    return textwrap.dedent(
+        rf"""
+        launch:
+            - node_container:
+                pkg: rclcpp_components
+                exec: component_container
+                name: my_container
+                namespace: ''
+                args: '{args}'
+{param_str}                composable_node:
+                    -   pkg: composition
+                        plugin: composition::Talker
+                        name: talker
+                        namespace: test_namespace
+        """
+    )
+
+
+def _make_container_xml(args='', thread_num=None):
+    param_str = ''
+    if thread_num is not None:
+        param_str = f'\n            <param name="thread_num" value="{thread_num}"/>'
+    return textwrap.dedent(
+        rf"""
+        <launch>
+            <node_container pkg="rclcpp_components" exec="component_container"
+                            name="my_container" namespace="" args="{args}">{param_str}
+                <composable_node pkg="composition" plugin="composition::Talker"
+                                 name="talker" namespace="test_namespace"/>
+            </node_container>
+        </launch>
+        """
+    )
+
+
+component_container_args = [
+    pytest.param(('--executor-type single-threaded', None), id='single_threaded'),
+    pytest.param(('--executor-type multi-threaded', None), id='multi_threaded'),
+    pytest.param(('--executor-type events-cbg', None), id='events_cbg'),
+    pytest.param(('--executor-type multi-threaded', 2), id='multi_threaded_num_threads'),
+    pytest.param(('--executor-type events-cbg', 4), id='events_cbg_num_threads'),
+    pytest.param(('--isolated', None), id='isolated'),
+    pytest.param(('--executor-type single-threaded --isolated', None),
+                 id='single_threaded_isolated'),
+    pytest.param(('--executor-type multi-threaded --isolated', None),
+                 id='multi_threaded_isolated'),
+    pytest.param(('--executor-type events-cbg --isolated', None), id='events_cbg_isolated'),
+    pytest.param(('--executor-type multi-threaded --isolated', 2),
+                 id='multi_threaded_isolated_num_threads'),
+    pytest.param(('--executor-type events-cbg --isolated', 1),
+                 id='events_cbg_isolated_num_threads'),
+]
+
+
+@pytest.mark.parametrize('container_args', component_container_args)
+@pytest.mark.parametrize(
+    'file_factory',
+    [
+        pytest.param(_make_container_yaml, id='yaml'),
+        pytest.param(_make_container_xml, id='xml'),
+    ],
+)
+def test_launch_container_executor_modes(file_factory, container_args):
+    args, thread_num = container_args
+    with io.StringIO(file_factory(args, thread_num)) as f:
+        root_entity, parser = Parser.load(f)
+        ld = parser.parse_description(root_entity)
+        ls = LaunchService()
+        ls.include_launch_description(ld)
+
+        loop = osrf_pycommon.process_utils.get_loop()
+        launch_task = loop.create_task(ls.run_async())
+
+        if thread_num is not None:
+            node_container = ld.describe_sub_entities()[0]
+            container_params = evaluate_parameters(
+                ls.context, node_container._Node__parameters)
+            assert container_params[0]['thread_num'] == thread_num
+
+        loop.run_until_complete(asyncio.sleep(5))
+        if not launch_task.done():
+            loop.create_task(ls.shutdown())
+            loop.run_until_complete(launch_task)
+        assert 0 == launch_task.result()
 
 
 def check_launch_component_container(file):

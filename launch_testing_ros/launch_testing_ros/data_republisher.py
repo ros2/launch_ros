@@ -28,7 +28,7 @@ class DataRepublisher:
 
         :param msg_type: The type of ROS msg to receive and republish
 
-        :param transfor_fn: A function that takes one mesasge and returns a new message to
+        :param transform_fn: A function that takes one message and returns a new message to
         republish or None to drop the message
         """
         self.__num_received = 0

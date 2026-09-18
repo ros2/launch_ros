@@ -42,7 +42,7 @@ class SuppressCompleterWorkaround(SuppressCompleter):
     """Workaround https://github.com/kislyuk/argcomplete/pull/289 ."""
 
     def __call__(self, *args, **kwargs):
-        """Make SupressCompleter callable by returning no completions."""
+        """Make SuppressCompleter callable by returning no completions."""
         return ()
 
 

@@ -2,6 +2,11 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Enable rmw test isolation (`#567 <https://github.com/ros2/launch_ros/issues/567>`_) (`#569 <https://github.com/ros2/launch_ros/issues/569>`_)
+* Contributors: mergify[bot]
+
 0.28.6 (2026-07-02)
 -------------------
 * Expose lifecycle_node (`#327 <https://github.com/ros2/launch_ros/issues/327>`_) (with test) (`#482 <https://github.com/ros2/launch_ros/issues/482>`_) (`#532 <https://github.com/ros2/launch_ros/issues/532>`_)

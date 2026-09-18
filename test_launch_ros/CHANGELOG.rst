@@ -2,8 +2,8 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.28.7 (2026-09-18)
+-------------------
 * Enable rmw test isolation (`#567 <https://github.com/ros2/launch_ros/issues/567>`_) (`#569 <https://github.com/ros2/launch_ros/issues/569>`_)
 * Contributors: mergify[bot]
 

@@ -95,13 +95,13 @@ class LaunchCommand(CommandExtension):
             '-f', '--log-file-name', type=str, default='launch',
             help='Name of the log file (postfixed with .log automatically if not provided).')
         parser.add_argument(
-            '--launch-prefix',
+            '--launch-prefix', '--prefix',
             help='Prefix command, which should go before all executables. '
                  'Command must be wrapped in quotes if it contains spaces '
                  "(e.g. --launch-prefix 'xterm -e gdb -ex run --args')."
         )
         parser.add_argument(
-            '--launch-prefix-filter',
+            '--launch-prefix-filter', '--prefix-filter',
             help=('Regex pattern for filtering which executables the --launch-prefix is applied '
                   'to by matching the executable name.')
         )

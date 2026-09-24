@@ -12,28 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from unittest.mock import patch
+import threading
 
 from launch_ros.ros_adapters import ROSAdapter
+
+import pytest
+
+from rclpy.executors import ShutdownException
 
 
 def test_ros_adapter_shutdown_releases_resources():
     adapter = ROSAdapter()
-    old_context = adapter.ros_context
-    old_executor = adapter.ros_executor
+    try:
+        old_context = adapter.ros_context
+        old_node = adapter.ros_node
+        old_executor = adapter.ros_executor
 
-    with patch.object(
-        adapter.ros_executor,
-        'shutdown',
-        wraps=adapter.ros_executor.shutdown,
-    ) as executor_shutdown:
+        fired = threading.Event()
+        old_node.create_timer(0.001, fired.set)
+        assert fired.wait(timeout=5.0)
+    finally:
         adapter.shutdown()
 
-    executor_shutdown.assert_called_once_with()
+    # spin_once() catches ShutdownException, so check callback retrieval directly.
+    with pytest.raises(ShutdownException):
+        old_executor.wait_for_ready_callbacks(timeout_sec=0)
+
     assert adapter.ros_node is None
 
     adapter.start()
-    assert adapter.ros_context is not old_context
-    assert adapter.ros_node is not None
-    assert adapter.ros_executor is not old_executor
-    adapter.shutdown()
+    try:
+        assert adapter.ros_context is not old_context
+        assert adapter.ros_node is not None
+        assert adapter.ros_node is not old_node
+        assert adapter.ros_executor is not old_executor
+    finally:
+        adapter.shutdown()

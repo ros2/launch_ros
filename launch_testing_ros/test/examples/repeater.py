@@ -34,8 +34,8 @@ class Repeater(Node):
         self.publisher.publish(String(data=output_msg_data))
 
 
-def main(args=None):
-    rclpy.init(args=args)
+def main():
+    rclpy.init()
 
     node = Repeater()
 

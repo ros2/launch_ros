@@ -36,7 +36,7 @@ setup(
         'This package provides tests for the ROS specific '
         'extensions to the launch package.'
     ),
-    license='Apache License, Version 2.0',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',

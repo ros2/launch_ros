@@ -18,6 +18,11 @@ Module for descriptions of launchable entities.
 Descriptions are not executable and are immutable so they can be reused by launch entities.
 """
 
+from .dump_params import DumpParamsCollector
+from .dump_params import DumpParamsError
+from .dump_params import attach_dump_params_collector
+from .dump_params import get_dump_params_collector
+from .dump_params import is_dump_params_mode
 from .evaluate_parameters import evaluate_parameters
 from .lifecycle_event_manager import LifecycleEventManager
 from .namespace_utils import is_namespace_absolute
@@ -32,10 +37,15 @@ from .track_node_names import add_node_name
 from .track_node_names import get_node_name_count
 
 __all__ = [
+    'DumpParamsCollector',
+    'DumpParamsError',
     'add_node_name',
+    'attach_dump_params_collector',
     'evaluate_parameters',
     'evaluate_parameters_dict',
+    'get_dump_params_collector',
     'get_node_name_count',
+    'is_dump_params_mode',
     'is_namespace_absolute',
     'is_root_namespace',
     'LifecycleEventManager',

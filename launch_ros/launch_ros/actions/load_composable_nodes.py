@@ -40,6 +40,7 @@ from launch.utilities import type_utils
 from launch_ros.parameter_descriptions import ParameterFile
 
 import lifecycle_msgs.msg
+import rclpy.logging
 
 from .composable_node_container import ComposableNodeContainer
 from .lifecycle_transition import LifecycleTransition
@@ -321,7 +322,6 @@ def get_composable_node_load_request(
     combined_ns = make_namespace_absolute(prefix_namespace(base_ns, expanded_ns))
     if combined_ns is not None:
         request.node_namespace = combined_ns
-    # request.log_level = perform_substitutions(context, node_description.log_level)
     remappings = []
     global_remaps = context.launch_configurations.get('ros_remaps', None)
     if global_remaps:
@@ -366,4 +366,18 @@ def get_composable_node_load_request(
                 )
             )
         ]
+
+    if composable_node_description.log_level is not None:
+        log_level_str = perform_substitutions(
+            context, composable_node_description.log_level)
+        try:
+            request.log_level = int(
+                rclpy.logging.get_logging_severity_from_string(log_level_str))
+        except Exception:
+            raise RuntimeError(
+                f"Invalid log_level '{log_level_str}' for node "
+                f"'{request.node_name}'. Valid values are: "
+                "DEBUG, INFO, WARN, ERROR, FATAL (case-insensitive)."
+            )
+
     return request

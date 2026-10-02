@@ -36,6 +36,7 @@ from rcl_interfaces.msg import ParameterType
 import rclpy
 import rclpy.context
 import rclpy.executors
+import rclpy.logging
 import rclpy.node
 
 TEST_CONTAINER_NAME = 'mock_component_container'
@@ -84,6 +85,7 @@ def _load_composable_node(
     condition=None,
     parameters=None,
     remappings=None,
+    log_level=None,
     target_container=f'/{TEST_CONTAINER_NAME}'
 ):
     return LoadComposableNodes(
@@ -97,6 +99,7 @@ def _load_composable_node(
                 namespace=namespace,
                 parameters=parameters,
                 remappings=remappings,
+                log_level=log_level,
             )
         ])
 
@@ -654,3 +657,59 @@ def test_load_node_with_condition_in_group(mock_component_container):
     assert len(request.remap_rules) == 0
     assert len(request.parameters) == 0
     assert len(request.extra_arguments) == 0
+
+
+def test_load_node_without_log_level(mock_component_container):
+    """Test that log_level defaults to 0 (UNSET) when not specified."""
+    _assert_launch_no_errors([
+        _load_composable_node(
+            package='foo_package',
+            plugin='bar_plugin',
+            name='test_node_name',
+        )
+    ])
+
+    assert len(mock_component_container.requests) == 1
+    request = mock_component_container.requests[0]
+    assert request.log_level == 0
+
+
+@pytest.mark.parametrize('log_level_str,expected', [
+    ('DEBUG', rclpy.logging.LoggingSeverity.DEBUG),
+    ('debug', rclpy.logging.LoggingSeverity.DEBUG),
+    ('INFO', rclpy.logging.LoggingSeverity.INFO),
+    ('info', rclpy.logging.LoggingSeverity.INFO),
+    ('WARN', rclpy.logging.LoggingSeverity.WARN),
+    ('warn', rclpy.logging.LoggingSeverity.WARN),
+    ('ERROR', rclpy.logging.LoggingSeverity.ERROR),
+    ('error', rclpy.logging.LoggingSeverity.ERROR),
+    ('FATAL', rclpy.logging.LoggingSeverity.FATAL),
+    ('fatal', rclpy.logging.LoggingSeverity.FATAL),
+])
+def test_load_node_with_log_level(mock_component_container, log_level_str, expected):
+    """Test that log_level is correctly mapped for all valid values."""
+    _assert_launch_no_errors([
+        _load_composable_node(
+            package='foo_package',
+            plugin='bar_plugin',
+            name='test_node_name',
+            log_level=log_level_str,
+        )
+    ])
+
+    assert len(mock_component_container.requests) == 1
+    request = mock_component_container.requests[0]
+    assert request.log_level == int(expected)
+
+
+def test_load_node_with_invalid_log_level(mock_component_container):
+    """Test that an invalid log_level raises an exception."""
+    with pytest.raises(RuntimeError):
+        _assert_launch_no_errors([
+            _load_composable_node(
+                package='foo_package',
+                plugin='bar_plugin',
+                name='test_node_name',
+                log_level='INVALID_LEVEL',
+            )
+        ])

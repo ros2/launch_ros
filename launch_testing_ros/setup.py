@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name='launch_testing_ros',
-    version='0.29.6',
+    version='0.30.1',
     packages=find_packages(exclude=['test']),
     py_modules=['launch_testing_ros_pytest_entrypoint'],
     data_files=[
@@ -32,7 +32,7 @@ setup(
     ],
     description='Test the output of a ROS node.',
     long_description='A package providing utilities for writing ROS2 enabled launch tests.',
-    license='Apache License, Version 2.0',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',

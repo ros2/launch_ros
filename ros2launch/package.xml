@@ -4,7 +4,7 @@
   schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>ros2launch</name>
-  <version>0.29.6</version>
+  <version>0.30.1</version>
   <description>
     The launch command for ROS 2 command line tools.
   </description>
@@ -12,7 +12,7 @@
   <maintainer email="aditya.pande@openrobotics.org">Aditya Pande</maintainer>
   <maintainer email="brandon@openrobotics.org">Brandon Ong</maintainer>
 
-  <license>Apache License 2.0</license>
+  <license>Apache-2.0</license>
 
   <author email="jacob@openrobotics.org">Jacob Perron</author>
   <author email="michael.jeronimo@openrobotics.org">Michael Jeronimo</author>

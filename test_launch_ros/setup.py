@@ -5,7 +5,7 @@ package_name = 'test_launch_ros'
 
 setup(
     name=package_name,
-    version='0.29.6',
+    version='0.30.1',
     packages=find_packages(exclude=['test']),
     install_requires=[
         'setuptools',
@@ -36,7 +36,7 @@ setup(
         'This package provides tests for the ROS specific '
         'extensions to the launch package.'
     ),
-    license='Apache License, Version 2.0',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',

@@ -1,4 +1,4 @@
-# Copyright 2018 Open Source Robotics Foundation, Inc.
+# Copyright 2026 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,21 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""substitutions Module."""
-
-from .ament_index import AmentIndexResource
-from .executable_in_package import ExecutableInPackage
-from .find_package import FindPackage
-from .find_package import FindPackagePrefix
-from .find_package import FindPackageShare
-from .parameter import Parameter
+import pytest
+from rmw_test_fixture_implementation import rmw_test_isolation_start
+from rmw_test_fixture_implementation import rmw_test_isolation_stop
 
 
-__all__ = [
-    'AmentIndexResource',
-    'ExecutableInPackage',
-    'FindPackage',
-    'FindPackagePrefix',
-    'FindPackageShare',
-    'Parameter',
-]
+@pytest.fixture(autouse=True, scope='session')
+def rmw_isolation():
+    """Start RMW isolation before any ROS context is created."""
+    rmw_test_isolation_start()
+    yield
+    rmw_test_isolation_stop()

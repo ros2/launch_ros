@@ -159,8 +159,18 @@ def dump_params_of_a_launch_file(*, launch_file_path, launch_file_arguments=None
         return original_execute_process(self, context)
 
     ExecuteProcess.execute = _suppressed_execute  # type: ignore[method-assign]
+    # Exit 0 must leave stdout as a parseable params-file. Launch / rcutils
+    # otherwise print [INFO] lines on stdout (especially when
+    # RCUTILS_LOGGING_USE_STDOUT is set).
+    previous_rcutils_stdout = os.environ.get('RCUTILS_LOGGING_USE_STDOUT')
+    os.environ['RCUTILS_LOGGING_USE_STDOUT'] = '0'
+    real_stdout = sys.stdout
+    real_stdout_fd = os.dup(1)
     ret = 1
     try:
+        # Cover both Python prints and C rcutils writes to fd 1.
+        os.dup2(2, 1)
+        sys.stdout = sys.stderr
         launch_service = launch.LaunchService(
             argv=launch_file_arguments,
             noninteractive=True,
@@ -185,6 +195,13 @@ def dump_params_of_a_launch_file(*, launch_file_path, launch_file_arguments=None
         print('error while dumping parameters: {}'.format(exc), file=sys.stderr)
         return 1
     finally:
+        os.dup2(real_stdout_fd, 1)
+        os.close(real_stdout_fd)
+        sys.stdout = real_stdout
+        if previous_rcutils_stdout is None:
+            os.environ.pop('RCUTILS_LOGGING_USE_STDOUT', None)
+        else:
+            os.environ['RCUTILS_LOGGING_USE_STDOUT'] = previous_rcutils_stdout
         ExecuteProcess.execute = original_execute_process  # type: ignore[method-assign]
 
     for warning in collector.warnings:

@@ -112,7 +112,9 @@ def generate_launch_description():
     with patch('sys.stdout', buf):
         rc = dump_params_of_a_launch_file(launch_file_path=str(launch_path))
     assert rc == 0
-    data = yaml.safe_load(buf.getvalue())
+    dumped = buf.getvalue()
+    assert not dumped.lstrip().startswith('[')
+    data = yaml.safe_load(dumped)
     assert '/demo/talker' in data
     params = data['/demo/talker']['ros__parameters']
     assert params['foo'] == 1

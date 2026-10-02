@@ -242,8 +242,8 @@ class LoadComposableNodes(Action):
                     continue
                 if not request.node_name:
                     collector.warn(
-                        "skipped composable node without a name "
-                        "(plugin={})".format(request.plugin_name))
+                        'skipped composable node without a name '
+                        '(plugin={})'.format(request.plugin_name))
                     continue
                 namespace = request.node_namespace or '/'
                 fqn = prefix_namespace(namespace, request.node_name)

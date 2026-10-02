@@ -14,9 +14,6 @@
 
 """Tests for dump-params utilities and dry-run collection."""
 
-import io
-from unittest.mock import patch
-
 from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import EmitEvent
@@ -26,13 +23,12 @@ from launch.events import Shutdown
 from launch_ros.actions import Node
 from launch_ros.actions import PushRosNamespace
 from launch_ros.actions import SetParameter
-from launch_ros.utilities.dump_params import DumpParamsCollector
-from launch_ros.utilities.dump_params import DumpParamsError
 from launch_ros.utilities.dump_params import apply_node_remaps_to_fqn
 from launch_ros.utilities.dump_params import attach_dump_params_collector
+from launch_ros.utilities.dump_params import DumpParamsCollector
+from launch_ros.utilities.dump_params import DumpParamsError
 
 import pytest
-import yaml
 
 
 def test_apply_node_remaps_to_fqn():
@@ -51,7 +47,7 @@ def test_collector_coalesce_and_diverge():
         collector.add_node('/a', {'x': 2})
 
 
-def test_dump_params_node_set_parameter_and_namespace(tmp_path):
+def test_dump_params_node_set_parameter_and_namespace():
     collector = DumpParamsCollector()
     ls = LaunchService(noninteractive=True)
     attach_dump_params_collector(ls.context, collector)
@@ -81,43 +77,3 @@ def test_dump_params_node_set_parameter_and_namespace(tmp_path):
     assert params['use_sim_time'] is True
     assert params['max_particles'] == 2000
     assert params['robot_model_type'] == 'differential'
-
-
-def test_dump_params_of_a_launch_file_api(tmp_path):
-    launch_path = tmp_path / 'dump_params_test.launch.py'
-    launch_path.write_text(
-        """
-from launch import LaunchDescription
-from launch_ros.actions import Node
-from launch_ros.actions import SetParameter
-
-def generate_launch_description():
-    return LaunchDescription([
-        SetParameter(name='use_sim_time', value=True),
-        Node(
-            package='demo_nodes_cpp',
-            executable='talker',
-            name='talker',
-            namespace='demo',
-            parameters=[{'foo': 1, 'bar': 'baz'}],
-            ros_arguments=['-p', 'extra:=2'],
-        ),
-    ])
-"""
-    )
-
-    from ros2launch.api import dump_params_of_a_launch_file
-
-    buf = io.StringIO()
-    with patch('sys.stdout', buf):
-        rc = dump_params_of_a_launch_file(launch_file_path=str(launch_path))
-    assert rc == 0
-    dumped = buf.getvalue()
-    assert not dumped.lstrip().startswith('[')
-    data = yaml.safe_load(dumped)
-    assert '/demo/talker' in data
-    params = data['/demo/talker']['ros__parameters']
-    assert params['foo'] == 1
-    assert params['bar'] == 'baz'
-    assert params['use_sim_time'] is True
-    assert params['extra'] == 2

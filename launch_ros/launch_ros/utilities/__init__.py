@@ -18,9 +18,9 @@ Module for descriptions of launchable entities.
 Descriptions are not executable and are immutable so they can be reused by launch entities.
 """
 
+from .dump_params import attach_dump_params_collector
 from .dump_params import DumpParamsCollector
 from .dump_params import DumpParamsError
-from .dump_params import attach_dump_params_collector
 from .dump_params import get_dump_params_collector
 from .dump_params import is_dump_params_mode
 from .evaluate_parameters import evaluate_parameters

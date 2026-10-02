@@ -498,8 +498,8 @@ class Node(ExecuteProcess):
             assert collector is not None
             if not self.is_node_name_fully_specified():
                 collector.warn(
-                    "skipped node with unspecified name "
-                    "(package={}, executable={})".format(
+                    'skipped node with unspecified name '
+                    '(package={}, executable={})'.format(
                         self.__package, self.__node_executable))
                 return None
             params = resolve_scoped_parameters(

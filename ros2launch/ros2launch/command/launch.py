@@ -76,7 +76,11 @@ class LaunchCommand(CommandExtension):
         """Add arguments to argparse."""
         parser.add_argument(
             '-n', '--noninteractive', default=not sys.stdin.isatty(), action='store_true',
-            help='Run the launch system non-interactively, with no terminal associated')
+            help=('Run the launch system non-interactively, with no terminal associated. '
+                  'In this mode, launch always sends SIGINT to its processes when shutting '
+                  'down, which is needed when launch is started or signaled by another '
+                  'program, e.g. a script sending SIGINT to only the launch process. '
+                  'This is the default when stdin is not a terminal.'))
         parser.add_argument(
             '-d', '--debug', default=False, action='store_true',
             help='Put the launch system in debug mode, provides more verbose output.')

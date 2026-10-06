@@ -2,6 +2,13 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Use the SPDX identifier Apache-2.0 in license declarations (`#578 <https://github.com/ros2/launch_ros/issues/578>`_)
+* Release ROS adapter resources during shutdown (`#566 <https://github.com/ros2/launch_ros/issues/566>`_)
+* Add ament-index resource substitution (`#522 <https://github.com/ros2/launch_ros/issues/522>`_)
+* Contributors: Michael Carroll, Nathan Wiebe Neufeldt, ktyang
+
 0.30.1 (2026-07-02)
 -------------------
 * fix: reject deprecated node-name frontend key (`#538 <https://github.com/ros2/launch_ros/issues/538>`_)

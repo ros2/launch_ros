@@ -2,6 +2,12 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remove unused args parameter from main() in Python files (`#580 <https://github.com/ros2/launch_ros/issues/580>`_)
+* Use the SPDX identifier Apache-2.0 in license declarations (`#578 <https://github.com/ros2/launch_ros/issues/578>`_)
+* Contributors: Michael Carroll, mahatsafa
+
 0.30.1 (2026-07-02)
 -------------------
 

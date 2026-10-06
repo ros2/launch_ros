@@ -2,8 +2,8 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.30.2 (2026-10-06)
+-------------------
 * Use the SPDX identifier Apache-2.0 in license declarations (`#578 <https://github.com/ros2/launch_ros/issues/578>`_)
 * Release ROS adapter resources during shutdown (`#566 <https://github.com/ros2/launch_ros/issues/566>`_)
 * Add ament-index resource substitution (`#522 <https://github.com/ros2/launch_ros/issues/522>`_)

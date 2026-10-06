@@ -2,8 +2,8 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.30.2 (2026-10-06)
+-------------------
 * Explain the signal behavior of --noninteractive in its help text (`#583 <https://github.com/ros2/launch_ros/issues/583>`_)
 * Use the SPDX identifier Apache-2.0 in license declarations (`#578 <https://github.com/ros2/launch_ros/issues/578>`_)
 * added --prefix as an alias for --launch-prefix. Also added --prefix-filter as an alias for --launch-prefix-filter. ROS Launch now matches ROS2 naming. Fixes issue `#581 <https://github.com/ros2/launch_ros/issues/581>`_ (`#582 <https://github.com/ros2/launch_ros/issues/582>`_)

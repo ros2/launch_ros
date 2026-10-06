@@ -35,6 +35,7 @@ def test_launch_component_container_yaml():
                 name: my_container
                 namespace: ''
                 args: 'test_args'
+                load_node_timeout: 5.0
                 composable_node:
                     -   pkg: composition
                         plugin: composition::Talker
@@ -52,6 +53,7 @@ def test_launch_component_container_yaml():
 
             - load_composable_node:
                 target: my_container
+                load_node_timeout: 5.0
                 composable_node:
                     -   pkg: composition
                         plugin: composition::Listener
@@ -76,7 +78,7 @@ def test_launch_component_container_xml():
     xml_file = textwrap.dedent(
         r"""
         <launch>
-            <node_container pkg="rclcpp_components" exec="component_container" name="my_container" namespace="" args="test_args">
+            <node_container pkg="rclcpp_components" exec="component_container" name="my_container" namespace="" args="test_args" load_node_timeout="5.0">
                 <composable_node pkg="composition" plugin="composition::Talker" name="talker" namespace="test_namespace">
                     <remap from="chatter" to="/remap/chatter" />
                     <param name="use_sim_time" value="true"/>
@@ -84,7 +86,7 @@ def test_launch_component_container_xml():
                 </composable_node>
             </node_container>
 
-            <load_composable_node target="my_container">
+            <load_composable_node target="my_container" load_node_timeout="5.0">
                 <composable_node pkg="composition" plugin="composition::Listener" name="listener" namespace="test_namespace">
                     <remap from="chatter" to="/remap/chatter" />
                     <param name="use_sim_time" value="true"/>
@@ -214,8 +216,10 @@ def check_launch_component_container(file):
     assert perform(node_container._Node__node_name) == 'my_container'
     assert perform(node_container._Node__node_namespace) == ''
     assert perform(node_container._Node__arguments[0]) == 'test_args'
+    assert node_container._ComposableNodeContainer__load_node_timeout == 5.0
 
     assert perform(load_composable_node._LoadComposableNodes__target_container) == 'my_container'
+    assert load_composable_node._LoadComposableNodes__load_node_timeout == 5.0
 
     # Check node parameters
     talker_remappings = list(talker._ComposableNode__remappings)

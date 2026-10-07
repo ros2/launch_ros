@@ -75,10 +75,12 @@ class LifecycleTransition(Action):
         :param transitions_ids: The transitions to be executed.
         """
         super().__init__(**kwargs)
-        if len(transition_ids) == 0:
+        transition_ids = list(transition_ids)
+        lifecycle_node_names = list(lifecycle_node_names)
+        if not transition_ids:
             raise ValueError('No transition_ids provided.')
 
-        if len(lifecycle_node_names) == 0:
+        if not lifecycle_node_names:
             raise ValueError('No lifecycle_node_names provided.')
 
         self.__lifecycle_node_names = [

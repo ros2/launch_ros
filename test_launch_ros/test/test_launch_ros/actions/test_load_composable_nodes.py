@@ -26,6 +26,7 @@ from launch.conditions import IfCondition
 from launch_ros.actions import LoadComposableNodes
 from launch_ros.actions import PushROSNamespace
 from launch_ros.actions import SetRemap
+from launch_ros.descriptions import ComposableLifecycleNode
 from launch_ros.descriptions import ComposableNode
 from launch_ros.utilities import get_node_name_count
 
@@ -161,12 +162,27 @@ def test_load_node_with_conditions(mock_component_container):
             name='test_node_name_false',
             namespace='test_node_namespace',
             condition=IfCondition('False')
-        )
+        ),
+        LoadComposableNodes(
+            target_container=f'/{TEST_CONTAINER_NAME}',
+            composable_node_descriptions=[
+                ComposableLifecycleNode(
+                    package='foo_package',
+                    plugin='bar_plugin',
+                    name='test_lifecycle_node_name_false',
+                    namespace='test_node_namespace',
+                    condition=IfCondition('False'),
+                    autostart=True,
+                )
+            ],
+        ),
     ])
 
     # Check that launch is aware of loaded component
     assert get_node_name_count(context, '/test_node_namespace/test_node_name_true') == 1
     assert get_node_name_count(context, '/test_node_namespace/test_node_name_false') == 0
+    assert get_node_name_count(
+        context, '/test_node_namespace/test_lifecycle_node_name_false') == 0
 
     # Check that container received correct request
     assert len(mock_component_container.requests) == 1

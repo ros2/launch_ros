@@ -27,7 +27,7 @@ import lifecycle_msgs.srv
 from ..events.lifecycle import ChangeState
 from ..events.lifecycle import StateTransition
 
-from ..ros_adapters import get_ros_node
+from ..ros_adapters import get_ros_adapter
 
 
 class LifecycleEventManager:
@@ -120,19 +120,26 @@ class LifecycleEventManager:
             context.asyncio_loop.run_in_executor(None, self._call_change_state, request, context))
 
     def setup_lifecycle_manager(self, context: launch.LaunchContext) -> None:
-        node = get_ros_node(context)
+        ros_adapter = get_ros_adapter(context)
 
-        # Create a subscription to monitor the state changes of the subprocess.
-        self.__rclpy_subscription = node.create_subscription(
-            lifecycle_msgs.msg.TransitionEvent,
-            '{}/transition_event'.format(self.node_name),
-            functools.partial(self._on_transition_event, context),
-            10)
+        def _create_entities():
+            node = ros_adapter.ros_node
 
-        # Create a service client to change state on demand.
-        self.__rclpy_change_state_client = node.create_client(
-            lifecycle_msgs.srv.ChangeState,
-            '{}/change_state'.format(self.node_name))
+            # Create a subscription to monitor the state changes of the subprocess.
+            self.__rclpy_subscription = node.create_subscription(
+                lifecycle_msgs.msg.TransitionEvent,
+                '{}/transition_event'.format(self.node_name),
+                functools.partial(self._on_transition_event, context),
+                10)
+
+            # Create a service client to change state on demand.
+            self.__rclpy_change_state_client = node.create_client(
+                lifecycle_msgs.srv.ChangeState,
+                '{}/change_state'.format(self.node_name))
+
+        # Marshal entity creation to the executor spin thread so it does not
+        # race with the wait set being built (see ROSAdapter.run_in_spin_thread).
+        ros_adapter.run_in_spin_thread(_create_entities)
 
         # Register an event handler to change states on a ChangeState lifecycle event.
         context.register_event_handler(launch.EventHandler(

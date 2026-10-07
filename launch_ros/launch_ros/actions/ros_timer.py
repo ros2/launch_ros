@@ -34,7 +34,7 @@ from launch.some_substitutions_type import SomeSubstitutionsType_types_tuple
 from launch.utilities import ensure_argument_type
 from launch.utilities import type_utils
 
-from launch_ros.ros_adapters import get_ros_node
+from launch_ros.ros_adapters import get_ros_adapter
 
 
 @expose_action('ros_timer')
@@ -72,9 +72,13 @@ class ROSTimer(TimerAction):
             self.__timer_future.set_result(True)
 
     async def _wait_to_fire_event(self, context):
-        node = get_ros_node(context)
-        node.create_timer(
-            type_utils.perform_typed_substitution(context, self.__period, float),
+        period = type_utils.perform_typed_substitution(context, self.__period, float)
+        # Marshal timer creation to the executor spin thread so it does not
+        # race with the wait set being built (see ROSAdapter.run_in_spin_thread).
+        ros_adapter = get_ros_adapter(context)
+        ros_adapter.run_in_spin_thread(
+            ros_adapter.ros_node.create_timer,
+            period,
             partial(context.asyncio_loop.call_soon_threadsafe, self.__timer_callback),
         )
 

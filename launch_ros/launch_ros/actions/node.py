@@ -64,6 +64,24 @@ from ..descriptions import Parameter
 from ..descriptions import ParameterFile
 
 
+class _ParamsFileDumper(yaml.Dumper):
+    """
+    Dumper used only for generating ROS parameter YAML files.
+
+    A dedicated subclass keeps the quoted-string representer below from
+    being registered on yaml.Dumper globally, which would leak into and
+    change the output of unrelated yaml.dump() calls elsewhere in the
+    process.
+    """
+
+
+def _represent_str_quoted(dumper, data):
+    return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+
+
+_ParamsFileDumper.add_representer(str, _represent_str_quoted)
+
+
 class NodeActionExtension:
     """
     The extension point for launch_ros node action extensions.
@@ -368,10 +386,8 @@ class Node(ExecuteProcess):
                 {'ros__parameters': params}
             }
 
-            def quoted_representor(dumper, data):
-                return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
-            yaml.add_representer(str, quoted_representor)
-            yaml.dump(param_dict, h, default_flow_style=False)
+            yaml.dump(
+                param_dict, h, Dumper=_ParamsFileDumper, default_flow_style=False)
             return param_file_path
 
     def _get_parameter_rule(self, param: 'Parameter', context: LaunchContext):

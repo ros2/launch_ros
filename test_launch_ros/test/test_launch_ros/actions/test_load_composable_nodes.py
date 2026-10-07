@@ -47,6 +47,7 @@ class MockComponentContainer(rclpy.node.Node):
     def __init__(self, context):
         # List of LoadNode requests received
         self.requests = []
+        self.fail_request = False
 
         super().__init__(TEST_CONTAINER_NAME, context=context)
 
@@ -56,8 +57,16 @@ class MockComponentContainer(rclpy.node.Node):
             self.load_node_callback
         )
 
+    def set_fail_request(self, fail_request: bool):
+        self.fail_request = fail_request
+
     def load_node_callback(self, request, response):
         self.requests.append(request)
+        if self.fail_request:
+            response.success = False
+            response.error_message = 'Component failure'
+            return response
+
         response.success = True
         if request.node_namespace == '/':
             response.full_node_name = f'/{request.node_name}'
@@ -75,11 +84,20 @@ def _assert_launch_no_errors(actions):
     return ls.context
 
 
+def _assert_launch_errors(actions):
+    ld = LaunchDescription(actions)
+    ls = LaunchService(debug=True)
+    ls.include_launch_description(ld)
+    assert 0 != ls.run()
+    return ls.context
+
+
 def _load_composable_node(
     *,
     package,
     plugin,
     name,
+    on_failure_shutdown=False,
     namespace='',
     condition=None,
     parameters=None,
@@ -88,6 +106,7 @@ def _load_composable_node(
 ):
     return LoadComposableNodes(
         target_container=target_container,
+        on_failure_shutdown=on_failure_shutdown,
         composable_node_descriptions=[
             ComposableNode(
                 condition=condition,
@@ -654,3 +673,38 @@ def test_load_node_with_condition_in_group(mock_component_container):
     assert len(request.remap_rules) == 0
     assert len(request.parameters) == 0
     assert len(request.extra_arguments) == 0
+
+
+def test_load_node_failure_no_shutdown(mock_component_container):
+    """Test that failure doesn't stop launch by default (on_failure_shutdown=False)."""
+    mock_component_container.set_fail_request(True)
+
+    # This should NOT raise an exception and should return 0 (success)
+    context = _assert_launch_no_errors([
+        _load_composable_node(
+            package='bad_package',
+            plugin='bad_plugin',
+            name='fail_node',
+            on_failure_shutdown=False
+        )
+    ])
+
+    # The node count should be 0 because it failed to load
+    assert get_node_name_count(context, '/fail_node') == 0
+    assert len(mock_component_container.requests) == 1
+
+
+def test_load_node_failure_with_shutdown(mock_component_container):
+    """Test that failure triggers RuntimeError when on_failure_shutdown=True."""
+    mock_component_container.set_fail_request(True)
+
+    context = _assert_launch_errors([
+        _load_composable_node(
+            package='bad_package',
+            plugin='bad_plugin',
+            name='fail_node',
+            on_failure_shutdown=True
+        )
+    ])
+
+    assert context.is_shutdown is True

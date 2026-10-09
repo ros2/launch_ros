@@ -1,0 +1,4 @@
+$(eval "'$(var ros_namespace /)'.rstrip('/')")/parameter_blackboard:
+  ros__parameters:
+    some_int: 42
+    a_string: 'Hello world'

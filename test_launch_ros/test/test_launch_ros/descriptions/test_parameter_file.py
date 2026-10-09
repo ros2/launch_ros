@@ -18,13 +18,20 @@ from contextlib import contextmanager
 import os
 from tempfile import NamedTemporaryFile
 
+from launch import LaunchContext
 from launch import Substitution
+from launch.conditions import IfCondition
 from launch.frontend import expose_substitution
+from launch.substitutions import LaunchConfiguration
 from launch.utilities import perform_substitutions
 
+from launch_ros.actions import PushROSNamespace
 from launch_ros.descriptions import ParameterFile
+from launch_ros.utilities import to_parameters_list
 
 import pytest
+import rclpy
+import yaml
 
 
 @contextmanager
@@ -81,10 +88,19 @@ def get_test_cases():
         my_list_of_strs: ['1', '"$(test 2)"', '3']
         """
     )
+    substituted_file = (
+        """\
+'/my_ns/my_node':
+    ros__parameters:
+        my_int: '1'
+        my_str: '"1"'
+        my_list_of_strs: ['1', '"2"', '3']
+        """
+    )
     return [
         pytest.param(
             parameter_file_with_substitutions,  # original contents
-            parameter_file_without_substitutions,  # expected contents
+            substituted_file,  # expected contents
             True,  # substitutions allowed
             id='Parameter file with substitutions, substitutions allowed',
         ),
@@ -124,7 +140,7 @@ def test_parameter_file_description(original_contents, expected_contents, allow_
         assert desc.allow_substs == allow_substs
         evaluated_param_file = desc.evaluate(lc)
         with open(evaluated_param_file, 'r') as new_f:
-            new_f.read() == expected_contents
+            assert new_f.read() == expected_contents
         assert desc.param_file == evaluated_param_file
         if not allow_substs:
             assert os.fspath(desc.param_file) == os.fspath(file_name)
@@ -136,3 +152,85 @@ def test_parameter_file_description(original_contents, expected_contents, allow_
         else:
             assert param_file.exists()
             assert os.fspath(desc.param_file) == os.fspath(file_name)
+
+
+@pytest.mark.parametrize(
+    'namespace, use_namespace, expected_namespace',
+    [
+        ('', 'true', '/'),
+        ('/', 'true', '/'),
+        ('my_ns', 'true', '/my_ns'),
+        ('/my_ns', 'true', '/my_ns'),
+        ('my_ns/', 'true', '/my_ns'),
+        ('my_ns/nested', 'true', '/my_ns/nested'),
+        ('my_ns', 'false', '/'),
+    ],
+)
+def test_parameter_file_with_optional_namespace(namespace, use_namespace, expected_namespace):
+    context = LaunchContext()
+    context.launch_configurations['namespace'] = namespace
+    PushROSNamespace(
+        LaunchConfiguration('namespace'),
+        condition=IfCondition(use_namespace),
+    ).visit(context)
+    contents = """\
+$(eval "'$(var ros_namespace /)'.rstrip('/')")/my_node:
+    ros__parameters:
+        my_int: 42
+        my_float: 1.25
+        my_bool: true
+        my_str: '42'
+        my_list: [1, 2, 3]
+"""
+    expected_values = {
+        'my_int': 42,
+        'my_float': 1.25,
+        'my_bool': True,
+        'my_str': '42',
+        'my_list': [1, 2, 3],
+    }
+    with get_parameter_file(contents) as file_name:
+        desc = ParameterFile(file_name, allow_substs=True)
+        try:
+            param_file = desc.evaluate(context)
+            expected_name = expected_namespace.rstrip('/') + '/my_node'
+            with open(param_file, 'r') as f:
+                assert yaml.safe_load(f) == {
+                    expected_name: {'ros__parameters': expected_values},
+                }
+
+            parameters = to_parameters_list(context, 'my_node', expected_namespace, [param_file])
+            values = {}
+            for parameter in parameters:
+                value = parameter.value
+                if parameter.type_ == rclpy.Parameter.Type.INTEGER_ARRAY:
+                    value = list(value)
+                values[parameter.name] = value
+            assert values == expected_values
+
+            ros_context = rclpy.context.Context()
+            with rclpy.init(
+                args=['--ros-args', '--params-file', str(param_file)],
+                context=ros_context,
+            ):
+                node = rclpy.create_node(
+                    'my_node',
+                    namespace=expected_namespace,
+                    context=ros_context,
+                    automatically_declare_parameters_from_overrides=True,
+                )
+                try:
+                    assert node.get_fully_qualified_name() == expected_name
+                    for name, value in expected_values.items():
+                        parameter = node.get_parameter(name)
+                        if isinstance(value, list):
+                            assert parameter.type_ == rclpy.Parameter.Type.INTEGER_ARRAY
+                            assert list(parameter.value) == value
+                        else:
+                            assert parameter.value == value
+                            assert type(parameter.value) is type(value)
+                finally:
+                    node.destroy_node()
+        finally:
+            desc.cleanup()
+        assert not param_file.exists()

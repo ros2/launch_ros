@@ -81,9 +81,10 @@ class ParameterValue:
         return self.__value_type
 
     def __str__(self) -> Text:
+        value_type_name = self.value_type.__name__ if self.value_type is not None else None
         return (
             'launch_ros.description.ParameterValue'
-            f'(value={self.value}, value_type={self.value_type.__name__})'
+            f'(value={self.value}, value_type={value_type_name})'
         )
 
     def evaluate(self, context: LaunchContext) -> 'EvaluatedParameterValue':
@@ -146,9 +147,10 @@ class Parameter:
         return self.__parameter_value.value_type
 
     def __str__(self) -> Text:
+        value_type_name = self.value_type.__name__ if self.value_type is not None else None
         return (
             'launch_ros.description.Parameter'
-            f'(name={self.name}, value={self.value}, value_type={self.value_type.__name__})'
+            f'(name={self.name}, value={self.value}, value_type={value_type_name})'
         )
 
     def evaluate(self, context: LaunchContext) -> Tuple[Text, 'EvaluatedParameterValue']:

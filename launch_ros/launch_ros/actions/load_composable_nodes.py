@@ -328,11 +328,11 @@ class LoadComposableNodes(Action):
 
 
 def _parameter_value_from_msg(value_msg):
-    """Convert an rcl_interfaces/ParameterValue message into a Python value."""
-    from rcl_interfaces.msg import Parameter as ParameterMsg
-    from rclpy.parameter import Parameter
-    msg = ParameterMsg(name='', value=value_msg)
-    return Parameter.from_parameter_msg(msg).value
+    """Convert an rcl_interfaces/ParameterValue message into a YAML-safe Python value."""
+    # from_parameter_msg() keeps integer and double arrays as array.array, which
+    # yaml.safe_dump() cannot represent. parameter_value_to_python() returns lists.
+    from rclpy.parameter import parameter_value_to_python
+    return parameter_value_to_python(value_msg)
 
 
 def get_composable_node_load_request(

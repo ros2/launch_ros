@@ -14,6 +14,7 @@
 
 """Utilities for ``ros2 launch --dump-params`` dry-run parameter collection."""
 
+import array
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -34,6 +35,7 @@ from .namespace_utils import prefix_namespace
 from .normalize_parameters import normalize_parameter_dict
 from .to_parameters_list import to_parameters_list
 
+from ..parameter_descriptions import Parameter
 from ..parameter_descriptions import ParameterFile
 
 DUMP_PARAMS_CONTEXT_KEY = 'dump_params_collector'
@@ -65,7 +67,9 @@ class DumpParamsCollector:
         Identical param sets for the same FQN are coalesced. Divergent sets raise.
         """
         normalized_fqn = _normalize_fqn(fqn)
-        param_dict = dict(params)
+        param_dict = {
+            name: _normalize_yaml_value(value) for name, value in params.items()
+        }
         if normalized_fqn in self._nodes:
             if self._nodes[normalized_fqn] == param_dict:
                 return
@@ -129,10 +133,14 @@ def resolve_scoped_parameters(
     """
     Resolve the effective parameter dict for a node, matching runtime merge order.
 
+    Node places ros_arguments on argv first, then global parameters, then
+    the node's own parameters. rcl applies those entries left to right, so
+    the later entry wins for the same name.
+
     Order:
-      1. SetParameter / SetParametersFromFile (global_params)
-      2. the node's parameters=[...] list
-      3. -p / --param overrides from ros_arguments
+      1. -p / --param overrides from ros_arguments
+      2. SetParameter / SetParametersFromFile (global_params)
+      3. the node's parameters=[...] list, including Parameter descriptions
     """
     parameters: List[Any] = []
     params_container = context.launch_configurations.get('global_params', None)
@@ -146,19 +154,24 @@ def resolve_scoped_parameters(
     if normalized_parameters:
         parameters.extend(list(normalized_parameters))
 
+    # Earliest on argv, so a later global or node parameter replaces these.
     result: Dict[str, Any] = {}
-    if parameters:
-        param_list = to_parameters_list(
-            context,
-            node_name,
-            namespace or '',
-            evaluate_parameters(context, parameters),
-        )
-        for parameter in param_list:
-            result[parameter.name] = _normalize_yaml_value(parameter.value)
-
     for name, value in _param_overrides_from_ros_arguments(context, ros_arguments):
         result[name] = value
+
+    if not parameters:
+        return result
+
+    # Parameter descriptions are -p rules at runtime. to_parameters_list() only
+    # accepts dicts and param files, so evaluate those descriptions here.
+    namespace = namespace or ''
+    for item in evaluate_parameters(context, parameters):
+        if isinstance(item, Parameter):
+            name, value = item.evaluate(context)
+            result[name] = _normalize_yaml_value(value)
+            continue
+        for parameter in to_parameters_list(context, node_name, namespace, [item]):
+            result[parameter.name] = _normalize_yaml_value(parameter.value)
     return result
 
 
@@ -166,7 +179,7 @@ def apply_node_remaps_to_fqn(
     fqn: str,
     remappings: Optional[Iterable[Tuple[str, str]]],
 ) -> str:
-    """Apply ``__node`` / ``__ns`` remappings to a fully qualified node name."""
+    """Apply __node / __ns remappings to a fully qualified node name."""
     normalized = _normalize_fqn(fqn)
     parts = [p for p in normalized.split('/') if p]
     node_name = parts[-1] if parts else ''
@@ -231,6 +244,7 @@ def _normalize_fqn(fqn: str) -> str:
 
 
 def _normalize_yaml_value(value: Any) -> Any:
-    if isinstance(value, tuple):
-        return list(value)
+    """Return a value yaml.safe_dump can represent."""
+    if isinstance(value, (list, tuple, array.array)):
+        return [_normalize_yaml_value(item) for item in value]
     return value

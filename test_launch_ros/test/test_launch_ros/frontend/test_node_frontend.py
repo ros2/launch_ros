@@ -23,6 +23,8 @@ from launch.frontend import Parser
 
 from launch_ros.utilities import evaluate_parameters
 
+import yaml
+
 yaml_params = str(pathlib.Path(__file__).parent / 'params.yaml')
 
 # Escape backslashes if any to keep them after parsing takes place
@@ -198,6 +200,12 @@ def check_launch_node(file):
     assert param_dict['param_group1.param13'] == '100'
     assert param_dict['param_group1.param14'] == ["'2'", "'5'", "'8'"]
     assert param_dict['param_group1.param15'] == ['2', '5', '8']
+
+    param_path = evaluated_parameters[2]
+    file_params = yaml.safe_load(open(param_path))
+    ros_params = file_params.get('my_ns', {}).get('my_node', {}).get('ros__parameters', {})
+    assert ros_params['param_from_file_1'] == 1
+    assert ros_params['param_from_file_2'] == 'asd'
 
     # Check remappings exist
     remappings = ld.describe_sub_entities()[3]._Node__remappings

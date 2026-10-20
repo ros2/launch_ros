@@ -27,6 +27,7 @@ except ImportError:
     # argcomplete < 1.9.0
     SuppressCompleter = object
 from ros2cli.command import CommandExtension
+from ros2launch.api import dump_params_of_a_launch_file
 from ros2launch.api import get_share_file_path_from_package
 from ros2launch.api import is_launch_file
 from ros2launch.api import launch_a_launch_file
@@ -90,6 +91,12 @@ class LaunchCommand(CommandExtension):
         command_group.add_argument(
             '-s', '--show-args', '--show-arguments', default=False, action='store_true',
             help='Show arguments that may be given to the launch file.')
+        command_group.add_argument(
+            '--dump-params', default=False, action='store_true',
+            help=(
+                'Evaluate the launch file without starting processes and print the resolved '
+                'node parameters as a ROS 2 params-file YAML document.'
+            ))
         parser.add_argument(
             '-a', '--show-all-subprocesses-output', default=False, action='store_true',
             help=("Show all launched subprocesses' output by overriding their output"
@@ -175,6 +182,11 @@ class LaunchCommand(CommandExtension):
             return print_a_launch_file(launch_file_path=path)
         elif args.show_args:
             return print_arguments_of_launch_file(launch_file_path=path)
+        elif args.dump_params:
+            return dump_params_of_a_launch_file(
+                launch_file_path=path,
+                launch_file_arguments=launch_arguments,
+            )
         else:
             return launch_a_launch_file(
                 launch_file_path=path,

@@ -16,6 +16,7 @@
 
 from pathlib import Path
 import threading
+import time
 
 from typing import List
 from typing import Optional
@@ -65,6 +66,7 @@ class LoadComposableNodes(Action):
         *,
         composable_node_descriptions: List[ComposableNode],
         target_container: Union[SomeSubstitutionsType, ComposableNodeContainer],
+        response_timeout: Optional[float] = 60.0,
         **kwargs,
     ) -> None:
         """
@@ -79,6 +81,9 @@ class LoadComposableNodes(Action):
 
         :param composable_node_descriptions: descriptions of composable nodes to be loaded
         :param target_container: the container to load the nodes into
+        :param response_timeout: seconds to wait for the container to answer each load request
+            before giving up on it, or None to wait indefinitely.
+            The request is not re-sent, as the container may already have loaded the node.
         """
         ensure_argument_type(
             target_container,
@@ -90,6 +95,7 @@ class LoadComposableNodes(Action):
         super().__init__(**kwargs)
         self.__composable_node_descriptions = composable_node_descriptions
         self.__target_container = target_container
+        self.__response_timeout = response_timeout
         self.__final_target_container_name: Optional[Text] = None
         self.__logger = launch.logging.get_logger(__name__)
 
@@ -161,7 +167,20 @@ class LoadComposableNodes(Action):
         response_future = self.__rclpy_load_node_client.call_async(request)
         response_future.add_done_callback(unblock)
 
+        deadline = None if self.__response_timeout is None else \
+            time.monotonic() + self.__response_timeout
         while not event.wait(1.0):
+            if deadline is not None and time.monotonic() >= deadline:
+                self.__logger.error(
+                    "No response from the '{}' service after {} seconds, giving up on loading "
+                    "node '{}' of type '{}' in container '{}'".format(
+                        self.__rclpy_load_node_client.srv_name, self.__response_timeout,
+                        request.node_name, request.plugin_name,
+                        self.__final_target_container_name
+                    )
+                )
+                response_future.cancel()
+                return
             if context.is_shutdown:
                 self.__logger.warning(
                     "Abandoning wait for the '{}' service response, due to shutdown.".format(

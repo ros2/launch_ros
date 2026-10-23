@@ -19,6 +19,7 @@ from .executable_in_package import ExecutableInPackage
 from .find_package import FindPackage
 from .find_package import FindPackagePrefix
 from .find_package import FindPackageShare
+from .find_package_file import FindPackageFile
 from .parameter import Parameter
 
 
@@ -26,6 +27,7 @@ __all__ = [
     'AmentIndexResource',
     'ExecutableInPackage',
     'FindPackage',
+    'FindPackageFile',
     'FindPackagePrefix',
     'FindPackageShare',
     'Parameter',

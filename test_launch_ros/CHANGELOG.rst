@@ -2,6 +2,12 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.10 (2026-10-23)
+--------------------
+* Add ament-index resource substitution (`#522 <https://github.com/ros2/launch_ros//issues/522>`_) (`#576 <https://github.com/ros2/launch_ros//issues/576>`_)
+* Enable rmw test isolation (`#567 <https://github.com/ros2/launch_ros//issues/567>`_) (`#568 <https://github.com/ros2/launch_ros//issues/568>`_)
+* Contributors: mergify[bot]
+
 0.29.9 (2026-07-02)
 -------------------
 

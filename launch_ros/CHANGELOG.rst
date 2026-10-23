@@ -2,6 +2,11 @@
 Changelog for package launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.29.10 (2026-10-23)
+--------------------
+* Add ament-index resource substitution (`#522 <https://github.com/ros2/launch_ros//issues/522>`_) (`#576 <https://github.com/ros2/launch_ros//issues/576>`_)
+* Contributors: mergify[bot]
+
 0.29.9 (2026-07-02)
 -------------------
 * fix: reject deprecated node-name frontend key (`#538 <https://github.com/ros2/launch_ros/issues/538>`_) (`#545 <https://github.com/ros2/launch_ros/issues/545>`_)

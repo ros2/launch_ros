@@ -27,9 +27,13 @@ def get_rmw_output_filter(rmw_implementation, filter_type):
     if not prefix_with_resource:
         return []
 
-    # Treat each line of the resource as an independent filter.
+    # Treat each non-empty line of the resource as an independent filter. A
+    # prefix may span several lines, written as one line with '\\n' escapes.
     rmw_output_filter, _ = ament_index_python.get_resource(resource_name, rmw_implementation)
-    return rmw_output_filter.splitlines()
+    filters = [line for line in rmw_output_filter.splitlines() if line]
+    if filter_type == 'prefixes':
+        filters = [line.replace('\\n', '\n') for line in filters]
+    return filters
 
 
 def basic_output_filter(
@@ -40,13 +44,15 @@ def basic_output_filter(
     """
     Create a line filtering function to help output testing.
 
-    :param filtered_prefixes: A list of byte strings representing prefixes that will cause
+    :param filtered_prefixes: A list of strings representing prefixes that will cause
         output lines to be ignored if they start with one of the prefixes. By default lines
-        starting with the process ID (`b'pid'`) and return code (`b'rc'`) will be ignored.
-    :param filtered_patterns: A list of byte strings representing regexes that will cause
+        starting with the process ID (`'pid'`) and return code (`'rc'`) will be ignored.
+        A prefix may span several lines, see `launch_testing.tools.basic_output_filter`.
+    :param filtered_patterns: A list of strings representing regexes that will cause
         output lines to be ignored if they match one of the regexes.
-    :param filtered_rmw_implementation: RMW implementation for which the output will be
-        ignored in addition to the `filtered_prefixes`/`filtered_patterns`.
+    :param filtered_rmw_implementation: RMW implementation whose registered
+        `rmw_output_prefixes` and `rmw_output_patterns` resources are applied in addition
+        to the `filtered_prefixes`/`filtered_patterns`.
     """
     from launch_testing.tools.output import basic_output_filter as base_output_filter
     from launch_testing.tools.output import get_default_filtered_prefixes

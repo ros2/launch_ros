@@ -2,6 +2,9 @@
 Changelog for package ros2launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.30.3 (2026-10-23)
+-------------------
+
 0.30.2 (2026-10-06)
 -------------------
 * Explain the signal behavior of --noninteractive in its help text (`#583 <https://github.com/ros2/launch_ros/issues/583>`_)

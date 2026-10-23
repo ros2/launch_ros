@@ -2,6 +2,9 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.30.3 (2026-10-23)
+-------------------
+
 0.30.2 (2026-10-06)
 -------------------
 * Use the SPDX identifier Apache-2.0 in license declarations (`#578 <https://github.com/ros2/launch_ros/issues/578>`_)

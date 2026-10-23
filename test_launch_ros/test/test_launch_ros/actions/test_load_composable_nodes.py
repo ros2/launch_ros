@@ -16,6 +16,7 @@
 
 import pathlib
 import threading
+import time
 
 from composition_interfaces.srv import LoadNode
 
@@ -47,6 +48,8 @@ class MockComponentContainer(rclpy.node.Node):
     def __init__(self, context):
         # List of LoadNode requests received
         self.requests = []
+        # Seconds to hold each response back
+        self.response_delay = 0.0
 
         super().__init__(TEST_CONTAINER_NAME, context=context)
 
@@ -58,6 +61,7 @@ class MockComponentContainer(rclpy.node.Node):
 
     def load_node_callback(self, request, response):
         self.requests.append(request)
+        time.sleep(self.response_delay)
         response.success = True
         if request.node_namespace == '/':
             response.full_node_name = f'/{request.node_name}'
@@ -654,3 +658,25 @@ def test_load_node_with_condition_in_group(mock_component_container):
     assert len(request.remap_rules) == 0
     assert len(request.parameters) == 0
     assert len(request.extra_arguments) == 0
+
+
+def test_load_node_response_timeout(mock_component_container):
+    """Test that a load request the container does not answer in time is abandoned."""
+    mock_component_container.response_delay = 4.0
+    context = _assert_launch_no_errors([
+        LoadComposableNodes(
+            target_container=f'/{TEST_CONTAINER_NAME}',
+            composable_node_descriptions=[
+                ComposableNode(
+                    package='foo_package',
+                    plugin='bar_plugin',
+                    name='test_node_name',
+                    namespace='test_node_namespace'
+                )
+            ],
+            response_timeout=1.0
+        )
+    ])
+
+    assert len(mock_component_container.requests) == 1
+    assert get_node_name_count(context, '/test_node_namespace/test_node_name') == 0

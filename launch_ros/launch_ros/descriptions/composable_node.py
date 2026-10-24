@@ -45,6 +45,7 @@ class ComposableNode:
         remappings: Optional[SomeRemapRules] = None,
         extra_arguments: Optional[SomeParameters] = None,
         condition: Optional[Condition] = None,
+        log_level: Optional[SomeSubstitutionsType] = None,
     ) -> None:
         """
         Initialize a ComposableNode description.
@@ -57,6 +58,7 @@ class ComposableNode:
         :param remappings: list of from/to pairs for remapping names
         :param extra_arguments: container specific arguments to be passed to the loaded node
         :param condition: action will be executed if the condition evaluates to true
+        :param log_level: log level for the node (e.g. 'debug', 'info', 'warn', 'error', 'fatal')
         """
         self.__package = normalize_to_list_of_substitutions(package)
         self.__node_plugin = normalize_to_list_of_substitutions(plugin)
@@ -82,6 +84,10 @@ class ComposableNode:
             self.__extra_arguments = normalize_parameters(extra_arguments)
 
         self.__condition = condition
+
+        self.__log_level = None  # type: Optional[List[Substitution]]
+        if log_level is not None:
+            self.__log_level = normalize_to_list_of_substitutions(log_level)
 
     @classmethod
     def parse(cls, parser: Parser, entity: Entity):
@@ -138,6 +144,10 @@ class ComposableNode:
             for extra_arg in extra_arguments:
                 extra_arg.assert_entity_completely_parsed()
 
+        log_level = entity.get_attr('log_level', optional=True)
+        if log_level is not None:
+            kwargs['log_level'] = parser.parse_substitution(log_level)
+
         return cls, kwargs
 
     @property
@@ -178,3 +188,8 @@ class ComposableNode:
     def condition(self) -> Optional[Condition]:
         """Getter for condition."""
         return self.__condition
+
+    @property
+    def log_level(self) -> Optional[List[Substitution]]:
+        """Get log level as a sequence of substitutions to be performed."""
+        return self.__log_level

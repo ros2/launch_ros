@@ -177,7 +177,8 @@ class ParameterFile:
         Construct a parameter file description.
 
         :param param_file: Path to a parameter file.
-        :param allow_subst: Allow substitutions in the parameter file.
+        :param allow_substs: Allow launch substitutions in the parameter file,
+            including node names and namespaces in YAML keys.
         """
         # In Python, __del__ is called even if the constructor throws an
         # exception.  It is possible for ensure_argument_type() below to

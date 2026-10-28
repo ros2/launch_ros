@@ -18,7 +18,6 @@ from typing import List
 from typing import Optional
 
 from launch.condition import Condition
-from launch.conditions import IfCondition, UnlessCondition
 from launch.frontend import Entity
 from launch.frontend import Parser
 from launch.some_substitutions_type import SomeSubstitutionsType
@@ -87,24 +86,16 @@ class ComposableNode:
     def parse(cls, parser: Parser, entity: Entity):
         """Parse composable_node."""
         from launch_ros.actions import Node
+        from launch_ros.actions.node import _parse_if_unless_condition
         kwargs = {}
 
         kwargs['package'] = parser.parse_substitution(entity.get_attr('pkg'))
         kwargs['plugin'] = parser.parse_substitution(entity.get_attr('plugin'))
         kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
 
-        if_cond = entity.get_attr('if', optional=True)
-        unless_cond = entity.get_attr('unless', optional=True)
-        if if_cond is not None and unless_cond is not None:
-            raise RuntimeError("if and unless conditions can't be used simultaneously")
-        if if_cond is not None:
-            kwargs['condition'] = IfCondition(
-                predicate_expression=parser.parse_substitution(if_cond)
-            )
-        if unless_cond is not None:
-            kwargs['condition'] = UnlessCondition(
-                predicate_expression=parser.parse_substitution(unless_cond)
-            )
+        condition = _parse_if_unless_condition(entity, parser)
+        if condition is not None:
+            kwargs['condition'] = condition
 
         namespace = entity.get_attr('namespace', optional=True)
         if namespace is not None:

@@ -75,7 +75,11 @@ class LaunchCommand(CommandExtension):
         """Add arguments to argparse."""
         parser.add_argument(
             '-n', '--noninteractive', default=not sys.stdin.isatty(), action='store_true',
-            help='Run the launch system non-interactively, with no terminal associated')
+            help=('Run the launch system non-interactively, with no terminal associated. '
+                  'In this mode, launch always sends SIGINT to its processes when shutting '
+                  'down, which is needed when launch is started or signaled by another '
+                  'program, e.g. a script sending SIGINT to only the launch process. '
+                  'This is the default when stdin is not a terminal.'))
         parser.add_argument(
             '-d', '--debug', default=False, action='store_true',
             help='Put the launch system in debug mode, provides more verbose output.')
@@ -95,13 +99,13 @@ class LaunchCommand(CommandExtension):
             '-f', '--log-file-name', type=str, default='launch',
             help='Name of the log file (postfixed with .log automatically if not provided).')
         parser.add_argument(
-            '--launch-prefix',
+            '--launch-prefix', '--prefix',
             help='Prefix command, which should go before all executables. '
                  'Command must be wrapped in quotes if it contains spaces '
                  "(e.g. --launch-prefix 'xterm -e gdb -ex run --args')."
         )
         parser.add_argument(
-            '--launch-prefix-filter',
+            '--launch-prefix-filter', '--prefix-filter',
             help=('Regex pattern for filtering which executables the --launch-prefix is applied '
                   'to by matching the executable name.')
         )

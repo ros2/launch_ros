@@ -14,6 +14,7 @@
 
 """substitutions Module."""
 
+from .ament_index import AmentIndexResource
 from .executable_in_package import ExecutableInPackage
 from .find_package import FindPackage
 from .find_package import FindPackagePrefix
@@ -22,6 +23,7 @@ from .parameter import Parameter
 
 
 __all__ = [
+    'AmentIndexResource',
     'ExecutableInPackage',
     'FindPackage',
     'FindPackagePrefix',

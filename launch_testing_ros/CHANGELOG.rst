@@ -2,6 +2,17 @@
 Changelog for package launch_testing_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.30.3 (2026-10-23)
+-------------------
+* Add a per-test timeout to launch_testing_ros (`#587 <https://github.com/ros2/launch_ros//issues/587>`_)
+* Contributors: Michael Carroll
+
+0.30.2 (2026-10-06)
+-------------------
+* Remove unused args parameter from main() in Python files (`#580 <https://github.com/ros2/launch_ros/issues/580>`_)
+* Use the SPDX identifier Apache-2.0 in license declarations (`#578 <https://github.com/ros2/launch_ros/issues/578>`_)
+* Contributors: Michael Carroll, mahatsafa
+
 0.30.1 (2026-07-02)
 -------------------
 

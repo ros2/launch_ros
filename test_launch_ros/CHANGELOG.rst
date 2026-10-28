@@ -2,6 +2,18 @@
 Changelog for package test_launch_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.30.3 (2026-10-23)
+-------------------
+
+0.30.2 (2026-10-06)
+-------------------
+* Use the SPDX identifier Apache-2.0 in license declarations (`#578 <https://github.com/ros2/launch_ros/issues/578>`_)
+* Release ROS adapter resources during shutdown (`#566 <https://github.com/ros2/launch_ros/issues/566>`_)
+* Add ament-index resource substitution (`#522 <https://github.com/ros2/launch_ros/issues/522>`_)
+* Enable rmw test isolation (`#567 <https://github.com/ros2/launch_ros/issues/567>`_)
+* test: add regression test for isolated component_container load race (`#563 <https://github.com/ros2/launch_ros/issues/563>`_)
+* Contributors: Michael Carroll, Nathan Wiebe Neufeldt, Tony Najjar, ktyang, yadunund
+
 0.30.1 (2026-07-02)
 -------------------
 

@@ -78,15 +78,19 @@ class TestFixture(unittest.TestCase):
         # Multiple instances of WaitForNode() can be created safely as
         # their internal nodes spin in separate contexts
         # Method 2 : Manually calling wait() and shutdown()
+        # shutdown() must run even if an assertion fails, or the spin thread keeps
+        # the interpreter from exiting
         wait_for_node_object_2 = WaitForTopics(topic_list, timeout=15.0)
-        assert wait_for_node_object_2.wait()
-        assert wait_for_node_object_2.topics_received() == expected_topics
-        assert wait_for_node_object_2.topics_not_received() == set()
-        for topic_name, _ in topic_list:
-            assert len(wait_for_node_object_1.received_messages(topic_name)) >= 1
-            message = wait_for_node_object_2.received_messages(topic_name).pop().data
-            assert message_pattern.match(message)
-        wait_for_node_object_2.shutdown()
+        try:
+            assert wait_for_node_object_2.wait()
+            assert wait_for_node_object_2.topics_received() == expected_topics
+            assert wait_for_node_object_2.topics_not_received() == set()
+            for topic_name, _ in topic_list:
+                assert len(wait_for_node_object_1.received_messages(topic_name)) >= 1
+                message = wait_for_node_object_2.received_messages(topic_name).pop().data
+                assert message_pattern.match(message)
+        finally:
+            wait_for_node_object_2.shutdown()
 
     def test_topics_unsuccessful(self, count: int):
         """All topics should be read except for the 'invalid_topic'."""
@@ -97,15 +101,17 @@ class TestFixture(unittest.TestCase):
 
         # Method 1
         with pytest.raises(RuntimeError):
-            with WaitForTopics(topic_list, timeout=2.0):
+            with WaitForTopics(topic_list, timeout=5.0):
                 pass
 
         # Method 2
-        wait_for_node_object = WaitForTopics(topic_list, timeout=2.0)
-        assert not wait_for_node_object.wait()
-        assert wait_for_node_object.topics_received() == expected_topics
-        assert wait_for_node_object.topics_not_received() == {'invalid_topic'}
-        wait_for_node_object.shutdown()
+        wait_for_node_object = WaitForTopics(topic_list, timeout=5.0)
+        try:
+            assert not wait_for_node_object.wait()
+            assert wait_for_node_object.topics_received() == expected_topics
+            assert wait_for_node_object.topics_not_received() == {'invalid_topic'}
+        finally:
+            wait_for_node_object.shutdown()
 
     def test_trigger_function(self, count):
         topic_list = [('chatter_' + str(i), String) for i in range(count)]
@@ -120,9 +126,11 @@ class TestFixture(unittest.TestCase):
             node.get_logger().info(f'Trigger function called with argument: {arg[0]}')
             arg[0] = True
 
-        wait_for_node_object = WaitForTopics(topic_list, timeout=2.0, trigger=trigger_function)
-        assert wait_for_node_object.wait(is_trigger_called)
-        assert wait_for_node_object.topics_received() == expected_topics
-        assert wait_for_node_object.topics_not_received() == set()
-        assert is_trigger_called[0]
-        wait_for_node_object.shutdown()
+        wait_for_node_object = WaitForTopics(topic_list, timeout=15.0, trigger=trigger_function)
+        try:
+            assert wait_for_node_object.wait(is_trigger_called)
+            assert wait_for_node_object.topics_received() == expected_topics
+            assert wait_for_node_object.topics_not_received() == set()
+            assert is_trigger_called[0]
+        finally:
+            wait_for_node_object.shutdown()

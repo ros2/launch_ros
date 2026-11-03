@@ -29,6 +29,11 @@ class WaitForTopics:
     """
     Wait to receive messages on supplied topics.
 
+    Prefer using it as a context manager (method 1), which always shuts it down.
+    When calling wait() manually (methods 2 and 3), shutdown() must run even if
+    wait() returns False or an assertion fails, so call it in a ``finally`` block.
+    Otherwise the internal spin thread keeps running and the interpreter cannot exit.
+
     Example usage:
 
     from std_msgs.msg import String
@@ -46,12 +51,14 @@ class WaitForTopics:
         def method_2():
             topic_list = [('topic_1', String), ('topic_2', String)]
             wait_for_topics = WaitForTopics(topic_list, timeout=5.0)
-            assert wait_for_topics.wait()
-            print('Given topics are receiving messages !')
-            print(wait_for_topics.topics_not_received()) # Should be an empty set
-            print(wait_for_topics.topics_received()) # Should be {'topic_1', 'topic_2'}
-            print(wait_for_topics.messages_received('topic_1')) # Should be [message_1, ...]
-            wait_for_topics.shutdown()
+            try:
+                assert wait_for_topics.wait()
+                print('Given topics are receiving messages !')
+                print(wait_for_topics.topics_not_received()) # Should be an empty set
+                print(wait_for_topics.topics_received()) # Should be {'topic_1', 'topic_2'}
+                print(wait_for_topics.received_messages('topic_1')) # Should be [message_1, ...]
+            finally:
+                wait_for_topics.shutdown()
 
         # Method 3, calling a trigger function before the wait. The trigger function takes
         # the WaitForTopics node object as the first argument. Any additional arguments have
@@ -62,11 +69,13 @@ class WaitForTopics:
         def method_3():
             topic_list = [('topic_1', String), ('topic_2', String)]
             wait_for_topics = WaitForTopics(topic_list, timeout=5.0, trigger=trigger_function)
-            # The trigger function will be called inside the wait() method after the
-            # subscribers are created and the publishers are connected.
-            assert wait_for_topics.wait("Hello World!")
-            print('Given topics are receiving messages !')
-            wait_for_topics.shutdown()
+            try:
+                # The trigger function will be called inside the wait() method after the
+                # subscribers are created and the publishers are connected.
+                assert wait_for_topics.wait("Hello World!")
+                print('Given topics are receiving messages !')
+            finally:
+                wait_for_topics.shutdown()
     """
 
     def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10,

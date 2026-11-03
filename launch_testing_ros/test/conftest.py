@@ -34,10 +34,37 @@ def _arm_watchdog(timeout):
     faulthandler.dump_traceback_later(timeout, exit=True, file=_watchdog_fd)
 
 
+def _multiprocessing_helper_pids():
+    # multiprocessing's resource tracker and forkserver (started by e.g. flake8's
+    # parallel jobs) belong to this interpreter and are shut down along with it.
+    pids = set()
+    try:
+        from multiprocessing import resource_tracker
+        pids.add(getattr(resource_tracker._resource_tracker, '_pid', None))
+    except (ImportError, AttributeError):
+        pass
+    try:
+        from multiprocessing import forkserver
+        pids.add(getattr(forkserver._forkserver, '_forkserver_pid', None))
+    except (ImportError, AttributeError):
+        pass
+    pids.discard(None)
+    for pid in list(pids):
+        try:
+            pids.update(p.pid for p in psutil.Process(pid).children(recursive=True))
+        except psutil.Error:
+            pass
+    return pids
+
+
 def _kill_leaked_processes(terminalreporter):
     # Processes left behind by launch tests can keep the interpreter from exiting,
     # or hold the output pipe open so colcon never sees the test run finish.
-    children = psutil.Process().children(recursive=True)
+    helper_pids = _multiprocessing_helper_pids()
+    children = [
+        child for child in psutil.Process().children(recursive=True)
+        if child.pid not in helper_pids
+    ]
     if not children:
         return
     for child in children:

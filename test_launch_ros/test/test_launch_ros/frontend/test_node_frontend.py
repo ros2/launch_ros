@@ -57,7 +57,7 @@ def test_launch_frontend_xml():
                     <param name="param14" value="'2', '5', '8'" value-sep=", " type="list_of_str"/>
                     <param name="param15" value="2, 5, 8" value-sep=", " type="list_of_str"/>
                 </param>
-                <param from="{}"/>
+                <param from="{}" allow_substs="$(eval False)"/>
                 <env name="var" value="1"/>
                 <remap from="foo" to="bar"/>
                 <remap from="baz" to="foobar"/>
@@ -131,6 +131,7 @@ def test_launch_frontend_yaml():
                             value: ['2', '5', '8']
                             type: list_of_str
                     -   from: {}
+                        allow_substs: $(eval False)
                 env:
                     -   name: var
                         value: '1'

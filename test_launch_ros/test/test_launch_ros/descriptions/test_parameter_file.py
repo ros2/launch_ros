@@ -15,7 +15,9 @@
 """Tests for launch_ros.descriptions.ParameterFile."""
 
 from contextlib import contextmanager
+import gc
 import os
+import sys
 from tempfile import NamedTemporaryFile
 
 from launch import Substitution
@@ -51,6 +53,9 @@ class CustomSubstitution(Substitution):
 
     def perform(self, context):
         return self.__text
+
+    def set_text(self, text):
+        self.__text = text
 
 
 @expose_substitution('test')
@@ -136,3 +141,53 @@ def test_parameter_file_description(original_contents, expected_contents, allow_
         else:
             assert param_file.exists()
             assert os.fspath(desc.param_file) == os.fspath(file_name)
+
+
+def test_parameter_file_allow_substs_substitution():
+    lc = MockContext()
+    with get_parameter_file('{}') as file_name:
+        desc = ParameterFile(
+            file_name,
+            allow_substs=CustomSubstitution('true'),
+        )
+        assert isinstance(desc.allow_substs, list)
+        desc.evaluate(lc)
+        assert desc.allow_substs is True
+        desc.cleanup()
+        assert isinstance(desc.allow_substs, list)
+
+
+def test_parameter_file_invalid_allow_substs_does_not_fail_cleanup():
+    unraisable = []
+    original_unraisablehook = sys.unraisablehook
+    sys.unraisablehook = unraisable.append
+    try:
+        with pytest.raises(TypeError, match='allow_subst'):
+            ParameterFile('params.yaml', allow_substs=object())
+        gc.collect()
+    finally:
+        sys.unraisablehook = original_unraisablehook
+
+    assert not unraisable
+
+
+@pytest.mark.parametrize('first, second', [('false', 'true'), ('true', 'false')])
+def test_parameter_file_allow_substs_re_evaluates_after_cleanup(first, second):
+    lc = MockContext()
+    allow_substs = CustomSubstitution(first)
+    with get_parameter_file('{}') as file_name:
+        desc = ParameterFile(file_name, allow_substs=allow_substs)
+
+        first_path = desc.evaluate(lc)
+        assert desc.allow_substs is (first == 'true')
+        assert (os.fspath(first_path) != file_name) is (first == 'true')
+        desc.cleanup()
+        assert os.path.exists(file_name)
+
+        allow_substs.set_text(second)
+        second_path = desc.evaluate(lc)
+        assert desc.allow_substs is (second == 'true')
+        assert (os.fspath(second_path) != file_name) is (second == 'true')
+        desc.cleanup()
+        assert os.path.exists(file_name)
+        assert isinstance(desc.allow_substs, list)

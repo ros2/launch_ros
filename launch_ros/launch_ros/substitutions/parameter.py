@@ -30,6 +30,7 @@ from launch.substitution import Substitution
 from launch.substitutions.substitution_failure import SubstitutionFailure
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 @expose_substitution('param')
@@ -96,7 +97,10 @@ class Parameter(Substitution):
         for param in params_container:
             if isinstance(param, tuple):
                 if param[0] == name:
-                    return str(param[1])
+                    if isinstance(param[1], ParameterValue):
+                        return str(param[1].value)
+                    else:
+                        return str(param[1])
 
         if self.__default is None:
             raise SubstitutionFailure("parameter '{}' not found".format(name))

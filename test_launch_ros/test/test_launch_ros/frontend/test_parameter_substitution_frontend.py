@@ -75,7 +75,7 @@ def check_parameter_substitution(file):
     assert perform(let_invalid_default.name) == 'result_default'
     assert perform(let_invalid_default.value) == 'default_value'
     assert perform(set_parameter.name) == 'name'
-    assert perform(set_parameter.value) == 'value'
+    assert set_parameter.value.value == 'value'
     assert perform(let.name) == 'result'
     assert perform(let.value) == 'value'
     assert perform(let_valid_default.name) == 'result'

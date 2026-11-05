@@ -39,6 +39,24 @@ def test_parameter_substitution_yaml():
             - let:
                 name: result
                 value: $(param name default_value)
+
+            - set_parameter:
+                name: yaml_like
+                value: '{ yaml: false, looks_like: 9 }'
+                type: str
+
+            - let:
+                name: yaml_like_result
+                value: $(param yaml_like)
+
+            - set_parameter:
+                name: int_like
+                value: 0x11
+                type: int
+
+            - let:
+                name: int_like_result
+                value: $(param int_like)
         """
     )
     with io.StringIO(yaml_file) as f:
@@ -53,6 +71,10 @@ def test_parameter_substitution_xml():
             <set_parameter name="name" value="value" />
             <let name="result" value="$(param name)" />
             <let name="result" value="$(param name default_value)" />
+            <set_parameter name="yaml_like" value="{ yaml: false, looks_like: 9 }" type="str" />
+            <let name="yaml_like_result" value="$(param yaml_like)" />
+            <set_parameter name="int_like" value="0x11" type="int" />
+            <let name="int_like_result" value="$(param int_like)" />
         </launch>
         """
     )
@@ -71,7 +93,16 @@ def check_parameter_substitution(file):
         return perform_substitutions(ls.context, substitution)
 
     # Test invalid names before declaring a parameter to check None
-    let_invalid_default, set_parameter, let, let_valid_default = ld.describe_sub_entities()
+    (
+        let_invalid_default,
+        set_parameter,
+        let,
+        let_valid_default,
+        set_parameter_yaml_like,
+        let_yaml_like,
+        set_parameter_int_like,
+        let_int_like,
+    ) = ld.describe_sub_entities()
     assert perform(let_invalid_default.name) == 'result_default'
     assert perform(let_invalid_default.value) == 'default_value'
     assert perform(set_parameter.name) == 'name'
@@ -80,3 +111,11 @@ def check_parameter_substitution(file):
     assert perform(let.value) == 'value'
     assert perform(let_valid_default.name) == 'result'
     assert perform(let_valid_default.value) == 'value'
+    assert perform(set_parameter_yaml_like.name) == 'yaml_like'
+    assert set_parameter_yaml_like.value.value == '{ yaml: false, looks_like: 9 }'
+    assert perform(let_yaml_like.name) == 'yaml_like_result'
+    assert perform(let_yaml_like.value) == '{ yaml: false, looks_like: 9 }'
+    assert perform(set_parameter_int_like.name) == 'int_like'
+    assert set_parameter_int_like.value.value == 0x11
+    assert perform(let_int_like.name) == 'int_like_result'
+    assert perform(let_int_like.value) == '17'

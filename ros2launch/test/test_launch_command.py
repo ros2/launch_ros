@@ -39,7 +39,6 @@ def test_launch_prefix_filter_alias():
     assert args.launch_prefix_filter == 'my_node'
 
 
-
 def _parse_launch_arguments(arguments):
     parser = argparse.ArgumentParser()
     command = LaunchCommand()

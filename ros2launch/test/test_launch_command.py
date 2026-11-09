@@ -33,3 +33,15 @@ def test_launch_prefix_filter_alias():
     args = parser.parse_args(
         ['--prefix-filter', 'my_node', 'my_pkg', 'my_launch.py'])
     assert args.launch_prefix_filter == 'my_node'
+
+
+def test_dump_params_flag():
+    parser = argparse.ArgumentParser()
+    cmd = LaunchCommand()
+    cmd.add_arguments(parser, 'ros2 launch')
+    args = parser.parse_args(
+        ['--dump-params', 'my_pkg', 'my_launch.py', 'use_sim_time:=false'])
+    assert args.dump_params is True
+    assert args.print is False
+    assert args.show_args is False
+    assert args.launch_arguments == ['use_sim_time:=false']

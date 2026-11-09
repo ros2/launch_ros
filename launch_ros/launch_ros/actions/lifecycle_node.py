@@ -111,6 +111,12 @@ class LifecycleNode(Node):
 
         Delegated to :meth:`launch.actions.ExecuteProcess.execute`.
         """
+        from launch_ros.utilities.dump_params import is_dump_params_mode
+
+        # In dump-params mode, skip lifecycle ROS setup and autostart transitions.
+        if is_dump_params_mode(context):
+            return super().execute(context)
+
         self._perform_substitutions(context)  # ensure self.node_name is expanded
         if '<node_name_unspecified>' in self.node_name:
             raise RuntimeError('node_name unexpectedly incomplete for lifecycle node')

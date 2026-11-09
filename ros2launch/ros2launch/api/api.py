@@ -124,6 +124,99 @@ def print_arguments_of_launch_file(*, launch_file_path):
     print_arguments_of_launch_description(launch_description=launch_description)
 
 
+def dump_params_of_a_launch_file(*, launch_file_path, launch_file_arguments=None):
+    """
+    Evaluate a launch file without starting processes and print resolved node parameters.
+
+    Prints a single ROS 2 params-file YAML document to stdout.
+    Returns 0 on success, non-zero on failure.
+    """
+    import sys
+
+    from launch.actions import EmitEvent
+    from launch.actions import ExecuteProcess
+    from launch.actions import IncludeLaunchDescription
+    from launch.events import Shutdown
+    from launch.launch_description_sources import AnyLaunchDescriptionSource
+    from launch_ros.utilities.dump_params import DumpParamsCollector
+    from launch_ros.utilities.dump_params import DumpParamsError
+    from launch_ros.utilities.dump_params import attach_dump_params_collector
+    from launch_ros.utilities.dump_params import is_dump_params_mode
+
+    if launch_file_arguments is None:
+        launch_file_arguments = []
+
+    parsed_launch_arguments = parse_launch_arguments(launch_file_arguments)
+    collector = DumpParamsCollector()
+
+    original_execute_process = ExecuteProcess.execute
+
+    def _suppressed_execute(self, context):
+        # Node and subclasses override execute() and handle dump-params themselves.
+        # Suppress any remaining ExecuteProcess side effects during dry-run.
+        if is_dump_params_mode(context):
+            return None
+        return original_execute_process(self, context)
+
+    ExecuteProcess.execute = _suppressed_execute  # type: ignore[method-assign]
+    # Exit 0 must leave stdout as a parseable params-file. Launch / rcutils
+    # otherwise print [INFO] lines on stdout (especially when
+    # RCUTILS_LOGGING_USE_STDOUT is set).
+    previous_rcutils_stdout = os.environ.get('RCUTILS_LOGGING_USE_STDOUT')
+    os.environ['RCUTILS_LOGGING_USE_STDOUT'] = '0'
+    real_stdout = sys.stdout
+    real_stdout_fd = os.dup(1)
+    ret = 1
+    try:
+        # Cover both Python prints and C rcutils writes to fd 1.
+        os.dup2(2, 1)
+        sys.stdout = sys.stderr
+        launch_service = launch.LaunchService(
+            argv=launch_file_arguments,
+            noninteractive=True,
+        )
+        attach_dump_params_collector(launch_service.context, collector)
+
+        launch_description = launch.LaunchDescription([
+            IncludeLaunchDescription(
+                AnyLaunchDescriptionSource(launch_file_path),
+                launch_arguments=parsed_launch_arguments,
+            ),
+            # After the sync action tree has been visited, shut down so we do not
+            # wait on timers / event handlers that will never fire without processes.
+            EmitEvent(event=Shutdown(reason='dump-params complete')),
+        ])
+        launch_service.include_launch_description(launch_description)
+        ret = launch_service.run()
+    except DumpParamsError as exc:
+        print('error: {}'.format(exc), file=sys.stderr)
+        return 1
+    except Exception as exc:
+        print('error while dumping parameters: {}'.format(exc), file=sys.stderr)
+        return 1
+    finally:
+        os.dup2(real_stdout_fd, 1)
+        os.close(real_stdout_fd)
+        sys.stdout = real_stdout
+        if previous_rcutils_stdout is None:
+            os.environ.pop('RCUTILS_LOGGING_USE_STDOUT', None)
+        else:
+            os.environ['RCUTILS_LOGGING_USE_STDOUT'] = previous_rcutils_stdout
+        ExecuteProcess.execute = original_execute_process  # type: ignore[method-assign]
+
+    for warning in collector.warnings:
+        print('warning: {}'.format(warning), file=sys.stderr)
+
+    if ret is not None and ret != 0:
+        return ret
+
+    yaml_text = collector.dumps()
+    sys.stdout.write(yaml_text)
+    if not yaml_text.endswith('\n'):
+        sys.stdout.write('\n')
+    return 0
+
+
 def parse_launch_arguments(launch_arguments: List[Text]) -> List[Tuple[Text, Text]]:
     """Parse the given launch arguments from the command line, into list of tuples for launch."""
     parsed_launch_arguments = OrderedDict()  # type: ignore

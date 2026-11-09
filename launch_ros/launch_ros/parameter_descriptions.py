@@ -45,6 +45,30 @@ if TYPE_CHECKING:
     from .parameters_type import EvaluatedParameterValue
 
 
+class ConditionalParameter:
+    """Wraps a parameter (dict or ParameterFile) with an optional condition."""
+
+    def __init__(self, parameter, *, condition=None):
+        """
+        Construct a conditional parameter.
+
+        :param parameter: The wrapped parameter (dict or ParameterFile).
+        :param condition: An optional Condition to evaluate at runtime.
+        """
+        self.__parameter = parameter
+        self.__condition = condition
+
+    @property
+    def parameter(self):
+        """Getter for the wrapped parameter."""
+        return self.__parameter
+
+    @property
+    def condition(self):
+        """Getter for condition."""
+        return self.__condition
+
+
 class ParameterValue:
     """Describes a ROS parameter value."""
 

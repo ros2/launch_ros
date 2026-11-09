@@ -32,6 +32,7 @@ from launch.utilities import normalize_to_list_of_substitutions
 
 import yaml
 
+from ..parameter_descriptions import ConditionalParameter
 from ..parameter_descriptions import Parameter as ParameterDescription
 from ..parameter_descriptions import ParameterFile
 from ..parameter_descriptions import ParameterValue as ParameterValueDescription
@@ -183,6 +184,8 @@ def normalize_parameters(parameters: SomeParameters) -> Parameters:
         if isinstance(param, Mapping):
             normalized_params.append(normalize_parameter_dict(param))
         elif isinstance(param, ParameterDescription):
+            normalized_params.append(param)
+        elif isinstance(param, ConditionalParameter):
             normalized_params.append(param)
         elif isinstance(param, ParameterFile):
             normalized_params.append(param)

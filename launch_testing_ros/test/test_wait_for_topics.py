@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import gc
 import os
 import subprocess
 import sys
@@ -26,13 +27,36 @@ def test_daemon_thread_and_idempotent_shutdown():
     w = WaitForTopics([('dummy_topic', String)], timeout=0.1)
     spin_thread = getattr(w, '_WaitForTopics__ros_spin_thread')
     assert spin_thread.daemon is True
-    assert not w._is_shutdown
+    assert spin_thread.is_alive()
+    assert w._finalizer.alive is True
 
     # Calling shutdown() multiple times should succeed cleanly
     w.shutdown()
-    assert w._is_shutdown
+    assert w._finalizer.alive is False
+    assert not spin_thread.is_alive()
     w.shutdown()
-    assert w._is_shutdown
+    assert w._finalizer.alive is False
+
+
+def test_finalizer_cleans_up_on_garbage_collection():
+    """Verify deleting WaitForTopics without shutdown() stops its thread on GC."""
+    w = WaitForTopics([('dummy_topic', String)], timeout=0.1)
+    spin_thread = getattr(w, '_WaitForTopics__ros_spin_thread')
+    ros_context = getattr(w, '_WaitForTopics__ros_context')
+    assert spin_thread.is_alive()
+    assert ros_context.ok()
+
+    del w
+    gc.collect()
+
+    assert not spin_thread.is_alive()
+    assert not ros_context.ok()
+
+
+def test_non_callable_trigger_raises_type_error():
+    """Verify invalid trigger raises TypeError without leaking resources."""
+    with pytest.raises(TypeError):
+        WaitForTopics([('dummy_topic', String)], trigger='not_callable')
 
 
 def test_context_manager_failure_cleans_up():

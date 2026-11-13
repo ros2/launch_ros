@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import atexit
 from collections import deque
 import random
 import string
 from threading import Event
 from threading import Thread
+from typing import Optional
+import weakref
 
 import rclpy
 from rclpy.event_handler import QoSSubscriptionMatchedInfo
@@ -33,8 +34,8 @@ class WaitForTopics:
     Prefer using it as a context manager (method 1), which always shuts it down.
     When calling wait() manually (methods 2 and 3), shutdown() should be called
     in a ``finally`` block to release resources promptly. If shutdown() is omitted,
-    an atexit handler shuts down the internal node and joins the spin thread so the
-    process does not hang at exit.
+    a finalizer shuts down the internal node and joins the spin thread on garbage
+    collection or interpreter exit so the process does not hang.
 
     Example usage:
 
@@ -82,10 +83,6 @@ class WaitForTopics:
 
     def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10,
                  trigger=None, node_namespace=None, qos_profile=10) -> None:
-        self._is_shutdown = False
-        self._atexit_hook = self.shutdown
-        atexit.register(self._atexit_hook)
-
         self.topic_tuples = topic_tuples
         self.timeout = timeout
         self.messages_received_buffer_length = messages_received_buffer_length
@@ -93,38 +90,59 @@ class WaitForTopics:
         self.node_namespace = node_namespace
         self.qos_profile = qos_profile
         if self.trigger is not None and not callable(self.trigger):
-            self.shutdown()
             raise TypeError('The passed trigger is not callable')
+
         self.__ros_context = rclpy.Context()
         rclpy.init(context=self.__ros_context)
         self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)
-
-        self._prepare_ros_node()
-
-        # Start spinning
-        self.__ros_spin_thread = Thread(target=self._spin_handle_external_shutdown, daemon=True)
-        self.__ros_spin_thread.start()
-
-    def _spin_handle_external_shutdown(self):
+        self.__ros_node: Optional['_WaitForTopicsNode'] = None
         try:
-            self.__ros_executor.spin()
+            self.__ros_node = self._prepare_ros_node()
+            self.__ros_executor.add_node(self.__ros_node)
+
+            # Start spinning without capturing `self` so finalization can run on GC
+            self.__ros_spin_thread = Thread(
+                target=self._spin_handle_external_shutdown,
+                args=(self.__ros_executor,),
+                daemon=True,
+            )
+            self.__ros_spin_thread.start()
+        except Exception:
+            self.__ros_context.try_shutdown()
+            self.__ros_executor.shutdown()
+            if self.__ros_node is not None:
+                self.__ros_node.destroy_node()
+            raise
+
+        # Register finalizer without capturing `self`
+        self._finalizer = weakref.finalize(
+            self,
+            self._cleanup,
+            self.__ros_context,
+            self.__ros_spin_thread,
+            self.__ros_node,
+        )
+
+    @staticmethod
+    def _spin_handle_external_shutdown(ros_executor):
+        try:
+            ros_executor.spin()
         except rclpy.executors.ExternalShutdownException:
             pass
         finally:
-            self.__ros_executor.shutdown()
+            ros_executor.shutdown()
 
     def _prepare_ros_node(self):
         node_name = '_test_node_' + ''.join(
             random.choices(string.ascii_uppercase + string.digits, k=10)
         )
-        self.__ros_node = _WaitForTopicsNode(
+        return _WaitForTopicsNode(
             name=node_name,
             node_context=self.__ros_context,
             messages_received_buffer_length=self.messages_received_buffer_length,
             node_namespace=self.node_namespace,
             qos_profile=self.qos_profile
         )
-        self.__ros_executor.add_node(self.__ros_node)
 
     def wait(self, *args, **kwargs):
         self.__ros_node.start_subscribers(self.topic_tuples)
@@ -133,27 +151,16 @@ class WaitForTopics:
             self.trigger(self.__ros_node, *args, **kwargs)
         return self.__ros_node.msg_event_object.wait(self.timeout)
 
+    @staticmethod
+    def _cleanup(ros_context, ros_spin_thread, ros_node):
+        # Shutdown context before joining thread
+        ros_context.try_shutdown()
+        ros_spin_thread.join()
+        ros_node.destroy_node()
+
     def shutdown(self):
         """Shut down the internal ROS node, context, and spin thread."""
-        if getattr(self, '_is_shutdown', True):
-            return
-        self._is_shutdown = True
-        if hasattr(self, '_atexit_hook') and self._atexit_hook is not None:
-            try:
-                atexit.unregister(self._atexit_hook)
-            except Exception:
-                pass
-            self._atexit_hook = None
-        # Shutdown context before joining thread
-        if hasattr(self, '_WaitForTopics__ros_context'):
-            self.__ros_context.try_shutdown()
-        if hasattr(self, '_WaitForTopics__ros_spin_thread'):
-            self.__ros_spin_thread.join()
-        if hasattr(self, '_WaitForTopics__ros_node'):
-            self.__ros_node.destroy_node()
-
-    def __del__(self):
-        self.shutdown()
+        self._finalizer()
 
     def topics_received(self):
         """Topics that received at least one message."""

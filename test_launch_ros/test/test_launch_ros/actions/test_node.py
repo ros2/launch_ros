@@ -244,6 +244,35 @@ class TestNode(unittest.TestCase):
                 }
             }
 
+    def test_create_params_file_from_dict_does_not_leak_global_yaml_state(self):
+        """
+        Test parameter file generation does not modify PyYAML's global state.
+
+        Generated ROS parameter files must still double-quote strings, while
+        unrelated yaml.dump() calls must remain unchanged.
+        """
+        plain_yaml_before = yaml.dump({'my_param': 'my_value'})
+
+        node_action = self._create_node(
+            parameters=[{'my_param': 'my_value'}])
+        node_action._perform_substitutions(LaunchContext())
+
+        expanded_parameter_arguments = node_action._Node__expanded_parameter_arguments
+        assert len(expanded_parameter_arguments) == 1
+        param_file_path, is_file = expanded_parameter_arguments[0]
+        assert is_file
+
+        try:
+            with open(param_file_path, 'r') as h:
+                content = h.read()
+
+            assert '"my_param": "my_value"' in content
+
+            plain_yaml_after = yaml.dump({'my_param': 'my_value'})
+            assert plain_yaml_after == plain_yaml_before
+        finally:
+            os.unlink(param_file_path)
+
     def test_create_node_with_invalid_parameters(self):
         """Test launching a node with invalid parameters."""
         self._assert_type_error_creating_node(parameters=[5.0])  # Invalid list values.

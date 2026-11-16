@@ -44,14 +44,34 @@ xml_file = textwrap.dedent(
 )
 
 
+yaml_false_file = textwrap.dedent(
+    r"""
+    launch:
+        - set_use_sim_time:
+            value: false
+    """
+)
+
+
+xml_false_file = textwrap.dedent(
+    r"""
+    <launch>
+        <set_use_sim_time value="false" />
+    </launch>
+    """
+)
+
+
 @pytest.mark.parametrize(
-    'file',
+    'file, expected_value',
     [
-        pytest.param(yaml_file, id='YAML'),
-        pytest.param(xml_file, id='XML'),
+        pytest.param(yaml_file, True, id='YAML-true'),
+        pytest.param(xml_file, True, id='XML-true'),
+        pytest.param(yaml_false_file, False, id='YAML-false'),
+        pytest.param(xml_false_file, False, id='XML-false'),
     ],
 )
-def test_set_use_sim_timer(file):
+def test_set_use_sim_timer(file, expected_value):
     root_entity, parser = Parser.load(io.StringIO(file))
     ld = parser.parse_description(root_entity)
     ls = LaunchService()
@@ -59,6 +79,5 @@ def test_set_use_sim_timer(file):
     assert 0 == ls.run()
 
     lc = ls.context
-    assert len(ld.entities) == 2
-    assert isinstance(ld.entities[1], SetUseSimTime)
-    assert perform_typed_substitution(lc, ld.entities[1].value, bool) is True
+    assert isinstance(ld.entities[-1], SetUseSimTime)
+    assert perform_typed_substitution(lc, ld.entities[-1].value, bool) is expected_value

@@ -65,5 +65,5 @@ class SetUseSimTime(Action):
             value,
         )
         node.set_parameters([param])
-        if not node.get_parameter('use_sim_time').get_parameter_value().bool_value:
+        if node.get_parameter('use_sim_time').get_parameter_value().bool_value != value:
             raise RuntimeError('Failed to set use_sim_time parameter')

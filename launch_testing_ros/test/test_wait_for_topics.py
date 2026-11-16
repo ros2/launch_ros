@@ -25,7 +25,7 @@ from std_msgs.msg import String
 def test_daemon_thread_and_idempotent_shutdown():
     """Verify that spin thread is a daemon and shutdown is idempotent."""
     w = WaitForTopics([('dummy_topic', String)], timeout=0.1)
-    spin_thread = getattr(w, '_WaitForTopics__ros_spin_thread')
+    spin_thread = w._WaitForTopics__ros_spin_thread
     assert spin_thread.daemon is True
     assert spin_thread.is_alive()
     assert w._finalizer.alive is True
@@ -41,8 +41,8 @@ def test_daemon_thread_and_idempotent_shutdown():
 def test_finalizer_cleans_up_on_garbage_collection():
     """Verify deleting WaitForTopics without shutdown() stops its thread on GC."""
     w = WaitForTopics([('dummy_topic', String)], timeout=0.1)
-    spin_thread = getattr(w, '_WaitForTopics__ros_spin_thread')
-    ros_context = getattr(w, '_WaitForTopics__ros_context')
+    spin_thread = w._WaitForTopics__ros_spin_thread
+    ros_context = w._WaitForTopics__ros_context
     assert spin_thread.is_alive()
     assert ros_context.ok()
 

@@ -18,6 +18,8 @@ import string
 from threading import Event
 from threading import Thread
 from typing import Optional
+from typing import Protocol
+from typing import Tuple
 import weakref
 
 import rclpy
@@ -25,6 +27,15 @@ from rclpy.event_handler import QoSSubscriptionMatchedInfo
 from rclpy.event_handler import SubscriptionEventCallbacks
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
+from rclpy.qos import QoSProfile
+from rclpy.type_support import MsgT
+
+
+class TriggerProtocol(Protocol):
+    """Protocol for trigger callables passed to WaitForTopics."""
+
+    def __call__(self, node: Node, *args, **kwargs) -> None:
+        pass
 
 
 class WaitForTopics:
@@ -81,8 +92,15 @@ class WaitForTopics:
                 wait_for_topics.shutdown()
     """
 
-    def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10,
-                 trigger=None, node_namespace=None, qos_profile=10) -> None:
+    def __init__(
+        self,
+        topic_tuples: list[Tuple[str, MsgT]],
+        timeout: float = 5.0,
+        messages_received_buffer_length: int = 10,
+        trigger: TriggerProtocol | None = None,
+        node_namespace: str | None = None,
+        qos_profile: QoSProfile | int = 10
+    ) -> None:
         self.topic_tuples = topic_tuples
         self.timeout = timeout
         self.messages_received_buffer_length = messages_received_buffer_length
@@ -180,8 +198,10 @@ class WaitForTopics:
         if not self.wait():
             not_received = self.topics_not_received()
             self.shutdown()
-            raise RuntimeError('Did not receive messages on these topics: ',
-                               not_received)
+            raise RuntimeError(
+                'Did not receive messages on these topics: ',
+                not_received,
+            )
         return self
 
     def __exit__(self, exep_type, exep_value, trace):

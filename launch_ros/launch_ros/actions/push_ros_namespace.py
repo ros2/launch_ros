@@ -67,7 +67,7 @@ class PushROSNamespace(Action):
     def execute(self, context: LaunchContext):
         """Execute the action."""
         pushed_namespace = perform_substitutions(context, self.namespace)
-        previous_namespace = context.launch_configurations.get('ros_namespace', None)
+        previous_namespace = context.get_locals_as_dict().get('ros_namespace', None)
         namespace = make_namespace_absolute(
             prefix_namespace(previous_namespace, pushed_namespace))
         try:
@@ -79,4 +79,4 @@ class PushROSNamespace(Action):
                     previous_namespace, pushed_namespace
                 )
             )
-        context.launch_configurations['ros_namespace'] = namespace
+        context.extend_locals({'ros_namespace': namespace})

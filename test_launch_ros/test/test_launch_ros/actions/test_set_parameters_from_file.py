@@ -52,6 +52,20 @@ def test_set_param_is_scoped():
     assert lc.launch_configurations == {}
 
 
+def test_set_param_from_file_override_is_scoped():
+    lc = LaunchContext()
+    push_conf = PushLaunchConfigurations()
+    pop_conf = PopLaunchConfigurations()
+    set_param = SetParametersFromFile('./example_parameters_0.yaml', override=True)
+
+    push_conf.execute(lc)
+    set_param.execute(lc)
+    assert lc.launch_configurations == {
+        'global_params_override_files': ['./example_parameters_0.yaml']}
+    pop_conf.execute(lc)
+    assert lc.launch_configurations == {}
+
+
 def test_set_param_with_node():
     lc = MockContext()
     node_1 = Node(
@@ -136,6 +150,46 @@ def test_set_param_with_node():
         }
 
 
+def test_set_param_from_file_override_with_node():
+    lc = MockContext()
+    node_1 = Node(
+        package='asd',
+        executable='bsd',
+        name='my_node',
+        namespace='my_ns',
+        parameters=[{'asd': 'bsd1'}]
+    )
+    param_file_path = os.path.dirname(os.path.abspath(__file__)) + '/example_parameters_1.yaml'
+    override_file_path = \
+        os.path.dirname(os.path.abspath(__file__)) + '/example_parameters_override.yaml'
+    set_param_file = SetParametersFromFile(param_file_path)
+    set_param_override_file = SetParametersFromFile(override_file_path, override=True)
+    set_param_file.execute(lc)
+    set_param_override_file.execute(lc)
+    node_1._perform_substitutions(lc)
+
+    actual_command = [perform_substitutions(lc, item) for item in
+                      node_1.cmd if isinstance(item[0], TextSubstitution)]
+
+    # The globally set parameter file comes first, then the parameters of
+    # the node itself, and the overriding parameter file comes last, so
+    # its parameters take precedence over the ones of the node.
+    assert actual_command[3] == '--params-file'
+    assert actual_command[4] == param_file_path
+    assert actual_command[5] == '--params-file'
+    assert os.path.isfile(actual_command[6])
+    assert actual_command[7] == '--params-file'
+    assert actual_command[8] == override_file_path
+
+    with open(actual_command[6], 'r') as h:
+        expanded_parameters_dict = yaml.load(h, Loader=yaml.FullLoader)
+        assert expanded_parameters_dict == {
+            '/my_ns/my_node': {
+                'ros__parameters': {'asd': 'bsd1'}
+            }
+        }
+
+
 def test_set_param_with_composable_node():
     lc = MockContext()
     node_description = ComposableNode(
@@ -176,3 +230,29 @@ def test_set_param_with_composable_node():
     assert parameters[0].value.integer_value == 10
     assert parameters[1].name == 'asd'
     assert parameters[1].value.string_value == 'bsd'
+
+
+def test_set_param_from_file_override_with_composable_node():
+    lc = MockContext()
+    node_description = ComposableNode(
+        package='asd',
+        plugin='my_plugin',
+        name='my_node',
+        namespace='my_ns',
+        parameters=[{'param_2_name': 999}]
+    )
+    param_file_path = os.path.dirname(os.path.abspath(__file__)) + '/example_parameters_1.yaml'
+    override_file_path = \
+        os.path.dirname(os.path.abspath(__file__)) + '/example_parameters_override.yaml'
+    set_param_1 = SetParametersFromFile(param_file_path)
+    set_param_1.execute(lc)
+    set_param_override = SetParametersFromFile(override_file_path, override=True)
+    set_param_override.execute(lc)
+    request = get_composable_node_load_request(node_description, lc)
+    parameters = request.parameters
+    # The overriding file is applied after the parameters of the node
+    # description itself, so its param_2_name entry comes last and wins.
+    param_2_values = [p.value.integer_value for p in parameters if p.name == 'param_2_name']
+    assert param_2_values == [20, 999, 99]
+    assert parameters[-1].name == 'param_2_name'
+    assert parameters[-1].value.integer_value == 99

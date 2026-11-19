@@ -366,6 +366,16 @@ def get_composable_node_load_request(
                 parameters.append(subs)
     if composable_node_description.parameters is not None:
         parameters.extend(list(composable_node_description.parameters))
+    # Parameter files registered with SetParametersFromFile(override=True)
+    # are applied last, so the parameters in those files override the
+    # parameters of the composable node description itself.
+    override_param_files = context.launch_configurations.get(
+        'global_params_override_files', None)
+    if override_param_files is not None:
+        for param_file in override_param_files:
+            param_file_path = Path(param_file).resolve()
+            assert param_file_path.is_file()
+            parameters.append(ParameterFile(param_file_path))
     if parameters:
         request.parameters = [
             param.to_parameter_msg() for param in to_parameters_list(

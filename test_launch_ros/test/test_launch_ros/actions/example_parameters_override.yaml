@@ -1,0 +1,4 @@
+/my_ns:
+    my_node:
+        ros__parameters:
+            param_2_name: 99

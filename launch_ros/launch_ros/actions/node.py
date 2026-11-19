@@ -421,8 +421,16 @@ class Node(ExecuteProcess):
         # The params_container list is expected to contain name-value pairs (tuples)
         # and/or strings representing paths to parameter files.
         params_container = context.launch_configurations.get('global_params', None)
+        # Parameter files registered with SetParametersFromFile(override=True)
+        # are kept separately, so they can be expanded after the parameters
+        # of this Node below, taking precedence over them.
+        override_param_files = context.launch_configurations.get(
+            'global_params_override_files', None)
 
-        if any(x is not None for x in (params_container, self.__parameters)):
+        if any(
+            x is not None
+            for x in (params_container, self.__parameters, override_param_files)
+        ):
             self.__expanded_parameter_arguments = []
         if params_container is not None:
             for param in params_container:
@@ -460,6 +468,17 @@ class Node(ExecuteProcess):
                     continue
                 self.__expanded_parameter_arguments.append((param_argument, is_file))
                 cmd_extension = ['--params-file' if is_file else '-p', f'{param_argument}']
+                self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
+
+        # Expand parameter files registered with
+        # SetParametersFromFile(override=True) last, so the parameters in
+        # those files override the specific parameters of this Node.
+        if override_param_files is not None:
+            for param_file in override_param_files:
+                param_file_path = os.path.abspath(param_file)
+                self.__expanded_parameter_arguments.append((param_file_path, True))
+                cmd_extension = ['--params-file', f'{param_file_path}']
+                assert os.path.isfile(param_file_path)
                 self.cmd.extend([normalize_to_list_of_substitutions(x) for x in cmd_extension])
         # expand remappings too
         global_remaps = context.launch_configurations.get('ros_remaps', None)

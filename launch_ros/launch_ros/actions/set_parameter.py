@@ -48,14 +48,31 @@ class SetParameter(Action):
                 actions = [
                     ...,
                     SetParameter(name='my_param', value='2'),
+                    # parameter type inference can be overwritten as follows.
+                    # this normally inferes to a YAML/dict type
+                    SetParameter(name='my_other_param',
+                                 value=ParameterValue('{ no: yaml, other: 9 }', value_type=str)),
                     ...,
-                    Node(...),  # the param will be passed to this node
+                    Node(...),  # the params will be passed to this node
                     ...,
                 ]
             ),
             Node(...),  # here it won't be passed, as it's not in the same scope
             ...
         ])
+
+    .. code-block:: xml
+
+        <launch>
+            <group>
+                <set_parameter name='my_param' value='2' />
+                <!-- parameter type inference can be overwritten as follows.
+                     this normally inferes to a YAML/dict type -->
+                <set_parameter name='my_other_param' value='{ no: yaml, other: 9 }' type='str' />
+                <node .../>  <!-- the params will be passed to this node -->
+            </group>
+            <node .../>  <!-- here it won't be passed, as it's not in the same scope -->
+        </launch>
     """
 
     def __init__(

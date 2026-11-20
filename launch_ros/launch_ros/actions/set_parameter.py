@@ -18,10 +18,12 @@ from launch import Action
 from launch.frontend import Entity
 from launch.frontend import expose_action
 from launch.frontend import Parser
+from launch.frontend.type_utils import get_data_type_from_identifier
 from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.utilities import normalize_to_list_of_substitutions
 
+from launch_ros.parameter_descriptions import ParameterValue as ParameterValueDescription
 from launch_ros.parameters_type import ParameterName
 from launch_ros.parameters_type import ParameterValue
 from launch_ros.parameters_type import SomeParameterValue
@@ -46,14 +48,31 @@ class SetParameter(Action):
                 actions = [
                     ...,
                     SetParameter(name='my_param', value='2'),
+                    # parameter type inference can be overwritten as follows.
+                    # this normally inferes to a YAML/dict type
+                    SetParameter(name='my_other_param',
+                                 value=ParameterValue('{ no: yaml, other: 9 }', value_type=str)),
                     ...,
-                    Node(...),  # the param will be passed to this node
+                    Node(...),  # the params will be passed to this node
                     ...,
                 ]
             ),
             Node(...),  # here it won't be passed, as it's not in the same scope
             ...
         ])
+
+    .. code-block:: xml
+
+        <launch>
+            <group>
+                <set_parameter name='my_param' value='2' />
+                <!-- parameter type inference can be overwritten as follows.
+                     this normally inferes to a YAML/dict type -->
+                <set_parameter name='my_other_param' value='{ no: yaml, other: 9 }' type='str' />
+                <node .../>  <!-- the params will be passed to this node -->
+            </group>
+            <node .../>  <!-- here it won't be passed, as it's not in the same scope -->
+        </launch>
     """
 
     def __init__(
@@ -72,7 +91,14 @@ class SetParameter(Action):
         """Return `SetParameter` action and kwargs for constructing it."""
         _, kwargs = super().parse(entity, parser)
         kwargs['name'] = parser.parse_substitution(entity.get_attr('name'))
-        kwargs['value'] = parser.parse_substitution(entity.get_attr('value'))
+
+        type_identifier = entity.get_attr('type', data_type=None, optional=True)
+        data_type = None
+        if type_identifier is not None:
+            data_type = get_data_type_from_identifier(type_identifier)
+
+        value = parser.parse_if_substitutions(entity.get_attr('value', data_type=data_type))
+        kwargs['value'] = ParameterValueDescription(value, value_type=data_type)
         return cls, kwargs
 
     @property

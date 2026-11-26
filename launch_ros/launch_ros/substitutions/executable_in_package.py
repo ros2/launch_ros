@@ -80,6 +80,12 @@ class ExecutableInPackage(FindPackagePrefix):
                 "package '{}' found at '{}', but libexec directory '{}' does not exist".format(
                     package, package_prefix, package_libexec))
         result = which(executable, path=package_libexec)
+        
+        if result is None and os.name == 'nt' and executable.lower().endswith('.py'):
+            candidate = os.path.join(package_libexec, executable)
+            if os.path.isfile(candidate):
+                result = candidate
+
         if result is None:
             raise SubstitutionFailure(
                 "executable '{}' not found on the libexec directory '{}' ".format(

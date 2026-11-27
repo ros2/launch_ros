@@ -26,6 +26,7 @@ from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.some_substitutions_type import SomeSubstitutionsType_types_tuple
 from launch.substitution import Substitution
 
+from .parameter_descriptions import CombinedParameterFiles
 from .parameter_descriptions import Parameter as ParameterDescription
 from .parameter_descriptions import ParameterFile
 from .parameter_descriptions import ParameterValue as ParameterValueDescription
@@ -37,7 +38,12 @@ _SingleValueType = Union[str, int, float, bool]
 _MultiValueType = Union[
     Sequence[str], Sequence[int], Sequence[float], Sequence[bool], bytes]
 
-SomeParameterFile = Union[SomeSubstitutionsType, pathlib.Path, ParameterFile]
+SomeParameterFile = Union[
+    SomeSubstitutionsType,
+    pathlib.Path,
+    ParameterFile,
+    CombinedParameterFiles
+]
 SomeParameterName = Sequence[Union[Substitution, str]]
 SomeParameterValue = Union[
     ParameterValueDescription,
@@ -73,7 +79,9 @@ ParameterValue = Union[
 ParametersDict = Dict[ParameterName, ParameterValue]
 
 # Normalized parameters
-Parameters = Sequence[Union[ParameterFile, ParametersDict, ParameterDescription]]
+Parameters = Sequence[
+    Union[ParameterFile, CombinedParameterFiles, ParametersDict, ParameterDescription]
+]
 
 EvaluatedParameterValue = Union[_SingleValueType, _MultiValueType]
 # Evaluated parameters: filenames or dictionary after substitutions have been evaluated

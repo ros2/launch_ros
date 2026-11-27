@@ -25,6 +25,7 @@ from ament_index_python.packages import PackageNotFoundError
 import launch
 from launch.frontend import Parser
 from launch.launch_description_sources import get_launch_description_from_any_launch_file
+from launch_ros.actions import PushROSNamespace
 
 
 class MultipleLaunchFilesError(Exception):
@@ -145,7 +146,8 @@ def launch_a_launch_file(
     noninteractive=False,
     args=None,
     option_extensions={},
-    debug=False
+    debug=False,
+    namespace=None
 ):
     """Launch a given launch file (by path) and pass it the given launch file arguments."""
     for name in sorted(option_extensions.keys()):
@@ -171,14 +173,17 @@ def launch_a_launch_file(
     parsed_launch_arguments = parse_launch_arguments(launch_file_arguments)
     # Include the user provided launch file using IncludeLaunchDescription so that the
     # location of the current launch file is set.
-    launch_description = launch.LaunchDescription([
+    launch_description = launch.LaunchDescription()
+    if namespace is not None:
+        launch_description.add_action(PushROSNamespace(namespace))
+    launch_description.add_action(
         launch.actions.IncludeLaunchDescription(
             launch.launch_description_sources.AnyLaunchDescriptionSource(
                 launch_file_path
             ),
             launch_arguments=parsed_launch_arguments,
-        ),
-    ])
+        )
+    )
     for name in sorted(option_extensions.keys()):
         result = option_extensions[name].prelaunch(
             launch_description,

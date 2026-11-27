@@ -240,7 +240,13 @@ class ParameterFile:
             with open(param_file_path, 'r') as f, NamedTemporaryFile(
                 mode='w', prefix='launch_params_', delete=False
             ) as h:
-                parsed = perform_substitutions(context, parse_substitution(f.read()))
+                try:
+                    file_without_comments = yaml.safe_dump(yaml.safe_load(f.read()))
+                except Exception:
+                    raise SubstitutionFailure(
+                        'The parameter file is not a valid yaml file, '
+                        'before applying substitutions')
+                parsed = perform_substitutions(context, parse_substitution(file_without_comments))
                 try:
                     yaml.safe_load(parsed)
                 except Exception:

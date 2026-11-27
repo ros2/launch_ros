@@ -17,12 +17,25 @@ import random
 import string
 from threading import Event
 from threading import Thread
+from typing import Optional
+from typing import Protocol
+from typing import Tuple
+import weakref
 
 import rclpy
 from rclpy.event_handler import QoSSubscriptionMatchedInfo
 from rclpy.event_handler import SubscriptionEventCallbacks
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
+from rclpy.qos import QoSProfile
+from rclpy.type_support import MsgT
+
+
+class TriggerProtocol(Protocol):
+    """Protocol for trigger callables passed to WaitForTopics."""
+
+    def __call__(self, node: Node, *args, **kwargs) -> None:
+        pass
 
 
 class WaitForTopics:
@@ -30,9 +43,10 @@ class WaitForTopics:
     Wait to receive messages on supplied topics.
 
     Prefer using it as a context manager (method 1), which always shuts it down.
-    When calling wait() manually (methods 2 and 3), shutdown() must run even if
-    wait() returns False or an assertion fails, so call it in a ``finally`` block.
-    Otherwise the internal spin thread keeps running and the interpreter cannot exit.
+    When calling wait() manually (methods 2 and 3), shutdown() should be called
+    in a ``finally`` block to release resources promptly. If shutdown() is omitted,
+    a finalizer shuts down the internal node and joins the spin thread on garbage
+    collection or interpreter exit so the process does not hang.
 
     Example usage:
 
@@ -78,8 +92,15 @@ class WaitForTopics:
                 wait_for_topics.shutdown()
     """
 
-    def __init__(self, topic_tuples, timeout=5.0, messages_received_buffer_length=10,
-                 trigger=None, node_namespace=None, qos_profile=10) -> None:
+    def __init__(
+        self,
+        topic_tuples: list[Tuple[str, MsgT]],
+        timeout: float = 5.0,
+        messages_received_buffer_length: int = 10,
+        trigger: TriggerProtocol | None = None,
+        node_namespace: str | None = None,
+        qos_profile: QoSProfile | int = 10
+    ) -> None:
         self.topic_tuples = topic_tuples
         self.timeout = timeout
         self.messages_received_buffer_length = messages_received_buffer_length
@@ -88,36 +109,58 @@ class WaitForTopics:
         self.qos_profile = qos_profile
         if self.trigger is not None and not callable(self.trigger):
             raise TypeError('The passed trigger is not callable')
+
         self.__ros_context = rclpy.Context()
         rclpy.init(context=self.__ros_context)
         self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)
-
-        self._prepare_ros_node()
-
-        # Start spinning
-        self.__ros_spin_thread = Thread(target=self._spin_handle_external_shutdown, daemon=False)
-        self.__ros_spin_thread.start()
-
-    def _spin_handle_external_shutdown(self):
+        self.__ros_node: Optional['_WaitForTopicsNode'] = None
         try:
-            self.__ros_executor.spin()
+            self.__ros_node = self._prepare_ros_node()
+            self.__ros_executor.add_node(self.__ros_node)
+
+            # Start spinning without capturing `self` so finalization can run on GC
+            self.__ros_spin_thread = Thread(
+                target=self._spin_handle_external_shutdown,
+                args=(self.__ros_executor,),
+                daemon=True,
+            )
+            self.__ros_spin_thread.start()
+        except Exception:
+            self.__ros_context.try_shutdown()
+            self.__ros_executor.shutdown()
+            if self.__ros_node is not None:
+                self.__ros_node.destroy_node()
+            raise
+
+        # Register finalizer without capturing `self`
+        self._finalizer = weakref.finalize(
+            self,
+            self._cleanup,
+            self.__ros_context,
+            self.__ros_spin_thread,
+            self.__ros_node,
+        )
+
+    @staticmethod
+    def _spin_handle_external_shutdown(ros_executor):
+        try:
+            ros_executor.spin()
         except rclpy.executors.ExternalShutdownException:
             pass
         finally:
-            self.__ros_executor.shutdown()
+            ros_executor.shutdown()
 
     def _prepare_ros_node(self):
         node_name = '_test_node_' + ''.join(
             random.choices(string.ascii_uppercase + string.digits, k=10)
         )
-        self.__ros_node = _WaitForTopicsNode(
+        return _WaitForTopicsNode(
             name=node_name,
             node_context=self.__ros_context,
             messages_received_buffer_length=self.messages_received_buffer_length,
             node_namespace=self.node_namespace,
             qos_profile=self.qos_profile
         )
-        self.__ros_executor.add_node(self.__ros_node)
 
     def wait(self, *args, **kwargs):
         self.__ros_node.start_subscribers(self.topic_tuples)
@@ -126,11 +169,16 @@ class WaitForTopics:
             self.trigger(self.__ros_node, *args, **kwargs)
         return self.__ros_node.msg_event_object.wait(self.timeout)
 
-    def shutdown(self):
+    @staticmethod
+    def _cleanup(ros_context, ros_spin_thread, ros_node):
         # Shutdown context before joining thread
-        self.__ros_context.try_shutdown()
-        self.__ros_spin_thread.join()
-        self.__ros_node.destroy_node()
+        ros_context.try_shutdown()
+        ros_spin_thread.join()
+        ros_node.destroy_node()
+
+    def shutdown(self):
+        """Shut down the internal ROS node, context, and spin thread."""
+        self._finalizer()
 
     def topics_received(self):
         """Topics that received at least one message."""
@@ -148,9 +196,12 @@ class WaitForTopics:
 
     def __enter__(self):
         if not self.wait():
+            not_received = self.topics_not_received()
             self.shutdown()
-            raise RuntimeError('Did not receive messages on these topics: ',
-                               self.topics_not_received())
+            raise RuntimeError(
+                'Did not receive messages on these topics: ',
+                not_received,
+            )
         return self
 
     def __exit__(self, exep_type, exep_value, trace):

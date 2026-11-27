@@ -25,6 +25,7 @@ from launch.launch_context import LaunchContext
 from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
+from launch.utilities import register_global
 
 
 @expose_action('set_remap')
@@ -90,4 +91,5 @@ class SetRemap(Action):
         dst = perform_substitutions(context, self.__dst)
         global_remaps = context.launch_configurations.get('ros_remaps', [])
         global_remaps.append((src, dst))
+        register_global(context, 'ros_remaps')
         context.launch_configurations['ros_remaps'] = global_remaps

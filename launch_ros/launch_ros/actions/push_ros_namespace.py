@@ -26,6 +26,7 @@ from launch.some_substitutions_type import SomeSubstitutionsType
 from launch.substitutions import SubstitutionFailure
 from launch.utilities import normalize_to_list_of_substitutions
 from launch.utilities import perform_substitutions
+from launch.utilities import register_global
 
 from launch_ros.utilities import make_namespace_absolute
 from launch_ros.utilities import prefix_namespace
@@ -79,4 +80,5 @@ class PushROSNamespace(Action):
                     previous_namespace, pushed_namespace
                 )
             )
+        register_global(context, 'ros_namespace')
         context.launch_configurations['ros_namespace'] = namespace

@@ -40,6 +40,7 @@ def test_parameter_value_description():
     param = ParameterValue(value='asd')
     assert param.value == 'asd'
     assert param.value_type is None
+    assert str(param) == 'launch_ros.description.ParameterValue(value=asd, value_type=None)'
     assert param.evaluate(lc) == 'asd'
     # After the first `evaluate` call, the following `.value` and `.evaluate()`
     # calls are calculated differently. Test them too.
@@ -107,6 +108,8 @@ def test_parameter_description():
     assert param.value == 'asd'
     assert param.value_type is None
     assert param.evaluate(lc) == ('my_param', 'asd')
+    assert str(param) == (
+        'launch_ros.description.Parameter(name=my_param, value=asd, value_type=None)')
     # After the first `evaluate` call, the following `.name` `.value` and `.evaluate()`
     # calls are calculated differently. Test them too.
     assert param.name == 'my_param'

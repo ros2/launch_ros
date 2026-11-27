@@ -246,6 +246,40 @@ class LoadComposableNodes(Action):
         context: LaunchContext
     ) -> Optional[List[Action]]:
         """Execute the action."""
+        from launch_ros.utilities.dump_params import apply_node_remaps_to_fqn
+        from launch_ros.utilities.dump_params import get_dump_params_collector
+        from launch_ros.utilities.dump_params import is_dump_params_mode
+
+        # Dump-params: resolve load requests and record parameters without talking to a
+        # container. Keep this path separate so the normal execute body stays unchanged.
+        if is_dump_params_mode(context):
+            collector = get_dump_params_collector(context)
+            assert collector is not None
+            for node_description in self.__composable_node_descriptions:
+                request = get_composable_node_load_request(node_description, context)
+                if request is None:
+                    continue
+                if not request.node_name:
+                    collector.warn(
+                        'skipped composable node without a name '
+                        '(plugin={})'.format(request.plugin_name))
+                    continue
+                namespace = request.node_namespace or '/'
+                fqn = prefix_namespace(namespace, request.node_name)
+                remappings = []
+                for rule in request.remap_rules:
+                    if ':=' in rule:
+                        src, dst = rule.split(':=', maxsplit=1)
+                        remappings.append((src, dst))
+                fqn = apply_node_remaps_to_fqn(fqn, remappings)
+                params = {}
+                for parameter_msg in request.parameters:
+                    name = parameter_msg.name
+                    value = _parameter_value_from_msg(parameter_msg.value)
+                    params[name] = value
+                collector.add_node(fqn, params)
+            return None
+
         # resolve target container node name
 
         if is_a_subclass(self.__target_container, ComposableNodeContainer):
@@ -310,6 +344,14 @@ class LoadComposableNodes(Action):
             return load_actions
         if len(autostart_actions) != 0:
             return autostart_actions
+
+
+def _parameter_value_from_msg(value_msg):
+    """Convert an rcl_interfaces/ParameterValue message into a YAML-safe Python value."""
+    # from_parameter_msg() keeps integer and double arrays as array.array, which
+    # yaml.safe_dump() cannot represent. parameter_value_to_python() returns lists.
+    from rclpy.parameter import parameter_value_to_python
+    return parameter_value_to_python(value_msg)
 
 
 def get_composable_node_load_request(

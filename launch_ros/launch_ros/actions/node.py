@@ -483,8 +483,37 @@ class Node(ExecuteProcess):
         Execute the action.
 
         Delegated to :meth:`launch.actions.ExecuteProcess.execute`.
+        In dump-params mode, resolve and record parameters without spawning a process.
         """
+        # Here to avoid circular imports
+        from launch_ros.utilities.dump_params import apply_node_remaps_to_fqn
+        from launch_ros.utilities.dump_params import get_dump_params_collector
+        from launch_ros.utilities.dump_params import is_dump_params_mode
+        from launch_ros.utilities.dump_params import resolve_scoped_parameters
+
         self._perform_substitutions(context)
+
+        if is_dump_params_mode(context):
+            collector = get_dump_params_collector(context)
+            assert collector is not None
+            if not self.is_node_name_fully_specified():
+                collector.warn(
+                    'skipped node with unspecified name '
+                    '(package={}, executable={})'.format(
+                        self.__package, self.__node_executable))
+                return None
+            params = resolve_scoped_parameters(
+                context,
+                node_name=self.__expanded_node_name,
+                namespace=self.__expanded_node_namespace,
+                normalized_parameters=self.__parameters,
+                ros_arguments=self.__ros_arguments,
+            )
+            fqn = apply_node_remaps_to_fqn(self.node_name, self.__expanded_remappings)
+            collector.add_node(fqn, params)
+            add_node_name(context, self.node_name)
+            return None
+
         # Prepare the ros_specific_arguments list and add it to the context so that the
         # LocalSubstitution placeholders added to the the cmd can be expanded using the contents.
         ros_specific_arguments: Dict[str, Union[str, List[str]]] = {}

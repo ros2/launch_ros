@@ -20,6 +20,7 @@ from .find_package import FindPackage
 from .find_package import FindPackagePrefix
 from .find_package import FindPackageShare
 from .parameter import Parameter
+from .rewritten_yaml import RewrittenYaml
 
 
 __all__ = [
@@ -29,4 +30,5 @@ __all__ = [
     'FindPackagePrefix',
     'FindPackageShare',
     'Parameter',
+    'RewrittenYaml',
 ]

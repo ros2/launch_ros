@@ -15,6 +15,9 @@
 """Module containing ROS specific adapters and their initialization."""
 
 import os
+import re
+import secrets
+import socket
 import threading
 from typing import List
 from typing import Optional
@@ -24,6 +27,22 @@ import launch.events
 
 import rclpy
 from rclpy.executors import SingleThreadedExecutor
+
+
+def _generate_node_name() -> str:
+    """
+    Generate a node name that is unique across hosts and PID namespaces.
+
+    A PID is only unique within a single PID namespace, e.g. `ros2 launch` is
+    PID 1 in every container that uses it as the entrypoint.
+    The host name does not help either when containers share the host network,
+    hence the random suffix.
+    """
+    # Node names can only contain alphanumerics and underscores.
+    hostname = re.sub('[^A-Za-z0-9]+', '_', socket.gethostname())[:63].strip('_')
+    return '_'.join(filter(None, [
+        'launch_ros', hostname, str(os.getpid()), secrets.token_hex(8)
+    ]))
 
 
 class ROSAdapter:
@@ -59,7 +78,7 @@ class ROSAdapter:
         self.__ros_context = rclpy.Context()
         rclpy.init(args=self.__argv, context=self.__ros_context)
         self.__ros_node = rclpy.create_node(
-            'launch_ros_{}'.format(os.getpid()),
+            _generate_node_name(),
             context=self.__ros_context
         )
         self.__ros_executor = SingleThreadedExecutor(context=self.__ros_context)

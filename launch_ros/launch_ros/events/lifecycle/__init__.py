@@ -15,11 +15,9 @@
 """Package for launch.events.process."""
 
 from .change_state import ChangeState
-from .lifecycle_node_matchers import matches_node_name
 from .state_transition import StateTransition
 
 __all__ = [
     'ChangeState',
-    'matches_node_name',
     'StateTransition',
 ]

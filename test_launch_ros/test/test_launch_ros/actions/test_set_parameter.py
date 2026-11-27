@@ -68,6 +68,16 @@ def get_set_parameter_test_parameters():
             [('my_param', 'my_value')],
             id='ParameterValue type'
         ),
+        pytest.param(
+            [('my_param', ParameterValue(value=[TextSubstitution(text='3')], value_type=int))],
+            [('my_param', 3)],
+            id='Substitution type with target type'
+        ),
+        pytest.param(
+            [('my_param', ParameterValue(value='{ no: yaml, other: 9 }', value_type=str))],
+            [('my_param', '{ no: yaml, other: 9 }')],
+            id='YAML-like with target type str'
+        ),
     ]
 
 

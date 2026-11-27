@@ -15,10 +15,12 @@
 """Tests for the SetParametersFromFile Action."""
 
 import os
+import tempfile
 
 from launch import LaunchContext
 from launch.actions import PopLaunchConfigurations
 from launch.actions import PushLaunchConfigurations
+from launch.substitutions import SubstitutionFailure
 from launch.substitutions import TextSubstitution
 from launch.utilities import perform_substitutions
 
@@ -27,6 +29,7 @@ from launch_ros.actions import SetParameter, SetParametersFromFile
 from launch_ros.actions.load_composable_nodes import get_composable_node_load_request
 from launch_ros.descriptions import ComposableNode
 
+import pytest
 import yaml
 
 
@@ -176,3 +179,145 @@ def test_set_param_with_composable_node():
     assert parameters[0].value.integer_value == 10
     assert parameters[1].name == 'asd'
     assert parameters[1].value.string_value == 'bsd'
+
+
+def test_set_param_with_allow_substs_false():
+    """Test that substitutions are not processed when allow_substs=False."""
+    lc = LaunchContext()
+    # Create a temporary parameter file with substitutions
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+        f.write(
+            """/**:
+    ros__parameters:
+        param_subst: $(env VAR_VALUE default_value)
+        param_normal: 42
+"""
+        )
+        temp_file = f.name
+
+    try:
+        set_param = SetParametersFromFile(temp_file, allow_substs=False)
+        set_param.execute(lc)
+
+        # The file path should be stored as-is (substitutions not processed)
+        stored_path = lc.launch_configurations["global_params"][0]
+        assert stored_path == temp_file
+
+        # Verify the original file still contains the substitution syntax
+        with open(temp_file, "r") as f:
+            content = f.read()
+            assert "$(env VAR_VALUE default_value)" in content
+    finally:
+        os.unlink(temp_file)
+
+
+def test_set_param_with_allow_substs_true():
+    """Test that substitutions are processed when allow_substs=True."""
+    lc = LaunchContext()
+    # Set an environment variable for substitution
+    os.environ["VAR_VALUE"] = "substituted_value"
+
+    # Create a temporary parameter file with substitutions
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+        f.write(
+            """/**:
+    ros__parameters:
+        param_subst: $(env VAR_VALUE default_value)
+        param_normal: 42
+"""
+        )
+        temp_file = f.name
+
+    try:
+        set_param = SetParametersFromFile(temp_file, allow_substs=True)
+        set_param.execute(lc)
+
+        # The stored path should be a temporary file (different from original)
+        stored_path = lc.launch_configurations["global_params"][0]
+        assert stored_path != temp_file
+        assert os.path.isfile(stored_path)
+
+        # Verify the substituted file has the substitution resolved
+        with open(stored_path, "r") as f:
+            content = f.read()
+            assert "substituted_value" in content
+            assert "$(env VAR_VALUE default_value)" not in content
+
+        # Verify it's valid YAML
+        with open(stored_path, "r") as f:
+            params = yaml.safe_load(f)
+            assert (
+                params["/**"]["ros__parameters"]["param_subst"] == "substituted_value"
+            )
+            assert params["/**"]["ros__parameters"]["param_normal"] == 42
+    finally:
+        if "VAR_VALUE" in os.environ:
+            del os.environ["VAR_VALUE"]
+        os.unlink(temp_file)
+        # Clean up temporary file if it exists
+        stored_path = lc.launch_configurations.get("global_params", [None])[0]
+        if stored_path and stored_path != temp_file and os.path.isfile(stored_path):
+            os.unlink(stored_path)
+
+
+def test_set_param_with_allow_substs_invalid_yaml():
+    """Test that invalid YAML after substitution raises SubstitutionFailure."""
+    lc = LaunchContext()
+    # Set an environment variable that will create invalid YAML when substituted
+    os.environ["VAR_VALUE"] = "[unclosed"
+
+    # Create a temporary parameter file with substitutions that will create invalid YAML
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+        f.write(
+            """/**:
+    ros__parameters:
+        param_subst: $(env VAR_VALUE)
+        param_normal: 42
+"""
+        )
+        temp_file = f.name
+
+    try:
+        set_param = SetParametersFromFile(temp_file, allow_substs=True)
+        # This should raise SubstitutionFailure because the substituted YAML is invalid
+        with pytest.raises(SubstitutionFailure):
+            set_param.execute(lc)
+    finally:
+        if "VAR_VALUE" in os.environ:
+            del os.environ["VAR_VALUE"]
+        os.unlink(temp_file)
+
+
+def test_set_param_with_allow_substs_default_value():
+    """Test that substitutions use default value when env var is not set."""
+    lc = LaunchContext()
+    # Ensure the environment variable is not set
+    if "VAR_VALUE" in os.environ:
+        del os.environ["VAR_VALUE"]
+
+    # Create a temporary parameter file with substitutions and default value
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+        f.write(
+            """/**:
+    ros__parameters:
+        param_subst: $(env VAR_VALUE default_value)
+        param_normal: 42
+"""
+        )
+        temp_file = f.name
+
+    try:
+        set_param = SetParametersFromFile(temp_file, allow_substs=True)
+        set_param.execute(lc)
+
+        # Verify the substituted file uses the default value
+        stored_path = lc.launch_configurations["global_params"][0]
+        with open(stored_path, "r") as f:
+            params = yaml.safe_load(f)
+            assert params["/**"]["ros__parameters"]["param_subst"] == "default_value"
+    finally:
+        os.unlink(temp_file)
+        # Clean up temporary file if it exists
+        stored_path = lc.launch_configurations.get("global_params", [None])[0]
+        if stored_path and stored_path != temp_file and os.path.isfile(stored_path):
+            os.unlink(stored_path)
